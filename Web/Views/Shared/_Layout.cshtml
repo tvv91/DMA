@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width"/>
+        <meta http-equiv='cache-control' content='no-cache'>
+        <meta http-equiv='expires' content='0'>
+        <meta http-equiv='pragma' content='no-cache'>
+        <title>Digitized Music Archive</title>
+        <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/lib/font-awesome/css/all.css" />
+        <link rel="stylesheet" href="/lib/jqueryui/themes/base/jquery-ui.min.css" />
+        <link rel="stylesheet" href="/lib/dropzone//dropzone.min.css" />
+        <link rel="stylesheet" href="/css/styles.css" />
+        <script src="/lib/bootstrap//js//bootstrap.js"></script>
+        <script src="/lib/jquery/jquery.min.js"></script>
+        <script src="/lib/jqueryui/jquery-ui.js"></script>
+        <script src="/lib/microsoft-signalr/signalr.js"></script>
+        <script src="/lib/dropzone//dropzone.min.js"></script>
+        <script src="/js/hubconnection.js"></script>
+        <script>
+            $(document).ready(() => {
+                window.location.pathname === "/"
+                    ? $("#default").css("font-weight", "bold")
+                    : $("#menu a[href='" + window.location.pathname + "']").css("font-weight", "bold");
+            });
+        </script>
+    </head>
+    <body>
+    <div class="container">
+        <h4 class="text-center">Welcome to Digitized  Music Archive!</h4>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav" id="menu">
+                    <li class="nav-item">
+                        <a class="nav-link" id="default" href="/">Last news</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/album">Albums</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/equipment">Equipment</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/statistic">Statistic</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">About project</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="dropdown dropstart">
+                <i class="fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton" style="cursor:pointer" data-bs-toggle="dropdown"></i>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="../album/create">Album</a>
+                </div>
+            </div>
+        </nav>
+        </div>
+        <div class="container">
+            @RenderBody()
+        </div>
+    <script>
+        $('#menu a').on('mouseover mouseleave', function (e) {
+            if (window.location.pathname !== $(this).attr("href"))  {
+                switch (e.type) { 
+                    case "mouseover":
+                        $(this).css("font-weight", "bold");
+                        break;
+                    case "mouseleave":
+                        $(this).css("font-weight", "normal");
+                        break;
+                }                
+            }                    
+        })
+    </script>
+    <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+    </body>
+</html>

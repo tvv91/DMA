@@ -1,0 +1,181 @@
+﻿<script>
+    const CURRENT_TAB = "CURRENT_TAB";
+
+    // for simpler category handling
+    const CATEGORY_MAP = new Map([
+        ["adc-tab", "adc"],
+        ["amplifier-tab", "amplifier"],
+        ["cartrige-tab", "cartrige"],
+        ["player-tab", "player"],
+        ["wire-tab", "wire"],
+    ]);
+
+    $(document).ready(async () => {
+        await start();        
+
+        // init: load first tab items, set current tab, first page active
+        await getHardwareByCategory(CATEGORY_MAP.get("adc-tab"), 1);
+        localStorage.setItem(CURRENT_TAB, "adc-tab");
+        $("a[id=1]").attr("class", "page-link active");
+
+        // when click page on pagination
+        $("#pagination").on("click", async (e)=> {
+            // paginate only when click new page, because it's useless requests to backend
+            if ($(".page-link.active").attr("id") !== e.target.id) {
+                const currentTab = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
+                // remove items
+                $(`#items-container`).find('div').remove();
+                // remove pagination bar
+                $("#pagination").find('li').remove();
+                // paginate to specific page
+                await getHardwareByCategory(currentTab, parseInt(e.target.id));
+                // highlight active page
+                $(`a[id=${e.target.id}]`).attr("class", "page-link active");
+            }
+        });        
+        
+        $("#navigation li button").on("click", async(e) => {
+            // get last active tab
+            const currentTab = localStorage.getItem(CURRENT_TAB);
+            // if new tab opened
+            if (currentTab !== e.target.id) {
+                // update active tab
+                localStorage.setItem(CURRENT_TAB, e.target.id);
+                // remove elements from previous category
+                $(`#items-container`).find('div').remove();
+                // load elements of new category
+                await getHardwareByCategory(CATEGORY_MAP.get(e.target.id), 1);
+                $("a[id=1]").attr("class", "page-link active");
+            }
+        });
+    });
+    
+    async function getHardwareByCategory(category, page) {
+        try {
+            await connection.invoke("GetHardwareByCategory", connection.connectionId, category, page);
+        } catch {
+            console.log("Error sending request to GetHardwareByCategory");
+        }
+    }
+
+    connection.on("ReceivedItems", async (result) => {
+        if (result.length === 0) {
+            $("#items-container").append(
+            `<div class="eq-noitems">
+                There are no items
+            <div>`);
+        } else {
+            result.forEach(x => {
+            $("#items-container").append(
+            `<div>
+                <div id="${x.id}" class="spinner-border justifiy-element-size">
+                    <img id="${x.id}"class="justifiy-element-size" style="display:none"/>
+                </div>
+                <div class="eq-item-info">
+                    <b>${x.manufacturer}</b >
+                    <br />
+                    <b>${x.model}</b>
+                </div>
+            <div>`);
+        });
+        }
+    });
+
+    connection.on("ReceivedItemImage", (id, result) => {
+        if (result !== "") {
+            $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size");
+            $(`#items-container img[id=${id}]`).attr("src", result).attr("display", "");
+            $(`#items-container img[id=${id}]`).css("display", "");
+        } else {
+            $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size");
+            $(`#items-container img[id=${id}]`).remove();
+            $(`#items-container div[id=${id}]`).append(`<i id='nocovericon' class='fa-regular fa-image fa-6x'/>`);
+        }
+        
+    });
+
+    // generate pagination
+    connection.on("ReceivedItemsCount", (count) => {
+        // reset pagination
+        $("#pagination").find('li').remove();
+        if (count > 0) {
+            for(let c = 1; c <= count; c++) {
+                $("#pagination").append(
+                `<li class="page-item"><a id="${c}" class="page-link" href="#">${c}</a></li>`);
+            }
+        }
+    });
+
+
+    connection.onclose(async () => {
+        await start();
+    });
+</script>
+<div>
+    <div class="container">
+        <ul id="navigation" class="nav nav-tabs mt-2" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active"
+                        id="adc-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#adc"
+                        type="button" role="tab"
+                        aria-controls="adc"
+                        aria-selected="true">
+                    ADC
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        id="amplifier-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#amplifier"
+                        type="button" role="tab"
+                        aria-controls="amplifier"
+                        aria-selected="false">
+                    Amplifier
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        id="cartrige-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#cartrige"
+                        type="button" role="tab"
+                        aria-controls="cartrige"
+                        aria-selected="false">
+                    Cartrige
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        id="player-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#player"
+                        type="button" role="tab"
+                        aria-controls="player"
+                        aria-selected="false">
+                    Player
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        id="wire-tab"
+                        data-bs-toggle="tab"
+                        data-bs-target="#wire"
+                        type="button" role="tab"
+                        aria-controls="wire"
+                        aria-selected="false">
+                    Wire
+                </button>
+            </li>
+        </ul>
+        <div id="items-container" class="equipment-box"></div>
+    </div>
+    <div class="eq-pagination">
+        <nav aria-label="Page navigation example">
+            <ul id="pagination" class="pagination justify-content-center">
+            </ul>
+        </nav>
+    </div>
+</div>

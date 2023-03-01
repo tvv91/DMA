@@ -1,0 +1,362 @@
+﻿@model AlbumDataRequest;
+
+<script>
+    
+    $(document).ready(async () => {
+        await start();
+    });
+
+    connection.onclose(async () => {
+        await start();
+    });
+    
+    $(function () {
+        $("#artist_input").autocomplete({
+            source: '/search/artist',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#genre_input").autocomplete({
+            source: '/search/genre',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#year_input").autocomplete({
+            source: '/search/year',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#vinylstate_input").autocomplete({
+            source: '/search/state',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#codec_input").autocomplete({
+            source: '/search/codec',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#bitness_input").autocomplete({
+            source: '/search/bitness',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#sampling_input").autocomplete({
+            source: '/search/sampling',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#format_input").autocomplete({
+            source: '/search/format',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#device_input").autocomplete({
+            source: '/search/device',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#cartridge_input").autocomplete({
+            source: '/search/cartridge',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#amp_input").autocomplete({
+            source: '/search/amp',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#adc_input").autocomplete({
+            source: '/search/adc',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#processing_input").autocomplete({
+            source: '/search/processing',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+
+    });
+
+    function showError(message) {
+        $("#errormessage").text(message);
+        $(".alert").addClass("show");
+        $(".alert").alert();
+    }
+
+    function onSubmit(isEdit) {
+        let value = $("#sizeinput").val();
+        if (value.includes(".")) {
+            $("#sizeinput:text").val(value.replace(/\./g, ','));
+        }
+        if (isEdit === true) {
+            sessionStorage.setItem("albumupdated", "1");
+        }
+    }
+
+    /*
+    Some checks for prevention to save incorrect data
+    for example, if you select any DSD format as digital format
+    and bitness more than 1, which impossible
+    */
+    function checkValidData() {
+        const dsdformats = ["dsd64", "dsd128", "dsd256", "dsd512"];
+        let codec = $("#codec_input").val().toLowerCase();
+        let bitness = $("#bitness_input").val();
+        let sampling = $("#sampling_input").val();
+        if (codec !== "" && bitness !== "" && sampling !== "") {
+            if (dsdformats.some(x => codec.includes(x))) {
+                if (bitness !== "1") {
+                    showError("DSD is 1 bit/s format");
+                }
+                else if (codec == 'dsd64' && (sampling !== "2.8" && sampling !== "2,8")) {
+                    showError("DSD64 sampling is 2.8 (MHz)");
+                }
+                else if (codec == 'dsd128' && sampling !== "5.6" && sampling !== "5,6") {
+                    showError("DSD128 sampling is 5.6 (MHz)");
+                }
+                else if (codec == 'dsd256' && sampling !== "11.2" && sampling !== "11,2") {
+                    showError("DSD256 sampling is 11.2 (MHz)");
+                }
+                else if (codec == 'dsd512' && sampling !== "22.5" && sampling !== "22,5") {
+                    showError("DSD512 sampling is 22.5 (MHz)");
+                } else {
+                    $(".alert").removeClass("show");
+                }
+            }
+        }
+    }
+</script>
+<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
+@if(Model.IsEdit)
+{
+    <form asp-action="update" asp-route-albumId="@Model.AlbumId" method="post" onsubmit="onSubmit(true)">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div class="new-update-album">
+            <div class="cover-image">
+                <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
+            </div>
+            <div class="main-info-part1">
+                <div class="new-album-input">
+                    <label><b>Artist</b></label>
+                    <input id="artist_input" class="input-textbox" asp-for="Artist" autocomplete="on" />
+                    <label><b>Album</b></label>
+                    <input id="album_input" class="input-textbox" asp-for="Album" />
+                    <label><b>Genre</b></label>
+                    <input id="genre_input" class="input-textbox" asp-for="Genre" autocomplete="on" />
+                    <label><b>Year</b></label>
+                    <input id="year_input" class="input-textbox" asp-for="Year" autocomplete="on" />
+                    <label>Reissue</label>
+                    <input class="input-textbox" asp-for="Reissue" />
+                </div>
+            </div>
+            <div class="main-info-part2">
+                <div class="new-album-input">
+                    <label>Country</label>
+                    <input class="input-textbox" asp-for="Country" />
+                    <label>Label</label>
+                    <input class="input-textbox" asp-for="Label" />
+                    <label>Source</label>
+                    <input class="input-textbox" asp-for="Source" />
+                    <label>Discogs</label>
+                    <input class="input-textbox" asp-for="Discogs" />
+                    <label>Size (Gb)</label>
+                    <input id="sizeinput" class="input-textbox" asp-for="Size" />
+                    <label>Storage</label>
+                    <input class="input-textbox" asp-for="Storage" />
+                    <input type="hidden" id="coverid" asp-for="AlbumCover" />
+                    <input type="hidden" asp-for="IsEdit" />
+                </div>
+            </div>
+            <div class="tech-info-wrapper">
+                <div class="tech-info-digitization">
+                    <h4 style="text-align:center">Digitization</h4>
+                    <hr />
+                    <div class="new-album-input">
+                        <label>Vinyl state</label>
+                        <input id="vinylstate_input" class="input-textbox" asp-for="VinylState" autocomplete="on" />
+                        <label>Digital format</label>
+                        <input id="codec_input" class="input-textbox" asp-for="DigitalFormat" autocomplete="on" onchange="checkValidData()" />
+                        <label>Bitness</label>
+                        <input id="bitness_input" class="input-textbox" asp-for="Bitness" onchange="checkValidData()" />
+                        <label>Sampling</label>
+                        <input id="sampling_input" class="input-textbox" asp-for="Sampling" onchange="checkValidData()" />
+                        <label>Format</label>
+                        <input id="format_input" class="input-textbox" asp-for="SourceFormat" />
+                    </div>
+                    <div class="alert alert-danger alert-dismissible fade" role="alert">
+                        <strong>WARNING</strong>
+                        <div id="errormessage"></div>
+                    </div>
+                </div>
+                <div class="tech-info-hardware">
+                    <h4 style="text-align:center">Hardware</h4>
+                    <hr />
+                    <div class="new-album-input">
+                        <label>Device</label>
+                        <input id="device_input" class="input-textbox" asp-for="Player" />
+                        <label>Cartridge</label>
+                        <input id="cartridge_input" class="input-textbox" asp-for="Cartridge" />
+                        <label>Amp</label>
+                        <input id="amp_input" class="input-textbox" asp-for="Amplifier" />
+                        <label>Adc</label>
+                        <input id="adc_input" class="input-textbox" asp-for="Adc" />
+                        <label>Processing</label>
+                        <input id="processing_input" class="input-textbox" asp-for="Processing" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="submit_button" type="submit" style="float:right;" class="mt-2">
+            <i class="fa-sharp fa-solid fa-check"></i>
+            Save
+        </button>
+    </form>
+} 
+else
+{
+    <form asp-action="NewAlbum" method="post" onsubmit="onSubmit(false)">
+        <div asp-validation-summary="ModelOnly"></div>
+        <div class="new-update-album">
+            <div class="cover-image">
+                <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
+            </div>
+            <div class="main-info-part1">
+                <div class="new-album-input">
+                    <label><b>Artist</b></label>
+                    <input id="artist_input" class="input-textbox" asp-for="Artist" autocomplete="on" />
+                    <label><b>Album</b></label>
+                    <input id="album_input" class="input-textbox" asp-for="Album" />
+                    <label><b>Genre</b></label>
+                    <input id="genre_input" class="input-textbox" asp-for="Genre" autocomplete="on" />
+                    <label><b>Year</b></label>
+                    <input id="year_input" class="input-textbox" asp-for="Year" autocomplete="on" />
+                    <label>Reissue</label>
+                    <input class="input-textbox" asp-for="Reissue" />
+                </div>
+            </div>
+            <div class="main-info-part2">
+                <div class="new-album-input">
+                    <label>Country</label>
+                    <input class="input-textbox" asp-for="Country" />
+                    <label>Label</label>
+                    <input class="input-textbox" asp-for="Label" />
+                    <label>Source</label>
+                    <input class="input-textbox" asp-for="Source" />
+                    <label>Discogs</label>
+                    <input class="input-textbox" asp-for="Discogs" />
+                    <label>Size (Gb)</label>
+                    <input id="sizeinput" class="input-textbox" asp-for="Size" />
+                    <label>Storage</label>
+                    <input class="input-textbox" asp-for="Storage" />
+                    <input type="hidden" id="coverid" asp-for="AlbumCover" />
+                    <input type="hidden" asp-for="IsEdit" />
+                </div>
+            </div>
+            <div class="tech-info-wrapper">
+                <div class="tech-info-digitization">
+                    <h4 style="text-align:center">Digitization</h4>
+                    <hr />
+                    <div class="new-album-input">
+                        <label>Vinyl state</label>
+                        <input id="vinylstate_input" class="input-textbox" asp-for="VinylState" autocomplete="on" />
+                        <label>Digital format</label>
+                        <input id="codec_input" class="input-textbox" asp-for="DigitalFormat" autocomplete="on" onchange="checkValidData()" />
+                        <label>Bitness</label>
+                        <input id="bitness_input" class="input-textbox" asp-for="Bitness" onchange="checkValidData()" />
+                        <label>Sampling</label>
+                        <input id="sampling_input" class="input-textbox" asp-for="Sampling" onchange="checkValidData()" />
+                        <label>Format</label>
+                        <input id="format_input" class="input-textbox" asp-for="SourceFormat" />
+                    </div>
+                    <div class="alert alert-danger alert-dismissible fade" role="alert">
+                        <strong>WARNING</strong>
+                        <div id="errormessage"></div>
+                    </div>
+                </div>
+                <div class="tech-info-hardware">
+                    <h4 style="text-align:center">Hardware</h4>
+                    <hr />
+                    <div class="new-album-input">
+                        <label>Device</label>
+                        <input id="device_input" class="input-textbox" asp-for="Player" />
+                        <label>Cartridge</label>
+                        <input id="cartridge_input" class="input-textbox" asp-for="Cartridge" />
+                        <label>Amp</label>
+                        <input id="amp_input" class="input-textbox" asp-for="Amplifier" />
+                        <label>Adc</label>
+                        <input id="adc_input" class="input-textbox" asp-for="Adc" />
+                        <label>Processing</label>
+                        <input id="processing_input" class="input-textbox" asp-for="Processing" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button id="submit_button" type="submit" style="float:right;" class="mt-2">
+            <i class="fa-sharp fa-solid fa-check"></i>
+            Save
+        </button>
+    </form>
+}
+
+<script>
+    Dropzone.autoDiscover = false;
+    let myDropzone = new Dropzone("div#mydropzone", 
+    {
+        url: "/UploadCover",
+        addRemoveLinks: true,
+        thumbnailWidth: 300,
+        thumbnailHeight: 300,
+        resizeWidth: 300,
+        resizeHeight: 300,
+        dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
+        acceptedFiles: ".jpeg,.png,.jpg",
+            success: (file, data) => {
+                $("#coverid").val(data.filename);
+                let preview = $(file.previewElement);
+                preview.addClass("dz-success text-success");
+            },
+            init: function() {
+                const coverId = $("#coverid").val();
+                if (coverId !== "") {
+                    let myDropzone = this;
+                    let coverUrl = window.location.href.includes("edit") ? coverId : `/temp/${coverId}`;
+                    myDropzone.displayExistingFile({}, coverUrl);
+                }
+            },
+            removedfile: function(file) {
+                $("#coverid").val("");
+                if (file.previewElement != null && file.previewElement.parentNode != null) {
+                    file.previewElement.parentNode.removeChild(file.previewElement);
+                }
+                return this._updateMaxFilesReachedClass();
+            }
+    });
+</script>

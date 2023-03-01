@@ -1,0 +1,62 @@
+﻿@model AlbumViewModel
+
+<script>
+    let albumIds = [];
+    // get album covers after rendering album list
+    $(document).ready(async () => {
+        if (sessionStorage.getItem("albumdeleted") == "1") {
+            $('.toast').toast('show');
+            sessionStorage.removeItem("albumdeleted");
+        }
+        await start();
+        await getAlbumCovers();
+    })
+    // pass album id's to hub
+    async function getAlbumCovers() {
+        try {
+            await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
+        } catch (err) {
+            console.log("Error sending request to GetAlbumCovers");
+        }
+    }
+
+    // SignalR handlers
+    connection.onclose(async () => {
+        await start();
+    });
+
+    // change img src and stop loading animation
+    connection.on("ReceivedAlbumConver", (albumId, cover) => {
+        $(`img[id=${albumId}]`).attr("src", cover);
+        $(`img[id=${albumId}]`).attr("class", "");
+    });
+
+    function onAlbumLoad(albumId) {
+        albumIds.push(albumId);
+    }
+</script>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Information</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Album successfully deleted
+        </div>
+    </div>
+</div>
+<div class="wrapper">
+    @foreach (var album in Model.Albums)
+    {
+        <div>
+            <a href="album/@album.Id">
+                <img id="@album.Id" src="resources/nocover.png" class="spinner-border text-white" onload="onAlbumLoad(@album.Id)" />
+            </a>
+            <div class="album-base-info">
+                <div>@album.Artist.Data</div>
+                <div>@album.Data</div>
+            </div>
+        </div>
+    }
+</div>

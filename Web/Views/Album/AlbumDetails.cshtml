@@ -1,0 +1,290 @@
+﻿@model AlbumDetailsViewModel
+
+<script>
+    $(document).ready(async () => {
+        await start();
+        await getTechnicalInfoIcons(@Model.Album.Id);
+        await getAlbumCover(@Model.Album.Id);
+        if (sessionStorage.getItem("albumupdated") == "1") {
+            $('#toastinfo').toast('show');
+            sessionStorage.removeItem("albumupdated");
+        }
+    })
+
+    async function getTechnicalInfoIcons(albumId) {
+        try {
+            await connection.invoke("GetTechnicalInfoIcons", connection.connectionId, albumId);
+        } catch (err) {
+            console.log("Error sending request to GetTechnicalInfoIcons");
+        }
+    }
+
+    async function getAlbumCover(albumId) {
+        try {
+            await connection.invoke("GetAlbumCover", connection.connectionId, albumId);
+        } catch (err) {
+            console.log("Error sending request to GetAlbumCover");
+        }
+    }
+
+    connection.on("TechnicalInfoNotFound", () => {
+        $('#noinfowarning').fadeIn(3000);
+    });
+
+    connection.on("TechnicalInfoFound", () => {
+        $('#techinfoicons').fadeIn(500);
+    });
+    
+    connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
+        $(`#${category}div`).fadeIn(1000);
+        window.setTimeout(() => {
+            $(`div[id=${category}div]`).attr("class", "");
+            if (cover == '') {
+                $(`div[id=${category}div]`).append("<i id='nocovericon' class='fa-regular fa-image fa-6x'></i>");
+            } else {
+                $(`img[id=${category}]`).css("display", "");
+            }
+        }, 1000);
+        $(`img[id=${category}]`).attr("src", cover);
+    });
+
+    connection.on("ReceivedAlbumConverDetailed", (cover) => {
+        if (cover == '') {
+            $('#nocovericon').css("display", "");
+            $('#coverspinner').css("display", "none");
+            $('#coverdiv').css("border", "solid");
+        } else {
+            $('#cover').fadeIn(1000);
+            $('#cover').css("display", "")
+            $('#cover').attr("src", cover);
+            $('#coverspinner').css("display", "none");
+        }
+    });
+
+    function onRemove(albumId) {
+        const request = new Request(`delete?id=${albumId}`, {
+            method: "DELETE"
+        });
+        fetch(request).then((response) => {
+            if (response.status === 200) {
+                sessionStorage.setItem("albumdeleted", "1");
+                window.location.href = "/album";
+            }
+            if (response.status === 400) {
+                $('#toasterror').toast('show');
+            }
+        });
+    };
+</script>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toasterror" class="toast toast-body-error" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header toast-header-error">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toastmsg" class="toast-body">
+            Some error during deletion
+        </div>
+    </div>
+</div>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toastinfo" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Information</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toastmsg" class="toast-body">
+            Album updated
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Album data cannot be restored
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Album.Id)">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
+<div class="test mt-3">
+    <div id="coverdiv" class="box1">
+        <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
+        <i id="nocovericon"class="fa-regular fa-image fa-10x" style="top:30%; left:30%; position: relative; display: none"></i>
+        <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
+    </div>
+    <div class="box2">
+        <a data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash fa-lg fa-pull-right"></i></a>
+        <a href="/album/edit/@Model.Album.Id"><i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i></a>
+        <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
+        @if (Model.Album.Reissue == null)
+        {
+            <h5>Year: <b>@Model.Album.Year.Data</b></h5>
+        }
+        else
+        {
+            <h5>Year: <b>@Model.Album.Year.Data</b> (Reissue: <b>@Model.Album.Reissue.Data</b>)</h5>
+        }
+        <h5>Genre: <b>@Model.Album.Genre.Data</b></h5>
+        <h5>Country: <b>@Model.Album?.Country?.Data</b></h5>
+        <h5>Label: <b>@Model.Album?.Label?.Data</b></h5>
+        <h5>Size: <b>@Model.Album?.Size</b> Gb</h5>
+        <h5>Source: <a href=@Model?.Album?.Source>@Model?.Album?.Source</a></h5>
+        <h5>Discogs: <a href=@Model?.Album?.Discogs>@Model?.Album?.Discogs</a></h5>
+        <h5>Added: <b>@Model?.Album?.AddedDate</b></h5>
+        <h5>Storage: <b>@Model?.Album?.Storage?.Data</b></h5>
+    </div>
+    <div id="noinfowarning" class="mt-3" style="padding-left: 100px; display:none">
+        <h1>
+            <i style="color: brown">Technical information not found, unknown or not entered</i>
+        </h1>
+    </div>
+    <div class="box3">
+        <div id="techinfoicons" class="technical-info">
+            <div class="technical-info-title">
+                Technical Info
+            </div>
+            <div class="digitization-info ">
+                Information about source format and digitization
+            </div>
+            <hr class="hr1" />
+            <div class="technical-info-description-digitization">
+                Vinyl state
+            </div>
+            <div class="technical-info-description-digitization">
+                Codec
+            </div>
+            <div class="technical-info-description-digitization">
+                Bitness
+            </div>
+            <div class="technical-info-description-digitization">
+                Sampling
+            </div>
+            <div class="technical-info-description-digitization">
+                Format
+            </div>
+            <div class="digitization-hardware ">
+                Information about source format and digitization
+            </div>
+            <hr class="hr2" />
+            <div class="technical-info-description-hardware">
+                Player
+            </div>
+            <div class="technical-info-description-hardware">
+                Cartridge
+            </div>
+            <div class="technical-info-description-hardware">
+                Amplifier
+            </div>
+            <div class="technical-info-description-hardware">
+                Adc
+            </div>
+            <div class="technical-info-description-hardware">
+                Wires
+            </div>
+            <div class="technical-info-description-hardware">
+                Processing
+            </div>
+            <!--digitization-->
+            <div class="technical-info-icon-digitization">
+                <div id="vinylstatediv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="vinylstate" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-digitization">
+                    @Model?.Album?.TechnicalInfo?.VinylState?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-digitization">
+                <div id="digitalformatdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="digitalformat" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-digitization">
+                    @Model?.Album?.TechnicalInfo?.DigitalFormat?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-digitization">
+                <div id="bitnessdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="bitness" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-digitization">
+                    @Model?.Album?.TechnicalInfo?.Bitness?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-digitization">
+                <div id="samplingdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="sampling" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-digitization">
+                    @Model?.Album?.TechnicalInfo?.Sampling?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-digitization">
+                <div id="formatdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="format" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-digitization">
+                    @Model?.Album?.TechnicalInfo?.SourceFormat?.Data
+                </div>
+            </div>
+            <!--hardware-->
+            <div class="technical-info-icon-hardware">
+                <div id="devicediv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="device" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-hardware">
+                    @Model?.Album?.TechnicalInfo?.Player?.PlayerManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Player?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-hardware">
+                <div id="cartridgediv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="cartridge" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-hardware">
+                    @Model?.Album?.TechnicalInfo?.Cartrige?.CartrigeManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Cartrige?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-hardware">
+                <div id="ampdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="amp" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-hardware">
+                    @Model?.Album?.TechnicalInfo?.Amplifier?.AmplifierManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Amplifier?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-hardware">
+                <div id="adcdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="adc" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-hardware">
+                    @Model?.Album?.TechnicalInfo?.Adc?.AdcManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Adc?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-hardware">
+                <div id="wirediv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="wire" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-hardware">
+                    @Model?.Album?.TechnicalInfo?.Wire?.WireManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Wire?.Data
+                </div>
+            </div>
+            <div class="technical-info-icon-hardware">
+                <div id="processingdiv" class="spinner-border justifiy-element-size" style="display: none">
+                    <img id="processing" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title-hardware">
+                    @Model?.Album?.TechnicalInfo?.Processing?.Data
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

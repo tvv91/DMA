@@ -3,44 +3,29 @@
     /// <summary>
     /// Music album representation
     /// </summary>
-    public class Album : Base
+    public class Album
     {
-        #region Main album data        
-        /// <summary>
-        /// Album artist
-        /// </summary>
-        public Artist Artist { get; set; }
-        
-        /// <summary>
-        /// Album genre
-        /// </summary>
-        public Genre Genre { get; set; }
+        public int Id { get; set; }
+        public string Data { get; set; }
+        public int Size { get; set; }
+        public DateTime AddedDate { get; set; }
 
-        /// <summary>
-        /// Album year
-        /// </summary>
-        public Year Year { get; set; }
+        #region Foreign keys
+        public int ArtistId { get; set; }
+        public int GenreId { get; set; }
+        public int YearId { get; set; }
+        public int? ReissueId { get; set; }
+        public int? CountryId { get; set; }
 
-        /// <summary>
-        /// Album reissue year
-        /// </summary>
-        public Year? Reissue { get; set; }
-
-        /// <summary>
-        /// Album country
-        /// </summary>
-        public Country? Country { get; set; }
-
-        /// <summary>
-        /// Sound recording studio
-        /// </summary>
-        public Label? Label { get; set; }
         #endregion
 
-        /// <summary>
-        /// Technical information about digitizing (playback device, quality, cartrige etc.)
-        /// </summary>
-        #region Technical info
+        #region Navigation properties
+        public Artist Artist { get; set; }
+        public Genre Genre { get; set; }
+        public Year Year { get; set; }
+        public Reissue? Reissue { get; set; }
+        public Country? Country { get; set; }
+        public Label? Label { get; set; }
         public TechnicalInfo? TechnicalInfo { get; set; }
         #endregion
     }

@@ -3,11 +3,11 @@
     /// <summary>
     /// Information about codec
     /// </summary>
-    public class Codec : Base
+    public class Codec
     {
-        /// <summary>
-        /// Navigation property
-        /// </summary>
-        public TechnicalInfo TechnicalInfo { get; set; }
+        public int Id { get; set; }
+        public string Data { get; set; }
+        public int TechicalInfoId { get; set; }
+        public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

@@ -3,11 +3,11 @@
     /// <summary>
     /// Information about album artist
     /// </summary>
-    public class Artist : Base
+    public class Artist
     {
-        /// <summary>
-        /// Navigation property
-        /// </summary>
-        public Album Album { get; set; }
+        public int Id { get; set; }
+        public string Data { get; set; }
+        public int AlbumId { get; set; }
+        public ICollection<Album> Albums { get; set; }
     }
 }

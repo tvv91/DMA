@@ -3,11 +3,11 @@
     /// <summary>
     /// Information about audio source state
     /// </summary>
-    public class State : Base
+    public class State
     {
-        /// <summary>
-        /// Navigation property
-        /// </summary>
-        public TechnicalInfo TechnicalInfo { get; set; }
+        public int Id { get; set; }
+        public string Data { get; set; }
+        public int TechicalInfoId { get; set; }
+        public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

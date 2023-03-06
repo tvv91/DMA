@@ -3,11 +3,11 @@
     /// <summary>
     /// Information about album year
     /// </summary>
-    public class Year : Base
+    public class Year
     {
-        /// <summary>
-        /// Navigation property
-        /// </summary>
-        public Album Album { get; set; }
+        public int Id { get; set; }
+        public int Data { get; set; }
+        public int AlbumId { get; set; }
+        public ICollection<Album> Albums { get; set; }
     }
 }

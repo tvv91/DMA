@@ -3,11 +3,11 @@
     /// <summary>
     /// Information about audio bitness
     /// </summary>
-    public class Bitness : Base
+    public class Bitness
     {
-        /// <summary>
-        /// Navigation property
-        /// </summary>
-        public TechnicalInfo TechnicalInfo { get; set; }
+        public int Id { get; set; }
+        public int Data { get; set; }
+        public int TechicalInfoId { get; set; }
+        public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

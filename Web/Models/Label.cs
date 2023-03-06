@@ -1,10 +1,13 @@
 ﻿namespace Web.Models
 {
-    public class Label : Base
+    /// <summary>
+    /// Information about sound recording studio
+    /// </summary>
+    public class Label
     {
-        /// <summary>
-        /// Navigation property
-        /// </summary>
-        public Album Album { get; set; }
+        public int Id { get; set; }
+        public string Data { get; set; }
+        public int AlbumId { get; set; }
+        public ICollection<Album> Albums { get; set; }
     }
 }

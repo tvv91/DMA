@@ -5,42 +5,27 @@
     /// </summary>
     public class Album : Base
     {
-        #region Main album data        
         /// <summary>
-        /// Album artist
+        /// Album size (Mb)
         /// </summary>
-        public Artist Artist { get; set; }
-        
-        /// <summary>
-        /// Album genre
-        /// </summary>
-        public Genre Genre { get; set; }
+        public int Size { get; set; }
 
-        /// <summary>
-        /// Album year
-        /// </summary>
-        public Year Year { get; set; }
-
-        /// <summary>
-        /// Album reissue year
-        /// </summary>
-        public Year? Reissue { get; set; }
-
-        /// <summary>
-        /// Album country
-        /// </summary>
-        public Country? Country { get; set; }
-
-        /// <summary>
-        /// Sound recording studio
-        /// </summary>
-        public Label? Label { get; set; }
+        #region Foreign keys
+        public int ArtistId { get; set; }
+        public int GenreId { get; set; }
+        public int YearId { get; set; }
+        public int? ReissueId { get; set; }
+        public int? CountryId { get; set; }
         #endregion
 
-        /// <summary>
-        /// Technical information about digitizing (playback device, quality, cartrige etc.)
-        /// </summary>
-        #region Technical info
+        #region Navigation properties
+
+        public Artist Artist { get; set; }
+        public Genre Genre { get; set; }
+        public Year Year { get; set; }
+        public Reissue? Reissue { get; set; }
+        public Country? Country { get; set; }
+        public Label? Label { get; set; }
         public TechnicalInfo? TechnicalInfo { get; set; }
         #endregion
     }

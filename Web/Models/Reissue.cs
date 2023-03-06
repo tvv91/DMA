@@ -1,9 +1,9 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about album year
+    /// Information about album reissue year
     /// </summary>
-    public class Year : Base
+    public class Reissue : Base
     {
         /// <summary>
         /// Foreign key

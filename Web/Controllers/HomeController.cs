@@ -11,6 +11,12 @@ namespace Web.Controllers
         {
             _repository = repository;
         }
-        public IActionResult Index() => View(_repository.Albums);
+        public IActionResult Index() => View(_repository.Albums
+            .Include(a => a.Artist)
+            .Include(a => a.Genre)
+            .Include(a => a.Year)
+            .Include(a => a.Reissue)
+            .Include(a => a.Country)
+            .Include(a => a.Label));
     }
 }

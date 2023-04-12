@@ -9,7 +9,6 @@ namespace Tests.Controllers
 {
     public class HomeControllerTest
     {
-        
         [Fact]
         public void Can_Use_Repository()
         {
@@ -21,6 +20,5 @@ namespace Tests.Controllers
             var model = Assert.IsAssignableFrom<IQueryable<Album>>(viewResult.Model);
             Assert.Equal(25, model.Count());
         }
-
     }
 }

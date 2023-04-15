@@ -65,7 +65,7 @@ namespace Tests
             #region Bitnesses
             Bitness bitness1 = new Bitness { Id = 1, Data = 24 };
             Bitness bitness2 = new Bitness { Id = 2, Data = 32 };
-            Bitness bitness3 = new Bitness { Id = 2, Data = 1 };
+            Bitness bitness3 = new Bitness { Id = 3, Data = 1 };
             #endregion
 
             #region Cartriges

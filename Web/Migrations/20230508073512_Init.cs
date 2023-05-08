@@ -243,6 +243,7 @@ namespace Web.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Size = table.Column<int>(type: "int", nullable: false),
+                    Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ArtistId = table.Column<int>(type: "int", nullable: false),
                     GenreId = table.Column<int>(type: "int", nullable: false),

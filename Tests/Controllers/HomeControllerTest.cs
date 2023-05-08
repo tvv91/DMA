@@ -15,10 +15,27 @@ namespace Tests.Controllers
             Mock<IDbRepository> mock = new Mock<IDbRepository>();
             mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
             HomeController controller = new HomeController(mock.Object);
-            IActionResult result = controller.Index();
-            var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<IQueryable<Album>>(viewResult.Model);
-            Assert.Equal(25, model.Count());
+            controller.PageSize = 25;
+            IEnumerable<Album>? result = (controller.Index() as ViewResult)?.ViewData.Model as IEnumerable<Album>;
+            Album[] albums = result?.ToArray();
+            Assert.True(albums.Length == 25);            
+        }
+
+        [Fact]
+        public void Can_Paginate()
+        {
+            Mock<IDbRepository> mock = new Mock<IDbRepository>();
+            mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
+            HomeController controller = new HomeController(mock.Object);
+            controller.PageSize = 5;
+            IEnumerable<Album>? result = (controller.Index() as ViewResult)?.ViewData.Model as IEnumerable<Album>;
+            Album[] albums = result?.ToArray();
+            Assert.True(albums.Length == 5);
+            Assert.Equal("Album1", albums[0].Data);
+            Assert.Equal("Album2", albums[1].Data);
+            Assert.Equal("Album3", albums[2].Data);
+            Assert.Equal("Album4", albums[3].Data);
+            Assert.Equal("Album5", albums[4].Data);
         }
     }
 }

@@ -75,6 +75,9 @@ namespace Web.Migrations
                     b.Property<int>("Size")
                         .HasColumnType("int");
 
+                    b.Property<string>("Source")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("YearId")
                         .HasColumnType("int");
 

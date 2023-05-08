@@ -8,6 +8,7 @@
         public int Id { get; set; }
         public string Data { get; set; }
         public int Size { get; set; }
+        public string? Source { get; set; }
         public DateTime AddedDate { get; set; }
 
         #region Foreign keys

@@ -5,13 +5,33 @@
     /// </summary>
     public class Album
     {
+        /// <summary>
+        /// Unique ID
+        /// </summary>
         public int Id { get; set; }
-        public string Data { get; set; }
+
+        /// <summary>
+        /// Any data about album
+        /// </summary>
+        public string? Data { get; set; }
+
+        /// <summary>
+        /// Album size, Mb
+        /// </summary>
         public int Size { get; set; }
+
+        /// <summary>
+        /// Source from where album was downloaded / buyed
+        /// </summary>
         public string? Source { get; set; }
+
+        /// <summary>
+        /// Date when album was added to db
+        /// </summary>
         public DateTime AddedDate { get; set; }
 
         #region Foreign keys
+
         public int ArtistId { get; set; }
         public int GenreId { get; set; }
         public int YearId { get; set; }

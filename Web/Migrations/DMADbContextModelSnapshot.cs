@@ -3,7 +3,6 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Web.Db;
 
@@ -11,12 +10,10 @@ using Web.Db;
 
 namespace Web.Migrations
 {
-    [DbContext(typeof(Context))]
-    [Migration("20230508073512_Init")]
-    partial class Init
+    [DbContext(typeof(DMADbContext))]
+    partial class DMADbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +60,6 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Data")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("GenreId")

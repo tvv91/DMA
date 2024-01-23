@@ -7,7 +7,7 @@ namespace Web.Db
     {
         public static void EnsurePopulated(IApplicationBuilder app)
         {
-            Context ctx = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<Context>();
+            DMADbContext ctx = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<DMADbContext>();
             if (ctx.Database.GetPendingMigrations().Any())
             {
                 ctx.Database.Migrate();
@@ -181,8 +181,7 @@ namespace Web.Db
                     Year = year1,
                     Reissue = reissue1,
                     Country = country1,
-                    Label = label1,
-                    TechnicalInfo = ti1
+                    Label = label1
                 });
                 ctx.Albums.Add(new Album { Data = "Album2", Artist = artist1, Genre = genre1, Year = year2 });
                 ctx.Albums.Add(new Album { Data = "Album3", Artist = artist1, Genre = genre1, Year = year3 });
@@ -197,8 +196,7 @@ namespace Web.Db
                     Year = year1,
                     Reissue = reissue1,
                     Country = country1,
-                    Label = label2,
-                    TechnicalInfo = ti2
+                    Label = label2
                 });
                 ctx.Albums.Add(new Album { Data = "Album7", Artist = artist2, Genre = genre2, Year = year2 });
                 ctx.Albums.Add(new Album { Data = "Album8", Artist = artist2, Genre = genre2, Year = year3 });
@@ -213,8 +211,7 @@ namespace Web.Db
                     Year = year1,
                     Reissue = reissue2,
                     Country = country2,
-                    Label = label2,
-                    TechnicalInfo = ti3
+                    Label = label2
                 });
                 ctx.Albums.Add(new Album { Data = "Album12", Artist = artist3, Genre = genre3, Year = year2 });
                 ctx.Albums.Add(new Album { Data = "Album13", Artist = artist3, Genre = genre3, Year = year3 });
@@ -229,8 +226,7 @@ namespace Web.Db
                     Year = year1,
                     Reissue = reissue3,
                     Country = country2,
-                    Label = label2,
-                    TechnicalInfo = ti4
+                    Label = label2
                 });
                 ctx.Albums.Add(new Album { Data = "Album17", Artist = artist1, Genre = genre4, Year = year2 });
                 ctx.Albums.Add(new Album { Data = "Album18", Artist = artist2, Genre = genre4, Year = year3 });
@@ -245,8 +241,7 @@ namespace Web.Db
                     Year = year1,
                     Reissue = reissue3,
                     Country = country3,
-                    Label = label3,
-                    TechnicalInfo = ti5
+                    Label = label3
                 });
                 ctx.Albums.Add(new Album { Data = "Album22", Artist = artist2, Genre = genre5, Year = year2 });
                 ctx.Albums.Add(new Album { Data = "Album23", Artist = artist3, Genre = genre5, Year = year3 });

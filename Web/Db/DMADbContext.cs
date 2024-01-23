@@ -3,9 +3,9 @@ using Web.Models;
 
 namespace Web.Db
 {
-    public class Context : DbContext
+    public class DMADbContext : DbContext
     {
-        public Context(DbContextOptions<Context> options) : base(options) { }
+        public DMADbContext(DbContextOptions<DMADbContext> options) : base(options) { }
         public DbSet<Adc> Adces { get; set; }
         public DbSet<Album> Albums { get; set; }
         public DbSet<Amplifier> Amplifiers { get; set; }

@@ -9,10 +9,11 @@ namespace Tests.Controllers
 {
     public class HomeControllerTest
     {
+        
         [Fact]
         public void Can_Use_Repository()
         {
-            Mock<IDbRepository> mock = new Mock<IDbRepository>();
+            Mock<IAlbumRepository> mock = new Mock<IAlbumRepository>();
             mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
             HomeController controller = new HomeController(mock.Object);
             controller.PageSize = 25;
@@ -24,7 +25,7 @@ namespace Tests.Controllers
         [Fact]
         public void Can_Paginate()
         {
-            Mock<IDbRepository> mock = new Mock<IDbRepository>();
+            Mock<IAlbumRepository> mock = new Mock<IAlbumRepository>();
             mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
             HomeController controller = new HomeController(mock.Object);
             controller.PageSize = 5;

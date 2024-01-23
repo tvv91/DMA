@@ -6,10 +6,10 @@ namespace Web.Controllers
 {
     public class HomeController : Controller
     {
-        private IDbRepository _repository;
+        private IAlbumRepository _repository;
         public int PageSize = 4;
 
-        public HomeController(IDbRepository repository)
+        public HomeController(IAlbumRepository repository)
         {
             _repository = repository;
         }

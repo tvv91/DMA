@@ -8,6 +8,7 @@
         public int Id { get; set; }
 
         #region Foreign keys
+
         public int? AlbumId { get; set; }
         public int? AmplifierId { get; set; }
         public int? BitnessId { get; set; }
@@ -19,10 +20,11 @@
         public int? AdcId { get; set; }
         public int? SamplingId { get; set; }
         public int? StateId { get; set; }
+
         #endregion
 
         #region Navigation properties
-        public Album? Album { get; set; }
+        public Album Album { get; set; }
         public Adc? Adc { get; set; }
         public Amplifier? Amplifier { get; set; }
         public Bitness? Bitness { get; set; }

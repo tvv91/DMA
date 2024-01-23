@@ -241,7 +241,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Size = table.Column<int>(type: "int", nullable: false),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),

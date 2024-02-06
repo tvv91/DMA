@@ -3,13 +3,11 @@ using Web.Models;
 
 namespace Web.Db
 {
-    public class DbRepository : IAlbumRepository
+    public class AlbumRepository : IAlbumRepository
     {
-        private DMADbContext _context;
-        public DbRepository(DMADbContext ctx)
-        {
-            _context = ctx;
-        }
+        private readonly DMADbContext _context;
+        public AlbumRepository(DMADbContext ctx) => _context = ctx;
+
         public IQueryable<Album> Albums => _context.Albums;
 
         public IQueryable<Artist> Artists => _context.Artists;

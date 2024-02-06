@@ -3,9 +3,34 @@
     <head>
         <meta name="viewport" content="width=device-width"/>
         <title>Digitized Music Archive</title>
+        <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css" />
     </head>
     <body>
-        <div>
+    <div class="container">
+        <h4 class="text-center">Welcome to Digitized  Music Archive!</h4>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">Last news</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Albums</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Hardware</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Statistic</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">About project</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+        </div>
+        <div class="container">
             @RenderBody()
         </div>
     </body>

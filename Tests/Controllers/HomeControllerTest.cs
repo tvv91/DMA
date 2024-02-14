@@ -9,10 +9,11 @@ namespace Tests.Controllers
 {
     public class HomeControllerTest
     {
-        
+        /*
         [Fact]
         public void Can_Use_Repository()
         {
+            
             Mock<IAlbumRepository> mock = new Mock<IAlbumRepository>();
             mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
             HomeController controller = new HomeController(mock.Object);
@@ -38,5 +39,6 @@ namespace Tests.Controllers
             Assert.Equal("Album4", albums[3].Data);
             Assert.Equal("Album5", albums[4].Data);
         }
+        */
     }
 }

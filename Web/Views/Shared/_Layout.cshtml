@@ -8,8 +8,11 @@
         <script src="/lib/jquery/jquery.min.js"></script>
         <script>
             $(document).ready(function () {
-            //$(".html").html('<div class="new" id="' + id + '">jitender</div>");
-            $("#menu a[href^='" + window.location.pathname + "']").css("font-weight", "bold");
+                if (window.location.pathname === "/") {
+                    $("#default").css("font-weight", "bold");
+                } else {
+                    $("#menu a[href^='" + window.location.pathname + "']").css("font-weight", "bold");
+                }
             })
         </script>
     </head>
@@ -20,7 +23,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav" id="menu">
                     <li class="nav-item">
-                        <a class="nav-link" href="/">Last news</a>
+                        <a class="nav-link" id="default" href="/">Last news</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/album">Albums</a>
@@ -42,12 +45,17 @@
             @RenderBody()
         </div>
     <script>
-        $('#menu a').on('mouseover', function (e) {
-            //e.preventDefault();
-            $(this).css("font-weight", "bold");
-        })
-        $('#menu a').on('mouseleave', function (e) {
-            $(this).css("font-weight", "normal");
+        $('#menu a').on('mouseover mouseleave', function (e) {
+            if (window.location.pathname !== $(this).attr("href"))  {
+                switch (e.type) { 
+                    case "mouseover":
+                        $(this).css("font-weight", "bold");
+                        break;
+                    case "mouseleave":
+                        $(this).css("font-weight", "normal");
+                        break;
+                }                
+            }                    
         })
     </script>
     </body>

@@ -2,29 +2,33 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Models;
+using Web.ViewModels;
 
 namespace Web.Controllers
 {
     public class AlbumController : Controller
     {
+        private const int ALBUMS_PER_PAGE = 15;
         private readonly IAlbumRepository _repository;
-        public int PageSize = 100;
 
         public AlbumController(IAlbumRepository albumRepository)
         {
             _repository = albumRepository;
         }
 
-        public IActionResult Index(int page = 1) => View(_repository.Albums
-            .OrderBy(a => a.Id)
-            .Skip((page - 1) * PageSize)
-            .Take(PageSize)
-            .Include(a => a.Artist)
-            .Include(a => a.Genre)
-            .Include(a => a.Year)
-            .Include(a => a.Reissue)
-            .Include(a => a.Country)
-            .Include(a => a.Label));
+        public async Task<IActionResult> Index(int page = 1)
+        {
+            AlbumViewModel albumViewModel = new AlbumViewModel
+            {
+                 Albums = await _repository.Albums
+                 .Skip((page - 1) * ALBUMS_PER_PAGE)
+                 .Take(ALBUMS_PER_PAGE)
+                 .Include(a => a.Artist)
+                 .ToListAsync()
+            };
+
+            return View("Index", albumViewModel);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetById(int id)

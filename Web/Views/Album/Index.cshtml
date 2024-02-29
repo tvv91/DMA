@@ -1,5 +1,15 @@
 ﻿@model AlbumViewModel
-
+<script>
+    let connectionId = "";
+    let connection = new signalR.HubConnectionBuilder().withUrl("/defaulthub").build();
+    
+    // start connection to signalr hub
+    connection.start().then(() => {
+        connectionId = connection.connection.connectionId;
+    }).catch(() => {
+        console.log("Error connecting to hub")
+    });
+</script>
 <div class="wrapper">
     @foreach (var album in Model.Albums)
     {

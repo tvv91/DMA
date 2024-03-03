@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Models;
-using Web.SignalRHubs;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -12,12 +10,10 @@ namespace Web.Controllers
     {
         private const int ALBUMS_PER_PAGE = 15;
         private readonly IAlbumRepository _repository;
-        private readonly IHubContext<DefaultHub> _hub;
 
-        public AlbumController(IAlbumRepository albumRepository, IHubContext<DefaultHub> hubContext)
+        public AlbumController(IAlbumRepository albumRepository)
         {
             _repository = albumRepository;
-            _hub = hubContext;
         }
 
         public async Task<IActionResult> Index(int page = 1)
@@ -30,7 +26,6 @@ namespace Web.Controllers
                  .Include(a => a.Artist)
                  .ToListAsync()
             };
-
             return View("Index", albumViewModel);
         }
 

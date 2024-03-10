@@ -6,6 +6,7 @@ namespace Tests
     public class TestDataSelfTests
     {
         private readonly ICollection<Album> albums;
+        
         public TestDataSelfTests()
         {
             albums = new TestData().GetData();

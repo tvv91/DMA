@@ -1,44 +1,55 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MockQueryable.Moq;
 using Moq;
 using Web.Controllers;
 using Web.Db;
 using Web.Models;
+using Web.ViewModels;
 using Xunit;
 
 namespace Tests.Controllers
 {
-    public class HomeControllerTest
+    public class AlbumControllerTest
     {
-        /*
-        [Fact]
-        public void Can_Use_Repository()
+        private Mock<IAlbumRepository> _mock;
+        private AlbumController _controller;
+        
+        public AlbumControllerTest()
         {
-            
-            Mock<IAlbumRepository> mock = new Mock<IAlbumRepository>();
-            mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
-            HomeController controller = new HomeController(mock.Object);
-            controller.PageSize = 25;
-            IEnumerable<Album>? result = (controller.Index() as ViewResult)?.ViewData.Model as IEnumerable<Album>;
-            Album[] albums = result?.ToArray();
-            Assert.True(albums.Length == 25);            
+            _mock = new Mock<IAlbumRepository>();
+            _mock.Setup(m => m.Albums).Returns(new TestData().GetData().BuildMock());
+            _controller = new AlbumController(_mock.Object);
         }
 
         [Fact]
-        public void Can_Paginate()
+        public async Task ShouldReturn15AlbumsPerPage()
         {
-            Mock<IAlbumRepository> mock = new Mock<IAlbumRepository>();
-            mock.Setup(m => m.Albums).Returns(new TestData().GetData().AsQueryable());
-            HomeController controller = new HomeController(mock.Object);
-            controller.PageSize = 5;
-            IEnumerable<Album>? result = (controller.Index() as ViewResult)?.ViewData.Model as IEnumerable<Album>;
-            Album[] albums = result?.ToArray();
-            Assert.True(albums.Length == 5);
-            Assert.Equal("Album1", albums[0].Data);
-            Assert.Equal("Album2", albums[1].Data);
-            Assert.Equal("Album3", albums[2].Data);
-            Assert.Equal("Album4", albums[3].Data);
-            Assert.Equal("Album5", albums[4].Data);
+            IActionResult result = await _controller.Index();
+            ViewResult viewResult = Assert.IsType<ViewResult>(result);
+            AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
+            Assert.Equal(15, model.Albums.Count());          
         }
-        */
+
+        [Fact]
+        public async Task AlbumsShoudContainsArtist ()
+        {
+            IActionResult result = await _controller.Index();
+            ViewResult viewResult = Assert.IsType<ViewResult>(result);
+            AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
+            var albums = model.Albums.ToList();
+            foreach (var album in model.Albums)
+            {
+                Assert.NotNull(album.Artist);
+            }
+        }
+
+        [Fact]
+        public async Task ShouldReturn10AlbumsOnPage2()
+        {
+            IActionResult result = await _controller.Index(2);
+            ViewResult viewResult = Assert.IsType<ViewResult>(result);
+            AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
+            Assert.Equal(10, model.Albums.Count());
+        }
     }
 }

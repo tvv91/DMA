@@ -1,0 +1,12 @@
+﻿@model AlbumDetailsViewModel
+<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
+<div>
+    <h2>Artist</h2>
+    <input type="text" value="@Model.Album.Artist.Data" />
+    <h2>Album</h2>
+    <input type="text" value="@Model.Album.Data" />
+    <h2>Year</h2>
+    <input type="text" value="@Model.Album.Year.Data" />
+    <h2>Genre</h2>
+    <input type="text" value="@Model.Album.Genre.Data" />
+</div>

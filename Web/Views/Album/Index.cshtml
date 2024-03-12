@@ -44,7 +44,9 @@
     @foreach (var album in Model.Albums)
     {
         <div>
-            <img id="@album.Id" src="resources/nocover.png" class="spinner-border text-white" onload="onAlbumLoad(@album.Id)" />
+            <a href="album/@album.Id">
+                <img id="@album.Id" src="resources/nocover.png" class="spinner-border text-white" onload="onAlbumLoad(@album.Id)" />
+            </a>
             <div class="album-base-info">
                 <div>@album.Artist.Data</div>
                 <div>@album.Data</div>

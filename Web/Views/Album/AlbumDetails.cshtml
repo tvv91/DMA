@@ -1,12 +1,39 @@
 ﻿@model AlbumDetailsViewModel
+<style>
+    .test {
+        display: grid;
+        grid-template-columns: 30% 70%;
+        grid-template-rows: 200px 200px;
+    }
+    .box1{
+        grid-row: span 2;
+        
+    }
+
+    .box2 {
+        grid-column: 2;
+    }
+
+    .box3 {
+        grid-column: 2;
+    }
+    
+</style>
+
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
-<div>
-    <h2>Artist</h2>
-    <input type="text" value="@Model.Album.Artist.Data" />
-    <h2>Album</h2>
-    <input type="text" value="@Model.Album.Data" />
-    <h2>Year</h2>
-    <input type="text" value="@Model.Album.Year.Data" />
-    <h2>Genre</h2>
-    <input type="text" value="@Model.Album.Genre.Data" />
+<div class="test">
+    <div class="box1">
+        <img src="/covers/1.jpg" style="width: 100%; height: 100%;" />
+    </div>
+    <div class="box2">
+        <h2>@Model.Album.Artist.Data - @Model.Album.Data</h2>
+        <h2></h2>
+        <h2>@Model.Album.Year.Data</h2>
+        <h2>@Model.Album.Genre.Data</h2>
+    </div>
+    <div class="box3">
+        <h2>Technical Info</h2>
+        
+    </div>
+        
 </div>

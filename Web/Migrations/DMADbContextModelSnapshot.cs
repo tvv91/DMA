@@ -441,7 +441,7 @@ namespace Web.Migrations
 
                     b.HasIndex("StateId");
 
-                    b.ToTable("TechnicalInfo");
+                    b.ToTable("TechnicalInfos");
                 });
 
             modelBuilder.Entity("Web.Models.Year", b =>

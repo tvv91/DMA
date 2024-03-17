@@ -23,5 +23,6 @@ namespace Web.Db
         public DbSet<Sampling> Samplings { get; set; }
         public DbSet<State> States { get; set; }
         public DbSet<Year> Years { get; set; }
+        public DbSet<TechnicalInfo> TechnicalInfos { get; set;}
     }
 }

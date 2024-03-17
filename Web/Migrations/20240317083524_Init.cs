@@ -291,7 +291,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "TechnicalInfo",
+                name: "TechnicalInfos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -310,59 +310,59 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TechnicalInfo", x => x.Id);
+                    table.PrimaryKey("PK_TechnicalInfos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Adces_AdcId",
+                        name: "FK_TechnicalInfos_Adces_AdcId",
                         column: x => x.AdcId,
                         principalTable: "Adces",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Albums_AlbumId",
+                        name: "FK_TechnicalInfos_Albums_AlbumId",
                         column: x => x.AlbumId,
                         principalTable: "Albums",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Amplifiers_AmplifierId",
+                        name: "FK_TechnicalInfos_Amplifiers_AmplifierId",
                         column: x => x.AmplifierId,
                         principalTable: "Amplifiers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Bitnesses_BitnessId",
+                        name: "FK_TechnicalInfos_Bitnesses_BitnessId",
                         column: x => x.BitnessId,
                         principalTable: "Bitnesses",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Cartriges_CartrigeId",
+                        name: "FK_TechnicalInfos_Cartriges_CartrigeId",
                         column: x => x.CartrigeId,
                         principalTable: "Cartriges",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Codecs_CodecId",
+                        name: "FK_TechnicalInfos_Codecs_CodecId",
                         column: x => x.CodecId,
                         principalTable: "Codecs",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Devices_DeviceId",
+                        name: "FK_TechnicalInfos_Devices_DeviceId",
                         column: x => x.DeviceId,
                         principalTable: "Devices",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Formats_FormatId",
+                        name: "FK_TechnicalInfos_Formats_FormatId",
                         column: x => x.FormatId,
                         principalTable: "Formats",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Processings_ProcessingId",
+                        name: "FK_TechnicalInfos_Processings_ProcessingId",
                         column: x => x.ProcessingId,
                         principalTable: "Processings",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_Samplings_SamplingId",
+                        name: "FK_TechnicalInfos_Samplings_SamplingId",
                         column: x => x.SamplingId,
                         principalTable: "Samplings",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfo_States_StateId",
+                        name: "FK_TechnicalInfos_States_StateId",
                         column: x => x.StateId,
                         principalTable: "States",
                         principalColumn: "Id");
@@ -399,60 +399,60 @@ namespace Web.Migrations
                 column: "YearId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_AdcId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_AdcId",
+                table: "TechnicalInfos",
                 column: "AdcId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_AlbumId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_AlbumId",
+                table: "TechnicalInfos",
                 column: "AlbumId",
                 unique: true,
                 filter: "[AlbumId] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_AmplifierId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_AmplifierId",
+                table: "TechnicalInfos",
                 column: "AmplifierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_BitnessId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_BitnessId",
+                table: "TechnicalInfos",
                 column: "BitnessId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_CartrigeId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_CartrigeId",
+                table: "TechnicalInfos",
                 column: "CartrigeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_CodecId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_CodecId",
+                table: "TechnicalInfos",
                 column: "CodecId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_DeviceId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_DeviceId",
+                table: "TechnicalInfos",
                 column: "DeviceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_FormatId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_FormatId",
+                table: "TechnicalInfos",
                 column: "FormatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_ProcessingId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_ProcessingId",
+                table: "TechnicalInfos",
                 column: "ProcessingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_SamplingId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_SamplingId",
+                table: "TechnicalInfos",
                 column: "SamplingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfo_StateId",
-                table: "TechnicalInfo",
+                name: "IX_TechnicalInfos_StateId",
+                table: "TechnicalInfos",
                 column: "StateId");
         }
 
@@ -460,7 +460,7 @@ namespace Web.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "TechnicalInfo");
+                name: "TechnicalInfos");
 
             migrationBuilder.DropTable(
                 name: "Adces");

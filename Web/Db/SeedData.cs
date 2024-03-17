@@ -181,7 +181,8 @@ namespace Web.Db
                     Year = year1,
                     Reissue = reissue1,
                     Country = country1,
-                    Label = label1
+                    Label = label1,
+                    TechnicalInfo = ti1,
                 });
                 ctx.Albums.Add(new Album { Data = "Album2", Artist = artist1, Genre = genre1, Year = year2 });
                 ctx.Albums.Add(new Album { Data = "Album3", Artist = artist1, Genre = genre1, Year = year3 });

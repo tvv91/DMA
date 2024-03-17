@@ -28,5 +28,7 @@ namespace Web.Db.Implementation
         public IQueryable<Sampling> Samplings => _context.Samplings;
 
         public IQueryable<State> States => _context.States;
+
+        public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
     }
 }

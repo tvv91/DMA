@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20240123094516_Init")]
+    [Migration("20240317083524_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -444,7 +444,7 @@ namespace Web.Migrations
 
                     b.HasIndex("StateId");
 
-                    b.ToTable("TechnicalInfo");
+                    b.ToTable("TechnicalInfos");
                 });
 
             modelBuilder.Entity("Web.Models.Year", b =>

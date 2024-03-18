@@ -1,39 +1,64 @@
 ﻿@model AlbumDetailsViewModel
-<style>
-    .test {
-        display: grid;
-        grid-template-columns: 30% 70%;
-        grid-template-rows: 200px 200px;
-    }
-    .box1{
-        grid-row: span 2;
-        
-    }
-
-    .box2 {
-        grid-column: 2;
-    }
-
-    .box3 {
-        grid-column: 2;
-    }
-    
-</style>
-
+<script>
+    $(document).ready(async () => {
+        await start();
+        await getTechnicalInfoIcons(@Model.Album.Id);
+    })
+</script>
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
-<div class="test">
+<div class="test mt-3">
     <div class="box1">
-        <img src="/covers/1.jpg" style="width: 100%; height: 100%;" />
+        <img class="album-cover" src="/covers/1.jpg" style="width: 100%; height: 100%;" />
     </div>
     <div class="box2">
-        <h2>@Model.Album.Artist.Data - @Model.Album.Data</h2>
-        <h2></h2>
-        <h2>@Model.Album.Year.Data</h2>
-        <h2>@Model.Album.Genre.Data</h2>
+        <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
+        @if (Model.Album.Reissue == null)
+        {
+            <h5>@Model.Album.Year.Data (Reissue: @Model.Album.Reissue?.Data)</h5>
+        }
+        else
+        {
+            <h5>@Model.Album.Year.Data (Reissue: @Model.Album.Reissue.Data)</h5>
+        }
+        <h5>@Model.Album.Genre.Data</h5>
+        <h5>@Model.Album?.Country?.Data</h5>
+        <h5>@Model.Album?.Label?.Data</h5>
     </div>
-    <div class="box3">
-        <h2>Technical Info</h2>
-        
+    <div id="noinfowarning" class="mt-3" style="padding-left: 100px; display:none">
+        <h1>
+            <i style="color: brown">Technical information not found, unknown or not entered</i>
+        </h1>
     </div>
-        
+    <div id="techinfoicons" class="technical-info" style="display: none">
+        <div id="vinylstatediv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="vinylstate" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="digitalformatdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="digitalformat" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="bitnessdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="bitness" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="samplingdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="sampling" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="formatdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="format" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="devicediv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="device" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="cartridgediv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="cartridge" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="ampdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="amp" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="adcdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="adc" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div id="processingdiv" class="spinner-border justifiy-element-size" style="display: none">
+            <img id="processing" class="justifiy-element-size" style="display: none" />
+        </div>
+    </div>        
 </div>

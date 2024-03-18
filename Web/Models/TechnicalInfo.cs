@@ -24,7 +24,7 @@
         #endregion
 
         #region Navigation properties
-        public Album Album { get; set; }
+        public Album? Album { get; set; }
         public Adc? Adc { get; set; }
         public Amplifier? Amplifier { get; set; }
         public Bitness? Bitness { get; set; }

@@ -103,9 +103,11 @@ namespace Web.Db
                 #endregion
 
                 #region States
-                State state1 = new State { Data = "Mint" };
-                State state2 = new State { Data = "Near Mint" };
-                State state3 = new State { Data = "Very Good" };
+                State state1 = new State { Data = "mint" };
+                State state2 = new State { Data = "nearming" };
+                State state3 = new State { Data = "verygood+" };
+                State state4 = new State { Data = "verygood" };
+                State state5 = new State { Data = "good" };
                 #endregion
 
                 TechnicalInfo ti1 = new TechnicalInfo

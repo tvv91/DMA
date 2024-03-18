@@ -16,6 +16,5 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\covers\" />
-    <Folder Include="wwwroot\resources\" />
   </ItemGroup>
 </Project>

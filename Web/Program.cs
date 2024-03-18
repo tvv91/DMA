@@ -12,7 +12,7 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
 });
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<ITechInfoRepository, TechnicalInfoRepository>();
-builder.Services.AddScoped<ICoverImageService, CoverImageService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddSignalR();
 var app = builder.Build();
 app.UseStaticFiles();

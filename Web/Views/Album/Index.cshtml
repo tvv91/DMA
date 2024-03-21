@@ -1,11 +1,37 @@
 ﻿@model AlbumViewModel
+
 <script>
+    let albumIds = [];
     // get album covers after rendering album list
     $(document).ready(async () => {
         await start();
         await getAlbumCovers();
     })
+    // pass album id's to hub
+    async function getAlbumCovers() {
+        try {
+            await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
+        } catch (err) {
+            console.log("Error sending request to GetAlbumCovers");
+        }
+    }
+
+    // SignalR handlers
+    connection.onclose(async () => {
+        await start();
+    });
+
+    // change img src and stop loading animation
+    connection.on("ReceivedAlbumConver", (albumId, cover) => {
+        $(`img[id=${albumId}]`).attr("src", cover);
+        $(`img[id=${albumId}]`).attr("class", "");
+    });
+
+    function onAlbumLoad(albumId) {
+        albumIds.push(albumId);
+    }
 </script>
+
 <div class="wrapper">
     @foreach (var album in Model.Albums)
     {

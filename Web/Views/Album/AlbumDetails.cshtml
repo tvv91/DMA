@@ -1,10 +1,38 @@
 ﻿@model AlbumDetailsViewModel
+
 <script>
     $(document).ready(async () => {
         await start();
         await getTechnicalInfoIcons(@Model.Album.Id);
     })
+
+    async function getTechnicalInfoIcons(albumId) {
+        try {
+            await connection.invoke("GetTechnicalInfoIcons", connection.connectionId, albumId);
+        } catch (err) {
+            console.log("Error sending request to GetTechnicalInfoIcons");
+        }
+    }
+
+    connection.on("TechnicalInfoNotFound", () => {
+        $('#noinfowarning').fadeIn(3000);
+    });
+
+    connection.on("TechnicalInfoFound", () => {
+        $('#techinfoicons').fadeIn(500);
+    });
+
+    connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
+        console.log(category, cover);
+        $(`#${category}div`).fadeIn(1000);
+        window.setTimeout(() => {
+            $(`div[id=${category}div]`).attr("class", "");
+            $(`img[id=${category}]`).css("display", "");
+        }, 1000);
+        $(`img[id=${category}]`).attr("src", cover);
+    });
 </script>
+
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
 <div class="test mt-3">
     <div class="box1">

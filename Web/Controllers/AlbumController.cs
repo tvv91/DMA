@@ -44,7 +44,6 @@ namespace Web.Controllers
                 .Include(a => a.Genre)
                 .Include(a => a.Label)
                 .Include(a => a.Reissue)
-                .Include(a => a.TechnicalInfo)
                 .Include(a => a.Year)
                 .FirstOrDefaultAsync(a => a.Id == id);
             

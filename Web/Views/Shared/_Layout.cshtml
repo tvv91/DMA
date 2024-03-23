@@ -10,11 +10,11 @@
         <script src="/lib/microsoft-signalr/signalr.js"></script>
         <script src="/js/hubconnection.js"></script>
         <script>
-        $(document).ready(function () {
-            window.location.pathname === "/"
-                ? $("#default").css("font-weight", "bold")
-                : $("#menu a[href='" + window.location.pathname + "']").css("font-weight", "bold");
-        })
+            $(document).ready(() => {
+                window.location.pathname === "/"
+                    ? $("#default").css("font-weight", "bold")
+                    : $("#menu a[href='" + window.location.pathname + "']").css("font-weight", "bold");
+            });
         </script>
     </head>
     <body>
@@ -40,6 +40,13 @@
                     </li>
                 </ul>
             </div>
+            <div class="dropdown dropstart">
+                <i class="fas fa-plus-square fa-2xl fa-pull-left m-3 addbutton" data-bs-toggle="dropdown">
+                </i>
+                <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="#">Album</a>
+                </div>
+            </div>
         </nav>
         </div>
         <div class="container">
@@ -59,5 +66,7 @@
             }                    
         })
     </script>
+    <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
     </body>
 </html>

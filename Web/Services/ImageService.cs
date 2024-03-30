@@ -46,6 +46,8 @@ namespace Web.Services
                     return File.Exists($"{ADC}/{id}.png") ? $"/resources/adc/{id}.png" : NOT_FOUND;
                 case EntityType.Processing:
                     return File.Exists($"{PROCESSING}/{id}.png") ? $"/resources/processing/{id}.png" : NOT_FOUND;
+                case EntityType.AlbumDetailCover:
+                    return File.Exists($"{ALBUM_COVERS}/{id}.jpg") ? $"/covers/{id}.jpg" : string.Empty;
                 default: 
                     return NOT_FOUND;
             }

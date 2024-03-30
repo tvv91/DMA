@@ -36,14 +36,17 @@
         $(`#${category}div`).fadeIn(1000);
         window.setTimeout(() => {
             $(`div[id=${category}div]`).attr("class", "");
-            $(`img[id=${category}]`).css("display", "");
+            if (cover == '') {
+                $(`div[id=${category}div]`).append("<i id='nocovericon' class='fa-regular fa-image fa-6x'></i>");
+            } else {
+                $(`img[id=${category}]`).css("display", "");
+            }
         }, 1000);
         $(`img[id=${category}]`).attr("src", cover);
     });
 
     connection.on("ReceivedAlbumConverDetailed", (cover) => {
         if (cover == '') {
-            $('#coverdiv').fadeIn(1000);
             $('#nocovericon').css("display", "");
             $('#coverspinner').css("display", "none");
             $('#coverdiv').css("border", "solid");

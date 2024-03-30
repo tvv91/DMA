@@ -5,9 +5,7 @@ namespace Web.Services
     internal class ImageService : IImageService
     {
         private const string STORAGE = "wwwroot/";
-        private const string NO_COVER = "resources/nocover.png";
-        private const string NOT_FOUND= "/resources/404.png";
-        
+        private const string NO_COVER = "resources/nocover.png";        
         private const string ALBUM_COVERS = $"{STORAGE}/covers";
         private const string VINYL_STATE = $"{STORAGE}/resources/vinylstate";
         private const string DIGITAL_FORMAT = $"{STORAGE}/resources/digitalformat";
@@ -27,29 +25,29 @@ namespace Web.Services
                 case EntityType.AlbumCover:
                     return File.Exists($"{ALBUM_COVERS}/{id}.jpg") ? $"/covers/{id}.jpg" : NO_COVER;
                 case EntityType.VinylState:
-                    return File.Exists($"{VINYL_STATE}/{id}.png") ? $"/resources/vinylstate/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{VINYL_STATE}/{id}.png") ? $"/resources/vinylstate/{id}.png" : string.Empty;
                 case EntityType.DigitalFormat:
-                    return File.Exists($"{DIGITAL_FORMAT}/{id}.png") ? $"/resources/digitalformat/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{DIGITAL_FORMAT}/{id}.png") ? $"/resources/digitalformat/{id}.png" : string.Empty;
                 case EntityType.Bitness:
-                    return File.Exists($"{BITNESS}/{id}.png") ? $"/resources/bitness/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{BITNESS}/{id}.png") ? $"/resources/bitness/{id}.png" : string.Empty;
                 case EntityType.Sampling:
-                    return File.Exists($"{SAMPLING}/{id}.png") ? $"/resources/sampling/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{SAMPLING}/{id}.png") ? $"/resources/sampling/{id}.png" : string.Empty;
                 case EntityType.SourceFormat:
-                    return File.Exists($"{SOURCE_FORMAT}/{id}.png") ? $"/resources/sourceformat/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{SOURCE_FORMAT}/{id}.png") ? $"/resources/sourceformat/{id}.png" : string.Empty;
                 case EntityType.Device:
-                    return File.Exists($"{DEVICE}/{id}.png") ? $"/resources/device/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{DEVICE}/{id}.png") ? $"/resources/device/{id}.png" : string.Empty;
                 case EntityType.Cartridge:
-                    return File.Exists($"{CARTRIDGE}/{id}.png") ? $"/resources/cartridge/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{CARTRIDGE}/{id}.png") ? $"/resources/cartridge/{id}.png" : string.Empty;
                 case EntityType.Amp:
-                    return File.Exists($"{AMP}/{id}.png") ? $"/resources/amp/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{AMP}/{id}.png") ? $"/resources/amp/{id}.png" : string.Empty;
                 case EntityType.Adc:
-                    return File.Exists($"{ADC}/{id}.png") ? $"/resources/adc/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{ADC}/{id}.png") ? $"/resources/adc/{id}.png" : string.Empty;
                 case EntityType.Processing:
-                    return File.Exists($"{PROCESSING}/{id}.png") ? $"/resources/processing/{id}.png" : NOT_FOUND;
+                    return File.Exists($"{PROCESSING}/{id}.png") ? $"/resources/processing/{id}.png" : string.Empty;
                 case EntityType.AlbumDetailCover:
                     return File.Exists($"{ALBUM_COVERS}/{id}.jpg") ? $"/covers/{id}.jpg" : string.Empty;
                 default: 
-                    return NOT_FOUND;
+                    return string.Empty;
             }
             
         }

@@ -1,0 +1,185 @@
+﻿@model NewAlbumRequest;
+
+<script>
+
+    $(document).ready(async () => {
+        await start();
+    })
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    $(function () {
+        $("#artist_input").autocomplete({
+            source: '/search/artist',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#genre_input").autocomplete({
+            source: '/search/genre',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#year_input").autocomplete({
+            source: '/search/year',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#vinylstate_input").autocomplete({
+            source: '/search/state',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#codec_input").autocomplete({
+            source: '/search/codec',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#bitness_input").autocomplete({
+            source: '/search/bitness',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#sampling_input").autocomplete({
+            source: '/search/sampling',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#format_input").autocomplete({
+            source: '/search/format',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#device_input").autocomplete({
+            source: '/search/device',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#cartridge_input").autocomplete({
+            source: '/search/cartridge',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#amp_input").autocomplete({
+            source: '/search/amp',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#adc_input").autocomplete({
+            source: '/search/adc',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+        $("#processing_input").autocomplete({
+            source: '/search/processing',
+            messages: {
+                noResults: '',
+                results: function () { }
+            }
+        });
+    });
+</script>
+
+<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
+<form asp-action="NewAlbum" method="post">
+    <div asp-validation-summary="ModelOnly"></div>
+    <div class="new-update-album">
+        <div class="cover-image">
+            <div class="image-place">
+                <i class="fa-regular fa-image fa-5x"></i>
+            </div>
+            <!--
+            <div class="image-control-buttons">
+                <button><i class="fa-solid fa-trash-can"></i></button>
+                <button>ss<button>
+                <input type="file" name="uploads"/>
+            </div>
+            -->
+        </div>
+        <div class="main-info">
+            <h4 style="text-align:center">Base</h4>
+            <hr />
+            <div class="new-album-input">
+                <label><b>Artist</b></label>
+                <input id="artist_input" class="input-textbox" asp-for="Artist" autocomplete="on" />
+                <label><b >Album</b></label>
+                <input id="album_input" class="input-textbox" asp-for="Album" />
+                <label><b>Genre</b></label>
+                <input id="genre_input" class="input-textbox" asp-for="Genre" autocomplete="on" />
+                <label><b>Year</b></label>
+                <input id="year_input" class="input-textbox" asp-for="Year" autocomplete="on" />
+                <label>Reissue</label>
+                <input class="input-textbox" asp-for="Reissue" />
+                <label>Country</label>
+                <input class="input-textbox" asp-for="Country" />
+                <label>Label</label>
+                <input class="input-textbox" asp-for="Label" />
+                <label>Source</label>
+                <input class="input-textbox" asp-for="Source" />
+                <label>Size</label>
+                <input class="input-textbox" asp-for="Size" />
+            </div>
+        </div>
+        <div class="tech-info-create">
+            <h4 style="text-align:center">Digitization</h4>
+            <hr />
+            <div class="new-album-input">
+                <label>Vinyl state</label>
+                <input id="vinylstate_input" class="input-textbox" asp-for="State" autocomplete="on" />
+                <label>Digital format</label>
+                <input id="codec_input" class="input-textbox" asp-for="Codec" autocomplete="on" />
+                <label>Bitness</label>
+                <input id="bitness_input" class="input-textbox" asp-for="Bitness" />
+                <label>Sampling</label>
+                <input id="sampling_input" class="input-textbox" asp-for="Sampling" />
+                <label>Format</label>
+                <input id="format_input" class="input-textbox" asp-for="Format" />
+            </div>
+        </div>
+        <div class="tech-info-create-2">
+            <h4 style="text-align:center">Hardware</h4>
+            <hr />
+            <div class="new-album-input">
+                <label>Device</label>
+                <input id="device_input" class="input-textbox" asp-for="Device" />
+                <label>Cartridge</label>
+                <input id="cartridge_input" class="input-textbox" asp-for="Cartridge" />
+                <label>Amp</label>
+                <input id="amp_input" class="input-textbox" asp-for="Amplifier" />
+                <label>Adc</label>
+                <input id="adc_input" class="input-textbox" asp-for="Adc" />
+                <label>Processing</label>
+                <input id="processing_input" class="input-textbox" asp-for="Processing" />
+            </div>
+        </div>
+    </div>
+    <button id="submit_button" type="submit" style="float:right;" class="mt-2" >
+        <i class="fa-sharp fa-solid fa-check"></i>
+        Save
+    </button>
+</form>

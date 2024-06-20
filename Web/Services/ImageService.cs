@@ -49,7 +49,6 @@ namespace Web.Services
                 default: 
                     return string.Empty;
             }
-            
         }
     }
 }

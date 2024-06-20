@@ -1,4 +1,5 @@
 ﻿using Web.Models;
+using Web.Request;
 
 namespace Web.Db
 {
@@ -11,5 +12,6 @@ namespace Web.Db
         IQueryable<Year> Years { get; }
         IQueryable<Label> Labels { get; }
         IQueryable<Reissue> Reissues { get; }
+        Task<Album> CreateNewAlbum(NewAlbumRequest request);
     }
 }

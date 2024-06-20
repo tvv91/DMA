@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Web.Models;
+﻿using Web.Models;
 
 namespace Web.Db.Implementation
 {

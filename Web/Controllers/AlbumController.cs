@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Models;
+using Web.Request;
+using Web.Response;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -59,16 +61,48 @@ namespace Web.Controllers
             return View("AlbumDetails", albumDetails);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Album album)
+        [HttpGet("album/create")]
+        public async Task<IActionResult> Create()
         {
-            return Ok();
+            return View("New");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> NewAlbum(NewAlbumRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                var album = await _repository.CreateNewAlbum(request);
+                return new RedirectResult($"{album.Id}");
+            } 
+            else
+            {
+                return View("New");
+            }
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
             return Ok();
+        }
+
+        [HttpGet("search/artist")]
+        public async Task<IActionResult> SearchArtist(string term)
+        {
+            return Ok(await _repository.Artists.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+        
+        [HttpGet("search/genre")]
+        public async Task<IActionResult> SearchGenre(string term)
+        {
+            return Ok(await _repository.Genres.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/year")]
+        public async Task<IActionResult> SearchYear(string term)
+        {
+            return Ok(await _repository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
         }
     }
 }

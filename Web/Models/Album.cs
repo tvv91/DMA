@@ -11,14 +11,14 @@
         public int Id { get; set; }
 
         /// <summary>
-        /// Any data about album
+        /// Title
         /// </summary>
-        public string? Data { get; set; }
+        public string Data { get; set; }
 
         /// <summary>
-        /// Album size, Mb
+        /// Album size, Gb
         /// </summary>
-        public int Size { get; set; }
+        public int? Size { get; set; }
 
         /// <summary>
         /// Source from where album was downloaded / buyed

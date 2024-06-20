@@ -7,7 +7,6 @@
     {
         public int Id { get; set; }
         public string Data { get; set; }
-        public int AlbumId { get; set; }
         public ICollection<Album> Albums { get; set; }
     }
 }

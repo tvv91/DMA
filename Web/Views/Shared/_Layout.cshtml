@@ -6,7 +6,9 @@
         <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css" />
         <link rel="stylesheet" href="/css/styles.css" />
         <link rel="stylesheet" href="/lib/font-awesome/css/all.css" />
+        <link rel="stylesheet" href="/lib/jqueryui/themes/base/jquery-ui.min.css" />
         <script src="/lib/jquery/jquery.min.js"></script>
+        <script src="/lib/jqueryui/jquery-ui.js"></script>
         <script src="/lib/microsoft-signalr/signalr.js"></script>
         <script src="/js/hubconnection.js"></script>
         <script>
@@ -41,10 +43,9 @@
                 </ul>
             </div>
             <div class="dropdown dropstart">
-                <i class="fas fa-plus-square fa-2xl fa-pull-left m-3 addbutton" data-bs-toggle="dropdown">
-                </i>
-                <div class="dropdown-menu " aria-labelledby="dropdownMenuButton">
-                    <a class="dropdown-item" href="#">Album</a>
+                <i class="fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton" style="cursor:pointer" data-bs-toggle="dropdown"></i>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    <a class="dropdown-item" href="../album/create">Album</a>
                 </div>
             </div>
         </nav>

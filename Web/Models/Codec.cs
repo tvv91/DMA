@@ -1,7 +1,7 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about codec
+    /// Information about codec / digitized audio format
     /// </summary>
     public class Codec
     {

@@ -51,5 +51,16 @@ namespace Tests.Controllers
             AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
             Assert.Equal(10, model.Albums.Count());
         }
+
+        #region Create album
+        [Fact]
+        public async Task CreateNewAlbum()
+        {
+            IActionResult result = await _controller.Create();
+            ViewResult viewResult = Assert.IsType<ViewResult>(result);
+            AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
+            //Assert.Equal(10, model.Albums.Count());
+        }
+        #endregion
     }
 }

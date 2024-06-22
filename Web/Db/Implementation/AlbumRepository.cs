@@ -8,7 +8,13 @@ namespace Web.Db
     public class AlbumRepository : IAlbumRepository
     {
         private readonly DMADbContext _context;
-        public AlbumRepository(DMADbContext ctx) => _context = ctx;
+        private readonly ITechInfoRepository _techInfoRepository;
+
+        public AlbumRepository(DMADbContext ctx, ITechInfoRepository repository)
+        {
+            _context = ctx;
+            _techInfoRepository = repository;
+        }
 
         public IQueryable<Album> Albums => _context.Albums;
 
@@ -88,6 +94,12 @@ namespace Web.Db
                 album.Label = label;
             }
             #endregion
+
+            var tInfo = await _techInfoRepository.CreateNewTechnicallInfoAsync(request);
+            if (tInfo != null)
+            {
+                album.TechnicalInfo = tInfo;
+            }
 
             await _context.Albums.AddAsync(album);
             await _context.SaveChangesAsync();

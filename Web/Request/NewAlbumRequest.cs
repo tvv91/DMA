@@ -24,13 +24,13 @@ namespace Web.Request
         #region Technical Info
         public string? Adc { get; set; }
         public string? Amplifier { get; set; }
-        public string? Bitness { get; set; }
+        public int? Bitness { get; set; }
         public string? Cartridge { get; set; }
         public string? Codec { get; set; }
         public string? Device { get; set; }
         public string? Format { get; set; }
         public string? Processing { get; set; }
-        public string? Sampling { get; set; }
+        public int? Sampling { get; set; }
         public string? State { get; set; }
         #endregion
     }

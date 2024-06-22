@@ -31,7 +31,7 @@ namespace Web.Controllers
             };
             return View("Index", albumViewModel);
         }
-
+         
         [HttpGet("album/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -73,6 +73,7 @@ namespace Web.Controllers
             if (ModelState.IsValid)
             {
                 var album = await _repository.CreateNewAlbum(request);
+
                 return new RedirectResult($"{album.Id}");
             } 
             else

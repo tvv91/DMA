@@ -17,7 +17,9 @@ namespace Web.Request
         public string? Country { get; set; }
         public string? Label { get; set; }
         public string? Source { get; set; }
-        public int? Size { get; set; }
+        public float? Size { get; set; }
+        public string? Storage { get; set; }
+        public IFormFile AlbumCover { get; set; }
 
         #endregion
 

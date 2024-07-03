@@ -35,108 +35,119 @@ namespace Web.Db.Implementation
         public async Task<TechnicalInfo> CreateNewTechnicallInfoAsync(NewAlbumRequest request)
         {
             var tinfo = new TechnicalInfo();
-
+            // set true if at lease one property not null, else return null and not create empty record in db
+            bool notNull = false;
             if (request.Adc != null)
             {
                 var adc = await FindAdcAsync(request.Adc);
-                if (adc != null)
+                if (adc == null)
                 {
                     adc = await CreateAdcAsync(request.Adc);
                 }
+                notNull = true;
                 tinfo.Adc = adc;
             }
 
             if (request.Amplifier != null)
             {
                 var amp = await FindAmpAsync(request.Amplifier);
-                if (amp != null)
+                if (amp == null)
                 {
                     amp = await CreateAmpAsync(request.Amplifier);
                 }
+                notNull = true;
                 tinfo.Amplifier = amp;
             }
 
             if (request.Bitness != null)
             {
                 var bitness = await FindBitnessAsync(request.Bitness.Value);
-                if (bitness != null)
+                if (bitness == null)
                 {
                     bitness = await CreateBitnessAsync(request.Bitness.Value);
                 }
+                notNull = true;
                 tinfo.Bitness = bitness;
             }
 
             if (request.Cartridge != null)
             {
                 var cartridge = await FindCartridgeAsync(request.Cartridge);
-                if (cartridge != null)
+                if (cartridge == null)
                 {
                     cartridge = await CreateCartridgeAsync(request.Cartridge);
                 }
+                notNull = true;
                 tinfo.Cartrige = cartridge;
             }
 
             if (request.Codec != null)
             {
                 var codec = await FindCodecAsync(request.Codec);
-                if (codec != null)
+                if (codec == null)
                 {
                     codec = await CreateCodecAsync(request.Codec);
                 }
+                notNull = true;
                 tinfo.Codec = codec;
             }
 
             if (request.Device != null)
             {
                 var device = await FindDeviceAsync(request.Device);
-                if (device != null)
+                if (device == null)
                 {
                     device = await CreateDeviceAsync(request.Device);
                 }
+                notNull = true;
                 tinfo.Device = device;
             }
 
             if (request.Format != null)
             {
                 var format = await FindFormatAsync(request.Format);
-                if (format != null)
+                if (format == null)
                 {
                     format = await CreateFormatAsync(request.Format);
                 }
+                notNull = true;
                 tinfo.Format = format;
             }
 
             if (request.Processing != null)
             {
                 var processing = await FindProcessingAsync(request.Processing);
-                if (processing != null)
+                if (processing == null)
                 {
                     processing = await CreateProcessingAsync(request.Processing);
                 }
+                notNull = true;
                 tinfo.Processing = processing;
             }
 
             if (request.Sampling != null)
             {
                 var sampling = await FindSamplingAsync(request.Sampling.Value);
-                if (sampling != null)
+                if (sampling == null)
                 {
                     sampling = await CreateSamplingAsync(request.Sampling.Value);
                 }
+                notNull = true;
                 tinfo.Sampling = sampling;
             }
 
             if (request.State != null)
             {
                 var state = await FindStateAsync(request.State);
-                if (state != null)
+                if (state == null)
                 {
                     state = await CreateStateAsync(request.State);
                 }
+                notNull = true;
                 tinfo.State = state;
             }
 
-            return tinfo;
+            return notNull == true ? tinfo : null;
         }
 
         private async Task<Codec> FindCodecAsync(string data)

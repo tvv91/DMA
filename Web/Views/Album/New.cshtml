@@ -106,20 +106,18 @@
 </script>
 
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
-<form asp-action="NewAlbum" method="post">
+<form asp-action="NewAlbum" enctype="multipart/form-data" method="post">
     <div asp-validation-summary="ModelOnly"></div>
     <div class="new-update-album">
         <div class="cover-image">
             <div class="image-place">
                 <i class="fa-regular fa-image fa-5x"></i>
             </div>
-            <!--
             <div class="image-control-buttons">
                 <button><i class="fa-solid fa-trash-can"></i></button>
-                <button>ss<button>
-                <input type="file" name="uploads"/>
+                <button type="file" name="uploads">Select<button>
+                <input asp-for="AlbumCover" />
             </div>
-            -->
         </div>
         <div class="main-info">
             <h4 style="text-align:center">Base</h4>
@@ -143,6 +141,8 @@
                 <input class="input-textbox" asp-for="Source" />
                 <label>Size</label>
                 <input class="input-textbox" asp-for="Size" />
+                <label>Storage</label>
+                <input class="input-textbox" asp-for="Storage" />
             </div>
         </div>
         <div class="tech-info-create">

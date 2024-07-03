@@ -12,6 +12,7 @@ namespace Web.Db
         IQueryable<Year> Years { get; }
         IQueryable<Label> Labels { get; }
         IQueryable<Reissue> Reissues { get; }
+        IQueryable<Storage> Storages { get; }
         Task<Album> CreateNewAlbum(NewAlbumRequest request);
     }
 }

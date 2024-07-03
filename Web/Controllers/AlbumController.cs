@@ -54,11 +54,7 @@ namespace Web.Controllers
                 return NotFound();
             }
 
-            AlbumDetailsViewModel albumDetails = new AlbumDetailsViewModel
-            {
-                Album = album,
-            };
-            return View("AlbumDetails", albumDetails);
+            return View("AlbumDetails", new AlbumDetailsViewModel {  Album = album });
         }
 
         [HttpGet("album/create")]

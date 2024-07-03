@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using Web.Models;
 using Web.Request;
 
@@ -29,6 +28,8 @@ namespace Web.Db
         public IQueryable<Year> Years => _context.Years;
 
         public IQueryable<Label> Labels => _context.Labels;
+
+        public IQueryable<Storage> Storages => _context.Storages;
 
         public async Task<Album> CreateNewAlbum(NewAlbumRequest request)
         {
@@ -92,6 +93,16 @@ namespace Web.Db
                     label = await CreateLabelAsync(request.Label);
                 }
                 album.Label = label;
+            }
+
+            if (request.Storage != null)
+            {
+                var storage = await FindStorageAsync(request.Storage);
+                if (storage == null)
+                {
+                    storage = await CreateStorageAsync(request.Storage);
+                }
+                album.Storage = storage;
             }
             #endregion
 
@@ -182,6 +193,19 @@ namespace Web.Db
             await _context.Genres.AddAsync(genre);
             await _context.SaveChangesAsync();
             return genre;
+        }
+
+        private async Task<Storage> FindStorageAsync(string storageName)
+        {
+            return await Storages.FirstOrDefaultAsync(x => x.Data == storageName);
+        }
+
+        private async Task<Storage> CreateStorageAsync(string storageName)
+        {
+            var storage = new Storage { Data = storageName };
+            await _context.Storages.AddAsync(storage);
+            await _context.SaveChangesAsync();
+            return storage;
         }
     }
 }

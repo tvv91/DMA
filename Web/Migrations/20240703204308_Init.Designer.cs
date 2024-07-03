@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20240620204307_Init")]
+    [Migration("20240703204308_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -36,9 +36,6 @@ namespace Web.Migrations
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -75,11 +72,14 @@ namespace Web.Migrations
                     b.Property<int?>("ReissueId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Size")
-                        .HasColumnType("int");
+                    b.Property<float?>("Size")
+                        .HasColumnType("real");
 
                     b.Property<string>("Source")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StorageId")
+                        .HasColumnType("int");
 
                     b.Property<int>("YearId")
                         .HasColumnType("int");
@@ -95,6 +95,8 @@ namespace Web.Migrations
                     b.HasIndex("LabelId");
 
                     b.HasIndex("ReissueId");
+
+                    b.HasIndex("StorageId");
 
                     b.HasIndex("YearId");
 
@@ -112,9 +114,6 @@ namespace Web.Migrations
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -149,9 +148,6 @@ namespace Web.Migrations
                     b.Property<int>("Data")
                         .HasColumnType("int");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Bitnesses");
@@ -169,9 +165,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Cartriges");
@@ -188,9 +181,6 @@ namespace Web.Migrations
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -226,9 +216,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Devices");
@@ -245,9 +232,6 @@ namespace Web.Migrations
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -300,9 +284,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Processings");
@@ -335,9 +316,6 @@ namespace Web.Migrations
                     b.Property<int>("Data")
                         .HasColumnType("int");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Samplings");
@@ -355,12 +333,26 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("States");
+                });
+
+            modelBuilder.Entity("Web.Models.Storage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Storages");
                 });
 
             modelBuilder.Entity("Web.Models.TechnicalInfo", b =>
@@ -475,6 +467,10 @@ namespace Web.Migrations
                         .WithMany("Albums")
                         .HasForeignKey("ReissueId");
 
+                    b.HasOne("Web.Models.Storage", "Storage")
+                        .WithMany("Albums")
+                        .HasForeignKey("StorageId");
+
                     b.HasOne("Web.Models.Year", "Year")
                         .WithMany("Albums")
                         .HasForeignKey("YearId")
@@ -490,6 +486,8 @@ namespace Web.Migrations
                     b.Navigation("Label");
 
                     b.Navigation("Reissue");
+
+                    b.Navigation("Storage");
 
                     b.Navigation("Year");
                 });
@@ -641,6 +639,11 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.State", b =>
                 {
                     b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.Storage", b =>
+                {
+                    b.Navigation("Albums");
                 });
 
             modelBuilder.Entity("Web.Models.Year", b =>

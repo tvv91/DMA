@@ -19,7 +19,7 @@ namespace Web.Request
         public string? Source { get; set; }
         public float? Size { get; set; }
         public string? Storage { get; set; }
-        public IFormFile AlbumCover { get; set; }
+        public string? AlbumCover { get; set; }
 
         #endregion
 

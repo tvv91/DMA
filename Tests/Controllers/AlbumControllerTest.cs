@@ -4,6 +4,7 @@ using Moq;
 using Web.Controllers;
 using Web.Db;
 using Web.Models;
+using Web.Services;
 using Web.ViewModels;
 using Xunit;
 
@@ -11,14 +12,16 @@ namespace Tests.Controllers
 {
     public class AlbumControllerTest
     {
-        private Mock<IAlbumRepository> _mock;
+        private Mock<IAlbumRepository> _mockRepo;
+        private Mock<IImageService> _mockImageService;
         private AlbumController _controller;
         
         public AlbumControllerTest()
         {
-            _mock = new Mock<IAlbumRepository>();
-            _mock.Setup(m => m.Albums).Returns(new TestData().GetData().BuildMock());
-            _controller = new AlbumController(_mock.Object);
+            _mockRepo = new Mock<IAlbumRepository>();
+            _mockImageService = new Mock<IImageService>();
+            _mockRepo.Setup(m => m.Albums).Returns(new TestData().GetData().BuildMock());
+            _controller = new AlbumController(_mockRepo.Object, _mockImageService.Object);
         }
 
         [Fact]

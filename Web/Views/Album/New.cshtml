@@ -186,15 +186,14 @@
         url: "/UploadCover",
         thumbnailWidth: 300,
         thumbnailHeight: 300,
+        resizeWidth: 300,
+        resizeHeight: 300,
+        dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
         acceptedFiles: ".jpeg,.png,.jpg",
             success: (file, data) => {
                 $("#coverid").val(data.filename);
                 let preview = $(file.previewElement);
                 preview.addClass("dz-success text-success");
-                setTimeout(()=> { 
-                    dz.removeFile(file);
-                }, 2000);
-            },
-            dictDefaultMessage: "Upload album cover",
+            }         
     });
 </script>

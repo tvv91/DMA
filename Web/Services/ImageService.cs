@@ -17,6 +17,7 @@ namespace Web.Services
         private const string AMP = $"{STORAGE}/resources/amp";
         private const string ADC = $"{STORAGE}/resources/adc";
         private const string PROCESSING = $"{STORAGE}/resources/processing";
+        private const string TEMP = $"{STORAGE}/temp";
 
         public string GetImageUrl(int id, EntityType entity)
         {
@@ -48,6 +49,15 @@ namespace Web.Services
                     return File.Exists($"{ALBUM_COVERS}/{id}.jpg") ? $"/covers/{id}.jpg" : string.Empty;
                 default: 
                     return string.Empty;
+            }
+        }
+
+        public void SaveCover(int albumId, string filename)
+        {
+            var file = $"{TEMP}/{filename}";
+            if (File.Exists(file))
+            {
+                File.Move($"{TEMP}/{filename}", $"{ALBUM_COVERS}/{albumId}.jpg");
             }
         }
     }

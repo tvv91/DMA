@@ -5,6 +5,7 @@ using Web.Db;
 using Web.Models;
 using Web.Request;
 using Web.Response;
+using Web.Services;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -13,10 +14,12 @@ namespace Web.Controllers
     {
         private const int ALBUMS_PER_PAGE = 15;
         private readonly IAlbumRepository _repository;
+        private readonly IImageService _imageService;
 
-        public AlbumController(IAlbumRepository albumRepository)
+        public AlbumController(IAlbumRepository albumRepository, IImageService imageService)
         {
             _repository = albumRepository;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -70,7 +73,7 @@ namespace Web.Controllers
             if (ModelState.IsValid)
             {
                 var album = await _repository.CreateNewAlbum(request);
-
+                _imageService.SaveCover(album.Id, request.AlbumCover);
                 return new RedirectResult($"{album.Id}");
             } 
             else

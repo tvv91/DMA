@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Web.Migrations
 {
     /// <inheritdoc />
@@ -186,7 +188,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -369,6 +371,57 @@ namespace Web.Migrations
                         column: x => x.StateId,
                         principalTable: "States",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.InsertData(
+                table: "Bitnesses",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 2, 24 },
+                    { 3, 32 },
+                    { 4, 64 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Codecs",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "FLAC" },
+                    { 2, "DSD64" },
+                    { 3, "DSD128" },
+                    { 4, "DSD256" },
+                    { 5, "DSD512" },
+                    { 6, "WV" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Formats",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "LP" },
+                    { 2, "EP_10_45RPM" },
+                    { 3, "EP_12_45RPM" },
+                    { 4, "SINGLE_7_45RPM" },
+                    { 5, "SINGLE_12_45RPM" },
+                    { 6, "WV" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Samplings",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, 96.0 },
+                    { 2, 192.0 },
+                    { 3, 384.0 },
+                    { 4, 2.7999999999999998 },
+                    { 5, 5.5999999999999996 },
+                    { 6, 11.199999999999999 },
+                    { 7, 22.5 }
                 });
 
             migrationBuilder.CreateIndex(

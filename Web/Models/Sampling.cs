@@ -6,7 +6,7 @@
     public class Sampling
     {
         public int Id { get; set; }
-        public int Data { get; set; }
+        public double Data { get; set; }
         public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

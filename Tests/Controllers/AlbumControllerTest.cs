@@ -3,7 +3,6 @@ using MockQueryable.Moq;
 using Moq;
 using Web.Controllers;
 using Web.Db;
-using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 using Xunit;

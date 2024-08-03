@@ -8,7 +8,7 @@ namespace Web.Services
         private const string NO_COVER = "resources/nocover.png";        
         private const string ALBUM_COVERS = $"{STORAGE}/covers";
         private const string VINYL_STATE = $"{STORAGE}/resources/vinylstate";
-        private const string DIGITAL_FORMAT = $"{STORAGE}/resources/digitalformat";
+        private const string CODEC = $"{STORAGE}/resources/codec";
         private const string BITNESS = $"{STORAGE}/resources/bitness";
         private const string SAMPLING= $"{STORAGE}/resources/sampling";
         private const string SOURCE_FORMAT = $"{STORAGE}/resources/sourceformat";
@@ -28,7 +28,7 @@ namespace Web.Services
                 case EntityType.VinylState:
                     return File.Exists($"{VINYL_STATE}/{id}.png") ? $"/resources/vinylstate/{id}.png" : string.Empty;
                 case EntityType.DigitalFormat:
-                    return File.Exists($"{DIGITAL_FORMAT}/{id}.png") ? $"/resources/digitalformat/{id}.png" : string.Empty;
+                    return File.Exists($"{CODEC}/{id}.png") ? $"/resources/codec/{id}.png" : string.Empty;
                 case EntityType.Bitness:
                     return File.Exists($"{BITNESS}/{id}.png") ? $"/resources/bitness/{id}.png" : string.Empty;
                 case EntityType.Sampling:

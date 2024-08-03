@@ -148,6 +148,28 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Bitnesses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = 24
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = 32
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = 64
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Cartrige", b =>
@@ -182,6 +204,38 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Codecs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "FLAC"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "DSD64"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "DSD128"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "DSD256"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "DSD512"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "WV"
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Country", b =>
@@ -233,6 +287,38 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Formats");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "LP"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "EP_10_45RPM"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "EP_12_45RPM"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "SINGLE_7_45RPM"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "SINGLE_12_45RPM"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "WV"
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Genre", b =>
@@ -310,12 +396,49 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Data")
-                        .HasColumnType("int");
+                    b.Property<double>("Data")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
                     b.ToTable("Samplings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = 96.0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = 192.0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = 384.0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = 2.7999999999999998
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = 5.5999999999999996
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = 11.199999999999999
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Data = 22.5
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.State", b =>

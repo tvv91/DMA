@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata;
 using Web.Models;
 
 namespace Web.Db
@@ -25,5 +26,38 @@ namespace Web.Db
         public DbSet<Year> Years { get; set; }
         public DbSet<Storage> Storages { get; set; }
         public DbSet<TechnicalInfo> TechnicalInfos { get; set;}
+
+        // pre-defined entities
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // codecs
+            modelBuilder.Entity<Codec>().HasData(new Codec { Id = 1, Data = "FLAC" });
+            modelBuilder.Entity<Codec>().HasData(new Codec { Id = 2, Data = "DSD64" });
+            modelBuilder.Entity<Codec>().HasData(new Codec { Id = 3, Data = "DSD128" });
+            modelBuilder.Entity<Codec>().HasData(new Codec { Id = 4, Data = "DSD256" });
+            modelBuilder.Entity<Codec>().HasData(new Codec { Id = 5, Data = "DSD512" });
+            modelBuilder.Entity<Codec>().HasData(new Codec { Id = 6, Data = "WV" });
+            // bitness
+            modelBuilder.Entity<Bitness>().HasData(new Bitness { Id = 1, Data = 1 });
+            modelBuilder.Entity<Bitness>().HasData(new Bitness { Id = 2, Data = 24 });
+            modelBuilder.Entity<Bitness>().HasData(new Bitness { Id = 3, Data = 32 });
+            modelBuilder.Entity<Bitness>().HasData(new Bitness { Id = 4, Data = 64 });
+            // sampling
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 1, Data = 96 });
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 2, Data = 192 });
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 3, Data = 384 });
+            // dsd sampling
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 4, Data = 2.8 });
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 5, Data = 5.6 });
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 6, Data = 11.2 });
+            modelBuilder.Entity<Sampling>().HasData(new Sampling { Id = 7, Data = 22.5 });
+            // format
+            modelBuilder.Entity<Format>().HasData(new Format { Id = 1, Data = "LP 12'' 33RPM" });
+            modelBuilder.Entity<Format>().HasData(new Format { Id = 2, Data = "EP 10'' 45RPM" });
+            modelBuilder.Entity<Format>().HasData(new Format { Id = 3, Data = "EP 12'' 45RPM" });
+            modelBuilder.Entity<Format>().HasData(new Format { Id = 4, Data = "SINGLE 7'' 45RPM" });
+            modelBuilder.Entity<Format>().HasData(new Format { Id = 5, Data = "SINGLE 12'' 45RPM" });
+            modelBuilder.Entity<Format>().HasData(new Format { Id = 6, Data = "SHELLAC 10'' 78RPM" });
+        }
     }
 }

@@ -77,10 +77,6 @@ namespace Web.Db
                 Device device3 = new Device { Data = "Device3" };
                 #endregion
 
-                #region Formats
-                Format format1 = new Format { Data = "Vinyl" };
-                #endregion
-
                 #region Processings
                 Processing processing1 = new Processing { Data = "Declicking" };
                 #endregion
@@ -107,7 +103,7 @@ namespace Web.Db
                     Cartrige = cartrige1,
                     CodecId = 1,
                     Device = device1,
-                    Format = format1,
+                    FormatId = 1,
                     Processing = processing1,
                     Sampling = sampling1,
                     State = state3
@@ -120,7 +116,7 @@ namespace Web.Db
                     Cartrige = cartrige1,
                     CodecId = 2,
                     Device = device1,
-                    Format = format1,
+                    FormatId = 2,
                     Processing = processing1,
                     Sampling = sampling1,
                     State = state2
@@ -133,7 +129,7 @@ namespace Web.Db
                     Cartrige = cartrige2,
                     CodecId = 2,
                     Device = device2,
-                    Format = format1,
+                    FormatId = 3,
                     Processing = processing1,
                     Sampling = sampling2,
                     State = state2
@@ -146,7 +142,7 @@ namespace Web.Db
                     Cartrige = cartrige2,
                     CodecId = 2,
                     Device = device3,
-                    Format = format1,
+                    FormatId = 4,
                     Sampling = sampling3,
                     State = state1
                 };
@@ -158,7 +154,7 @@ namespace Web.Db
                     Cartrige = cartrige3,
                     CodecId = 2,
                     Device = device3,
-                    Format = format1,
+                    FormatId = 1,
                     Sampling = sampling3,
                     State = state1
                 };

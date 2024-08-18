@@ -17,7 +17,7 @@ namespace Web.Request
         public string? Country { get; set; }
         public string? Label { get; set; }
         public string? Source { get; set; }
-        public float? Size { get; set; }
+        public double? Size { get; set; }
         public string? Storage { get; set; }
         public string? AlbumCover { get; set; }
 

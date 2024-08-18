@@ -18,7 +18,7 @@
         /// <summary>
         /// Album size, Gb
         /// </summary>
-        public float? Size { get; set; }
+        public double? Size { get; set; }
 
         /// <summary>
         /// Source from where album was downloaded / buyed

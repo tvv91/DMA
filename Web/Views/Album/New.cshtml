@@ -1,6 +1,7 @@
 ﻿@model NewAlbumRequest;
 
 <script>
+    
     $(document).ready(async () => {
         await start();
     })
@@ -8,7 +9,7 @@
     connection.onclose(async () => {
         await start();
     });
-
+    
     $(function () {
         $("#artist_input").autocomplete({
             source: '/search/artist',
@@ -101,18 +102,54 @@
                 results: function () { }
             }
         });
-    });
-</script>
 
+    });
+
+    function showError(message) {
+        $("#errormessage").text(message);
+        $(".alert").addClass("show");
+        $(".alert").alert();
+    }
+
+    /*
+    Some checks for prevention to save incorrect data
+    for example, if you select any DSD format as digital format
+    and bitness more than 1, which impossible
+    */
+    function checkValidData() {
+        const dsdformats = ["dsd64", "dsd128", "dsd256", "dsd512"];
+        let codec = $("#codec_input").val().toLowerCase();
+        let bitness = $("#bitness_input").val();
+        let sampling = $("#sampling_input").val();
+        if (codec !== "" && bitness !== "" && sampling !== "") {
+            if (dsdformats.some(x => codec.includes(x))) {
+                if (bitness !== "1") {
+                    showError("DSD is 1 bit / s format");
+                }
+                else if (codec == 'dsd64' && sampling !== "2.8") {
+                    showError("DSD64 sampling is 2.8 (MHz)");
+                }
+                else if (codec == 'dsd128' && sampling !== "5.6") {
+                    showError("DSD128 sampling is 5.6 (MHz)");
+                }
+                else if (codec == 'dsd256' && sampling !== "11.2") {
+                    showError("DSD256 sampling is 11.2 (MHz)");
+                }
+                else if (codec == 'dsd512' && sampling !== "22.5") {
+                    showError("DSD512 sampling is 22.5 (MHz)");
+                } else {
+                    $(".alert").removeClass("show");
+                }
+            }
+        }
+    }
+</script>
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
 <form asp-action="NewAlbum" method="post">
     <div asp-validation-summary="ModelOnly"></div>
     <div class="new-update-album">
         <div class="cover-image">
             <div class="image-place dropzone" id="mydropzone"></div>
-            <div class="image-control-buttons">
-                <button><i class="fa-solid fa-trash-can"></i></button>
-            </div>
         </div>
         <div class="main-info">
             <h4 style="text-align:center">Base</h4>
@@ -148,13 +185,17 @@
                 <label>Vinyl state</label>
                 <input id="vinylstate_input" class="input-textbox" asp-for="State" autocomplete="on" />
                 <label>Digital format</label>
-                <input id="codec_input" class="input-textbox" asp-for="Codec" autocomplete="on" />
+                <input id="codec_input" class="input-textbox" asp-for="Codec" autocomplete="on" onchange="checkValidData()" />
                 <label>Bitness</label>
-                <input id="bitness_input" class="input-textbox" asp-for="Bitness" />
+                <input id="bitness_input" class="input-textbox" asp-for="Bitness" onchange="checkValidData()" />
                 <label>Sampling</label>
-                <input id="sampling_input" class="input-textbox" asp-for="Sampling" />
+                <input id="sampling_input" class="input-textbox" asp-for="Sampling" onchange="checkValidData()" />
                 <label>Format</label>
                 <input id="format_input" class="input-textbox" asp-for="Format" />
+            </div>
+            <div class="alert alert-danger alert-dismissible fade" role="alert">
+                <strong>WARNING</strong>
+                <div id="errormessage"></div>
             </div>
         </div>
         <div class="tech-info-create-2">
@@ -184,6 +225,7 @@
     let myDropzone = new Dropzone("div#mydropzone", 
     {
         url: "/UploadCover",
+        addRemoveLinks: true,
         thumbnailWidth: 300,
         thumbnailHeight: 300,
         resizeWidth: 300,
@@ -200,7 +242,6 @@
                     let myDropzone = this;
                     myDropzone.displayExistingFile({}, `/temp/${$("#coverid").val()}`);
                 }
-                
             }
     });
 </script>

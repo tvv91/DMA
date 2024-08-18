@@ -13,7 +13,7 @@ namespace Web.Services
             { EntityType.AlbumCover, $"/covers/"},
             { EntityType.VinylState, "/resources/vinylstate/"},
             { EntityType.DigitalFormat, "/resources/codec/"},
-            { EntityType.Bitness, "/resources/codec/"},
+            { EntityType.Bitness, "/resources/bitness/"},
             { EntityType.Sampling, "/resources/sampling/"},
             { EntityType.SourceFormat, "/resources/sourceformat/"},
             { EntityType.Device, "/resources/device/"},
@@ -40,7 +40,12 @@ namespace Web.Services
             var file = $"{TEMP}/{filename}";
             if (File.Exists(file))
             {
-                File.Move($"{TEMP}/{filename}", $"/covers/{albumId}.jpg");
+                File.Move(file, $"{STORAGE}/covers/{albumId}.jpg");
+                // clean temp directory
+                foreach (var f in Directory.GetFiles(TEMP))
+                {
+                    File.Delete(f);
+                }
             }
         }
     }

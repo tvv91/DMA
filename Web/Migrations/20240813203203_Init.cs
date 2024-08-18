@@ -241,7 +241,7 @@ namespace Web.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Size = table.Column<float>(type: "real", nullable: true),
+                    Size = table.Column<double>(type: "float", nullable: true),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ArtistId = table.Column<int>(type: "int", nullable: false),
@@ -402,12 +402,12 @@ namespace Web.Migrations
                 columns: new[] { "Id", "Data" },
                 values: new object[,]
                 {
-                    { 1, "LP" },
-                    { 2, "EP_10_45RPM" },
-                    { 3, "EP_12_45RPM" },
-                    { 4, "SINGLE_7_45RPM" },
-                    { 5, "SINGLE_12_45RPM" },
-                    { 6, "WV" }
+                    { 1, "LP 12'' 33RPM" },
+                    { 2, "EP 10'' 45RPM" },
+                    { 3, "EP 12'' 45RPM" },
+                    { 4, "SINGLE 7'' 45RPM" },
+                    { 5, "SINGLE 12'' 45RPM" },
+                    { 6, "SHELLAC 10'' 78RPM" }
                 });
 
             migrationBuilder.InsertData(
@@ -422,6 +422,19 @@ namespace Web.Migrations
                     { 5, 5.5999999999999996 },
                     { 6, 11.199999999999999 },
                     { 7, 22.5 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "States",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "Mint" },
+                    { 2, "Near Mint" },
+                    { 3, "Very Good+" },
+                    { 4, "Very Good" },
+                    { 5, "Good" },
+                    { 6, "Unknown" }
                 });
 
             migrationBuilder.CreateIndex(

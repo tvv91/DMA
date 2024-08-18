@@ -106,7 +106,7 @@ namespace Web.Controllers
             return Ok(await _repository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
         }
 
-        [HttpPost("/UploadCover")]
+        [HttpPost("/uploadcover")]
         public async Task<IActionResult> UploadCover(IFormFile filedata)
         {
             var files = HttpContext.Request.Form.Files;
@@ -120,7 +120,6 @@ namespace Web.Controllers
                 await using FileStream fs = System.IO.File.Create(physicalPath);
                 await files[0].CopyToAsync(fs);
                 fs.Flush();
-
                 return Json(new { Filename = $"{guid}{ext}" });
             }
             return Ok();

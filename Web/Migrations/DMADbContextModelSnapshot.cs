@@ -69,8 +69,8 @@ namespace Web.Migrations
                     b.Property<int?>("ReissueId")
                         .HasColumnType("int");
 
-                    b.Property<float?>("Size")
-                        .HasColumnType("real");
+                    b.Property<double?>("Size")
+                        .HasColumnType("float");
 
                     b.Property<string>("Source")
                         .HasColumnType("nvarchar(max)");
@@ -292,32 +292,32 @@ namespace Web.Migrations
                         new
                         {
                             Id = 1,
-                            Data = "LP"
+                            Data = "LP 12'' 33RPM"
                         },
                         new
                         {
                             Id = 2,
-                            Data = "EP_10_45RPM"
+                            Data = "EP 10'' 45RPM"
                         },
                         new
                         {
                             Id = 3,
-                            Data = "EP_12_45RPM"
+                            Data = "EP 12'' 45RPM"
                         },
                         new
                         {
                             Id = 4,
-                            Data = "SINGLE_7_45RPM"
+                            Data = "SINGLE 7'' 45RPM"
                         },
                         new
                         {
                             Id = 5,
-                            Data = "SINGLE_12_45RPM"
+                            Data = "SINGLE 12'' 45RPM"
                         },
                         new
                         {
                             Id = 6,
-                            Data = "WV"
+                            Data = "SHELLAC 10'' 78RPM"
                         });
                 });
 
@@ -456,6 +456,38 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("States");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "Mint"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "Near Mint"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "Very Good+"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "Very Good"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "Good"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "Unknown"
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Storage", b =>

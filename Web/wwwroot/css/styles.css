@@ -134,11 +134,6 @@
     border: 1px dashed;
 }
 
-.image-control-buttons { 
-    float: right;
-    padding-top: 5px;
-}
-
 .input-validation-error {
     background-color: #fee;
 }

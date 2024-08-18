@@ -58,6 +58,13 @@ namespace Web.Db
             modelBuilder.Entity<Format>().HasData(new Format { Id = 4, Data = "SINGLE 7'' 45RPM" });
             modelBuilder.Entity<Format>().HasData(new Format { Id = 5, Data = "SINGLE 12'' 45RPM" });
             modelBuilder.Entity<Format>().HasData(new Format { Id = 6, Data = "SHELLAC 10'' 78RPM" });
+            // vinyl state
+            modelBuilder.Entity<State>().HasData(new State { Id = 1, Data = "Mint" });
+            modelBuilder.Entity<State>().HasData(new State { Id = 2, Data = "Near Mint" });
+            modelBuilder.Entity<State>().HasData(new State { Id = 3, Data = "Very Good+" });
+            modelBuilder.Entity<State>().HasData(new State { Id = 4, Data = "Very Good" });
+            modelBuilder.Entity<State>().HasData(new State { Id = 5, Data = "Good" });
+            modelBuilder.Entity<State>().HasData(new State { Id = 6, Data = "Unknown" });
         }
     }
 }

@@ -11,14 +11,20 @@
       "destination": "wwwroot/lib/jquery/"
     },
     {
-      "provider": "cdnjs",
       "library": "microsoft-signalr@8.0.0",
       "destination": "wwwroot/lib/microsoft-signalr/"
     },
     {
-      "provider": "cdnjs",
       "library": "font-awesome@6.5.1",
       "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "library": "jqueryui@1.13.2",
+      "destination": "wwwroot/lib/jqueryui/"
+    },
+    {
+      "library": "dropzone@5.9.3",
+      "destination": "wwwroot/lib/dropzone/"
     }
   ]
 }

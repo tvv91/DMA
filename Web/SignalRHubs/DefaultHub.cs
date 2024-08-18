@@ -29,7 +29,12 @@ namespace Web.SignalRHubs
                 Thread.Sleep(100);
             }
         }
-        
+
+        public async Task GetAlbumCover(string connectionId, int albumId)
+        {
+            await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _coverImageService.GetImageUrl(albumId, EntityType.AlbumDetailCover));
+        }
+
         public async Task GetTechnicalInfoIcons(string connectionId, int albumId)
         {
             TechnicalInfo ti = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);

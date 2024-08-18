@@ -4,6 +4,7 @@
     $(document).ready(async () => {
         await start();
         await getTechnicalInfoIcons(@Model.Album.Id);
+        await getAlbumCover(@Model.Album.Id);
     })
 
     async function getTechnicalInfoIcons(albumId) {
@@ -14,6 +15,14 @@
         }
     }
 
+    async function getAlbumCover(albumId) {
+        try {
+            await connection.invoke("GetAlbumCover", connection.connectionId, albumId);
+        } catch (err) {
+            console.log("Error sending request to GetAlbumCover");
+        }
+    }
+
     connection.on("TechnicalInfoNotFound", () => {
         $('#noinfowarning').fadeIn(3000);
     });
@@ -21,22 +30,41 @@
     connection.on("TechnicalInfoFound", () => {
         $('#techinfoicons').fadeIn(500);
     });
-
+    
     connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
         console.log(category, cover);
         $(`#${category}div`).fadeIn(1000);
         window.setTimeout(() => {
             $(`div[id=${category}div]`).attr("class", "");
-            $(`img[id=${category}]`).css("display", "");
+            if (cover == '') {
+                $(`div[id=${category}div]`).append("<i id='nocovericon' class='fa-regular fa-image fa-6x'></i>");
+            } else {
+                $(`img[id=${category}]`).css("display", "");
+            }
         }, 1000);
         $(`img[id=${category}]`).attr("src", cover);
+    });
+
+    connection.on("ReceivedAlbumConverDetailed", (cover) => {
+        if (cover == '') {
+            $('#nocovericon').css("display", "");
+            $('#coverspinner').css("display", "none");
+            $('#coverdiv').css("border", "solid");
+        } else {
+            $('#cover').fadeIn(1000);
+            $('#cover').css("display", "")
+            $('#cover').attr("src", cover);
+            $('#coverspinner').css("display", "none");
+        }
     });
 </script>
 
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
 <div class="test mt-3">
-    <div class="box1">
-        <img class="album-cover" src="/covers/1.jpg" style="width: 100%; height: 100%;" />
+    <div id="coverdiv" class="box1">
+        <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
+        <i id="nocovericon"class="fa-regular fa-image fa-10x" style="top:30%; left:30%; position: relative; display: none""></i>
+        <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
     </div>
     <div class="box2">
         <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>

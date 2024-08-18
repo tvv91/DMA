@@ -11,7 +11,7 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
     opts.UseSqlServer(builder.Configuration["ConnectionStrings:DbConnection"]);
 });
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
-builder.Services.AddScoped<ITechInfoRepository, TechnicalInfoRepository>();
+builder.Services.AddScoped<ITechInfoRepository, TechnicalnfoRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddSignalR();
 var app = builder.Build();

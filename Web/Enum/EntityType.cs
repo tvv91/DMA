@@ -15,6 +15,7 @@
         Cartridge,
         Amp,
         Adc,
-        Processing
+        Processing,
+        AlbumDetailCover
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Web.Migrations
 {
     /// <inheritdoc />
@@ -17,8 +19,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,8 +32,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,8 +45,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,8 +58,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<int>(type: "int", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -73,8 +71,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -87,8 +84,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -101,8 +97,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,8 +110,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -129,8 +123,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -143,8 +136,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -157,8 +149,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -171,8 +162,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -185,8 +175,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<int>(type: "int", nullable: false),
-                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -199,8 +188,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<int>(type: "int", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -213,12 +201,24 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TechicalInfoId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_States", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Storages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Storages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -227,8 +227,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<int>(type: "int", nullable: false),
-                    AlbumId = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -241,8 +240,8 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Size = table.Column<int>(type: "int", nullable: false),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Size = table.Column<double>(type: "float", nullable: true),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ArtistId = table.Column<int>(type: "int", nullable: false),
@@ -250,7 +249,8 @@ namespace Web.Migrations
                     YearId = table.Column<int>(type: "int", nullable: false),
                     ReissueId = table.Column<int>(type: "int", nullable: true),
                     CountryId = table.Column<int>(type: "int", nullable: true),
-                    LabelId = table.Column<int>(type: "int", nullable: true)
+                    LabelId = table.Column<int>(type: "int", nullable: true),
+                    StorageId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -281,6 +281,11 @@ namespace Web.Migrations
                         name: "FK_Albums_Reissues_ReissueId",
                         column: x => x.ReissueId,
                         principalTable: "Reissues",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Albums_Storages_StorageId",
+                        column: x => x.StorageId,
+                        principalTable: "Storages",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Albums_Years_YearId",
@@ -368,6 +373,70 @@ namespace Web.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.InsertData(
+                table: "Bitnesses",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 2, 24 },
+                    { 3, 32 },
+                    { 4, 64 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Codecs",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "FLAC" },
+                    { 2, "DSD64" },
+                    { 3, "DSD128" },
+                    { 4, "DSD256" },
+                    { 5, "DSD512" },
+                    { 6, "WV" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Formats",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "LP 12'' 33RPM" },
+                    { 2, "EP 10'' 45RPM" },
+                    { 3, "EP 12'' 45RPM" },
+                    { 4, "SINGLE 7'' 45RPM" },
+                    { 5, "SINGLE 12'' 45RPM" },
+                    { 6, "SHELLAC 10'' 78RPM" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "Samplings",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, 96.0 },
+                    { 2, 192.0 },
+                    { 3, 384.0 },
+                    { 4, 2.7999999999999998 },
+                    { 5, 5.5999999999999996 },
+                    { 6, 11.199999999999999 },
+                    { 7, 22.5 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "States",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "Mint" },
+                    { 2, "Near Mint" },
+                    { 3, "Very Good+" },
+                    { 4, "Very Good" },
+                    { 5, "Good" },
+                    { 6, "Unknown" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Albums_ArtistId",
                 table: "Albums",
@@ -392,6 +461,11 @@ namespace Web.Migrations
                 name: "IX_Albums_ReissueId",
                 table: "Albums",
                 column: "ReissueId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Albums_StorageId",
+                table: "Albums",
+                column: "StorageId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Albums_YearId",
@@ -509,6 +583,9 @@ namespace Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reissues");
+
+            migrationBuilder.DropTable(
+                name: "Storages");
 
             migrationBuilder.DropTable(
                 name: "Years");

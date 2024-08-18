@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Web.Db;
 using Web.Models;
+using Web.Request;
+using Web.Response;
+using Web.Services;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -10,10 +14,12 @@ namespace Web.Controllers
     {
         private const int ALBUMS_PER_PAGE = 15;
         private readonly IAlbumRepository _repository;
+        private readonly IImageService _imageService;
 
-        public AlbumController(IAlbumRepository albumRepository)
+        public AlbumController(IAlbumRepository albumRepository, IImageService imageService)
         {
             _repository = albumRepository;
+            _imageService = imageService;
         }
 
         [HttpGet]
@@ -29,7 +35,7 @@ namespace Web.Controllers
             };
             return View("Index", albumViewModel);
         }
-
+         
         [HttpGet("album/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -44,7 +50,6 @@ namespace Web.Controllers
                 .Include(a => a.Genre)
                 .Include(a => a.Label)
                 .Include(a => a.Reissue)
-                .Include(a => a.TechnicalInfo)
                 .Include(a => a.Year)
                 .FirstOrDefaultAsync(a => a.Id == id);
             
@@ -53,22 +58,70 @@ namespace Web.Controllers
                 return NotFound();
             }
 
-            AlbumDetailsViewModel albumDetails = new AlbumDetailsViewModel
-            {
-                Album = album,
-            };
-            return View("AlbumDetails", albumDetails);
+            return View("AlbumDetails", new AlbumDetailsViewModel {  Album = album });
+        }
+
+        [HttpGet("album/create")]
+        public async Task<IActionResult> Create()
+        {
+            return View("New");
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Album album)
+        public async Task<IActionResult> NewAlbum(NewAlbumRequest request)
         {
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                var album = await _repository.CreateNewAlbum(request);
+                _imageService.SaveCover(album.Id, request.AlbumCover);
+                return new RedirectResult($"{album.Id}");
+            } 
+            else
+            {
+                return View("New");
+            }
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            return Ok();
+        }
+
+        [HttpGet("search/artist")]
+        public async Task<IActionResult> SearchArtist(string term)
+        {
+            return Ok(await _repository.Artists.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+        
+        [HttpGet("search/genre")]
+        public async Task<IActionResult> SearchGenre(string term)
+        {
+            return Ok(await _repository.Genres.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/year")]
+        public async Task<IActionResult> SearchYear(string term)
+        {
+            return Ok(await _repository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+        }
+
+        [HttpPost("/uploadcover")]
+        public async Task<IActionResult> UploadCover(IFormFile filedata)
+        {
+            var files = HttpContext.Request.Form.Files;
+            if (files.Any())
+            {
+                var guid = Guid.NewGuid().ToString("N");
+                var ext = Path.GetExtension(files[0].FileName);
+                await using var target = new MemoryStream();
+                await files[0].CopyToAsync(target);
+                var physicalPath = $"{new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp")).Root}{$@"{guid}{ext}"}";
+                await using FileStream fs = System.IO.File.Create(physicalPath);
+                await files[0].CopyToAsync(fs);
+                fs.Flush();
+                return Json(new { Filename = $"{guid}{ext}" });
+            }
             return Ok();
         }
     }

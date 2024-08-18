@@ -65,31 +65,16 @@ namespace Web.Db
                 Amplifier amp2 = new Amplifier { Data = "Amplifier2" };
                 #endregion
 
-                #region Bitnesses
-                Bitness bitness1 = new Bitness { Data = 24 };
-                Bitness bitness2 = new Bitness { Data = 32 };
-                Bitness bitness3 = new Bitness { Data = 1 };
-                #endregion
-
                 #region Cartriges
                 Cartrige cartrige1 = new Cartrige { Data = "Cartrige1" };
                 Cartrige cartrige2 = new Cartrige { Data = "Cartrige2" };
                 Cartrige cartrige3 = new Cartrige { Data = "Cartrige3" };
                 #endregion
 
-                #region Codecs
-                Codec codec1 = new Codec { Data = "FLAC" };
-                Codec codec2 = new Codec { Data = "DSD" };
-                #endregion
-
                 #region Devices
                 Device device1 = new Device { Data = "Device1" };
                 Device device2 = new Device { Data = "Device2" };
                 Device device3 = new Device { Data = "Device3" };
-                #endregion
-
-                #region Formats
-                Format format1 = new Format { Data = "Vinyl" };
                 #endregion
 
                 #region Processings
@@ -103,22 +88,22 @@ namespace Web.Db
                 #endregion
 
                 #region States
-                State state1 = new State { Data = "mint" };
-                State state2 = new State { Data = "nearming" };
-                State state3 = new State { Data = "verygood+" };
-                State state4 = new State { Data = "verygood" };
-                State state5 = new State { Data = "good" };
+                State state1 = new State { Data = "Mint" };
+                State state2 = new State { Data = "Nearmint" };
+                State state3 = new State { Data = "Verygood+" };
+                State state4 = new State { Data = "Verygood" };
+                State state5 = new State { Data = "Good" };
                 #endregion
 
                 TechnicalInfo ti1 = new TechnicalInfo
                 {
                     Adc = adc1,
                     Amplifier = amp1,
-                    Bitness = bitness1,
+                    BitnessId = 1,
                     Cartrige = cartrige1,
-                    Codec = codec1,
+                    CodecId = 1,
                     Device = device1,
-                    Format = format1,
+                    FormatId = 1,
                     Processing = processing1,
                     Sampling = sampling1,
                     State = state3
@@ -127,11 +112,11 @@ namespace Web.Db
                 {
                     Adc = adc1,
                     Amplifier = amp1,
-                    Bitness = bitness1,
+                    BitnessId = 1,
                     Cartrige = cartrige1,
-                    Codec = codec1,
+                    CodecId = 2,
                     Device = device1,
-                    Format = format1,
+                    FormatId = 2,
                     Processing = processing1,
                     Sampling = sampling1,
                     State = state2
@@ -140,11 +125,11 @@ namespace Web.Db
                 {
                     Adc = adc1,
                     Amplifier = amp1,
-                    Bitness = bitness2,
+                    BitnessId = 1,
                     Cartrige = cartrige2,
-                    Codec = codec1,
+                    CodecId = 2,
                     Device = device2,
-                    Format = format1,
+                    FormatId = 3,
                     Processing = processing1,
                     Sampling = sampling2,
                     State = state2
@@ -153,11 +138,11 @@ namespace Web.Db
                 {
                     Adc = adc2,
                     Amplifier = amp2,
-                    Bitness = bitness3,
+                    BitnessId = 1,
                     Cartrige = cartrige2,
-                    Codec = codec2,
+                    CodecId = 2,
                     Device = device3,
-                    Format = format1,
+                    FormatId = 4,
                     Sampling = sampling3,
                     State = state1
                 };
@@ -165,11 +150,11 @@ namespace Web.Db
                 {
                     Adc = adc2,
                     Amplifier = amp2,
-                    Bitness = bitness3,
+                    BitnessId = 1,
                     Cartrige = cartrige3,
-                    Codec = codec2,
+                    CodecId = 2,
                     Device = device3,
-                    Format = format1,
+                    FormatId = 1,
                     Sampling = sampling3,
                     State = state1
                 };

@@ -1,4 +1,5 @@
 ﻿using Web.Models;
+using Web.Request;
 
 namespace Web.Db
 {
@@ -15,6 +16,7 @@ namespace Web.Db
         IQueryable<Processing> Processings { get; }
         IQueryable<Sampling> Samplings { get; }
         IQueryable<State> States { get; }
+        Task<TechnicalInfo> CreateNewTechnicallInfoAsync(NewAlbumRequest request);
 
     }
 }

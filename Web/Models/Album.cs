@@ -11,14 +11,14 @@
         public int Id { get; set; }
 
         /// <summary>
-        /// Any data about album
+        /// Title
         /// </summary>
-        public string? Data { get; set; }
+        public string Data { get; set; }
 
         /// <summary>
-        /// Album size, Mb
+        /// Album size, Gb
         /// </summary>
-        public int Size { get; set; }
+        public double? Size { get; set; }
 
         /// <summary>
         /// Source from where album was downloaded / buyed
@@ -47,6 +47,7 @@
         public Reissue? Reissue { get; set; }
         public Country? Country { get; set; }
         public Label? Label { get; set; }
+        public Storage? Storage {  get; set; }
         public TechnicalInfo? TechnicalInfo { get; set; }
         #endregion
     }

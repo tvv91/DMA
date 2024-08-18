@@ -34,9 +34,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Adces");
@@ -60,6 +57,7 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Data")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("GenreId")
@@ -71,11 +69,14 @@ namespace Web.Migrations
                     b.Property<int?>("ReissueId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Size")
-                        .HasColumnType("int");
+                    b.Property<double?>("Size")
+                        .HasColumnType("float");
 
                     b.Property<string>("Source")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("StorageId")
+                        .HasColumnType("int");
 
                     b.Property<int>("YearId")
                         .HasColumnType("int");
@@ -91,6 +92,8 @@ namespace Web.Migrations
                     b.HasIndex("LabelId");
 
                     b.HasIndex("ReissueId");
+
+                    b.HasIndex("StorageId");
 
                     b.HasIndex("YearId");
 
@@ -109,9 +112,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Amplifiers");
@@ -124,9 +124,6 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -148,12 +145,31 @@ namespace Web.Migrations
                     b.Property<int>("Data")
                         .HasColumnType("int");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Bitnesses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = 24
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = 32
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = 64
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Cartrige", b =>
@@ -167,9 +183,6 @@ namespace Web.Migrations
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -188,12 +201,41 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Codecs");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "FLAC"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "DSD64"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "DSD128"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "DSD256"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "DSD512"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "WV"
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Country", b =>
@@ -203,9 +245,6 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -228,9 +267,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Devices");
@@ -248,12 +284,41 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Formats");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "LP 12'' 33RPM"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "EP 10'' 45RPM"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "EP 12'' 45RPM"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "SINGLE 7'' 45RPM"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "SINGLE 12'' 45RPM"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "SHELLAC 10'' 78RPM"
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.Genre", b =>
@@ -263,9 +328,6 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -283,9 +345,6 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -308,9 +367,6 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Processings");
@@ -323,9 +379,6 @@ namespace Web.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
 
                     b.Property<int>("Data")
                         .HasColumnType("int");
@@ -343,15 +396,49 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Data")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
+                    b.Property<double>("Data")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
                     b.ToTable("Samplings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = 96.0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = 192.0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = 384.0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = 2.7999999999999998
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = 5.5999999999999996
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = 11.199999999999999
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Data = 22.5
+                        });
                 });
 
             modelBuilder.Entity("Web.Models.State", b =>
@@ -366,12 +453,58 @@ namespace Web.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TechicalInfoId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("States");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "Mint"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "Near Mint"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "Very Good+"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "Very Good"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "Good"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "Unknown"
+                        });
+                });
+
+            modelBuilder.Entity("Web.Models.Storage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Storages");
                 });
 
             modelBuilder.Entity("Web.Models.TechnicalInfo", b =>
@@ -452,9 +585,6 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AlbumId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Data")
                         .HasColumnType("int");
 
@@ -489,6 +619,10 @@ namespace Web.Migrations
                         .WithMany("Albums")
                         .HasForeignKey("ReissueId");
 
+                    b.HasOne("Web.Models.Storage", "Storage")
+                        .WithMany("Albums")
+                        .HasForeignKey("StorageId");
+
                     b.HasOne("Web.Models.Year", "Year")
                         .WithMany("Albums")
                         .HasForeignKey("YearId")
@@ -504,6 +638,8 @@ namespace Web.Migrations
                     b.Navigation("Label");
 
                     b.Navigation("Reissue");
+
+                    b.Navigation("Storage");
 
                     b.Navigation("Year");
                 });
@@ -655,6 +791,11 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.State", b =>
                 {
                     b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.Storage", b =>
+                {
+                    b.Navigation("Albums");
                 });
 
             modelBuilder.Entity("Web.Models.Year", b =>

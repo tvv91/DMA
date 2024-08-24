@@ -3,6 +3,8 @@ using MockQueryable.Moq;
 using Moq;
 using Web.Controllers;
 using Web.Db;
+using Web.Models;
+using Web.Request;
 using Web.Services;
 using Web.ViewModels;
 using Xunit;
@@ -14,7 +16,7 @@ namespace Tests.Controllers
         private Mock<IAlbumRepository> _mockRepo;
         private Mock<IImageService> _mockImageService;
         private AlbumController _controller;
-        
+
         public AlbumControllerTest()
         {
             _mockRepo = new Mock<IAlbumRepository>();
@@ -54,14 +56,53 @@ namespace Tests.Controllers
             Assert.Equal(10, model.Albums.Count());
         }
 
-        #region Create album
+        #region Album creation
+        // GET album/create
+        // Just return New.cshtml view
         [Fact]
-        public async Task CreateNewAlbum()
+        public async Task GET_Create()
         {
             IActionResult result = await _controller.Create();
-            ViewResult viewResult = Assert.IsType<ViewResult>(result);
-            AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
-            //Assert.Equal(10, model.Albums.Count());
+            ViewResult viewResult = result as ViewResult;
+            Assert.NotNull(viewResult);
+            Assert.Equal("New", viewResult.ViewName);
+        }
+
+        // If no data passed, return New view
+        [Fact]
+        public async Task POST_New_Album_With_Empty_Request()
+        {
+            IActionResult result = await _controller.NewAlbum(new NewAlbumRequest { });
+            var viewResult = Assert.IsType<ViewResult>(result);
+            Assert.NotNull(viewResult);
+            Assert.Equal("New", viewResult.ViewName);
+        }
+
+        // Should create album and redirect to album/{id} with id of created album
+        [Fact]
+        public async Task POST_New_Album_With_Request()
+        {
+            var request = new NewAlbumRequest
+            {
+                Artist = "Artist",
+                Album = "Album",
+                Genre = "Hard Rock",
+                Year = 1991
+            };
+
+            _mockRepo.Setup(m => m.CreateNewAlbum(request)).ReturnsAsync(new Album
+            {
+                Id = 123,
+                Data = request.Album,
+                Artist = new Artist { Data = request.Artist },
+                Genre = new Genre { Data = request.Genre },
+                Year = new Year { Data = request.Year }
+            });
+
+            IActionResult result = await _controller.NewAlbum(request);
+            _mockRepo.Verify(r => r.CreateNewAlbum(request), Times.Once());
+            var redirecResult = Assert.IsType<RedirectResult>(result);
+            Assert.Equal("123", redirecResult.Url);
         }
         #endregion
     }

@@ -70,10 +70,16 @@ namespace Web.Controllers
         [HttpPost]
         public async Task<IActionResult> NewAlbum(NewAlbumRequest request)
         {
-            if (ModelState.IsValid)
+            if (ModelState.IsValid 
+                && !string.IsNullOrEmpty(request.Artist) 
+                && !string.IsNullOrEmpty(request.Album) 
+                && !string.IsNullOrEmpty(request.Genre))
             {
                 var album = await _repository.CreateNewAlbum(request);
-                _imageService.SaveCover(album.Id, request.AlbumCover);
+                if (request.AlbumCover != null)
+                {
+                    _imageService.SaveCover(album.Id, request.AlbumCover);
+                }
                 return new RedirectResult($"{album.Id}");
             } 
             else

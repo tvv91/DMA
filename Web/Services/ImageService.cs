@@ -34,13 +34,29 @@ namespace Web.Services
                 : string.Empty;
         }
 
+        public void RemoveCover(int albumId)
+        {
+            var file = $"{STORAGE}/covers/{albumId}.jpg";
+            if (File.Exists(file))
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch(Exception e)
+                {
+                    throw;
+                }
+            }
+        }
+
         // TODO: Need to check image type and convert to jpg (or set filter)
         public void SaveCover(int albumId, string filename)
         {
             var file = $"{TEMP}/{filename}";
             if (File.Exists(file))
             {
-                File.Move(file, $"{STORAGE}/covers/{albumId}.jpg");
+                File.Move(file, $"{STORAGE}/covers/{albumId}.jpg", true);
                 // clean temp directory
                 foreach (var f in Directory.GetFiles(TEMP))
                 {

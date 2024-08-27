@@ -15,11 +15,13 @@ namespace Web.Controllers
         private const int ALBUMS_PER_PAGE = 15;
         private readonly IAlbumRepository _repository;
         private readonly IImageService _imageService;
+        private readonly ITechInfoRepository _techInfoRepository;
 
-        public AlbumController(IAlbumRepository albumRepository, IImageService imageService)
+        public AlbumController(IAlbumRepository albumRepository, IImageService imageService, ITechInfoRepository tinfoRepository)
         {
             _repository = albumRepository;
             _imageService = imageService;
+            _techInfoRepository = tinfoRepository;
         }
 
         [HttpGet]
@@ -91,6 +93,21 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
+            if (id <= 0 || id > int.MaxValue)
+                return BadRequest();
+            var album = await _repository.Albums.Where(a => a.Id == id).SingleOrDefaultAsync();
+            if (album == null)
+                return NotFound();
+            try
+            {
+                _imageService.RemoveCover(album.Id);
+                await _techInfoRepository.TechInfos.Where(t => t.AlbumId == id).ExecuteDeleteAsync();
+                await _repository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest();
+            }
             return Ok();
         }
 

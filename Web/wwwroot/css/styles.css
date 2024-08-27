@@ -143,3 +143,22 @@
     height: 300px;
     border-radius: 10px;
 }
+
+.fa-trash:hover {
+    color: red;
+    cursor: pointer;
+}
+
+.fa-pen-to-square:hover {
+    color: green;
+    cursor: pointer;
+}
+
+.toast-body {
+    color: red;
+}
+
+.toast-header {
+    background: red;
+    color: white;
+}

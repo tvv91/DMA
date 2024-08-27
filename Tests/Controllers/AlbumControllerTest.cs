@@ -15,6 +15,7 @@ namespace Tests.Controllers
     {
         private Mock<IAlbumRepository> _mockRepo;
         private Mock<IImageService> _mockImageService;
+        private Mock<ITechInfoRepository> _mockTInfo;
         private AlbumController _controller;
 
         public AlbumControllerTest()
@@ -22,7 +23,8 @@ namespace Tests.Controllers
             _mockRepo = new Mock<IAlbumRepository>();
             _mockImageService = new Mock<IImageService>();
             _mockRepo.Setup(m => m.Albums).Returns(new TestData().GetData().BuildMock());
-            _controller = new AlbumController(_mockRepo.Object, _mockImageService.Object);
+            _mockTInfo = new Mock<ITechInfoRepository>();
+            _controller = new AlbumController(_mockRepo.Object, _mockImageService.Object, _mockTInfo.Object);
         }
 
         [Fact]

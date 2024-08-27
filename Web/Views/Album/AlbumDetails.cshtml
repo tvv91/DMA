@@ -57,16 +57,61 @@
             $('#coverspinner').css("display", "none");
         }
     });
+
+    function onRemove(albumId) {
+        const request = new Request(`delete?id=${albumId}`, {
+            method: "DELETE"
+        });
+        fetch(request).then((response) => {
+            if (response.status === 200) {
+                sessionStorage.setItem("albumdeleted", "1");
+                window.location.href = "/album";
+            }
+            if (response.status === 400) {
+                $('.toast').toast('show');
+            }
+        });
+    };
 </script>
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toastmsg" class="toast-body">
+            Some error during deletion
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Album data cannot be restored
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Album.Id)">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
 <div class="test mt-3">
     <div id="coverdiv" class="box1">
         <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
-        <i id="nocovericon"class="fa-regular fa-image fa-10x" style="top:30%; left:30%; position: relative; display: none""></i>
+        <i id="nocovericon"class="fa-regular fa-image fa-10x" style="top:30%; left:30%; position: relative; display: none"></i>
         <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
     </div>
     <div class="box2">
+        <a data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash fa-lg fa-pull-right"></i></a>
+        <i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i>
         <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
         @if (Model.Album.Reissue == null)
         {

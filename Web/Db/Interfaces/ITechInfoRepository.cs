@@ -16,7 +16,7 @@ namespace Web.Db
         IQueryable<Processing> Processings { get; }
         IQueryable<Sampling> Samplings { get; }
         IQueryable<State> States { get; }
-        Task<TechnicalInfo> CreateNewTechnicallInfoAsync(NewAlbumRequest request);
+        Task<TechnicalInfo> CreateNewTechnicallInfoAsync(AlbumDataRequest request);
 
     }
 }

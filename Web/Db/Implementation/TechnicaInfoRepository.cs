@@ -32,7 +32,7 @@ namespace Web.Db.Implementation
 
         public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
 
-        public async Task<TechnicalInfo> CreateNewTechnicallInfoAsync(NewAlbumRequest request)
+        public async Task<TechnicalInfo> CreateNewTechnicallInfoAsync(AlbumDataRequest request)
         {
             var tinfo = new TechnicalInfo();
             // set true if at lease one property not null, else return null and not create empty record in db
@@ -202,12 +202,12 @@ namespace Web.Db.Implementation
             return processing;
         }
 
-        private async Task<Sampling> FindSamplingAsync(int data)
+        private async Task<Sampling> FindSamplingAsync(double data)
         {
             return await Samplings.FirstOrDefaultAsync(x => x.Data == data);
         }
 
-        private async Task<Sampling> CreateSamplingAsync(int data)
+        private async Task<Sampling> CreateSamplingAsync(double data)
         {
             var sampling = new Sampling { Data = data };
             await _context.Samplings.AddAsync(sampling);

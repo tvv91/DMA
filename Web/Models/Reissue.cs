@@ -6,7 +6,7 @@
     public class Reissue
     {
         public int Id { get; set; }
-        public int Data { get; set; }
+        public int? Data { get; set; }
         public ICollection<Album> Albums { get; set; }
     }
 }

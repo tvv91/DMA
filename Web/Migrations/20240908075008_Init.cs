@@ -175,7 +175,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<int>(type: "int", nullable: false)
+                    Data = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {

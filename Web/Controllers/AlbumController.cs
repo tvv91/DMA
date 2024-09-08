@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Web.Db;
+using Web.Enum;
 using Web.Models;
 using Web.Request;
 using Web.Response;
@@ -66,11 +67,77 @@ namespace Web.Controllers
         [HttpGet("album/create")]
         public async Task<IActionResult> Create()
         {
-            return View("New");
+            return View("CreateOrUpdate", new AlbumDataRequest());
+        }
+
+        [HttpGet("album/edit/{albumId}")]
+        public async Task<IActionResult> Edit(int albumId)
+        {
+            if (albumId <= 0)
+                return BadRequest();
+            
+            var album = await _repository.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Country)
+                .Include(a => a.Genre)
+                .Include(a => a.Label)
+                .Include(a => a.Reissue)
+                .Include(a => a.Year)
+                .Include(a => a.Storage)
+                .FirstOrDefaultAsync(a => a.Id == albumId);
+
+            if (album == null)
+                return NotFound();
+            
+            var tInfo = await _techInfoRepository.TechInfos
+                .Include(i => i.State)
+                .Include(i => i.Codec)
+                .Include(i => i.Bitness)
+                .Include(i => i.Sampling)
+                .Include(i => i.Format)
+                .Include(i => i.Device)
+                .Include(i => i.Cartrige)
+                .Include(i => i.Amplifier)
+                .Include(i => i.Adc)
+                .Include(i => i.Processing)
+                .FirstOrDefaultAsync(i => i.AlbumId == albumId);            
+
+            var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumDetailCover);
+
+            var albumModel = new AlbumDataRequest
+            {
+                // Need for edit
+                IsEdit = true,
+                AlbumId = album.Id,
+                // Base info
+                Album = album.Data,
+                Artist = album.Artist.Data,
+                Genre = album.Genre.Data,
+                Year = album.Year.Data,
+                Reissue = album.Reissue?.Data,
+                Country = album.Country?.Data,
+                Label = album.Label?.Data,
+                Source = album.Source,
+                Size = album.Size,
+                Storage = album.Storage?.Data,
+                AlbumCover = cover,
+                // Technical info
+                State = tInfo?.State?.Data,
+                Codec = tInfo?.Codec?.Data,
+                Bitness = tInfo?.Bitness?.Data,
+                Sampling = tInfo?.Sampling?.Data,
+                Format = tInfo?.Format?.Data,
+                Device = tInfo?.Device?.Data,
+                Cartridge = tInfo?.Cartrige?.Data,
+                Amplifier = tInfo?.Amplifier?.Data,
+                Adc = tInfo?.Adc?.Data,
+                Processing = tInfo?.Processing?.Data,
+            };
+            return View("CreateOrUpdate", albumModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewAlbum(NewAlbumRequest request)
+        public async Task<IActionResult> NewAlbum(AlbumDataRequest request)
         {
             if (ModelState.IsValid 
                 && !string.IsNullOrEmpty(request.Artist) 
@@ -82,11 +149,42 @@ namespace Web.Controllers
                 {
                     _imageService.SaveCover(album.Id, request.AlbumCover);
                 }
+
                 return new RedirectResult($"{album.Id}");
             } 
             else
             {
-                return View("New");
+                return View("CreateOrUpdate", request);
+            }
+        }
+
+        [HttpPost("album/update/{albumId}")]
+        public async Task<IActionResult> Update(AlbumDataRequest request, int albumId)
+        {
+            if (albumId <= 0 || albumId > int.MaxValue)
+                return BadRequest();
+
+            if (ModelState.IsValid
+                && !string.IsNullOrEmpty(request.Artist)
+                && !string.IsNullOrEmpty(request.Album)
+                && !string.IsNullOrEmpty(request.Genre))
+            {
+                var album = await _repository.UpdateAlbum(albumId, request);
+
+                if (request.AlbumCover == null)
+                {
+                    _imageService.RemoveCover(album.Id);
+                } 
+                else
+                {
+                    _imageService.SaveCover(album.Id, request.AlbumCover);
+                }
+
+                return new RedirectResult($"../{albumId}");
+            }
+            else
+            {
+                return View("CreateOrUpdate", request);
             }
         }
 

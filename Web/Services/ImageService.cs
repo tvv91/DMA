@@ -10,7 +10,7 @@ namespace Web.Services
         private const string TEMP = $"{STORAGE}/temp";
 
         private Dictionary<EntityType, string> path = new Dictionary<EntityType, string> {
-            { EntityType.AlbumCover, $"/covers/"},
+            { EntityType.AlbumCover, "/covers/"},
             { EntityType.VinylState, "/resources/vinylstate/"},
             { EntityType.DigitalFormat, "/resources/codec/"},
             { EntityType.Bitness, "/resources/bitness/"},

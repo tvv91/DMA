@@ -67,24 +67,24 @@ namespace Tests.Controllers
             IActionResult result = await _controller.Create();
             ViewResult viewResult = result as ViewResult;
             Assert.NotNull(viewResult);
-            Assert.Equal("New", viewResult.ViewName);
+            Assert.Equal("CreateOrUpdate", viewResult.ViewName);
         }
 
         // If no data passed, return New view
         [Fact]
         public async Task POST_New_Album_With_Empty_Request()
         {
-            IActionResult result = await _controller.NewAlbum(new NewAlbumRequest { });
+            IActionResult result = await _controller.NewAlbum(new AlbumDataRequest { });
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.NotNull(viewResult);
-            Assert.Equal("New", viewResult.ViewName);
+            Assert.Equal("CreateOrUpdate", viewResult.ViewName);
         }
 
         // Should create album and redirect to album/{id} with id of created album
         [Fact]
         public async Task POST_New_Album_With_Request()
         {
-            var request = new NewAlbumRequest
+            var request = new AlbumDataRequest
             {
                 Artist = "Artist",
                 Album = "Album",

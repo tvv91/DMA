@@ -380,7 +380,7 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Data")
+                    b.Property<int?>("Data")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

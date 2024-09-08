@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20240813203203_Init")]
+    [Migration("20240908075008_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -383,7 +383,7 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Data")
+                    b.Property<int?>("Data")
                         .HasColumnType("int");
 
                     b.HasKey("Id");

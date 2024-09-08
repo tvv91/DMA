@@ -31,7 +31,7 @@ namespace Web.Db
 
         public IQueryable<Storage> Storages => _context.Storages;
 
-        public async Task<Album> CreateNewAlbum(NewAlbumRequest request)
+        public async Task<Album> CreateNewAlbum(AlbumDataRequest request)
         {
             #region Required fields
             var artist = await FindArtistAsync(request.Artist);
@@ -143,12 +143,12 @@ namespace Web.Db
             return _country;
         }
 
-        private async Task<Reissue> FindReissueYearAsync(int year)
+        private async Task<Reissue> FindReissueYearAsync(int? year)
         {
             return await Reissues.FirstOrDefaultAsync(x => x.Data == year);
         }
 
-        private async Task<Reissue> CreateReissueYearAsync(int year)
+        private async Task<Reissue> CreateReissueYearAsync(int? year)
         {
             var _year = new Reissue { Data = year };
             await _context.Reissues.AddAsync(_year);
@@ -206,6 +206,101 @@ namespace Web.Db
             await _context.Storages.AddAsync(storage);
             await _context.SaveChangesAsync();
             return storage;
+        }
+
+        public async Task<Album> UpdateAlbum(int albumId, AlbumDataRequest request)
+        {
+            var album = await _context.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Genre)
+                .Include(a => a.Year)
+                .Include(a => a.Reissue)
+                .Include(a => a.Country)
+                .Include(a => a.Label)
+                .Include(a => a.Storage)
+                .FirstOrDefaultAsync(x => x.Id == albumId);
+            
+            if (album == null)
+            {
+                return await CreateNewAlbum(request);
+            }
+
+            album.Data = request.Album;
+            album.Size = request.Size;
+            album.Source = request.Source;
+
+            if (album.Artist.Data != request.Artist)
+            {
+                var artist = await FindArtistAsync(request.Artist);
+                if (artist == null)
+                {
+                    artist = await CreateArtistAsync(request.Artist);
+                }
+                album.Artist = artist;
+            }
+
+            if (album.Genre.Data != request.Genre)
+            {
+                var genre = await FindGenreAsync(request.Genre);
+                if(genre == null)
+                {
+                    genre = await CreateGenreAsync(request.Genre);
+                }
+                album.Genre = genre;
+            }
+
+            if(album.Year.Data != request.Year)
+            {
+                var year = await FindYearAsync(request.Year);
+                if (year == null)
+                {
+                    year = await CreateYearAsync(request.Year);
+                }
+                album.Year = year;
+            }
+
+            if(request.Reissue != null && album?.Reissue?.Data != request.Reissue)
+            {
+                var reissue = await FindReissueYearAsync(request.Reissue);
+                if (reissue == null)
+                {
+                    reissue = await CreateReissueYearAsync(request.Reissue);
+                }
+                album.Reissue = reissue;
+            }
+
+            if (request.Country != null && album?.Country?.Data != request.Country)
+            {
+                var country = await FindCountryAsync(request.Country);
+                if (country == null)
+                {
+                    country = await CreateCountryAsync(request.Country);
+                }
+                album.Country = country;
+            }
+
+            if (request.Label != null && album?.Label?.Data != request.Label)
+            {
+                var label = await FindLabelAsync(request.Label);
+                if (label == null)
+                {
+                    label = await CreateLabelAsync(request.Label);
+                }
+                album.Label = label;
+            }
+
+            if(request.Storage != null && album?.Storage?.Data != request.Storage)
+            {
+                var storage = await FindStorageAsync(request.Storage);
+                if (storage == null)
+                {
+                    storage = await CreateStorageAsync(request.Storage);
+                }
+                album.Storage = storage;
+            }
+
+            await _context.SaveChangesAsync();
+            return album;
         }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Web.Request
 {
-    public class NewAlbumRequest
+    public class AlbumDataRequest
     {
         #region Main info
         [Required]
@@ -32,8 +32,11 @@ namespace Web.Request
         public string? Device { get; set; }
         public string? Format { get; set; }
         public string? Processing { get; set; }
-        public int? Sampling { get; set; }
+        public double? Sampling { get; set; }
         public string? State { get; set; }
         #endregion
+
+        public bool IsEdit { get; set; }
+        public int AlbumId { get; set; }
     }
 }

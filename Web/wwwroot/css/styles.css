@@ -154,11 +154,11 @@
     cursor: pointer;
 }
 
-.toast-body {
+.toast-body-error {
     color: red;
 }
 
-.toast-header {
+.toast-header-error {
     background: red;
     color: white;
 }

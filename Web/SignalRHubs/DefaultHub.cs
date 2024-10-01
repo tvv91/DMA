@@ -44,14 +44,14 @@ namespace Web.SignalRHubs
             else
             {
                 await Clients.Client(connectionId).SendAsync("TechnicalInfoFound");
-                if (ti.StateId != null)
+                if (ti.VinylStateId != null)
                 {
-                    State state = await _techInfoRepository.States.FirstOrDefaultAsync(x => x.Id == ti.StateId);
+                    VinylState state = await _techInfoRepository.States.FirstOrDefaultAsync(x => x.Id == ti.VinylStateId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _coverImageService.GetImageUrl(state.Id, EntityType.VinylState));
                 }
-                if (ti.CodecId != null)
+                if (ti.DigitalFormatId != null)
                 {
-                    Codec codec = await _techInfoRepository.Codecs.FirstOrDefaultAsync(x => x.Id == ti.CodecId);
+                    DigitalFormat codec = await _techInfoRepository.Codecs.FirstOrDefaultAsync(x => x.Id == ti.DigitalFormatId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _coverImageService.GetImageUrl(codec.Id, EntityType.DigitalFormat));
                 }
                 
@@ -65,14 +65,14 @@ namespace Web.SignalRHubs
                     Sampling sampling = await _techInfoRepository.Samplings.FirstOrDefaultAsync(x => x.Id == ti.SamplingId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _coverImageService.GetImageUrl(sampling.Id, EntityType.Sampling));
                 }
-                if (ti.FormatId != null)
+                if (ti.SourceFormatId != null)
                 {
-                    Format format = await _techInfoRepository.Formats.FirstOrDefaultAsync(x => x.Id == ti.FormatId);
+                    SourceFormat format = await _techInfoRepository.Formats.FirstOrDefaultAsync(x => x.Id == ti.SourceFormatId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _coverImageService.GetImageUrl(format.Id, EntityType.SourceFormat));
                 }
                 if (ti.DeviceId != null)
                 {
-                    Device device = await _techInfoRepository.Devices.FirstOrDefaultAsync(x => x.Id == ti.DeviceId);
+                    Player device = await _techInfoRepository.Devices.FirstOrDefaultAsync(x => x.Id == ti.DeviceId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "device", _coverImageService.GetImageUrl(device.Id, EntityType.Device));
                 }
                 if (ti.CartrigeId != null)

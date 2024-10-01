@@ -1,9 +1,9 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about audio source state
+    /// Information about codec / digitized audio format
     /// </summary>
-    public class State
+    public class DigitalFormat
     {
         public int Id { get; set; }
         public string Data { get; set; }

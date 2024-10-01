@@ -1,9 +1,9 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about codec / digitized audio format
+    /// Information about vinyl state
     /// </summary>
-    public class Codec
+    public class VinylState
     {
         public int Id { get; set; }
         public string Data { get; set; }

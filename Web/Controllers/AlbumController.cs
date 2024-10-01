@@ -90,12 +90,12 @@ namespace Web.Controllers
                 return NotFound();
             
             var tInfo = await _techInfoRepository.TechInfos
-                .Include(i => i.State)
-                .Include(i => i.Codec)
+                .Include(i => i.VinylState)
+                .Include(i => i.DigitalFormat)
                 .Include(i => i.Bitness)
                 .Include(i => i.Sampling)
-                .Include(i => i.Format)
-                .Include(i => i.Device)
+                .Include(i => i.SourceFormat)
+                .Include(i => i.Player)
                 .Include(i => i.Cartrige)
                 .Include(i => i.Amplifier)
                 .Include(i => i.Adc)
@@ -122,12 +122,12 @@ namespace Web.Controllers
                 Storage = album.Storage?.Data,
                 AlbumCover = cover,
                 // Technical info
-                State = tInfo?.State?.Data,
-                Codec = tInfo?.Codec?.Data,
+                State = tInfo?.VinylState?.Data,
+                Codec = tInfo?.DigitalFormat?.Data,
                 Bitness = tInfo?.Bitness?.Data,
                 Sampling = tInfo?.Sampling?.Data,
-                Format = tInfo?.Format?.Data,
-                Device = tInfo?.Device?.Data,
+                Format = tInfo?.SourceFormat?.Data,
+                Device = tInfo?.Player?.Data,
                 Cartridge = tInfo?.Cartrige?.Data,
                 Amplifier = tInfo?.Amplifier?.Data,
                 Adc = tInfo?.Adc?.Data,

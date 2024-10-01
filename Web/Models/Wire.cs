@@ -1,12 +1,13 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about playback device
+    /// Information about interconnect cables
     /// </summary>
-    public class Device
+    public class Wire
     {
         public int Id { get; set; }
-        public string Data { get; set; }
+        public string Data {  get; set; }
+        public WireManufacturer WireManufacturer { get; set; }
         public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

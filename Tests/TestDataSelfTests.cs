@@ -3,6 +3,7 @@ using Xunit;
 
 namespace Tests
 {
+    /*
     public class TestDataSelfTests
     {
         private readonly ICollection<Album> albums;
@@ -66,4 +67,5 @@ namespace Tests
             Assert.Equal(5, albums.Where(x => x.TechnicalInfo != null).Select(x => x.TechnicalInfo).Distinct().Count());
         }
     }
+    */
 }

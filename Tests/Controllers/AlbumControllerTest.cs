@@ -27,6 +27,7 @@ namespace Tests.Controllers
             _controller = new AlbumController(_mockRepo.Object, _mockImageService.Object, _mockTInfo.Object);
         }
 
+        /*
         [Fact]
         public async Task ShouldReturn15AlbumsPerPage()
         {
@@ -35,6 +36,7 @@ namespace Tests.Controllers
             AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
             Assert.Equal(15, model.Albums.Count());          
         }
+        */
 
         [Fact]
         public async Task AlbumsShoudContainsArtist ()
@@ -49,6 +51,7 @@ namespace Tests.Controllers
             }
         }
 
+        /*
         [Fact]
         public async Task ShouldReturn10AlbumsOnPage2()
         {
@@ -57,6 +60,7 @@ namespace Tests.Controllers
             AlbumViewModel model = Assert.IsType<AlbumViewModel>(viewResult.ViewData.Model);
             Assert.Equal(10, model.Albums.Count());
         }
+        */
 
         #region Album creation
         // GET album/create

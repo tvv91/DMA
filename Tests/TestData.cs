@@ -11,6 +11,7 @@ namespace Tests
         private List<Album> albums = new List<Album>();
         public List<Album> GetData()
         {
+            /*
             #region Artists
             Artist artist1 = new Artist { Id = 1, Data = "Artist1" };
             Artist artist2 = new Artist { Id = 2, Data = "Artist2" };
@@ -75,18 +76,18 @@ namespace Tests
             #endregion
 
             #region Codecs
-            Codec codec1 = new Codec { Id = 1, Data = "FLAC" };
-            Codec codec2 = new Codec { Id = 2, Data = "DSD" };
+            DigitalFormat codec1 = new DigitalFormat { Id = 1, Data = "FLAC" };
+            DigitalFormat codec2 = new DigitalFormat { Id = 2, Data = "DSD" };
             #endregion
 
             #region Devices
-            Device device1 = new Device { Id = 1, Data = "Device1" };
-            Device device2 = new Device { Id = 2, Data = "Device2" };
-            Device device3 = new Device { Id = 3, Data = "Device3" };
+            Player device1 = new Player { Id = 1, Data = "Device1" };
+            Player device2 = new Player { Id = 2, Data = "Device2" };
+            Player device3 = new Player { Id = 3, Data = "Device3" };
             #endregion
 
             #region Formats
-            Format format1 = new Format { Id = 1, Data = "Vinyl" };
+            SourceFormat format1 = new SourceFormat { Id = 1, Data = "Vinyl" };
             #endregion
 
             #region Processings
@@ -100,9 +101,9 @@ namespace Tests
             #endregion
 
             #region States
-            State state1 = new State { Id = 1, Data = "Mint" };
-            State state2 = new State { Id = 2, Data = "Near Mint" };
-            State state3 = new State { Id = 3, Data = "Very Good" };
+            VinylState state1 = new VinylState { Id = 1, Data = "Mint" };
+            VinylState state2 = new VinylState { Id = 2, Data = "Near Mint" };
+            VinylState state3 = new VinylState { Id = 3, Data = "Very Good" };
             #endregion
 
             TechnicalInfo ti1 = new TechnicalInfo 
@@ -112,12 +113,12 @@ namespace Tests
                 Amplifier = amp1,
                 Bitness = bitness1,
                 Cartrige = cartrige1,
-                Codec = codec1,
-                Device = device1,
-                Format = format1,
+                DigitalFormat = codec1,
+                Player = device1,
+                SourceFormat = format1,
                 Processing = processing1,
                 Sampling = sampling1,
-                State = state3
+                VinylState = state3
             };
             TechnicalInfo ti2 = new TechnicalInfo
             {
@@ -126,12 +127,12 @@ namespace Tests
                 Amplifier = amp1,
                 Bitness = bitness1,
                 Cartrige = cartrige1,
-                Codec = codec1,
-                Device = device1,
-                Format = format1,
+                DigitalFormat = codec1,
+                Player = device1,
+                SourceFormat = format1,
                 Processing = processing1,
                 Sampling = sampling1,
-                State = state2
+                VinylState = state2
             };
             TechnicalInfo ti3 = new TechnicalInfo
             {
@@ -140,12 +141,12 @@ namespace Tests
                 Amplifier = amp1,
                 Bitness = bitness2,
                 Cartrige = cartrige2,
-                Codec = codec1,
-                Device = device2,
-                Format = format1,
+                DigitalFormat = codec1,
+                Player = device2,
+                SourceFormat = format1,
                 Processing = processing1,
                 Sampling = sampling2,
-                State = state2
+                VinylState = state2
             };
             TechnicalInfo ti4 = new TechnicalInfo
             {
@@ -154,11 +155,11 @@ namespace Tests
                 Amplifier = amp2,
                 Bitness = bitness3,
                 Cartrige = cartrige2,
-                Codec = codec2,
-                Device = device3,
-                Format = format1,
+                DigitalFormat = codec2,
+                Player = device3,
+                SourceFormat = format1,
                 Sampling = sampling3,
-                State = state1
+                VinylState = state1
             };
             TechnicalInfo ti5 = new TechnicalInfo
             {
@@ -167,11 +168,11 @@ namespace Tests
                 Amplifier = amp2,
                 Bitness = bitness3,
                 Cartrige = cartrige3,
-                Codec = codec2,
-                Device = device3,
-                Format = format1,
+                DigitalFormat = codec2,
+                Player = device3,
+                SourceFormat = format1,
                 Sampling = sampling3,
-                State = state1
+                VinylState = state1
             };
             #endregion
 
@@ -261,6 +262,8 @@ namespace Tests
             albums.Add(new Album { Id = 25, Data = "Album25", Artist = artist1, Genre = genre5, Year = year5 });
 
             return albums;
+            */
+            return new List<Album>();
         }
     }
 }

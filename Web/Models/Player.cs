@@ -1,13 +1,13 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about ADC (analog to digital converter)
+    /// Information about playback device
     /// </summary>
-    public class Adc
+    public class Player
     {
         public int Id { get; set; }
         public string Data { get; set; }
-        public AdcManufacturer AdcManufacturer { get; set; }
+        public PlayerManufacturer PlayerManufacturer { get; set; }
         public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

@@ -26,6 +26,11 @@
         public string? Source { get; set; }
 
         /// <summary>
+        /// Link to discogs
+        /// </summary>
+        public string? Discogs { get; set; }
+
+        /// <summary>
         /// Date when album was added to db
         /// </summary>
         public DateTime AddedDate { get; set; }
@@ -37,6 +42,8 @@
         public int YearId { get; set; }
         public int? ReissueId { get; set; }
         public int? CountryId { get; set; }
+        public int? LabelId { get; set; }
+        public int? StorageId { get; set; }
 
         #endregion
 

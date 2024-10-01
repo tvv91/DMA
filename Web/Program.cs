@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DMADbContext>(opts =>
 {
-    opts.UseSqlServer(builder.Configuration["ConnectionStrings:DbConnection"]);
+    opts.UseSqlServer(builder.Configuration["ConnectionStrings:DbConnectionDev"]);
 });
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<ITechInfoRepository, TechnicalnfoRepository>();

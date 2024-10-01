@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20240908075008_Init")]
+    [Migration("20241001002421_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -33,13 +33,35 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AdcManufacturerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AdcManufacturerId");
+
                     b.ToTable("Adces");
+                });
+
+            modelBuilder.Entity("Web.Models.AdcManufacturer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AdcManufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Album", b =>
@@ -61,6 +83,9 @@ namespace Web.Migrations
 
                     b.Property<string>("Data")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Discogs")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("GenreId")
@@ -111,13 +136,35 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AmplifierManufacturerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AmplifierManufacturerId");
+
                     b.ToTable("Amplifiers");
+                });
+
+            modelBuilder.Entity("Web.Models.AmplifierManufacturer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AmplifierManufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Artist", b =>
@@ -183,16 +230,21 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CartrigeManufacturerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CartrigeManufacturerId");
+
                     b.ToTable("Cartriges");
                 });
 
-            modelBuilder.Entity("Web.Models.Codec", b =>
+            modelBuilder.Entity("Web.Models.CartrigeManufacturer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -206,7 +258,41 @@ namespace Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Codecs");
+                    b.ToTable("CartrigeManufacturer");
+                });
+
+            modelBuilder.Entity("Web.Models.Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Countries");
+                });
+
+            modelBuilder.Entity("Web.Models.DigitalFormat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DigitalFormats");
 
                     b.HasData(
                         new
@@ -238,89 +324,6 @@ namespace Web.Migrations
                         {
                             Id = 6,
                             Data = "WV"
-                        });
-                });
-
-            modelBuilder.Entity("Web.Models.Country", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Countries");
-                });
-
-            modelBuilder.Entity("Web.Models.Device", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Devices");
-                });
-
-            modelBuilder.Entity("Web.Models.Format", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Formats");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Data = "LP 12'' 33RPM"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Data = "EP 10'' 45RPM"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Data = "EP 12'' 45RPM"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Data = "SINGLE 7'' 45RPM"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Data = "SINGLE 12'' 45RPM"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Data = "SHELLAC 10'' 78RPM"
                         });
                 });
 
@@ -358,6 +361,45 @@ namespace Web.Migrations
                     b.ToTable("Labels");
                 });
 
+            modelBuilder.Entity("Web.Models.Player", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PlayerManufacturerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PlayerManufacturerId");
+
+                    b.ToTable("Players");
+                });
+
+            modelBuilder.Entity("Web.Models.PlayerManufacturer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PlayerManufacturer");
+                });
+
             modelBuilder.Entity("Web.Models.Processing", b =>
                 {
                     b.Property<int>("Id")
@@ -369,6 +411,9 @@ namespace Web.Migrations
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OpeationCount")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -444,7 +489,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.State", b =>
+            modelBuilder.Entity("Web.Models.SourceFormat", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -458,38 +503,38 @@ namespace Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("States");
+                    b.ToTable("SourceFormats");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Data = "Mint"
+                            Data = "LP 12'' 33RPM"
                         },
                         new
                         {
                             Id = 2,
-                            Data = "Near Mint"
+                            Data = "EP 10'' 45RPM"
                         },
                         new
                         {
                             Id = 3,
-                            Data = "Very Good+"
+                            Data = "EP 12'' 45RPM"
                         },
                         new
                         {
                             Id = 4,
-                            Data = "Very Good"
+                            Data = "SINGLE 7'' 45RPM"
                         },
                         new
                         {
                             Id = 5,
-                            Data = "Good"
+                            Data = "SINGLE 12'' 45RPM"
                         },
                         new
                         {
                             Id = 6,
-                            Data = "Unknown"
+                            Data = "SHELLAC 10'' 78RPM"
                         });
                 });
 
@@ -533,13 +578,13 @@ namespace Web.Migrations
                     b.Property<int?>("CartrigeId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CodecId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DeviceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FormatId")
+                    b.Property<int?>("DigitalFormatId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PlayerId")
                         .HasColumnType("int");
 
                     b.Property<int?>("ProcessingId")
@@ -548,7 +593,13 @@ namespace Web.Migrations
                     b.Property<int?>("SamplingId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StateId")
+                    b.Property<int?>("SourceFormatId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VinylStateId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WireId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -565,19 +616,109 @@ namespace Web.Migrations
 
                     b.HasIndex("CartrigeId");
 
-                    b.HasIndex("CodecId");
+                    b.HasIndex("DigitalFormatId");
 
-                    b.HasIndex("DeviceId");
-
-                    b.HasIndex("FormatId");
+                    b.HasIndex("PlayerId");
 
                     b.HasIndex("ProcessingId");
 
                     b.HasIndex("SamplingId");
 
-                    b.HasIndex("StateId");
+                    b.HasIndex("SourceFormatId");
+
+                    b.HasIndex("VinylStateId");
+
+                    b.HasIndex("WireId");
 
                     b.ToTable("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.VinylState", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VinylStates");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Data = "Mint"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Data = "Near Mint"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Data = "Very Good+"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Data = "Very Good"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Data = "Good"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Data = "Unknown"
+                        });
+                });
+
+            modelBuilder.Entity("Web.Models.Wire", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("WireManufacturerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WireManufacturerId");
+
+                    b.ToTable("Wire");
+                });
+
+            modelBuilder.Entity("Web.Models.WireManufacturer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WireManufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Year", b =>
@@ -594,6 +735,17 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Years");
+                });
+
+            modelBuilder.Entity("Web.Models.Adc", b =>
+                {
+                    b.HasOne("Web.Models.AdcManufacturer", "AdcManufacturer")
+                        .WithMany("Adcs")
+                        .HasForeignKey("AdcManufacturerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AdcManufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Album", b =>
@@ -647,6 +799,39 @@ namespace Web.Migrations
                     b.Navigation("Year");
                 });
 
+            modelBuilder.Entity("Web.Models.Amplifier", b =>
+                {
+                    b.HasOne("Web.Models.AmplifierManufacturer", "AmplifierManufacturer")
+                        .WithMany("Amplifiers")
+                        .HasForeignKey("AmplifierManufacturerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AmplifierManufacturer");
+                });
+
+            modelBuilder.Entity("Web.Models.Cartrige", b =>
+                {
+                    b.HasOne("Web.Models.CartrigeManufacturer", "CartrigeManufacturer")
+                        .WithMany("Cartriges")
+                        .HasForeignKey("CartrigeManufacturerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CartrigeManufacturer");
+                });
+
+            modelBuilder.Entity("Web.Models.Player", b =>
+                {
+                    b.HasOne("Web.Models.PlayerManufacturer", "PlayerManufacturer")
+                        .WithMany("Players")
+                        .HasForeignKey("PlayerManufacturerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PlayerManufacturer");
+                });
+
             modelBuilder.Entity("Web.Models.TechnicalInfo", b =>
                 {
                     b.HasOne("Web.Models.Adc", "Adc")
@@ -669,17 +854,13 @@ namespace Web.Migrations
                         .WithMany("TechnicalInfos")
                         .HasForeignKey("CartrigeId");
 
-                    b.HasOne("Web.Models.Codec", "Codec")
+                    b.HasOne("Web.Models.DigitalFormat", "DigitalFormat")
                         .WithMany("TechnicalInfos")
-                        .HasForeignKey("CodecId");
+                        .HasForeignKey("DigitalFormatId");
 
-                    b.HasOne("Web.Models.Device", "Device")
+                    b.HasOne("Web.Models.Player", "Player")
                         .WithMany("TechnicalInfos")
-                        .HasForeignKey("DeviceId");
-
-                    b.HasOne("Web.Models.Format", "Format")
-                        .WithMany("TechnicalInfos")
-                        .HasForeignKey("FormatId");
+                        .HasForeignKey("PlayerId");
 
                     b.HasOne("Web.Models.Processing", "Processing")
                         .WithMany("TechnicalInfos")
@@ -689,9 +870,19 @@ namespace Web.Migrations
                         .WithMany("TechnicalInfos")
                         .HasForeignKey("SamplingId");
 
-                    b.HasOne("Web.Models.State", "State")
+                    b.HasOne("Web.Models.SourceFormat", "SourceFormat")
                         .WithMany("TechnicalInfos")
-                        .HasForeignKey("StateId");
+                        .HasForeignKey("SourceFormatId");
+
+                    b.HasOne("Web.Models.VinylState", "VinylState")
+                        .WithMany("TechnicalInfos")
+                        .HasForeignKey("VinylStateId");
+
+                    b.HasOne("Web.Models.Wire", "Wire")
+                        .WithMany("TechnicalInfos")
+                        .HasForeignKey("WireId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Adc");
 
@@ -703,22 +894,40 @@ namespace Web.Migrations
 
                     b.Navigation("Cartrige");
 
-                    b.Navigation("Codec");
+                    b.Navigation("DigitalFormat");
 
-                    b.Navigation("Device");
-
-                    b.Navigation("Format");
+                    b.Navigation("Player");
 
                     b.Navigation("Processing");
 
                     b.Navigation("Sampling");
 
-                    b.Navigation("State");
+                    b.Navigation("SourceFormat");
+
+                    b.Navigation("VinylState");
+
+                    b.Navigation("Wire");
+                });
+
+            modelBuilder.Entity("Web.Models.Wire", b =>
+                {
+                    b.HasOne("Web.Models.WireManufacturer", "WireManufacturer")
+                        .WithMany("Wires")
+                        .HasForeignKey("WireManufacturerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WireManufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Adc", b =>
                 {
                     b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.AdcManufacturer", b =>
+                {
+                    b.Navigation("Adcs");
                 });
 
             modelBuilder.Entity("Web.Models.Album", b =>
@@ -729,6 +938,11 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.Amplifier", b =>
                 {
                     b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.AmplifierManufacturer", b =>
+                {
+                    b.Navigation("Amplifiers");
                 });
 
             modelBuilder.Entity("Web.Models.Artist", b =>
@@ -746,9 +960,9 @@ namespace Web.Migrations
                     b.Navigation("TechnicalInfos");
                 });
 
-            modelBuilder.Entity("Web.Models.Codec", b =>
+            modelBuilder.Entity("Web.Models.CartrigeManufacturer", b =>
                 {
-                    b.Navigation("TechnicalInfos");
+                    b.Navigation("Cartriges");
                 });
 
             modelBuilder.Entity("Web.Models.Country", b =>
@@ -756,12 +970,7 @@ namespace Web.Migrations
                     b.Navigation("Albums");
                 });
 
-            modelBuilder.Entity("Web.Models.Device", b =>
-                {
-                    b.Navigation("TechnicalInfos");
-                });
-
-            modelBuilder.Entity("Web.Models.Format", b =>
+            modelBuilder.Entity("Web.Models.DigitalFormat", b =>
                 {
                     b.Navigation("TechnicalInfos");
                 });
@@ -774,6 +983,16 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.Label", b =>
                 {
                     b.Navigation("Albums");
+                });
+
+            modelBuilder.Entity("Web.Models.Player", b =>
+                {
+                    b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.PlayerManufacturer", b =>
+                {
+                    b.Navigation("Players");
                 });
 
             modelBuilder.Entity("Web.Models.Processing", b =>
@@ -791,7 +1010,7 @@ namespace Web.Migrations
                     b.Navigation("TechnicalInfos");
                 });
 
-            modelBuilder.Entity("Web.Models.State", b =>
+            modelBuilder.Entity("Web.Models.SourceFormat", b =>
                 {
                     b.Navigation("TechnicalInfos");
                 });
@@ -799,6 +1018,21 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.Storage", b =>
                 {
                     b.Navigation("Albums");
+                });
+
+            modelBuilder.Entity("Web.Models.VinylState", b =>
+                {
+                    b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.Wire", b =>
+                {
+                    b.Navigation("TechnicalInfos");
+                });
+
+            modelBuilder.Entity("Web.Models.WireManufacturer", b =>
+                {
+                    b.Navigation("Wires");
                 });
 
             modelBuilder.Entity("Web.Models.Year", b =>

@@ -7,6 +7,7 @@
     {
         public int Id { get; set; }
         public string Data { get; set; }
+        public CartrigeManufacturer CartrigeManufacturer { get; set; }
         public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

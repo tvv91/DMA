@@ -3,7 +3,7 @@
     /// <summary>
     /// Information about sound source
     /// </summary>
-    public class Format
+    public class SourceFormat
     {
         public int Id { get; set; }
         public string Data { get; set; }

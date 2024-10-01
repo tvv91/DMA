@@ -13,13 +13,14 @@
         public int? AmplifierId { get; set; }
         public int? BitnessId { get; set; }
         public int? CartrigeId { get; set; }
-        public int? CodecId { get; set; }
+        public int? DigitalFormatId { get; set; }
         public int? DeviceId { get; set; }
-        public int? FormatId { get; set; }
+        public int? SourceFormatId { get; set; }
         public int? ProcessingId { get; set; }
         public int? AdcId { get; set; }
         public int? SamplingId { get; set; }
-        public int? StateId { get; set; }
+        public int? VinylStateId { get; set; }
+        public int WireId { get; set; }
 
         #endregion
 
@@ -29,12 +30,13 @@
         public Amplifier? Amplifier { get; set; }
         public Bitness? Bitness { get; set; }
         public Cartrige? Cartrige { get; set; }
-        public Codec? Codec { get; set; }
-        public Device? Device { get; set; }
-        public Format? Format { get; set; }
+        public DigitalFormat? DigitalFormat { get; set; }
+        public Player? Player { get; set; }
+        public SourceFormat? SourceFormat { get; set; }
         public Processing? Processing { get; set; }
         public Sampling? Sampling { get; set; }
-        public State? State { get; set; }
+        public VinylState? VinylState { get; set; }
+        public Wire? Wire { get; set; }
         #endregion
     }
 }

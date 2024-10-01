@@ -18,17 +18,17 @@ namespace Web.Db.Implementation
 
         public IQueryable<Cartrige> Cartriges => _context.Cartriges;
 
-        public IQueryable<Codec> Codecs => _context.Codecs;
+        public IQueryable<DigitalFormat> Codecs => _context.DigitalFormats;
 
-        public IQueryable<Device> Devices => _context.Devices;
+        public IQueryable<Player> Devices => _context.Players;
 
-        public IQueryable<Format> Formats => _context.Formats;
+        public IQueryable<SourceFormat> Formats => _context.SourceFormats;
 
         public IQueryable<Processing> Processings => _context.Processings;
 
         public IQueryable<Sampling> Samplings => _context.Samplings;
 
-        public IQueryable<State> States => _context.States;
+        public IQueryable<VinylState> States => _context.VinylStates;
 
         public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
 
@@ -89,7 +89,7 @@ namespace Web.Db.Implementation
                     codec = await CreateCodecAsync(request.Codec);
                 }
                 notNull = true;
-                tinfo.Codec = codec;
+                tinfo.DigitalFormat = codec;
             }
 
             if (request.Device != null)
@@ -100,7 +100,7 @@ namespace Web.Db.Implementation
                     device = await CreateDeviceAsync(request.Device);
                 }
                 notNull = true;
-                tinfo.Device = device;
+                tinfo.Player = device;
             }
 
             if (request.Format != null)
@@ -111,7 +111,7 @@ namespace Web.Db.Implementation
                     format = await CreateFormatAsync(request.Format);
                 }
                 notNull = true;
-                tinfo.Format = format;
+                tinfo.SourceFormat = format;
             }
 
             if (request.Processing != null)
@@ -144,47 +144,47 @@ namespace Web.Db.Implementation
                     state = await CreateStateAsync(request.State);
                 }
                 notNull = true;
-                tinfo.State = state;
+                tinfo.VinylState = state;
             }
 
             return notNull == true ? tinfo : null;
         }
 
-        private async Task<Codec> FindCodecAsync(string data)
+        private async Task<DigitalFormat> FindCodecAsync(string data)
         {
             return await Codecs.FirstOrDefaultAsync(x => x.Data == data);
         }
 
-        private async Task<Codec> CreateCodecAsync(string data)
+        private async Task<DigitalFormat> CreateCodecAsync(string data)
         {
-            var codec = new Codec { Data = data };
-            await _context.Codecs.AddAsync(codec);
+            var codec = new DigitalFormat { Data = data };
+            await _context.DigitalFormats.AddAsync(codec);
             await _context.SaveChangesAsync();
             return codec;
         }
 
-        private async Task<Device> FindDeviceAsync(string data)
+        private async Task<Player> FindDeviceAsync(string data)
         {
             return await Devices.FirstOrDefaultAsync(x => x.Data == data);
         }
 
-        private async Task<Device> CreateDeviceAsync(string data)
+        private async Task<Player> CreateDeviceAsync(string data)
         {
-            var device = new Device { Data = data };
-            await _context.Devices.AddAsync(device);
+            var device = new Player { Data = data };
+            await _context.Players.AddAsync(device);
             await _context.SaveChangesAsync();
             return device;
         }
 
-        private async Task<Format> FindFormatAsync(string data)
+        private async Task<SourceFormat> FindFormatAsync(string data)
         {
             return await Formats.FirstOrDefaultAsync(x => x.Data == data);
         }
 
-        private async Task<Format> CreateFormatAsync(string data)
+        private async Task<SourceFormat> CreateFormatAsync(string data)
         {
-            var format = new Format { Data = data };
-            await _context.Formats.AddAsync(format);
+            var format = new SourceFormat { Data = data };
+            await _context.SourceFormats.AddAsync(format);
             await _context.SaveChangesAsync();
             return format;
         }
@@ -215,15 +215,15 @@ namespace Web.Db.Implementation
             return sampling;
         }
 
-        private async Task<State> FindStateAsync(string data)
+        private async Task<VinylState> FindStateAsync(string data)
         {
             return await States.FirstOrDefaultAsync(x => x.Data == data);
         }
 
-        private async Task<State> CreateStateAsync(string data)
+        private async Task<VinylState> CreateStateAsync(string data)
         {
-            var state = new State { Data = data };
-            await _context.States.AddAsync(state);
+            var state = new VinylState { Data = data };
+            await _context.VinylStates.AddAsync(state);
             await _context.SaveChangesAsync();
             return state;
         }

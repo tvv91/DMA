@@ -14,7 +14,7 @@ namespace Web.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Adces",
+                name: "AdcManufacturer",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -23,11 +23,11 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Adces", x => x.Id);
+                    table.PrimaryKey("PK_AdcManufacturer", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Amplifiers",
+                name: "AmplifierManufacturer",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -36,7 +36,7 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Amplifiers", x => x.Id);
+                    table.PrimaryKey("PK_AmplifierManufacturer", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -66,7 +66,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cartriges",
+                name: "CartrigeManufacturer",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -75,20 +75,7 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cartriges", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Codecs",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Codecs", x => x.Id);
+                    table.PrimaryKey("PK_CartrigeManufacturer", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -105,7 +92,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Devices",
+                name: "DigitalFormats",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -114,20 +101,7 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Devices", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Formats",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Formats", x => x.Id);
+                    table.PrimaryKey("PK_DigitalFormats", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -157,12 +131,26 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Processings",
+                name: "PlayerManufacturer",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PlayerManufacturer", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Processings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    OpeationCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -196,7 +184,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "States",
+                name: "SourceFormats",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -205,7 +193,7 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_States", x => x.Id);
+                    table.PrimaryKey("PK_SourceFormats", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -222,6 +210,32 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "VinylStates",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VinylStates", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WireManufacturer",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WireManufacturer", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Years",
                 columns: table => new
                 {
@@ -235,6 +249,106 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Adces",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AdcManufacturerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Adces", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Adces_AdcManufacturer_AdcManufacturerId",
+                        column: x => x.AdcManufacturerId,
+                        principalTable: "AdcManufacturer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Amplifiers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AmplifierManufacturerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Amplifiers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Amplifiers_AmplifierManufacturer_AmplifierManufacturerId",
+                        column: x => x.AmplifierManufacturerId,
+                        principalTable: "AmplifierManufacturer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cartriges",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CartrigeManufacturerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cartriges", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cartriges_CartrigeManufacturer_CartrigeManufacturerId",
+                        column: x => x.CartrigeManufacturerId,
+                        principalTable: "CartrigeManufacturer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Players",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlayerManufacturerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Players", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Players_PlayerManufacturer_PlayerManufacturerId",
+                        column: x => x.PlayerManufacturerId,
+                        principalTable: "PlayerManufacturer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Wire",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WireManufacturerId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wire", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Wire_WireManufacturer_WireManufacturerId",
+                        column: x => x.WireManufacturerId,
+                        principalTable: "WireManufacturer",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Albums",
                 columns: table => new
                 {
@@ -243,6 +357,7 @@ namespace Web.Migrations
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Size = table.Column<double>(type: "float", nullable: true),
                     Source = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Discogs = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ArtistId = table.Column<int>(type: "int", nullable: false),
                     GenreId = table.Column<int>(type: "int", nullable: false),
@@ -305,13 +420,15 @@ namespace Web.Migrations
                     AmplifierId = table.Column<int>(type: "int", nullable: true),
                     BitnessId = table.Column<int>(type: "int", nullable: true),
                     CartrigeId = table.Column<int>(type: "int", nullable: true),
-                    CodecId = table.Column<int>(type: "int", nullable: true),
+                    DigitalFormatId = table.Column<int>(type: "int", nullable: true),
                     DeviceId = table.Column<int>(type: "int", nullable: true),
-                    FormatId = table.Column<int>(type: "int", nullable: true),
+                    SourceFormatId = table.Column<int>(type: "int", nullable: true),
                     ProcessingId = table.Column<int>(type: "int", nullable: true),
                     AdcId = table.Column<int>(type: "int", nullable: true),
                     SamplingId = table.Column<int>(type: "int", nullable: true),
-                    StateId = table.Column<int>(type: "int", nullable: true)
+                    VinylStateId = table.Column<int>(type: "int", nullable: true),
+                    WireId = table.Column<int>(type: "int", nullable: false),
+                    PlayerId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -342,19 +459,14 @@ namespace Web.Migrations
                         principalTable: "Cartriges",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfos_Codecs_CodecId",
-                        column: x => x.CodecId,
-                        principalTable: "Codecs",
+                        name: "FK_TechnicalInfos_DigitalFormats_DigitalFormatId",
+                        column: x => x.DigitalFormatId,
+                        principalTable: "DigitalFormats",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfos_Devices_DeviceId",
-                        column: x => x.DeviceId,
-                        principalTable: "Devices",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_TechnicalInfos_Formats_FormatId",
-                        column: x => x.FormatId,
-                        principalTable: "Formats",
+                        name: "FK_TechnicalInfos_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TechnicalInfos_Processings_ProcessingId",
@@ -367,10 +479,21 @@ namespace Web.Migrations
                         principalTable: "Samplings",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfos_States_StateId",
-                        column: x => x.StateId,
-                        principalTable: "States",
+                        name: "FK_TechnicalInfos_SourceFormats_SourceFormatId",
+                        column: x => x.SourceFormatId,
+                        principalTable: "SourceFormats",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TechnicalInfos_VinylStates_VinylStateId",
+                        column: x => x.VinylStateId,
+                        principalTable: "VinylStates",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TechnicalInfos_Wire_WireId",
+                        column: x => x.WireId,
+                        principalTable: "Wire",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -385,7 +508,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "Codecs",
+                table: "DigitalFormats",
                 columns: new[] { "Id", "Data" },
                 values: new object[,]
                 {
@@ -395,19 +518,6 @@ namespace Web.Migrations
                     { 4, "DSD256" },
                     { 5, "DSD512" },
                     { 6, "WV" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "Formats",
-                columns: new[] { "Id", "Data" },
-                values: new object[,]
-                {
-                    { 1, "LP 12'' 33RPM" },
-                    { 2, "EP 10'' 45RPM" },
-                    { 3, "EP 12'' 45RPM" },
-                    { 4, "SINGLE 7'' 45RPM" },
-                    { 5, "SINGLE 12'' 45RPM" },
-                    { 6, "SHELLAC 10'' 78RPM" }
                 });
 
             migrationBuilder.InsertData(
@@ -425,7 +535,20 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "States",
+                table: "SourceFormats",
+                columns: new[] { "Id", "Data" },
+                values: new object[,]
+                {
+                    { 1, "LP 12'' 33RPM" },
+                    { 2, "EP 10'' 45RPM" },
+                    { 3, "EP 12'' 45RPM" },
+                    { 4, "SINGLE 7'' 45RPM" },
+                    { 5, "SINGLE 12'' 45RPM" },
+                    { 6, "SHELLAC 10'' 78RPM" }
+                });
+
+            migrationBuilder.InsertData(
+                table: "VinylStates",
                 columns: new[] { "Id", "Data" },
                 values: new object[,]
                 {
@@ -436,6 +559,11 @@ namespace Web.Migrations
                     { 5, "Good" },
                     { 6, "Unknown" }
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Adces_AdcManufacturerId",
+                table: "Adces",
+                column: "AdcManufacturerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Albums_ArtistId",
@@ -473,6 +601,21 @@ namespace Web.Migrations
                 column: "YearId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Amplifiers_AmplifierManufacturerId",
+                table: "Amplifiers",
+                column: "AmplifierManufacturerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Cartriges_CartrigeManufacturerId",
+                table: "Cartriges",
+                column: "CartrigeManufacturerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Players_PlayerManufacturerId",
+                table: "Players",
+                column: "PlayerManufacturerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TechnicalInfos_AdcId",
                 table: "TechnicalInfos",
                 column: "AdcId");
@@ -500,19 +643,14 @@ namespace Web.Migrations
                 column: "CartrigeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfos_CodecId",
+                name: "IX_TechnicalInfos_DigitalFormatId",
                 table: "TechnicalInfos",
-                column: "CodecId");
+                column: "DigitalFormatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfos_DeviceId",
+                name: "IX_TechnicalInfos_PlayerId",
                 table: "TechnicalInfos",
-                column: "DeviceId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfos_FormatId",
-                table: "TechnicalInfos",
-                column: "FormatId");
+                column: "PlayerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TechnicalInfos_ProcessingId",
@@ -525,9 +663,24 @@ namespace Web.Migrations
                 column: "SamplingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfos_StateId",
+                name: "IX_TechnicalInfos_SourceFormatId",
                 table: "TechnicalInfos",
-                column: "StateId");
+                column: "SourceFormatId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TechnicalInfos_VinylStateId",
+                table: "TechnicalInfos",
+                column: "VinylStateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TechnicalInfos_WireId",
+                table: "TechnicalInfos",
+                column: "WireId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wire_WireManufacturerId",
+                table: "Wire",
+                column: "WireManufacturerId");
         }
 
         /// <inheritdoc />
@@ -552,13 +705,10 @@ namespace Web.Migrations
                 name: "Cartriges");
 
             migrationBuilder.DropTable(
-                name: "Codecs");
+                name: "DigitalFormats");
 
             migrationBuilder.DropTable(
-                name: "Devices");
-
-            migrationBuilder.DropTable(
-                name: "Formats");
+                name: "Players");
 
             migrationBuilder.DropTable(
                 name: "Processings");
@@ -567,7 +717,16 @@ namespace Web.Migrations
                 name: "Samplings");
 
             migrationBuilder.DropTable(
-                name: "States");
+                name: "SourceFormats");
+
+            migrationBuilder.DropTable(
+                name: "VinylStates");
+
+            migrationBuilder.DropTable(
+                name: "Wire");
+
+            migrationBuilder.DropTable(
+                name: "AdcManufacturer");
 
             migrationBuilder.DropTable(
                 name: "Artists");
@@ -589,6 +748,18 @@ namespace Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "Years");
+
+            migrationBuilder.DropTable(
+                name: "AmplifierManufacturer");
+
+            migrationBuilder.DropTable(
+                name: "CartrigeManufacturer");
+
+            migrationBuilder.DropTable(
+                name: "PlayerManufacturer");
+
+            migrationBuilder.DropTable(
+                name: "WireManufacturer");
         }
     }
 }

@@ -186,55 +186,88 @@
                 <div id="vinylstatediv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="vinylstate" class="justifiy-element-size" style="display: none" />
                 </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.VinylState?.Data
+                </div>
             </div>
             <div class="technical-info-icon">
                 <div id="digitalformatdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="digitalformat" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.DigitalFormat?.Data
                 </div>
             </div>
             <div class="technical-info-icon">
                 <div id="bitnessdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="bitness" class="justifiy-element-size" style="display: none" />
                 </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Bitness?.Data
+                </div>
             </div>
             <div class="technical-info-icon">
                 <div id="samplingdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="sampling" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Sampling?.Data
                 </div>
             </div>
             <div class="technical-info-icon">
                 <div id="formatdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="format" class="justifiy-element-size" style="display: none" />
                 </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.SourceFormat?.Data
+                </div>
             </div>
             <div class="technical-info-icon">
                 <div id="devicediv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="device" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Player?.PlayerManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Player?.Data
                 </div>
             </div>
             <div class="technical-info-icon">
                 <div id="cartridgediv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="cartridge" class="justifiy-element-size" style="display: none" />
                 </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Cartrige?.CartrigeManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Cartrige?.Data
+                </div>
             </div>
             <div class="technical-info-icon">
                 <div id="ampdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="amp" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Amplifier?.AmplifierManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Amplifier?.Data
                 </div>
             </div>
             <div class="technical-info-icon">
                 <div id="adcdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="adc" class="justifiy-element-size" style="display: none" />
                 </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Adc?.AdcManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Adc?.Data
+                </div>
             </div>
             <div class="technical-info-icon">
                 <div id="wirediv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="wire" class="justifiy-element-size" style="display: none" />
                 </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Wire?.WireManufacturer?.Data - @Model?.Album?.TechnicalInfo?.Wire?.Data
+                </div>
             </div>
             <div class="technical-info-icon">
                 <div id="processingdiv" class="spinner-border justifiy-element-size" style="display: none">
                     <img id="processing" class="justifiy-element-size" style="display: none" />
+                </div>
+                <div class="technical-info-icon-title">
+                    @Model?.Album?.TechnicalInfo?.Processing?.Data
                 </div>
             </div>
         </div>

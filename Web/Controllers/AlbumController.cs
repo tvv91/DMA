@@ -61,6 +61,29 @@ namespace Web.Controllers
                 return NotFound();
             }
 
+            TechnicalInfo? tinfo = await _techInfoRepository.TechInfos
+                .Include(x => x.VinylState)
+                .Include(x => x.DigitalFormat)
+                .Include(x => x.Bitness)
+                .Include(x => x.Sampling)
+                .Include(x => x.SourceFormat)
+                .Include(x => x.Player)
+                .ThenInclude(x => x.PlayerManufacturer)
+                .Include(x => x.Cartrige)
+                .ThenInclude(x => x.CartrigeManufacturer)
+                .Include(x => x.Amplifier)
+                .ThenInclude(x => x.AmplifierManufacturer)
+                .Include(x => x.Adc)
+                .ThenInclude(x => x.AdcManufacturer)
+                .Include(x => x.Adc)
+                .ThenInclude(x => x.AdcManufacturer)
+                .Include(x => x.Wire)
+                .ThenInclude(x => x.WireManufacturer)
+                .Include(x => x.Processing)
+                .FirstOrDefaultAsync(x => x.Id == album.Id);
+
+            album.TechnicalInfo = tinfo;
+
             return View("AlbumDetails", new AlbumDetailsViewModel {  Album = album });
         }
 

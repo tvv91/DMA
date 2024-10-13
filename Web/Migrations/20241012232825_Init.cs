@@ -329,7 +329,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Wire",
+                name: "Wires",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -339,9 +339,9 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wire", x => x.Id);
+                    table.PrimaryKey("PK_Wires", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Wire_WireManufacturer_WireManufacturerId",
+                        name: "FK_Wires_WireManufacturer_WireManufacturerId",
                         column: x => x.WireManufacturerId,
                         principalTable: "WireManufacturer",
                         principalColumn: "Id",
@@ -421,14 +421,13 @@ namespace Web.Migrations
                     BitnessId = table.Column<int>(type: "int", nullable: true),
                     CartrigeId = table.Column<int>(type: "int", nullable: true),
                     DigitalFormatId = table.Column<int>(type: "int", nullable: true),
-                    DeviceId = table.Column<int>(type: "int", nullable: true),
+                    PlayerId = table.Column<int>(type: "int", nullable: true),
                     SourceFormatId = table.Column<int>(type: "int", nullable: true),
                     ProcessingId = table.Column<int>(type: "int", nullable: true),
                     AdcId = table.Column<int>(type: "int", nullable: true),
                     SamplingId = table.Column<int>(type: "int", nullable: true),
                     VinylStateId = table.Column<int>(type: "int", nullable: true),
-                    WireId = table.Column<int>(type: "int", nullable: false),
-                    PlayerId = table.Column<int>(type: "int", nullable: true)
+                    WireId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -489,11 +488,10 @@ namespace Web.Migrations
                         principalTable: "VinylStates",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfos_Wire_WireId",
+                        name: "FK_TechnicalInfos_Wires_WireId",
                         column: x => x.WireId,
-                        principalTable: "Wire",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "Wires",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.InsertData(
@@ -678,8 +676,8 @@ namespace Web.Migrations
                 column: "WireId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wire_WireManufacturerId",
-                table: "Wire",
+                name: "IX_Wires_WireManufacturerId",
+                table: "Wires",
                 column: "WireManufacturerId");
         }
 
@@ -723,7 +721,7 @@ namespace Web.Migrations
                 name: "VinylStates");
 
             migrationBuilder.DropTable(
-                name: "Wire");
+                name: "Wires");
 
             migrationBuilder.DropTable(
                 name: "AdcManufacturer");

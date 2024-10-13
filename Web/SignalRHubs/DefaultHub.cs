@@ -70,9 +70,9 @@ namespace Web.SignalRHubs
                     SourceFormat format = await _techInfoRepository.Formats.FirstOrDefaultAsync(x => x.Id == ti.SourceFormatId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _coverImageService.GetImageUrl(format.Id, EntityType.SourceFormat));
                 }
-                if (ti.DeviceId != null)
+                if (ti.PlayerId != null)
                 {
-                    Player device = await _techInfoRepository.Devices.FirstOrDefaultAsync(x => x.Id == ti.DeviceId);
+                    Player device = await _techInfoRepository.Devices.FirstOrDefaultAsync(x => x.Id == ti.PlayerId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "device", _coverImageService.GetImageUrl(device.Id, EntityType.Device));
                 }
                 if (ti.CartrigeId != null)
@@ -94,6 +94,11 @@ namespace Web.SignalRHubs
                 {
                     Processing processing= await _techInfoRepository.Processings.FirstOrDefaultAsync(x => x.Id == ti.ProcessingId);
                     await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "processing", _coverImageService.GetImageUrl(processing.Id, EntityType.Processing));
+                }
+                if (ti.WireId != null)
+                {
+                    Wire wire = await _techInfoRepository.Wires.FirstOrDefaultAsync(x => x.Id == ti.WireId);
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _coverImageService.GetImageUrl(wire.Id, EntityType.Wire));
                 }
             }
         }

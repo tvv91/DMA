@@ -16,6 +16,7 @@ namespace Web.Db
         IQueryable<Processing> Processings { get; }
         IQueryable<Sampling> Samplings { get; }
         IQueryable<VinylState> States { get; }
+        IQueryable<Wire> Wires { get; }
         Task<TechnicalInfo> CreateNewTechnicallInfoAsync(AlbumDataRequest request);
 
     }

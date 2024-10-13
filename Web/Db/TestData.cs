@@ -174,6 +174,13 @@ namespace Web.Db
             #endregion
             #endregion
 
+            #region Processings
+            var processing = new Processing
+            {
+                Data = "DeClick"
+            };
+            #endregion
+
             #region Technical Info
             var tInfo1 = new TechnicalInfo
             {
@@ -187,6 +194,7 @@ namespace Web.Db
                 Cartrige = cartrige1,
                 Player = player1,
                 Wire = wire1,
+                Processing = processing
             };
             #endregion
             #endregion

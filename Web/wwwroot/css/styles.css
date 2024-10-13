@@ -56,8 +56,14 @@
 
 .box2 {
     grid-column: 2;
+    grid-row: span 2;
     text-align: left;
     padding-left: 100px;
+}
+
+.box3 {
+    grid-row: 3;
+    grid-column: span 2;
 }
 
 .album-cover {
@@ -66,11 +72,26 @@
 
 .technical-info {
     display: grid;
-    grid-template-columns: repeat(5, 100px);
-    grid-template-rows: repeat(5, 100px);
-    grid-column-gap: 10px;
-    grid-row-gap: 10px;
-    padding-left: 100px;
+    grid-template-rows: 60px 25px 100px;
+    grid-template-columns: repeat(11, 100px);
+    justify-content: center;
+    
+}
+
+.technical-info-title {
+    grid-row: 1;
+    grid-column: span 12;
+    text-align: center;
+    font-size: 30pt;
+}
+
+.technical-info-description {
+    grid-row: 2;
+    text-align: center;
+}
+
+.technical-info-icon {
+    grid-row: 3;
 }
 
 .justifiy-element-size {

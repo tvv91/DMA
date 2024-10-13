@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20241001002421_Init")]
+    [Migration("20241012232825_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -578,9 +578,6 @@ namespace Web.Migrations
                     b.Property<int?>("CartrigeId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DeviceId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DigitalFormatId")
                         .HasColumnType("int");
 
@@ -599,7 +596,7 @@ namespace Web.Migrations
                     b.Property<int?>("VinylStateId")
                         .HasColumnType("int");
 
-                    b.Property<int>("WireId")
+                    b.Property<int?>("WireId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -701,7 +698,7 @@ namespace Web.Migrations
 
                     b.HasIndex("WireManufacturerId");
 
-                    b.ToTable("Wire");
+                    b.ToTable("Wires");
                 });
 
             modelBuilder.Entity("Web.Models.WireManufacturer", b =>
@@ -880,9 +877,7 @@ namespace Web.Migrations
 
                     b.HasOne("Web.Models.Wire", "Wire")
                         .WithMany("TechnicalInfos")
-                        .HasForeignKey("WireId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WireId");
 
                     b.Navigation("Adc");
 

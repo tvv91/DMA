@@ -14,13 +14,13 @@
         public int? BitnessId { get; set; }
         public int? CartrigeId { get; set; }
         public int? DigitalFormatId { get; set; }
-        public int? DeviceId { get; set; }
+        public int? PlayerId { get; set; }
         public int? SourceFormatId { get; set; }
         public int? ProcessingId { get; set; }
         public int? AdcId { get; set; }
         public int? SamplingId { get; set; }
         public int? VinylStateId { get; set; }
-        public int WireId { get; set; }
+        public int? WireId { get; set; }
 
         #endregion
 

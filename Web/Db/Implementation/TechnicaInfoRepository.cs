@@ -29,6 +29,8 @@ namespace Web.Db.Implementation
         public IQueryable<Sampling> Samplings => _context.Samplings;
 
         public IQueryable<VinylState> States => _context.VinylStates;
+        
+        public IQueryable<Wire> Wires => _context.Wires;
 
         public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
 
@@ -278,6 +280,19 @@ namespace Web.Db.Implementation
             await _context.Adces.AddAsync(adc);
             await _context.SaveChangesAsync();
             return adc;
+        }
+
+        private async Task<Wire> FindWireAsync(string data)
+        {
+            return await Wires.FirstOrDefaultAsync(x => x.Data == data);
+        }
+
+        private async Task<Wire> CreateWireAsync(string data)
+        {
+            var wire = new Wire { Data = data };
+            await _context.Wires.AddAsync(wire);
+            await _context.SaveChangesAsync();
+            return wire;
         }
     }
 }

@@ -16,6 +16,7 @@
         Amp,
         Adc,
         Processing,
+        Wire,
         AlbumDetailCover
     }
 }

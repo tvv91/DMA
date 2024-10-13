@@ -26,6 +26,7 @@ namespace Web.Db
         public DbSet<VinylState> VinylStates { get; set; }
         public DbSet<Year> Years { get; set; }
         public DbSet<Storage> Storages { get; set; }
+        public DbSet<Wire> Wires { get; set; }
         public DbSet<TechnicalInfo> TechnicalInfos { get; set;}
 
         // pre-defined entities

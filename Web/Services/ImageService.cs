@@ -20,7 +20,8 @@ namespace Web.Services
             { EntityType.Cartridge, "/resources/cartridge/"},
             { EntityType.Amp, "/resources/amp/"},
             { EntityType.Adc, "/resources/adc/"},
-            { EntityType.Processing, "/resources/Processing/"},
+            { EntityType.Processing, "/resources/processing/"},
+            { EntityType.Wire, "/resources/wire/"},
             { EntityType.AlbumDetailCover, "/covers/"},
         };        
 

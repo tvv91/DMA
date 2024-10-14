@@ -72,30 +72,70 @@
 
 .technical-info {
     display: grid;
-    grid-template-rows: 60px 25px 100px 25px;
-    grid-template-columns: repeat(11, 100px);
+    grid-template-rows: 50px 0px 10px 10px 100px 25px 0px 10px 10px 100px 10px;
+    grid-template-columns: repeat(6, 100px);
     justify-content: center;
-    
+    row-gap: 10px
 }
 
 .technical-info-title {
     grid-row: 1;
-    grid-column: span 12;
+    grid-column: span 6;
     text-align: center;
     font-size: 30pt;
+    
+}
+.digitization-info {
+    grid-row: 2;
+    grid-column: span 6;
+    text-align: center;
+    font-style: italic;
 }
 
-.technical-info-description {
-    grid-row: 2;
+.hr1 {
+    grid-row: 3;
+    grid-column: span 6;
+}
+
+.technical-info-description-digitization {
+    grid-row: 4;
     text-align: center;
 }
 
-.technical-info-icon {
-    grid-row: 3;
+.technical-info-icon-digitization {
+    grid-row: 5;
 }
 
-.technical-info-icon-title {
-    grid-row: 4;
+.technical-info-icon-title-digitization {
+    grid-row: 6;
+    text-align: center;
+    font-weight: bold;
+    white-space: nowrap
+}
+
+.digitization-hardware {
+    grid-row: 7;
+    grid-column: span 6;
+    text-align: center;
+    font-style: italic;
+}
+
+.hr2 {
+    grid-row: 8;
+    grid-column: span 6;
+}
+
+.technical-info-description-hardware {
+    grid-row: 9;
+    text-align: center;
+}
+
+.technical-info-icon-hardware {
+    grid-row: 10;
+}
+
+.technical-info-icon-title-hardware {
+    grid-row: 11;
     text-align: center;
     font-weight: bold;
 }

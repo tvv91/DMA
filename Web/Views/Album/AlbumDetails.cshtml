@@ -129,15 +129,20 @@
         <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
         @if (Model.Album.Reissue == null)
         {
-            <h5>@Model.Album.Year.Data (Reissue: @Model.Album.Reissue?.Data)</h5>
+            <h5>Year: <b>@Model.Album.Year.Data</b></h5>
         }
         else
         {
-            <h5>@Model.Album.Year.Data (Reissue: @Model.Album.Reissue.Data)</h5>
+            <h5>Year: <b>@Model.Album.Year.Data</b> (Reissue: <b>@Model.Album.Reissue.Data</b>)</h5>
         }
-        <h5>@Model.Album.Genre.Data</h5>
-        <h5>@Model.Album?.Country?.Data</h5>
-        <h5>@Model.Album?.Label?.Data</h5>
+        <h5>Genre: <b>@Model.Album.Genre.Data</b></h5>
+        <h5>Country: <b>@Model.Album?.Country?.Data</b></h5>
+        <h5>Label: <b>@Model.Album?.Label?.Data</b></h5>
+        <h5>Size: <b>@Model.Album?.Size</b> Gb</h5>
+        <h5>Source: <a href=@Model?.Album?.Source>@Model?.Album?.Source</a></h5>
+        <h5>Discogs: <a href=@Model?.Album?.Discogs>@Model?.Album?.Discogs</a></h5>
+        <h5>Added: <b>@Model?.Album?.AddedDate</b></h5>
+        <h5>Storage: <b>@Model?.Album?.Storage?.Data</b></h5>
     </div>
     <div id="noinfowarning" class="mt-3" style="padding-left: 100px; display:none">
         <h1>

@@ -54,6 +54,7 @@ namespace Web.Controllers
                 .Include(a => a.Label)
                 .Include(a => a.Reissue)
                 .Include(a => a.Year)
+                .Include(a => a.Storage)
                 .FirstOrDefaultAsync(a => a.Id == id);
             
             if (album == null)

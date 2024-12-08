@@ -28,12 +28,9 @@ namespace Web.Db.Implementation
         public IQueryable<WireManufacturer> WireManufacturers => _context.WireManufacturers;
         public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
 
-        public async Task<TechnicalInfo> CreateNewTechnicalInfoAsync(AlbumDataRequest request)
+        public async Task<TechnicalInfo> CreateTechnicalInfoAsync(AlbumDataRequest request)
         {
             var tinfo = new TechnicalInfo();
-            
-            // set true if at lease one property not null, else return null and not create empty record in db
-            bool notNull = false;
             
             if (request.Adc != null)
             {
@@ -53,7 +50,6 @@ namespace Web.Db.Implementation
                     adc.AdcManufacturer = adcManufacturer;
                 }
 
-                notNull = true;
                 tinfo.Adc = adc;
             }
 
@@ -75,7 +71,6 @@ namespace Web.Db.Implementation
                     amp.AmplifierManufacturer = ampManufacturer;
                 }
 
-                notNull = true;
                 tinfo.Amplifier = amp;
             }
 
@@ -86,7 +81,7 @@ namespace Web.Db.Implementation
                 {
                     bitness = await CreateBitnessAsync(request.Bitness.Value);
                 }
-                notNull = true;
+
                 tinfo.Bitness = bitness;
             }
 
@@ -108,7 +103,7 @@ namespace Web.Db.Implementation
                     cartridge.CartrigeManufacturer= cartridgeManufacturer;
                 }
 
-                notNull = true;
+
                 tinfo.Cartrige = cartridge;
             }
 
@@ -119,7 +114,7 @@ namespace Web.Db.Implementation
                 {
                     codec = await CreateDigitalFormatAsync(request.DigitalFormat);
                 }
-                notNull = true;
+
                 tinfo.DigitalFormat = codec;
             }
 
@@ -140,7 +135,7 @@ namespace Web.Db.Implementation
                     }
                     player.PlayerManufacturer = manufacturer;
                 }
-                notNull = true;
+
                 tinfo.Player = player;
             }
 
@@ -151,7 +146,7 @@ namespace Web.Db.Implementation
                 {
                     format = await CreateSourceFormatAsync(request.SourceFormat);
                 }
-                notNull = true;
+
                 tinfo.SourceFormat = format;
             }
 
@@ -162,7 +157,7 @@ namespace Web.Db.Implementation
                 {
                     processing = await CreateProcessingAsync(request.Processing);
                 }
-                notNull = true;
+
                 tinfo.Processing = processing;
             }
 
@@ -173,7 +168,7 @@ namespace Web.Db.Implementation
                 {
                     sampling = await CreateSamplingAsync(request.Sampling.Value);
                 }
-                notNull = true;
+
                 tinfo.Sampling = sampling;
             }
 
@@ -184,7 +179,7 @@ namespace Web.Db.Implementation
                 {
                     state = await CreateVinylStateAsync(request.VinylState);
                 }
-                notNull = true;
+
                 tinfo.VinylState = state;
             }
 
@@ -206,11 +201,10 @@ namespace Web.Db.Implementation
                     wire.WireManufacturer = wireManufacturer;
                 }
 
-                notNull = true;
                 tinfo.Wire = wire;
             }
 
-            return notNull == true ? tinfo : null;
+            return tinfo;
         }
 
         #region Create methods
@@ -424,7 +418,7 @@ namespace Web.Db.Implementation
         }
         #endregion        
 
-        public async Task<TechnicalInfo> UpdateTechnicalInfoAsync(int id, AlbumDataRequest request)
+        public async Task<TechnicalInfo> UpdateTechnicalInfoAsync(int albumId, AlbumDataRequest request)
         {
             var techInfo = await _context.TechnicalInfos
                 .Include(x => x.VinylState)
@@ -443,11 +437,11 @@ namespace Web.Db.Implementation
                 .Include(x => x.Wire)
                 .ThenInclude(x => x.WireManufacturer)
                 .Include(x => x.Processing)
-                .FirstOrDefaultAsync(x => x.Id == id);
+                .FirstOrDefaultAsync(x => x.AlbumId == albumId);
 
             if (request == null)
             {
-                return await CreateNewTechnicalInfoAsync(request);
+                return await CreateTechnicalInfoAsync(request);
             }
 
             if (techInfo?.VinylState?.Data != request.VinylState)

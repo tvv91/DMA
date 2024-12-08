@@ -22,7 +22,7 @@ namespace Web.Db
         IQueryable<VinylState> VinylStates { get; }
         IQueryable<Wire> Wires { get; }
         IQueryable<WireManufacturer> WireManufacturers { get; }
-        Task<TechnicalInfo> CreateNewTechnicalInfoAsync(AlbumDataRequest request);
+        Task<TechnicalInfo> CreateTechnicalInfoAsync(AlbumDataRequest request);
         Task<TechnicalInfo> UpdateTechnicalInfoAsync(int id, AlbumDataRequest request);
 
     }

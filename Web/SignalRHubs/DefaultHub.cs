@@ -159,68 +159,60 @@ namespace Web.SignalRHubs
         public async Task GetTechnicalInfoIcons(string connectionId, int albumId)
         {
             var tInfo = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);
-            if (tInfo == null)
+
+            if (tInfo.VinylStateId != null)
             {
-                await Clients.Client(connectionId).SendAsync("TechnicalInfoNotFound");
-            } 
-            else
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
+            }
+
+            if (tInfo.DigitalFormatId != null)
             {
-                await Clients.Client(connectionId).SendAsync("TechnicalInfoFound");
-                
-                if (tInfo.VinylStateId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
-                }
-                
-                if (tInfo.DigitalFormatId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
-                }
-                
-                if (tInfo.BitnessId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, EntityType.Bitness));
-                }
-                
-                if (tInfo.SamplingId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, EntityType.Sampling));
-                }
-                
-                if (tInfo.SourceFormatId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
-                }
-                
-                if (tInfo.PlayerId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "device", _imgService.GetImageUrl(tInfo.PlayerId.Value, EntityType.Player));
-                }
-                
-                if (tInfo.CartrigeId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartrigeId.Value, EntityType.Cartridge));
-                }
-                
-                if (tInfo.AmplifierId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, EntityType.Amp));
-                }
-                
-                if (tInfo.AdcId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, EntityType.Adc));
-                }
-                
-                if (tInfo.ProcessingId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "processing", _imgService.GetImageUrl(tInfo.ProcessingId.Value, EntityType.Processing));
-                }
-                
-                if (tInfo.WireId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, EntityType.Wire));
-                }
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
+            }
+
+            if (tInfo.BitnessId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, EntityType.Bitness));
+            }
+
+            if (tInfo.SamplingId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, EntityType.Sampling));
+            }
+
+            if (tInfo.SourceFormatId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
+            }
+
+            if (tInfo.PlayerId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "player", _imgService.GetImageUrl(tInfo.PlayerId.Value, EntityType.Player));
+            }
+
+            if (tInfo.CartrigeId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartrigeId.Value, EntityType.Cartridge));
+            }
+
+            if (tInfo.AmplifierId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, EntityType.Amp));
+            }
+
+            if (tInfo.AdcId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, EntityType.Adc));
+            }
+
+            if (tInfo.ProcessingId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "processing", _imgService.GetImageUrl(tInfo.ProcessingId.Value, EntityType.Processing));
+            }
+
+            if (tInfo.WireId != null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, EntityType.Wire));
             }
         }
     }

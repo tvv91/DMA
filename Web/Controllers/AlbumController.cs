@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Web.Db;
 using Web.Enum;
-using Web.Models;
 using Web.Request;
 using Web.Response;
 using Web.Services;
@@ -14,13 +13,13 @@ namespace Web.Controllers
     public class AlbumController : Controller
     {
         private const int ALBUMS_PER_PAGE = 15;
-        private readonly IAlbumRepository _repository;
+        private readonly IAlbumRepository _albumRepository;
         private readonly IImageService _imageService;
         private readonly ITechInfoRepository _techInfoRepository;
 
         public AlbumController(IAlbumRepository albumRepository, IImageService imageService, ITechInfoRepository tinfoRepository)
         {
-            _repository = albumRepository;
+            _albumRepository = albumRepository;
             _imageService = imageService;
             _techInfoRepository = tinfoRepository;
         }
@@ -30,7 +29,7 @@ namespace Web.Controllers
         {
             AlbumViewModel albumViewModel = new AlbumViewModel
             {
-                 Albums = await _repository.Albums
+                 Albums = await _albumRepository.Albums
                  .Skip((page - 1) * ALBUMS_PER_PAGE)
                  .Take(ALBUMS_PER_PAGE)
                  .Include(a => a.Artist)
@@ -47,7 +46,7 @@ namespace Web.Controllers
                 return BadRequest();
             }
             
-            Album? album = await _repository.Albums
+            var album = await _albumRepository.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Country)
                 .Include(a => a.Genre)
@@ -62,7 +61,7 @@ namespace Web.Controllers
                 return NotFound();
             }
 
-            TechnicalInfo? tinfo = await _techInfoRepository.TechInfos
+            var tinfo = await _techInfoRepository.TechInfos
                 .Include(x => x.VinylState)
                 .Include(x => x.DigitalFormat)
                 .Include(x => x.Bitness)
@@ -83,7 +82,10 @@ namespace Web.Controllers
                 .Include(x => x.Processing)
                 .FirstOrDefaultAsync(x => x.Id == album.Id);
 
-            album.TechnicalInfo = tinfo;
+            if (tinfo != null)
+            {
+                album.TechnicalInfo = tinfo;
+            }
 
             return View("AlbumDetails", new AlbumDetailsViewModel {  Album = album });
         }
@@ -100,7 +102,7 @@ namespace Web.Controllers
             if (albumId <= 0)
                 return BadRequest();
             
-            var album = await _repository.Albums
+            var album = await _albumRepository.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Country)
                 .Include(a => a.Genre)
@@ -169,7 +171,7 @@ namespace Web.Controllers
                 && !string.IsNullOrEmpty(request.Album) 
                 && !string.IsNullOrEmpty(request.Genre))
             {
-                var album = await _repository.CreateNewAlbum(request);
+                var album = await _albumRepository.CreateNewAlbum(request);
                 if (request.AlbumCover != null)
                 {
                     _imageService.SaveCover(album.Id, request.AlbumCover);
@@ -194,7 +196,23 @@ namespace Web.Controllers
                 && !string.IsNullOrEmpty(request.Album)
                 && !string.IsNullOrEmpty(request.Genre))
             {
-                var album = await _repository.UpdateAlbum(albumId, request);
+                var album = await _albumRepository.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Genre)
+                .Include(a => a.Year)
+                .Include(a => a.Reissue)
+                .Include(a => a.Country)
+                .Include(a => a.Label)
+                .Include(a => a.Storage)
+                .FirstOrDefaultAsync(x => x.Id == albumId);
+
+                if (album == null)
+                {
+                    return NotFound();
+                }
+
+                await _albumRepository.UpdateAlbum(album, request);
+                await _techInfoRepository.UpdateTechnicalInfoAsync(album.Id, request);
 
                 if (request.AlbumCover == null)
                 {
@@ -218,14 +236,14 @@ namespace Web.Controllers
         {
             if (id <= 0 || id > int.MaxValue)
                 return BadRequest();
-            var album = await _repository.Albums.Where(a => a.Id == id).SingleOrDefaultAsync();
+            var album = await _albumRepository.Albums.Where(a => a.Id == id).SingleOrDefaultAsync();
             if (album == null)
                 return NotFound();
             try
             {
                 _imageService.RemoveCover(album.Id);
                 await _techInfoRepository.TechInfos.Where(t => t.AlbumId == id).ExecuteDeleteAsync();
-                await _repository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
+                await _albumRepository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
             }
             catch (Exception ex)
             {
@@ -237,19 +255,19 @@ namespace Web.Controllers
         [HttpGet("search/artist")]
         public async Task<IActionResult> SearchArtist(string term)
         {
-            return Ok(await _repository.Artists.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+            return Ok(await _albumRepository.Artists.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
         
         [HttpGet("search/genre")]
         public async Task<IActionResult> SearchGenre(string term)
         {
-            return Ok(await _repository.Genres.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+            return Ok(await _albumRepository.Genres.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
 
         [HttpGet("search/year")]
         public async Task<IActionResult> SearchYear(string term)
         {
-            return Ok(await _repository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+            return Ok(await _albumRepository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
         }
 
         [HttpPost("/uploadcover")]

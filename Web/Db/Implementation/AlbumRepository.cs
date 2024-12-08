@@ -107,7 +107,7 @@ namespace Web.Db
             }
             #endregion
 
-            var tInfo = await _techInfoRepository.CreateNewTechnicalInfoAsync(request);
+            var tInfo = await _techInfoRepository.CreateTechnicalInfoAsync(request);
             if (tInfo != null)
             {
                 album.TechnicalInfo = tInfo;
@@ -209,28 +209,12 @@ namespace Web.Db
             return storage;
         }
 
-        public async Task<Album> UpdateAlbum(int albumId, AlbumDataRequest request)
+        public async Task<Album> UpdateAlbum(Album album, AlbumDataRequest request)
         {
-            var album = await _context.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Genre)
-                .Include(a => a.Year)
-                .Include(a => a.Reissue)
-                .Include(a => a.Country)
-                .Include(a => a.Label)
-                .Include(a => a.Storage)
-                .FirstOrDefaultAsync(x => x.Id == albumId);
-            
-            if (album == null)
-            {
-                return await CreateNewAlbum(request);
-            }
-
             album.Data = request.Album;
             album.Size = request.Size;
             album.Source = request.Source;
             album.Discogs = request.Discogs;
-
 
             if (album.Artist.Data != request.Artist)
             {

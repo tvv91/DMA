@@ -68,15 +68,15 @@ namespace Web.Controllers
                 .Include(x => x.Sampling)
                 .Include(x => x.SourceFormat)
                 .Include(x => x.Player)
-                .ThenInclude(x => x.PlayerManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Cartrige)
-                .ThenInclude(x => x.CartrigeManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Amplifier)
-                .ThenInclude(x => x.AmplifierManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Adc)
-                .ThenInclude(x => x.AdcManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Adc)
-                .ThenInclude(x => x.AdcManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Wire)
                 .ThenInclude(x => x.WireManufacturer)
                 .Include(x => x.Processing)
@@ -125,6 +125,7 @@ namespace Web.Controllers
                 .Include(i => i.Cartrige)
                 .Include(i => i.Amplifier)
                 .Include(i => i.Adc)
+                .Include(i => i.Wire)
                 .Include(i => i.Processing)
                 .FirstOrDefaultAsync(i => i.AlbumId == albumId);            
 
@@ -158,6 +159,7 @@ namespace Web.Controllers
                 Cartridge = tInfo?.Cartrige?.Data,
                 Amplifier = tInfo?.Amplifier?.Data,
                 Adc = tInfo?.Adc?.Data,
+                Wire = tInfo?.Wire?.Data,
                 Processing = tInfo?.Processing?.Data,
             };
             return View("CreateOrUpdate", albumModel);
@@ -268,6 +270,12 @@ namespace Web.Controllers
         public async Task<IActionResult> SearchYear(string term)
         {
             return Ok(await _albumRepository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+        }
+
+        [HttpGet("search/reissue")]
+        public async Task<IActionResult> SearchReissue(string term)
+        {
+            return Ok(await _albumRepository.Reissues.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
         }
 
         [HttpPost("/uploadcover")]

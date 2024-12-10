@@ -25,13 +25,13 @@ namespace Web.Controllers
             return Ok();
         }
 
-        [HttpGet("search/state")]
+        [HttpGet("search/vinylstate")]
         public async Task<IActionResult> SearchVinylState(string term)
         {
             return Ok(await _repository.VinylStates.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
 
-        [HttpGet("search/codec")]
+        [HttpGet("search/digitalformat")]
         public async Task<IActionResult> SearchCodec(string term)
         {
             return Ok(await _repository.DigitalFormats.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
@@ -49,14 +49,14 @@ namespace Web.Controllers
             return Ok(await _repository.Samplings.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
         }
 
-        [HttpGet("search/format")]
+        [HttpGet("search/sourceformat")]
         public async Task<IActionResult> SearchFormat(string term)
         {
             return Ok(await _repository.SourceFormats.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
 
-        [HttpGet("search/device")]
-        public async Task<IActionResult> SearchDevice(string term)
+        [HttpGet("search/player")]
+        public async Task<IActionResult> SearchPlayer(string term)
         {
             return Ok(await _repository.Players.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
@@ -67,7 +67,7 @@ namespace Web.Controllers
             return Ok(await _repository.Cartriges.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
 
-        [HttpGet("search/amp")]
+        [HttpGet("search/amplifier")]
         public async Task<IActionResult> SearchAmp(string term)
         {
             return Ok(await _repository.Amplifiers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
@@ -77,6 +77,12 @@ namespace Web.Controllers
         public async Task<IActionResult> SearchAdc(string term)
         {
             return Ok(await _repository.Adcs.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/wire")]
+        public async Task<IActionResult> SearchWire(string term)
+        {
+            return Ok(await _repository.Wires.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
     }
 }

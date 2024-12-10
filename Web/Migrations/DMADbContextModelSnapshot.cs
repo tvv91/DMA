@@ -30,9 +30,6 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AdcManufacturerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -40,20 +37,23 @@ namespace Web.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ManufacturerId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AdcManufacturerId");
+                    b.HasIndex("ManufacturerId");
 
                     b.ToTable("Adces");
                 });
 
             modelBuilder.Entity("Web.Models.AdcManufacturer", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -136,9 +136,6 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AmplifierManufacturerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -146,20 +143,23 @@ namespace Web.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ManufacturerId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AmplifierManufacturerId");
+                    b.HasIndex("ManufacturerId");
 
                     b.ToTable("Amplifiers");
                 });
 
             modelBuilder.Entity("Web.Models.AmplifierManufacturer", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -233,9 +233,6 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CartrigeManufacturerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -243,9 +240,12 @@ namespace Web.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ManufacturerId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("CartrigeManufacturerId");
+                    b.HasIndex("ManufacturerId");
 
                     b.ToTable("Cartriges");
                 });
@@ -382,23 +382,23 @@ namespace Web.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PlayerManufacturerId")
+                    b.Property<int?>("ManufacturerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PlayerManufacturerId");
+                    b.HasIndex("ManufacturerId");
 
                     b.ToTable("Players");
                 });
 
             modelBuilder.Entity("Web.Models.PlayerManufacturer", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -703,7 +703,7 @@ namespace Web.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("WireManufacturerId")
+                    b.Property<int?>("WireManufacturerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -715,11 +715,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.WireManufacturer", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -748,13 +748,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.Adc", b =>
                 {
-                    b.HasOne("Web.Models.AdcManufacturer", "AdcManufacturer")
+                    b.HasOne("Web.Models.AdcManufacturer", "Manufacturer")
                         .WithMany("Adcs")
-                        .HasForeignKey("AdcManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ManufacturerId");
 
-                    b.Navigation("AdcManufacturer");
+                    b.Navigation("Manufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Album", b =>
@@ -810,35 +808,29 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.Amplifier", b =>
                 {
-                    b.HasOne("Web.Models.AmplifierManufacturer", "AmplifierManufacturer")
+                    b.HasOne("Web.Models.AmplifierManufacturer", "Manufacturer")
                         .WithMany("Amplifiers")
-                        .HasForeignKey("AmplifierManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ManufacturerId");
 
-                    b.Navigation("AmplifierManufacturer");
+                    b.Navigation("Manufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Cartrige", b =>
                 {
-                    b.HasOne("Web.Models.CartrigeManufacturer", "CartrigeManufacturer")
+                    b.HasOne("Web.Models.CartrigeManufacturer", "Manufacturer")
                         .WithMany("Cartriges")
-                        .HasForeignKey("CartrigeManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ManufacturerId");
 
-                    b.Navigation("CartrigeManufacturer");
+                    b.Navigation("Manufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Player", b =>
                 {
-                    b.HasOne("Web.Models.PlayerManufacturer", "PlayerManufacturer")
+                    b.HasOne("Web.Models.PlayerManufacturer", "Manufacturer")
                         .WithMany("Players")
-                        .HasForeignKey("PlayerManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ManufacturerId");
 
-                    b.Navigation("PlayerManufacturer");
+                    b.Navigation("Manufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.TechnicalInfo", b =>
@@ -920,9 +912,7 @@ namespace Web.Migrations
                 {
                     b.HasOne("Web.Models.WireManufacturer", "WireManufacturer")
                         .WithMany("Wires")
-                        .HasForeignKey("WireManufacturerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("WireManufacturerId");
 
                     b.Navigation("WireManufacturer");
                 });

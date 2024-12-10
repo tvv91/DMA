@@ -54,17 +54,17 @@ namespace Web.Db
             #region Adc
             var adc1 = new Adc
             {
-                AdcManufacturer = adcManufacturer1,
+                Manufacturer = adcManufacturer1,
                 Data = "HS-P82"
             };
             var adc2 = new Adc
             {
-                AdcManufacturer = adcManufacturer2,
+                Manufacturer = adcManufacturer2,
                 Data = "MK3"
             };
             var adc3 = new Adc
             {
-                AdcManufacturer = adcManufacturer3,
+                Manufacturer = adcManufacturer3,
                 Data = "Fireface UC"
             };
             #endregion
@@ -80,17 +80,17 @@ namespace Web.Db
             #region Models
             var amp1 = new Amplifier
             {
-                AmplifierManufacturer = ampManufacturer1,
+                Manufacturer = ampManufacturer1,
                 Data = "JC 2 BP Black"
             };
             var amp2 = new Amplifier
             {
-                AmplifierManufacturer = ampManufacturer1,
+                Manufacturer = ampManufacturer1,
                 Data = "RC-1590 MkII Black"
             };
             var amp3 = new Amplifier
             {
-                AmplifierManufacturer = ampManufacturer3,
+                Manufacturer = ampManufacturer3,
                 Data = "C-5000 Black"
             };
             #endregion
@@ -106,17 +106,17 @@ namespace Web.Db
             #region Models
             var cartrige1 = new Cartrige
             {
-                CartrigeManufacturer = cartrigeManufacturer1,
+                Manufacturer = cartrigeManufacturer1,
                 Data = "Delos"
             };
             var cartrige2 = new Cartrige
             {
-                CartrigeManufacturer = cartrigeManufacturer2,
+                Manufacturer = cartrigeManufacturer2,
                 Data = "SPU Royal N"
             };
             var cartrige3 = new Cartrige
             {
-                CartrigeManufacturer = cartrigeManufacturer3,
+                Manufacturer = cartrigeManufacturer3,
                 Data = "AT-OC9XSL"
             };
             #endregion
@@ -132,17 +132,17 @@ namespace Web.Db
             #region Models
             var player1 = new Player
             {
-                PlayerManufacturer = playerManufacturer1,
+                Manufacturer = playerManufacturer1,
                 Data = "SL-1200GR Silver"
             };
             var player2 = new Player
             {
-                PlayerManufacturer = playerManufacturer2,
+                Manufacturer = playerManufacturer2,
                 Data = "DP-3000NE"
             };
             var player3 = new Player
             {
-                PlayerManufacturer = playerManufacturer3,
+                Manufacturer = playerManufacturer3,
                 Data = "The Classic Evo 2M Silver Walnut"
             };
             #endregion

@@ -47,7 +47,7 @@ namespace Web.Db.Implementation
                     {
                         adcManufacturer = await CreateAdcManuFacturerAsync(request.AdcManufacturer);
                     }
-                    adc.AdcManufacturer = adcManufacturer;
+                    adc.Manufacturer = adcManufacturer;
                 }
 
                 tinfo.Adc = adc;
@@ -68,7 +68,7 @@ namespace Web.Db.Implementation
                     {
                         ampManufacturer = await CreateAmpManufacturerAsync(request.AmplifierManufacturer);
                     }
-                    amp.AmplifierManufacturer = ampManufacturer;
+                    amp.Manufacturer = ampManufacturer;
                 }
 
                 tinfo.Amplifier = amp;
@@ -100,7 +100,7 @@ namespace Web.Db.Implementation
                     {
                         cartridgeManufacturer = await CreateCartridgeManufacturerAsync(request.CartridgeManufacturer);
                     }
-                    cartridge.CartrigeManufacturer= cartridgeManufacturer;
+                    cartridge.Manufacturer= cartridgeManufacturer;
                 }
 
 
@@ -133,7 +133,7 @@ namespace Web.Db.Implementation
                     {
                         manufacturer = await CreatePlayerManufacturerAsync(request.PlayerManufacturer);
                     }
-                    player.PlayerManufacturer = manufacturer;
+                    player.Manufacturer = manufacturer;
                 }
 
                 tinfo.Player = player;
@@ -427,13 +427,13 @@ namespace Web.Db.Implementation
                 .Include(x => x.Sampling)
                 .Include(x => x.SourceFormat)
                 .Include(x => x.Player)
-                .ThenInclude(x => x.PlayerManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Cartrige)
-                .ThenInclude(x => x.CartrigeManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Amplifier)
-                .ThenInclude(x => x.AmplifierManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Adc)
-                .ThenInclude(x => x.AdcManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Wire)
                 .ThenInclude(x => x.WireManufacturer)
                 .Include(x => x.Processing)
@@ -512,14 +512,14 @@ namespace Web.Db.Implementation
                     player = await CreatePlayerAsync(request.Player);
                 }
 
-                if (techInfo?.Player?.PlayerManufacturer?.Data != request.PlayerManufacturer)
+                if (techInfo?.Player?.Manufacturer?.Data != request.PlayerManufacturer)
                 {
                     var manufacturer = await FindPlayerManufacturerAsync(request.PlayerManufacturer);
                     if (manufacturer == null)
                     {
                         manufacturer = await CreatePlayerManufacturerAsync(request.PlayerManufacturer);
                     }
-                    player.PlayerManufacturer = manufacturer;
+                    player.Manufacturer = manufacturer;
                 }
                 techInfo.Player = player;
             }
@@ -532,14 +532,14 @@ namespace Web.Db.Implementation
                     cartridge = await CreateCartridgeAsync(request.Cartridge);
                 }
 
-                if (techInfo?.Cartrige?.CartrigeManufacturer?.Data != request.CartridgeManufacturer)
+                if (techInfo?.Cartrige?.Manufacturer?.Data != request.CartridgeManufacturer)
                 {
                     var manufacturer = await FindCartridgeManufacturerAsync(request.CartridgeManufacturer);
                     if (manufacturer == null)
                     {
                         manufacturer = await CreateCartridgeManufacturerAsync(request.CartridgeManufacturer);
                     }
-                    cartridge.CartrigeManufacturer = manufacturer;
+                    cartridge.Manufacturer = manufacturer;
                 }
                 techInfo.Cartrige = cartridge;
             }
@@ -552,14 +552,14 @@ namespace Web.Db.Implementation
                     amplifier = await CreateAmpAsync(request.Amplifier);
                 }
 
-                if (techInfo?.Amplifier?.AmplifierManufacturer?.Data != request.AmplifierManufacturer)
+                if (techInfo?.Amplifier?.Manufacturer?.Data != request.AmplifierManufacturer)
                 {
                     var manufacturer = await FindAmpManufacturerAsync(request.AmplifierManufacturer);
                     if (manufacturer == null)
                     {
                         manufacturer = await CreateAmpManufacturerAsync(request.AmplifierManufacturer);
                     }
-                    amplifier.AmplifierManufacturer = manufacturer;
+                    amplifier.Manufacturer = manufacturer;
                 }
                 techInfo.Amplifier = amplifier;
             }
@@ -572,14 +572,14 @@ namespace Web.Db.Implementation
                     adc = await CreateAdcAsync(request.Adc);
                 }
 
-                if (techInfo?.Adc?.AdcManufacturer?.Data != request.AdcManufacturer)
+                if (techInfo?.Adc?.Manufacturer?.Data != request.AdcManufacturer)
                 {
                     var manufacturer = await FindAdcManufacturerAsync(request.AdcManufacturer);
                     if (manufacturer == null)
                     {
                         manufacturer = await CreateAdcManuFacturerAsync(request.AdcManufacturer);
                     }
-                    adc.AdcManufacturer = manufacturer;
+                    adc.Manufacturer = manufacturer;
                 }
                 techInfo.Adc = adc;
             }

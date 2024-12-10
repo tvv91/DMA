@@ -48,12 +48,12 @@ namespace Web.SignalRHubs
             return await _techInfoRepository.Adcs
                 .Skip((page - 1)* ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
-                .Include(x => x.AdcManufacturer)
+                .Include(x => x.Manufacturer)
                 .Select(x => new EquipmentResponse()
                 {
                     Id = x.Id,
                     Model = x.Data,
-                    Manufacturer = x.AdcManufacturer.Data,
+                    Manufacturer = x.Manufacturer.Data,
                 })
                 .ToListAsync();
         }
@@ -63,12 +63,12 @@ namespace Web.SignalRHubs
             return await _techInfoRepository.Amplifiers
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
-                .Include(x => x.AmplifierManufacturer)
+                .Include(x => x.Manufacturer)
                 .Select(x => new EquipmentResponse()
                 {
                     Id = x.Id,
                     Model = x.Data,
-                    Manufacturer = x.AmplifierManufacturer.Data,
+                    Manufacturer = x.Manufacturer.Data,
                 }).ToListAsync();
         }
 
@@ -77,12 +77,12 @@ namespace Web.SignalRHubs
             return await _techInfoRepository.Cartriges
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
-                .Include(x => x.CartrigeManufacturer)
+                .Include(x => x.Manufacturer)
                 .Select(x => new EquipmentResponse()
                 {
                     Id = x.Id,
                     Model = x.Data,
-                    Manufacturer = x.CartrigeManufacturer.Data,
+                    Manufacturer = x.Manufacturer.Data,
                 }).ToListAsync();
         }
 
@@ -91,12 +91,12 @@ namespace Web.SignalRHubs
             return await _techInfoRepository.Players
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
-                .Include(x => x.PlayerManufacturer)
+                .Include(x => x.Manufacturer)
                 .Select(x => new EquipmentResponse()
                 {
                     Id = x.Id,
                     Model = x.Data,
-                    Manufacturer = x.PlayerManufacturer.Data,
+                    Manufacturer = x.Manufacturer.Data,
                 }).ToListAsync();
         }
 

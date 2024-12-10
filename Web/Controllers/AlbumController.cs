@@ -187,10 +187,10 @@ namespace Web.Controllers
             }
         }
 
-        [HttpPost("album/update/{albumId}")]
-        public async Task<IActionResult> Update(AlbumDataRequest request, int albumId)
+        [HttpPost("album/update")]
+        public async Task<IActionResult> Update(AlbumDataRequest request)
         {
-            if (albumId <= 0 || albumId > int.MaxValue)
+            if (request.AlbumId <= 0 || request.AlbumId > int.MaxValue)
                 return BadRequest();
 
             if (ModelState.IsValid
@@ -206,7 +206,7 @@ namespace Web.Controllers
                 .Include(a => a.Country)
                 .Include(a => a.Label)
                 .Include(a => a.Storage)
-                .FirstOrDefaultAsync(x => x.Id == albumId);
+                .FirstOrDefaultAsync(x => x.Id == request.AlbumId);
 
                 if (album == null)
                 {
@@ -225,7 +225,7 @@ namespace Web.Controllers
                     _imageService.SaveCover(album.Id, request.AlbumCover);
                 }
 
-                return new RedirectResult($"../{albumId}");
+                return new RedirectResult($"../{request.AlbumId}");
             }
             else
             {

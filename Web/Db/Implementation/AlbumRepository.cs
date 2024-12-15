@@ -209,7 +209,7 @@ namespace Web.Db
             return storage;
         }
 
-        public async Task<Album> UpdateAlbum(Album album, AlbumDataRequest request)
+        public async Task<Album> UpdateAlbumAsymc(Album album, AlbumDataRequest request)
         {
             album.Data = request.Album;
             album.Size = request.Size;

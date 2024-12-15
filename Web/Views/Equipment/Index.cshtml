@@ -91,7 +91,6 @@
             $(`#items-container img[id=${id}]`).remove();
             $(`#items-container div[id=${id}]`).append(`<i id='nocovericon' class='fa-regular fa-image fa-6x'/>`);
         }
-        
     });
 
     // generate pagination
@@ -105,7 +104,6 @@
             }
         }
     });
-
 
     connection.onclose(async () => {
         await start();

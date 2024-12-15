@@ -14,6 +14,6 @@ namespace Web.Db
         IQueryable<Reissue> Reissues { get; }
         IQueryable<Storage> Storages { get; }
         Task<Album> CreateNewAlbum(AlbumDataRequest request);
-        Task<Album> UpdateAlbum(Album album, AlbumDataRequest request);
+        Task<Album> UpdateAlbumAsymc(Album album, AlbumDataRequest request);
     }
 }

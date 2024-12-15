@@ -133,8 +133,7 @@ namespace Web.Controllers
 
             var albumModel = new AlbumDataRequest
             {
-                // Need for edit
-                IsEdit = true,
+                Action = "update",
                 AlbumId = album.Id,
                 // Base info
                 Album = album.Data,
@@ -213,7 +212,7 @@ namespace Web.Controllers
                     return NotFound();
                 }
 
-                await _albumRepository.UpdateAlbum(album, request);
+                await _albumRepository.UpdateAlbumAsymc(album, request);
                 await _techInfoRepository.UpdateTechnicalInfoAsync(album.Id, request);
 
                 if (request.AlbumCover == null)
@@ -225,7 +224,7 @@ namespace Web.Controllers
                     _imageService.SaveCover(album.Id, request.AlbumCover);
                 }
 
-                return new RedirectResult($"../{request.AlbumId}");
+                return new RedirectResult($"/album/{request.AlbumId}");
             }
             else
             {

@@ -43,7 +43,7 @@ namespace Web.Request
         public string? WireManufacturer { get; set; }
         #endregion
 
-        public bool IsEdit { get; set; }
+        public string Action { get; set; } = "newalbum";
         public int AlbumId { get; set; }
     }
 }

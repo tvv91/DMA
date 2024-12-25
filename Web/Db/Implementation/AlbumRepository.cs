@@ -7,12 +7,10 @@ namespace Web.Db
     public class AlbumRepository : IAlbumRepository
     {
         private readonly DMADbContext _context;
-        private readonly ITechInfoRepository _techInfoRepository;
 
         public AlbumRepository(DMADbContext ctx, ITechInfoRepository repository)
         {
             _context = ctx;
-            _techInfoRepository = repository;
         }
 
         public IQueryable<Album> Albums => _context.Albums;
@@ -106,12 +104,6 @@ namespace Web.Db
                 album.Storage = storage;
             }
             #endregion
-
-            var tInfo = await _techInfoRepository.CreateTechnicalInfoAsync(request);
-            if (tInfo != null)
-            {
-                album.TechnicalInfo = tInfo;
-            }
 
             await _context.Albums.AddAsync(album);
             await _context.SaveChangesAsync();
@@ -264,6 +256,10 @@ namespace Web.Db
                     country = await CreateCountryAsync(request.Country);
                 }
                 album.Country = country;
+            } 
+            else
+            {
+                album.Country = null;
             }
 
             if (request.Label != null && album?.Label?.Data != request.Label)
@@ -274,6 +270,10 @@ namespace Web.Db
                     label = await CreateLabelAsync(request.Label);
                 }
                 album.Label = label;
+            } 
+            else
+            {
+                album.Label = null;
             }
 
             if(request.Storage != null && album?.Storage?.Data != request.Storage)
@@ -284,6 +284,10 @@ namespace Web.Db
                     storage = await CreateStorageAsync(request.Storage);
                 }
                 album.Storage = storage;
+            } 
+            else
+            {
+                album.Storage = null;
             }
 
             await _context.SaveChangesAsync();

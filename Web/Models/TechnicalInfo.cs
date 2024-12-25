@@ -9,7 +9,7 @@
 
         #region Foreign keys
 
-        public int? AlbumId { get; set; }
+        public int AlbumId { get; set; }
         public int? AmplifierId { get; set; }
         public int? BitnessId { get; set; }
         public int? CartrigeId { get; set; }
@@ -25,7 +25,7 @@
         #endregion
 
         #region Navigation properties
-        public Album? Album { get; set; }
+        public Album Album { get; set; }
         public Adc? Adc { get; set; }
         public Amplifier? Amplifier { get; set; }
         public Bitness? Bitness { get; set; }

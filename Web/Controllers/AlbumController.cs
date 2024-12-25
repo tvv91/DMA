@@ -78,9 +78,9 @@ namespace Web.Controllers
                 .Include(x => x.Adc)
                 .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Wire)
-                .ThenInclude(x => x.WireManufacturer)
+                .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Processing)
-                .FirstOrDefaultAsync(x => x.Id == album.Id);
+                .FirstOrDefaultAsync(x => x.AlbumId == album.Id);
 
             if (tinfo != null)
             {
@@ -171,8 +171,10 @@ namespace Web.Controllers
                 && !string.IsNullOrEmpty(request.Artist) 
                 && !string.IsNullOrEmpty(request.Album) 
                 && !string.IsNullOrEmpty(request.Genre))
-            {
+            {                
                 var album = await _albumRepository.CreateNewAlbum(request);
+                var tinfo = await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
+
                 if (request.AlbumCover != null)
                 {
                     _imageService.SaveCover(album.Id, request.AlbumCover);
@@ -213,7 +215,7 @@ namespace Web.Controllers
                 }
 
                 await _albumRepository.UpdateAlbumAsymc(album, request);
-                await _techInfoRepository.UpdateTechnicalInfoAsync(album.Id, request);
+                await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
 
                 if (request.AlbumCover == null)
                 {

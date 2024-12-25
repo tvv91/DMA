@@ -336,14 +336,14 @@ namespace Web.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    WireManufacturerId = table.Column<int>(type: "int", nullable: true)
+                    ManufacturerId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Wires", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Wires_WireManufacturers_WireManufacturerId",
-                        column: x => x.WireManufacturerId,
+                        name: "FK_Wires_WireManufacturers_ManufacturerId",
+                        column: x => x.ManufacturerId,
                         principalTable: "WireManufacturers",
                         principalColumn: "Id");
                 });
@@ -416,7 +416,7 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    AlbumId = table.Column<int>(type: "int", nullable: true),
+                    AlbumId = table.Column<int>(type: "int", nullable: false),
                     AmplifierId = table.Column<int>(type: "int", nullable: true),
                     BitnessId = table.Column<int>(type: "int", nullable: true),
                     CartrigeId = table.Column<int>(type: "int", nullable: true),
@@ -441,7 +441,8 @@ namespace Web.Migrations
                         name: "FK_TechnicalInfos_Albums_AlbumId",
                         column: x => x.AlbumId,
                         principalTable: "Albums",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TechnicalInfos_Amplifiers_AmplifierId",
                         column: x => x.AmplifierId,
@@ -622,8 +623,7 @@ namespace Web.Migrations
                 name: "IX_TechnicalInfos_AlbumId",
                 table: "TechnicalInfos",
                 column: "AlbumId",
-                unique: true,
-                filter: "[AlbumId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TechnicalInfos_AmplifierId",
@@ -676,9 +676,9 @@ namespace Web.Migrations
                 column: "WireId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wires_WireManufacturerId",
+                name: "IX_Wires_ManufacturerId",
                 table: "Wires",
-                column: "WireManufacturerId");
+                column: "ManufacturerId");
         }
 
         /// <inheritdoc />

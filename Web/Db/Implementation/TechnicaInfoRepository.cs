@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.EntityFrameworkCore;
 using Web.Models;
 using Web.Request;
 
@@ -28,584 +30,342 @@ namespace Web.Db.Implementation
         public IQueryable<WireManufacturer> WireManufacturers => _context.WireManufacturers;
         public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
 
-        public async Task<TechnicalInfo> CreateTechnicalInfoAsync(AlbumDataRequest request)
+        public async Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumDataRequest request)
         {
-            var tinfo = new TechnicalInfo();
+            var tinfo = await _context.TechnicalInfos.FirstOrDefaultAsync(x => x.AlbumId == album.Id);
+
+            if (tinfo == null)
+            {
+                tinfo = new();
+                album.TechnicalInfo = tinfo;
+                await _context.TechnicalInfos.AddAsync(tinfo);
+            }
             
-            if (request.Adc != null)
-            {
-                var adc = await FindAdcAsync(request.Adc);
-                if (adc == null)
-                {
-                    adc = await CreateAdcAsync(request.Adc);
-                }
-                
-                if (request.AdcManufacturer != null)
-                {
-                    var adcManufacturer = await FindAdcManufacturerAsync(request.AdcManufacturer);
-                    if (adcManufacturer == null)
-                    {
-                        adcManufacturer = await CreateAdcManuFacturerAsync(request.AdcManufacturer);
-                    }
-                    adc.Manufacturer = adcManufacturer;
-                }
+            await CreateOrUpdateAdcAsync(tinfo, request);
+            await CreareOrUpdateAmplifierAsync(tinfo, request);
+            await CreateOrUpdateCartridgeAsync(tinfo, request);
+            await CreateOrUpdatePlayerAsync(tinfo, request);
+            await CreateOrUpdateWireAsync(tinfo, request);
+            await CreateOrUpdateBitnessAsync(tinfo, request);
+            await CreateOrUpdateDigitalFormatAsync(tinfo, request);
+            await CreateOrUpdateSourceFormatAsync(tinfo, request);
+            await CreateOrUpdateProcessingAsync(tinfo, request);
+            await CreateOrUpdateVinylStateAsync(tinfo, request);
+            await CreateOrUpdateSamplingAsync(tinfo, request);                  
 
-                tinfo.Adc = adc;
-            }
-
-            if (request.Amplifier != null)
-            {
-                var amp = await FindAmpAsync(request.Amplifier);
-                if (amp == null)
-                {
-                    amp = await CreateAmpAsync(request.Amplifier);
-                }
-
-                if (request.AmplifierManufacturer != null)
-                {
-                    var ampManufacturer = await FindAmpManufacturerAsync(request.AmplifierManufacturer);
-                    if (ampManufacturer == null)
-                    {
-                        ampManufacturer = await CreateAmpManufacturerAsync(request.AmplifierManufacturer);
-                    }
-                    amp.Manufacturer = ampManufacturer;
-                }
-
-                tinfo.Amplifier = amp;
-            }
-
-            if (request.Bitness != null)
-            {
-                var bitness = await FindBitnessAsync(request.Bitness.Value);
-                if (bitness == null)
-                {
-                    bitness = await CreateBitnessAsync(request.Bitness.Value);
-                }
-
-                tinfo.Bitness = bitness;
-            }
-
-            if (request.Cartridge != null)
-            {
-                var cartridge = await FindCartridgeAsync(request.Cartridge);
-                if (cartridge == null)
-                {
-                    cartridge = await CreateCartridgeAsync(request.Cartridge);
-                }
-
-                if (request.CartridgeManufacturer != null)
-                {
-                    var cartridgeManufacturer = await FindCartridgeManufacturerAsync(request.CartridgeManufacturer);
-                    if (cartridgeManufacturer == null)
-                    {
-                        cartridgeManufacturer = await CreateCartridgeManufacturerAsync(request.CartridgeManufacturer);
-                    }
-                    cartridge.Manufacturer= cartridgeManufacturer;
-                }
-
-
-                tinfo.Cartrige = cartridge;
-            }
-
-            if (request.DigitalFormat != null)
-            {
-                var codec = await FindDigitalFormatAsync(request.DigitalFormat);
-                if (codec == null)
-                {
-                    codec = await CreateDigitalFormatAsync(request.DigitalFormat);
-                }
-
-                tinfo.DigitalFormat = codec;
-            }
-
-            if (request.Player != null)
-            {
-                var player = await FindPlayerAsync(request.Player);
-                if (player == null)
-                {
-                    player = await CreatePlayerAsync(request.Player);
-                }
-
-                if (request.PlayerManufacturer != null)
-                {
-                    var manufacturer = await FindPlayerManufacturerAsync(request.PlayerManufacturer);
-                    if (manufacturer == null)
-                    {
-                        manufacturer = await CreatePlayerManufacturerAsync(request.PlayerManufacturer);
-                    }
-                    player.Manufacturer = manufacturer;
-                }
-
-                tinfo.Player = player;
-            }
-
-            if (request.SourceFormat != null)
-            {
-                var format = await FindSourceFormatAsync(request.SourceFormat);
-                if (format == null)
-                {
-                    format = await CreateSourceFormatAsync(request.SourceFormat);
-                }
-
-                tinfo.SourceFormat = format;
-            }
-
-            if (request.Processing != null)
-            {
-                var processing = await FindProcessingAsync(request.Processing);
-                if (processing == null)
-                {
-                    processing = await CreateProcessingAsync(request.Processing);
-                }
-
-                tinfo.Processing = processing;
-            }
-
-            if (request.Sampling != null)
-            {
-                var sampling = await FindSamplingAsync(request.Sampling.Value);
-                if (sampling == null)
-                {
-                    sampling = await CreateSamplingAsync(request.Sampling.Value);
-                }
-
-                tinfo.Sampling = sampling;
-            }
-
-            if (request.VinylState != null)
-            {
-                var state = await FindVinylStateAsync(request.VinylState);
-                if (state == null)
-                {
-                    state = await CreateVinylStateAsync(request.VinylState);
-                }
-
-                tinfo.VinylState = state;
-            }
-
-            if (request.Wire != null)
-            {
-                var wire = await FindWireAsync(request.Wire);
-                if (wire == null)
-                {
-                    wire = await CreateWireAsync(request.Wire);
-                }
-
-                if (request.WireManufacturer != null)
-                {
-                    var wireManufacturer = await FindWireManufacturerAsync(request.WireManufacturer);
-                    if (wireManufacturer == null)
-                    {
-                        wireManufacturer = await CreateWireManufacturerAsync(request.WireManufacturer);
-                    }
-                    wire.WireManufacturer = wireManufacturer;
-                }
-
-                tinfo.Wire = wire;
-            }
+            await _context.SaveChangesAsync();
 
             return tinfo;
         }
 
-        #region Create methods
-        private async Task<PlayerManufacturer> CreatePlayerManufacturerAsync(string data)
+        #region #Find Or Create Methods
+
+        private async Task CreateOrUpdateAdcAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var manufacturer = new PlayerManufacturer { Data = data };
-            await _context.PlayerManufacturers.AddAsync(manufacturer);
+            if (string.IsNullOrWhiteSpace(request.Adc))
+            {
+                tinfo.AdcId = null;
+            }
+            else
+            {
+                var _adc = await _context.Adces.FirstOrDefaultAsync(x => x.Data == request.Adc);
+
+                if (_adc == null)
+                {
+                    _adc = new() { Data = request.Adc };
+                    await _context.Adces.AddAsync(_adc);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.AdcManufacturer))
+                {
+                    var _manufacturer = await _context.AdcManufacturers.FirstOrDefaultAsync(x => x.Data == request.AdcManufacturer);
+
+                    if (_manufacturer == null)
+                    {
+                        _manufacturer = new() { Data = request.AdcManufacturer };
+                        await _context.AdcManufacturers.AddAsync(_manufacturer);
+                    }
+
+                    _adc.Manufacturer = _manufacturer;
+                }
+
+                tinfo.Adc = _adc;
+            }
+
             await _context.SaveChangesAsync();
-            return manufacturer;
         }
 
-        private async Task<WireManufacturer?> CreateWireManufacturerAsync(string data)
+        private async Task CreareOrUpdateAmplifierAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var manufacturer = new WireManufacturer { Data = data };
-            await _context.WireManufacturers.AddAsync(manufacturer);
+            if (string.IsNullOrWhiteSpace(request.Amplifier))
+            {
+                tinfo.AmplifierId = null;
+            }
+            else
+            {
+                var _amp = await _context.Amplifiers.FirstOrDefaultAsync(x => x.Data == request.Amplifier);
+                
+                if (_amp == null)
+                {
+                    _amp = new () { Data = request.Amplifier };
+                    await _context.Amplifiers.AddAsync(_amp);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.AmplifierManufacturer))
+                {
+                    var manufacturer = await _context.AmplifierManufacturers.FirstOrDefaultAsync(x => x.Data == request.AmplifierManufacturer);
+
+                    if (manufacturer == null)
+                    {
+                        manufacturer = new () { Data = request.AmplifierManufacturer };
+                        await _context.AmplifierManufacturers.AddAsync(manufacturer);
+                    }
+                    
+                    _amp.Manufacturer = manufacturer;
+                }
+
+                tinfo.Amplifier = _amp;
+            }
+
             await _context.SaveChangesAsync();
-            return manufacturer;
         }
 
-        private async Task<CartrigeManufacturer?> CreateCartridgeManufacturerAsync(string data)
+        private async Task CreateOrUpdateCartridgeAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var manufacturer = new CartrigeManufacturer { Data = data };
-            await _context.CartrigeManufacturers.AddAsync(manufacturer);
+            if (string.IsNullOrWhiteSpace(request.Cartridge))
+            {
+                tinfo.CartrigeId = null;
+            }
+            else
+            {
+                var _cartridge = await _context.Cartriges.FirstOrDefaultAsync(x => x.Data == request.Cartridge);
+
+                if (_cartridge == null)
+                {
+                    _cartridge = new () { Data = request.Cartridge };
+                    await _context.Cartriges.AddAsync(_cartridge);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.CartridgeManufacturer))
+                {
+                    var _manufacturer = await _context.CartrigeManufacturers.FirstOrDefaultAsync(x => x.Data == request.CartridgeManufacturer);
+
+                    if (_manufacturer == null)
+                    {
+                        _manufacturer = new () { Data = request.CartridgeManufacturer };
+                        await _context.CartrigeManufacturers.AddAsync(_manufacturer);
+                    }
+
+                    _cartridge.Manufacturer = _manufacturer;
+                }
+
+                tinfo.Cartrige = _cartridge;
+            }
+
             await _context.SaveChangesAsync();
-            return manufacturer;
         }
 
-        private async Task<AmplifierManufacturer?> CreateAmpManufacturerAsync(string data)
+        private async Task CreateOrUpdatePlayerAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var manufacturer = new AmplifierManufacturer { Data = data };
-            await _context.AmplifierManufacturers.AddAsync(manufacturer);
+            if (string.IsNullOrWhiteSpace(request.Player))
+            {
+                tinfo.PlayerId = null; 
+            }
+            else
+            {
+                var _player = await _context.Players.FirstOrDefaultAsync(x => x.Data == request.Player);
+
+                if (_player == null)
+                {
+                    _player = new () { Data = request.Player };
+                    await _context.Players.AddAsync(_player);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.PlayerManufacturer))
+                {
+                    var _manufacturer = await _context.PlayerManufacturers.FirstOrDefaultAsync(x => x.Data == request.PlayerManufacturer);
+
+                    if (_manufacturer == null)
+                    {
+                        _manufacturer = new () { Data = request.PlayerManufacturer };
+                        await _context.PlayerManufacturers.AddAsync(_manufacturer);
+                    }
+
+                    _player.Manufacturer = _manufacturer;
+                }
+
+                tinfo.Player = _player;
+            }
+
             await _context.SaveChangesAsync();
-            return manufacturer;
         }
 
-        private async Task<AdcManufacturer> CreateAdcManuFacturerAsync(string data)
+        private async Task CreateOrUpdateWireAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var manufacturer = new AdcManufacturer { Data = data };
-            await _context.AdcManufacturers.AddAsync(manufacturer);
+            if (string.IsNullOrWhiteSpace(request.Wire))
+            {
+                tinfo.WireId = null;
+            }
+            else
+            {
+                var _wire = await _context.Wires.FirstOrDefaultAsync(x => x.Data == request.Wire);
+
+                if (_wire == null)
+                {
+                    _wire = new () { Data = request.Wire };
+                    await _context.Wires.AddAsync(_wire);
+                }
+
+                if (!string.IsNullOrWhiteSpace(request.WireManufacturer))
+                {
+                    var _manufacturer = await _context.WireManufacturers.FirstOrDefaultAsync(x => x.Data == request.WireManufacturer);
+
+                    if (_manufacturer == null)
+                    {
+                        _manufacturer = new () { Data = request.WireManufacturer };
+                        await _context.WireManufacturers.AddAsync(_manufacturer);
+                    }
+
+                    _wire.Manufacturer = _manufacturer;
+                }
+
+                tinfo.Wire = _wire;
+            }
+
             await _context.SaveChangesAsync();
-            return manufacturer;
         }
 
-        private async Task<DigitalFormat> CreateDigitalFormatAsync(string data)
+        private async Task CreateOrUpdateBitnessAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var digitalFormat = new DigitalFormat { Data = data };
-            await _context.DigitalFormats.AddAsync(digitalFormat);
+            if (request.Bitness == null)
+            {
+                tinfo.BitnessId = null;
+            }
+            else
+            {
+                var _bitness = await _context.Bitnesses.FirstOrDefaultAsync(x => x.Data == request.Bitness);
+
+                if (_bitness == null)
+                {
+                    _bitness = new () { Data = request.Bitness.Value };
+                    await _context.Bitnesses.AddAsync(_bitness);
+                }
+
+                tinfo.Bitness = _bitness;
+            }
+
             await _context.SaveChangesAsync();
-            return digitalFormat;
         }
 
-        private async Task<Player> CreatePlayerAsync(string data)
+        private async Task CreateOrUpdateDigitalFormatAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var device = new Player { Data = data };
-            await _context.Players.AddAsync(device);
+            if (string.IsNullOrWhiteSpace(request.DigitalFormat))
+            {
+                tinfo.DigitalFormatId = null;
+            }
+            else
+            {
+                var _digitalFormat = await _context.DigitalFormats.FirstOrDefaultAsync(x => x.Data == request.DigitalFormat);
+
+                if (_digitalFormat == null)
+                {
+                    _digitalFormat = new () { Data = request.DigitalFormat };
+                    await _context.DigitalFormats.AddAsync(_digitalFormat);
+                }
+
+                tinfo.DigitalFormat = _digitalFormat;
+            }
+
             await _context.SaveChangesAsync();
-            return device;
-        }
-        private async Task<SourceFormat> CreateSourceFormatAsync(string data)
-        {
-            var sourceFormat = new SourceFormat { Data = data };
-            await _context.SourceFormats.AddAsync(sourceFormat);
-            await _context.SaveChangesAsync();
-            return sourceFormat;
         }
 
-        private async Task<Processing> CreateProcessingAsync(string data)
+        private async Task CreateOrUpdateSourceFormatAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var processing = new Processing { Data = data };
-            await _context.Processings.AddAsync(processing);
+            if (string.IsNullOrWhiteSpace(request.SourceFormat))
+            {
+                tinfo.SourceFormatId = null;
+            }
+            else
+            {
+                var _sourceFormat = await _context.SourceFormats.FirstOrDefaultAsync(x => x.Data == request.SourceFormat);
+
+                if (_sourceFormat == null)
+                {
+                    _sourceFormat = new () { Data = request.SourceFormat };
+                    await _context.SourceFormats.AddAsync(_sourceFormat);
+                }
+
+                tinfo.SourceFormat = _sourceFormat;
+            }
+
             await _context.SaveChangesAsync();
-            return processing;
         }
 
-        private async Task<Sampling> CreateSamplingAsync(double data)
+        private async Task CreateOrUpdateProcessingAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var sampling = new Sampling { Data = data };
-            await _context.Samplings.AddAsync(sampling);
+            if (string.IsNullOrWhiteSpace(request.Processing))
+            {
+                tinfo.ProcessingId = null;
+            }
+            else
+            {
+                var _processing = await _context.Processings.FirstOrDefaultAsync(x => x.Data == request.Processing);
+
+                if (_processing == null)
+                {
+                    _processing = new () { Data = request.Processing };
+                    await _context.Processings.AddAsync(_processing);
+                }
+
+                tinfo.Processing = _processing;
+            }
+
             await _context.SaveChangesAsync();
-            return sampling;
         }
 
-        private async Task<VinylState> CreateVinylStateAsync(string data)
+        private async Task CreateOrUpdateVinylStateAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var vinylState = new VinylState { Data = data };
-            await _context.VinylStates.AddAsync(vinylState);
+            if (string.IsNullOrWhiteSpace(request.VinylState))
+            {
+                tinfo.VinylStateId = null;
+            }
+            else
+            {
+                var _vinylState = await _context.VinylStates.FirstOrDefaultAsync(x => x.Data == request.VinylState);
+
+                if (_vinylState == null)
+                {
+                    _vinylState = new () { Data = request.VinylState };
+                    await _context.VinylStates.AddAsync(_vinylState);   
+                }
+
+                tinfo.VinylState = _vinylState;
+            }
+
             await _context.SaveChangesAsync();
-            return vinylState;
         }
 
-        private async Task<Cartrige> CreateCartridgeAsync(string data)
+        private async Task CreateOrUpdateSamplingAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
-            var cartridge = new Cartrige { Data = data };
-            await _context.Cartriges.AddAsync(cartridge);
-            await _context.SaveChangesAsync();
-            return cartridge;
-        }
+            if (request.Sampling == null)
+            {
+                tinfo.SamplingId = null;
+            }
+            else
+            {
+                var _sampling = await _context.Samplings.FirstOrDefaultAsync(x => x.Data == request.Sampling);
 
-        private async Task<Bitness> CreateBitnessAsync(int data)
-        {
-            var bitness = new Bitness { Data = data };
-            await _context.Bitnesses.AddAsync(bitness);
-            await _context.SaveChangesAsync();
-            return bitness;
-        }
+                if (_sampling == null)
+                {
+                    _sampling = new () { Data = request.Sampling.Value };
+                    await _context.Samplings.AddAsync(_sampling);
+                }
 
-        private async Task<Amplifier> CreateAmpAsync(string data)
-        {
-            var amp = new Amplifier { Data = data };
-            await _context.Amplifiers.AddAsync(amp);
-            await _context.SaveChangesAsync();
-            return amp;
-        }
+                tinfo.Sampling = _sampling;
+            }
 
-        private async Task<Adc> CreateAdcAsync(string data)
-        {
-            var adc = new Adc { Data = data };
-            await _context.Adces.AddAsync(adc);
             await _context.SaveChangesAsync();
-            return adc;
-        }
-
-        private async Task<Wire> CreateWireAsync(string data)
-        {
-            var wire = new Wire { Data = data };
-            await _context.Wires.AddAsync(wire);
-            await _context.SaveChangesAsync();
-            return wire;
         }
         #endregion
-
-        #region Find methods
-        private async Task<PlayerManufacturer> FindPlayerManufacturerAsync(string data)
-        {
-            return await _context.PlayerManufacturers.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<WireManufacturer> FindWireManufacturerAsync(string data)
-        {
-            return await _context.WireManufacturers.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<CartrigeManufacturer> FindCartridgeManufacturerAsync(string data)
-        {
-            return await _context.CartrigeManufacturers.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<AmplifierManufacturer> FindAmpManufacturerAsync(string data)
-        {
-            return await _context.AmplifierManufacturers.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<AdcManufacturer> FindAdcManufacturerAsync(string data)
-        {
-            return await _context.AdcManufacturers.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<DigitalFormat> FindDigitalFormatAsync(string data)
-        {
-            return await DigitalFormats.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Player> FindPlayerAsync(string data)
-        {
-            return await Players.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<SourceFormat> FindSourceFormatAsync(string data)
-        {
-            return await SourceFormats.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Processing> FindProcessingAsync(string data)
-        {
-            return await Processings.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Sampling> FindSamplingAsync(double data)
-        {
-            return await Samplings.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<VinylState> FindVinylStateAsync(string data)
-        {
-            return await VinylStates.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Cartrige> FindCartridgeAsync(string data)
-        {
-            return await Cartriges.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Bitness> FindBitnessAsync(int data)
-        {
-            return await Bitnesses.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Amplifier> FindAmpAsync(string data)
-        {
-            return await Amplifiers.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Adc> FindAdcAsync(string data)
-        {
-            return await Adcs.FirstOrDefaultAsync(x => x.Data == data);
-        }
-
-        private async Task<Wire> FindWireAsync(string data)
-        {
-            return await Wires.FirstOrDefaultAsync(x => x.Data == data);
-        }
-        #endregion        
-
-        public async Task<TechnicalInfo> UpdateTechnicalInfoAsync(int albumId, AlbumDataRequest request)
-        {
-            var techInfo = await _context.TechnicalInfos
-                .Include(x => x.VinylState)
-                .Include(x => x.DigitalFormat)
-                .Include(x => x.Bitness)
-                .Include(x => x.Sampling)
-                .Include(x => x.SourceFormat)
-                .Include(x => x.Player)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Cartrige)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Amplifier)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Adc)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Wire)
-                .ThenInclude(x => x.WireManufacturer)
-                .Include(x => x.Processing)
-                .FirstOrDefaultAsync(x => x.AlbumId == albumId);
-
-            if (request == null)
-            {
-                return await CreateTechnicalInfoAsync(request);
-            }
-
-            if (techInfo?.VinylState?.Data != request.VinylState)
-            {
-                var vinylState = await FindVinylStateAsync(request.VinylState);
-                if (vinylState == null)
-                {
-                    vinylState = await CreateVinylStateAsync(request.VinylState);
-                }
-                techInfo.VinylState = vinylState;
-            }
-
-            if (techInfo?.DigitalFormat?.Data != request.DigitalFormat)
-            {
-                var digitalFormat = await FindDigitalFormatAsync(request.DigitalFormat);
-                if (digitalFormat == null)
-                {
-                    digitalFormat = await CreateDigitalFormatAsync(request.DigitalFormat);
-                }
-                techInfo.DigitalFormat = digitalFormat;
-            }
-
-            if (techInfo?.Bitness?.Data != request.Bitness)
-            {
-                var bitness = await FindBitnessAsync(request.Bitness.Value);
-                if (bitness == null)
-                {
-                    bitness = await CreateBitnessAsync(request.Bitness.Value);
-                }
-                techInfo.Bitness = bitness;
-            }
-
-            if (techInfo?.Sampling?.Data != request.Sampling)
-            {
-                var sampling = await FindSamplingAsync(request.Sampling.Value);
-                if (sampling == null)
-                {
-                    sampling = await CreateSamplingAsync(request.Sampling.Value);
-                }
-                techInfo.Sampling = sampling;
-            }
-
-            if (techInfo?.SourceFormat?.Data != request.SourceFormat)
-            {
-                var sourceFormat = await FindSourceFormatAsync(request.SourceFormat);
-                if (sourceFormat == null)
-                {
-                    sourceFormat = await CreateSourceFormatAsync(request.SourceFormat);
-                }
-                techInfo.SourceFormat = sourceFormat;
-            }
-
-            if (techInfo?.Processing?.Data != request.Processing)
-            {
-                var processing = await FindProcessingAsync(request.Processing);
-                if (processing == null)
-                {
-                    processing = await CreateProcessingAsync(request.Processing);
-                }
-                techInfo.Processing = processing;
-            }
-
-            if (techInfo?.Player?.Data != request.Player)
-            {
-                var player = await FindPlayerAsync(request.Player);
-                if (player == null)
-                {
-                    player = await CreatePlayerAsync(request.Player);
-                }
-
-                if (techInfo?.Player?.Manufacturer?.Data != request.PlayerManufacturer)
-                {
-                    var manufacturer = await FindPlayerManufacturerAsync(request.PlayerManufacturer);
-                    if (manufacturer == null)
-                    {
-                        manufacturer = await CreatePlayerManufacturerAsync(request.PlayerManufacturer);
-                    }
-                    player.Manufacturer = manufacturer;
-                }
-                techInfo.Player = player;
-            }
-
-            if (techInfo?.Cartrige?.Data != request.Cartridge)
-            {
-                var cartridge = await FindCartridgeAsync(request.Cartridge);
-                if (cartridge == null)
-                {
-                    cartridge = await CreateCartridgeAsync(request.Cartridge);
-                }
-
-                if (techInfo?.Cartrige?.Manufacturer?.Data != request.CartridgeManufacturer)
-                {
-                    var manufacturer = await FindCartridgeManufacturerAsync(request.CartridgeManufacturer);
-                    if (manufacturer == null)
-                    {
-                        manufacturer = await CreateCartridgeManufacturerAsync(request.CartridgeManufacturer);
-                    }
-                    cartridge.Manufacturer = manufacturer;
-                }
-                techInfo.Cartrige = cartridge;
-            }
-
-            if (techInfo?.Amplifier?.Data != request.Amplifier)
-            {
-                var amplifier = await FindAmpAsync(request.Amplifier);
-                if (amplifier == null)
-                {
-                    amplifier = await CreateAmpAsync(request.Amplifier);
-                }
-
-                if (techInfo?.Amplifier?.Manufacturer?.Data != request.AmplifierManufacturer)
-                {
-                    var manufacturer = await FindAmpManufacturerAsync(request.AmplifierManufacturer);
-                    if (manufacturer == null)
-                    {
-                        manufacturer = await CreateAmpManufacturerAsync(request.AmplifierManufacturer);
-                    }
-                    amplifier.Manufacturer = manufacturer;
-                }
-                techInfo.Amplifier = amplifier;
-            }
-
-            if (techInfo?.Adc?.Data != request.Adc)
-            {
-                var adc = await FindAdcAsync(request.Adc);
-                if (adc == null)
-                {
-                    adc = await CreateAdcAsync(request.Adc);
-                }
-
-                if (techInfo?.Adc?.Manufacturer?.Data != request.AdcManufacturer)
-                {
-                    var manufacturer = await FindAdcManufacturerAsync(request.AdcManufacturer);
-                    if (manufacturer == null)
-                    {
-                        manufacturer = await CreateAdcManuFacturerAsync(request.AdcManufacturer);
-                    }
-                    adc.Manufacturer = manufacturer;
-                }
-                techInfo.Adc = adc;
-            }
-
-            if (techInfo?.Wire?.Data != request.Wire)
-            {
-                var wire = await FindWireAsync(request.Wire);
-                if (wire == null)
-                {
-                    wire = await CreateWireAsync(request.Wire);
-                }
-
-                if (techInfo?.Wire?.WireManufacturer?.Data != request.WireManufacturer)
-                {
-                    var manufacturer = await FindWireManufacturerAsync(request.WireManufacturer);
-                    if (manufacturer == null)
-                    {
-                        manufacturer = await CreateWireManufacturerAsync(request.WireManufacturer);
-                    }
-                    wire.WireManufacturer = manufacturer;
-                }
-                techInfo.Wire = wire;
-            }
-
-            await _context.SaveChangesAsync();
-            return techInfo;
-        }
     }
 }

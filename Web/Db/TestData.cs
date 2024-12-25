@@ -158,17 +158,17 @@ namespace Web.Db
             #region Models
             var wire1 = new Wire
             {
-                WireManufacturer = wireManufacturer1,
+                Manufacturer = wireManufacturer1,
                 Data = "Asimi Grun Ultra"
             };
             var wire2 = new Wire
             {
-                WireManufacturer = wireManufacturer2,
+                Manufacturer = wireManufacturer2,
                 Data = "Odin 2"
             };
             var wire3 = new Wire
             {
-                WireManufacturer = wireManufacturer3,
+                Manufacturer = wireManufacturer3,
                 Data = "SignatureX Tuned ARAY"
             };
             #endregion

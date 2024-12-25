@@ -575,7 +575,7 @@ namespace Web.Migrations
                     b.Property<int?>("AdcId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AlbumId")
+                    b.Property<int>("AlbumId")
                         .HasColumnType("int");
 
                     b.Property<int?>("AmplifierId")
@@ -613,8 +613,7 @@ namespace Web.Migrations
                     b.HasIndex("AdcId");
 
                     b.HasIndex("AlbumId")
-                        .IsUnique()
-                        .HasFilter("[AlbumId] IS NOT NULL");
+                        .IsUnique();
 
                     b.HasIndex("AmplifierId");
 
@@ -703,12 +702,12 @@ namespace Web.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("WireManufacturerId")
+                    b.Property<int?>("ManufacturerId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("WireManufacturerId");
+                    b.HasIndex("ManufacturerId");
 
                     b.ToTable("Wires");
                 });
@@ -841,7 +840,9 @@ namespace Web.Migrations
 
                     b.HasOne("Web.Models.Album", "Album")
                         .WithOne("TechnicalInfo")
-                        .HasForeignKey("Web.Models.TechnicalInfo", "AlbumId");
+                        .HasForeignKey("Web.Models.TechnicalInfo", "AlbumId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("Web.Models.Amplifier", "Amplifier")
                         .WithMany("TechnicalInfos")
@@ -910,11 +911,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.Wire", b =>
                 {
-                    b.HasOne("Web.Models.WireManufacturer", "WireManufacturer")
+                    b.HasOne("Web.Models.WireManufacturer", "Manufacturer")
                         .WithMany("Wires")
-                        .HasForeignKey("WireManufacturerId");
+                        .HasForeignKey("ManufacturerId");
 
-                    b.Navigation("WireManufacturer");
+                    b.Navigation("Manufacturer");
                 });
 
             modelBuilder.Entity("Web.Models.Adc", b =>

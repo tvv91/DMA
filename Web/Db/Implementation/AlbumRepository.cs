@@ -29,269 +29,152 @@ namespace Web.Db
 
         public IQueryable<Storage> Storages => _context.Storages;
 
-        public async Task<Album> CreateNewAlbum(AlbumDataRequest request)
+        public async Task<Album> CreateOrUpdateAlbumAsync(AlbumDataRequest request)
         {
-            #region Required fields
-            var artist = await FindArtistAsync(request.Artist);
-            if (artist == null)
+            var _album = await _context.Albums.FirstOrDefaultAsync(x => x.Id == request.AlbumId);
+
+            if (_album == null)
             {
-                artist = await CreateArtistAsync(request.Artist);
+                _album = new();
+                await _context.Albums.AddAsync(_album);
             }
 
-            var genre = await FindGenreAsync(request.Genre);
-            if (genre == null)
-            {
-                genre = await CreateGenreAsync(request.Genre);
-            }
+            _album.Data = request.Album;
+            _album.Source = request.Source;
+            _album.Size = request.Size;
+            _album.Discogs = request.Discogs;
+            _album.AddedDate = DateTime.Now;
 
-            var year = await FindYearAsync(request.Year);
-            if (year == null)
-            {
-                year = await CreateYearAsync(request.Year);
-            }
-            #endregion
+            await CreateOrUpdateArtistAsync(_album, request);
+            await CreateOrUpdateGenreAsync(_album, request);
+            await CreateOrUpdateYearAsync(_album, request);
+            await CreateOrUpdateReissueAsync(_album, request);
+            await CreateOrUpdateCountryAsync(_album, request);
+            await CreateOrUpdateLabelAsync(_album, request);
+            await CreateOrUpdateStorageAsync(_album, request);
 
-            var album = new Album
-            {
-                Data = request.Album,
-                Artist = artist,
-                Genre = genre,
-                Year = year,
-                Size = request.Size,
-                Source = request.Source,
-                Discogs = request.Discogs,
-                AddedDate = DateTime.Now
-            };
-
-            #region Not required fields
-            if (request.Reissue != null)
-            {
-                var reissue = await FindReissueYearAsync(request.Reissue.Value);
-                if (reissue == null)
-                {
-                    reissue = await CreateReissueYearAsync(request.Reissue.Value);
-                }
-                album.Reissue = reissue;
-            }
-
-            if (request.Country != null)
-            {
-                var country = await FindCountryAsync(request.Country);
-                if (country == null)
-                {
-                    country = await CreateCountryAsync(request.Country);
-                }
-                album.Country = country;
-            }
-
-            if (request.Label != null)
-            {
-                var label = await FindLabelAsync(request.Label);
-                if (label == null)
-                {
-                    label = await CreateLabelAsync(request.Label);
-                }
-                album.Label = label;
-            }
-
-            if (request.Storage != null)
-            {
-                var storage = await FindStorageAsync(request.Storage);
-                if (storage == null)
-                {
-                    storage = await CreateStorageAsync(request.Storage);
-                }
-                album.Storage = storage;
-            }
-            #endregion
-
-            await _context.Albums.AddAsync(album);
             await _context.SaveChangesAsync();
-            return album;
+
+            return _album;
         }
 
-        private async Task<Label> FindLabelAsync(string label)
+        private async Task CreateOrUpdateArtistAsync(Album album, AlbumDataRequest request)
         {
-            return await Labels.FirstOrDefaultAsync(x => x.Data == label);
-        }
+            var _artist = await _context.Artists.FirstOrDefaultAsync(x => x.Data == request.Artist);
 
-        private async Task<Label> CreateLabelAsync(string label)
-        {
-            var _label = new Label { Data = label };
-            await _context.Labels.AddAsync(_label);
-            await _context.SaveChangesAsync();
-            return _label;
-        }
-
-        private async Task<Country> FindCountryAsync(string country)
-        {
-            return await Countries.FirstOrDefaultAsync(x => x.Data == country);
-        }
-
-        private async Task<Country> CreateCountryAsync(string country)
-        {
-            var _country = new Country { Data = country };
-            await _context.Countries.AddAsync(_country);
-            await _context.SaveChangesAsync();
-            return _country;
-        }
-
-        private async Task<Reissue> FindReissueYearAsync(int? year)
-        {
-            return await Reissues.FirstOrDefaultAsync(x => x.Data == year);
-        }
-
-        private async Task<Reissue> CreateReissueYearAsync(int? year)
-        {
-            var _year = new Reissue { Data = year };
-            await _context.Reissues.AddAsync(_year);
-            await _context.SaveChangesAsync();
-            return _year;
-        }
-
-        private async Task<Year> FindYearAsync(int year)
-        {
-            return await Years.FirstOrDefaultAsync(x => x.Data == year);
-        }
-
-        private async Task<Year> CreateYearAsync(int year)
-        {
-            var _year = new Year { Data = year };
-            await _context.Years.AddAsync(_year);
-            await _context.SaveChangesAsync();
-            return _year;
-        }
-
-        private async Task<Artist> FindArtistAsync(string artistName)
-        {
-            return await Artists.FirstOrDefaultAsync(x => x.Data == artistName);
-        }
-
-        private async Task<Artist> CreateArtistAsync(string artistName)
-        {
-            var artist = new Artist { Data = artistName };
-            await _context.Artists.AddAsync(artist);
-            await _context.SaveChangesAsync();
-            return artist;
-        }
-
-        private async Task<Genre> FindGenreAsync(string genreName)
-        {
-            return await Genres.FirstOrDefaultAsync(x => x.Data == genreName);
-        }
-
-        private async Task<Genre> CreateGenreAsync(string genreName)
-        {
-            var genre = new Genre { Data = genreName };
-            await _context.Genres.AddAsync(genre);
-            await _context.SaveChangesAsync();
-            return genre;
-        }
-
-        private async Task<Storage> FindStorageAsync(string storageName)
-        {
-            return await Storages.FirstOrDefaultAsync(x => x.Data == storageName);
-        }
-
-        private async Task<Storage> CreateStorageAsync(string storageName)
-        {
-            var storage = new Storage { Data = storageName };
-            await _context.Storages.AddAsync(storage);
-            await _context.SaveChangesAsync();
-            return storage;
-        }
-
-        public async Task<Album> UpdateAlbumAsymc(Album album, AlbumDataRequest request)
-        {
-            album.Data = request.Album;
-            album.Size = request.Size;
-            album.Source = request.Source;
-            album.Discogs = request.Discogs;
-
-            if (album.Artist.Data != request.Artist)
+            if (_artist == null)
             {
-                var artist = await FindArtistAsync(request.Artist);
-                if (artist == null)
-                {
-                    artist = await CreateArtistAsync(request.Artist);
-                }
-                album.Artist = artist;
+                _artist = new() { Data = request.Artist };
+                await _context.Artists.AddAsync(_artist);
             }
 
-            if (album.Genre.Data != request.Genre)
+            album.Artist = _artist;
+        }
+
+        private async Task CreateOrUpdateGenreAsync(Album album, AlbumDataRequest request)
+        {
+            var _genre = await _context.Genres.FirstOrDefaultAsync(x => x.Data == request.Genre);
+
+            if (_genre == null)
             {
-                var genre = await FindGenreAsync(request.Genre);
-                if(genre == null)
-                {
-                    genre = await CreateGenreAsync(request.Genre);
-                }
-                album.Genre = genre;
+                _genre = new() { Data = request.Genre };
+                await _context.Genres.AddAsync(_genre);
             }
 
-            if(album.Year.Data != request.Year)
+            album.Genre = _genre;
+        }
+
+        private async Task CreateOrUpdateYearAsync(Album album, AlbumDataRequest request)
+        {
+            var _year = await _context.Years.FirstOrDefaultAsync(x => x.Data == request.Year);
+
+            if (_year == null)
             {
-                var year = await FindYearAsync(request.Year);
-                if (year == null)
-                {
-                    year = await CreateYearAsync(request.Year);
-                }
-                album.Year = year;
+                _year = new() { Data = request.Year };
+                await _context.Years.AddAsync(_year);
             }
 
-            if(request.Reissue != null && album?.Reissue?.Data != request.Reissue)
-            {
-                var reissue = await FindReissueYearAsync(request.Reissue);
-                if (reissue == null)
-                {
-                    reissue = await CreateReissueYearAsync(request.Reissue);
-                }
-                album.Reissue = reissue;
-            }
+            album.Year = _year;
+        }
 
-            if (request.Country != null && album?.Country?.Data != request.Country)
+        private async Task CreateOrUpdateReissueAsync(Album album, AlbumDataRequest request)
+        {
+            if (request.Reissue == null)
             {
-                var country = await FindCountryAsync(request.Country);
-                if (country == null)
-                {
-                    country = await CreateCountryAsync(request.Country);
-                }
-                album.Country = country;
-            } 
+                album.ReissueId = null;
+            }
             else
             {
-                album.Country = null;
-            }
+                var _reissue = await _context.Reissues.FirstOrDefaultAsync(x => x.Data == request.Reissue);
 
-            if (request.Label != null && album?.Label?.Data != request.Label)
-            {
-                var label = await FindLabelAsync(request.Label);
-                if (label == null)
+                if (_reissue == null)
                 {
-                    label = await CreateLabelAsync(request.Label);
+                    _reissue = new() { Data = request.Reissue };
+                    await _context.Reissues.AddAsync(_reissue);
                 }
-                album.Label = label;
-            } 
+
+                album.Reissue = _reissue;
+            }
+        }
+
+        private async Task CreateOrUpdateCountryAsync(Album album, AlbumDataRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Country))
+            {
+                album.CountryId = null;
+            }
             else
             {
-                album.Label = null;
-            }
+                var _country = await _context.Countries.FirstOrDefaultAsync(x => x.Data == request.Country);
 
-            if(request.Storage != null && album?.Storage?.Data != request.Storage)
-            {
-                var storage = await FindStorageAsync(request.Storage);
-                if (storage == null)
+                if (_country == null)
                 {
-                    storage = await CreateStorageAsync(request.Storage);
+                    _country = new() { Data = request.Country };
+                    await _context.Countries.AddAsync(_country);
                 }
-                album.Storage = storage;
-            } 
+
+                album.Country = _country;
+            }
+        }
+
+        private async Task CreateOrUpdateLabelAsync(Album album, AlbumDataRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Label))
+            {
+                album.LabelId = null;
+            }
             else
             {
-                album.Storage = null;
-            }
+                var _label = await _context.Labels.FirstOrDefaultAsync(x => x.Data == request.Label);
 
-            await _context.SaveChangesAsync();
-            return album;
+                if (_label == null)
+                {
+                    _label = new() { Data = request.Label };
+                    await _context.Labels.AddAsync(_label);
+                }
+
+                album.Label = _label;
+            }
+        }
+
+        private async Task CreateOrUpdateStorageAsync(Album album, AlbumDataRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Storage))
+            {
+                album.StorageId = null;
+            }
+            else
+            {
+                var _storage = await _context.Storages.FirstOrDefaultAsync(x => x.Data == request.Storage);
+
+                if (_storage == null)
+                {
+                    _storage = new() { Data = request.Storage };
+                    await _context.Storages.AddAsync(_storage);
+                }
+
+                album.Storage = _storage;
+            }
         }
     }
 }

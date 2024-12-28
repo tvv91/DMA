@@ -172,7 +172,7 @@ namespace Web.Controllers
                 && !string.IsNullOrEmpty(request.Album) 
                 && !string.IsNullOrEmpty(request.Genre))
             {                
-                var album = await _albumRepository.CreateNewAlbum(request);
+                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
                 var tinfo = await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
 
                 if (request.AlbumCover != null)
@@ -199,22 +199,8 @@ namespace Web.Controllers
                 && !string.IsNullOrEmpty(request.Album)
                 && !string.IsNullOrEmpty(request.Genre))
             {
-                var album = await _albumRepository.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Genre)
-                .Include(a => a.Year)
-                .Include(a => a.Reissue)
-                .Include(a => a.Country)
-                .Include(a => a.Label)
-                .Include(a => a.Storage)
-                .FirstOrDefaultAsync(x => x.Id == request.AlbumId);
 
-                if (album == null)
-                {
-                    return NotFound();
-                }
-
-                await _albumRepository.UpdateAlbumAsymc(album, request);
+                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
                 await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
 
                 if (request.AlbumCover == null)

@@ -13,7 +13,6 @@ namespace Web.Db
         IQueryable<Label> Labels { get; }
         IQueryable<Reissue> Reissues { get; }
         IQueryable<Storage> Storages { get; }
-        Task<Album> CreateNewAlbum(AlbumDataRequest request);
-        Task<Album> UpdateAlbumAsymc(Album album, AlbumDataRequest request);
+        Task<Album> CreateOrUpdateAlbumAsync(AlbumDataRequest request);
     }
 }

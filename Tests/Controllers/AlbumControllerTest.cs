@@ -96,7 +96,7 @@ namespace Tests.Controllers
                 Year = 1991
             };
 
-            _mockRepo.Setup(m => m.CreateNewAlbum(request)).ReturnsAsync(new Album
+            _mockRepo.Setup(m => m.CreateOrUpdateAlbumAsync(request)).ReturnsAsync(new Album
             {
                 Id = 123,
                 Data = request.Album,
@@ -106,7 +106,7 @@ namespace Tests.Controllers
             });
 
             IActionResult result = await _controller.NewAlbum(request);
-            _mockRepo.Verify(r => r.CreateNewAlbum(request), Times.Once());
+            _mockRepo.Verify(r => r.CreateOrUpdateAlbumAsync(request), Times.Once());
             var redirecResult = Assert.IsType<RedirectResult>(result);
             Assert.Equal("123", redirecResult.Url);
         }

@@ -240,6 +240,19 @@
     cursor: pointer;
 }
 
+.toast-body-update {
+    background: #ffd800;
+}
+
+.toast-body-create {
+    background: #b6ff00;
+}
+
+.toast-body-deleted {
+    background: red;
+}
+
+
 .toast-body-error {
     color: red;
 }

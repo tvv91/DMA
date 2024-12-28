@@ -33,7 +33,15 @@
         if (value.includes(".")) {
             $("#sizeinput:text").val(value.replace(/\./g, ','));
         }
-        sessionStorage.setItem("albumupdated", "1");
+        
+        switch ($("#action").val()) {
+            case "newalbum":
+                sessionStorage.setItem("albumcreated", "1");
+                break;
+            case "update":
+                sessionStorage.setItem("albumupdated", "1");
+                break;
+        }
     }
 
     /*
@@ -74,7 +82,8 @@
 <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
     <div asp-validation-summary="ModelOnly"></div>
     <input type="hidden" id="coverid" asp-for="AlbumCover" />
-    <input type="hidden" asp-for="AlbumId" />
+    <input type="hidden" id="albumid" asp-for="AlbumId" />
+    <input type="hidden" id="action" asp-for="Action" />
     <div class="new-update-album">
         <div class="cover-image">
             <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>

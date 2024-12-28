@@ -91,8 +91,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Adc = _adc;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreareOrUpdateAmplifierAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -126,8 +124,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Amplifier = _amp;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateCartridgeAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -161,8 +157,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Cartrige = _cartridge;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdatePlayerAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -196,8 +190,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Player = _player;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateWireAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -231,8 +223,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Wire = _wire;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateBitnessAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -253,8 +243,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Bitness = _bitness;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateDigitalFormatAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -275,8 +263,6 @@ namespace Web.Db.Implementation
 
                 tinfo.DigitalFormat = _digitalFormat;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateSourceFormatAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -297,8 +283,6 @@ namespace Web.Db.Implementation
 
                 tinfo.SourceFormat = _sourceFormat;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateProcessingAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -319,8 +303,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Processing = _processing;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateVinylStateAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -341,8 +323,6 @@ namespace Web.Db.Implementation
 
                 tinfo.VinylState = _vinylState;
             }
-
-            await _context.SaveChangesAsync();
         }
 
         private async Task CreateOrUpdateSamplingAsync(TechnicalInfo tinfo, AlbumDataRequest request)
@@ -363,8 +343,6 @@ namespace Web.Db.Implementation
 
                 tinfo.Sampling = _sampling;
             }
-
-            await _context.SaveChangesAsync();
         }
         #endregion
     }

@@ -80,21 +80,21 @@
 
 .technical-info-title {
     grid-row: 1;
-    grid-column: span 6;
+    grid-column: span 5;
     text-align: center;
     font-size: 30pt;
     
 }
 .digitization-info {
     grid-row: 2;
-    grid-column: span 6;
+    grid-column: span 5;
     text-align: center;
     font-style: italic;
 }
 
 .hr1 {
     grid-row: 3;
-    grid-column: span 6;
+    grid-column: span 5;
 }
 
 .technical-info-description-digitization {
@@ -115,14 +115,14 @@
 
 .digitization-hardware {
     grid-row: 7;
-    grid-column: span 6;
+    grid-column: span 5;
     text-align: center;
     font-style: italic;
 }
 
 .hr2 {
     grid-row: 8;
-    grid-column: span 6;
+    grid-column: span 5;
 }
 
 .technical-info-description-hardware {

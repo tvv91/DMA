@@ -36,7 +36,6 @@ namespace Web.Request
         public string? Player { get; set; }
         public string? PlayerManufacturer { get; set; }
         public string? SourceFormat { get; set; }
-        public string? Processing { get; set; }
         public double? Sampling { get; set; }
         public string? VinylState { get; set; }
         public string? Wire { get; set; }

@@ -20,7 +20,6 @@ namespace Web.Services
             { EntityType.Cartridge, "/resources/cartridge/"},
             { EntityType.Amp, "/resources/amp/"},
             { EntityType.Adc, "/resources/adc/"},
-            { EntityType.Processing, "/resources/processing/"},
             { EntityType.Wire, "/resources/wire/"},
             { EntityType.AlbumDetailCover, "/covers/"},
         };        
@@ -54,16 +53,28 @@ namespace Web.Services
         // TODO: Need to check image type and convert to jpg (or set filter)
         public void SaveCover(int albumId, string filename)
         {
-            var file = $"{TEMP}/{filename}";
-            if (File.Exists(file))
+            try
             {
-                File.Move(file, $"{STORAGE}/covers/{albumId}.jpg", true);
-                // clean temp directory
-                foreach (var f in Directory.GetFiles(TEMP))
+                var file = $"{TEMP}/{filename}";
+                if (File.Exists(file))
                 {
-                    File.Delete(f);
+                    if (!Directory.Exists($"{STORAGE}/covers"))
+                    {
+                        Directory.CreateDirectory($"{STORAGE}/covers");
+                    }
+                    File.Move(file, $"{STORAGE}/covers/{albumId}.jpg", true);
+                    // clean temp directory
+                    foreach (var f in Directory.GetFiles(TEMP))
+                    {
+                        File.Delete(f);
+                    }
                 }
             }
+            catch (Exception e)
+            {
+
+            }
+           
         }
     }
 }

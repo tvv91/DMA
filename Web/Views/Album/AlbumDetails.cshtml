@@ -32,15 +32,11 @@
     }
 
     connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
-        $(`#${category}div`).fadeIn(1000);
-        window.setTimeout(() => {
-            $(`div[id=${category}div]`).attr("class", "");
-            if (cover == '') {
-                $(`div[id=${category}div]`).append("<i id='nocovericon' class='fa-regular fa-image fa-6x'></i>");
-            } else {
-                $(`img[id=${category}]`).css("display", "");
-            }
-        }, 1000);
+        $(`#${category}div`).fadeIn();
+        $(`div[id=${category}div]`).attr("class", "");
+        cover == '' 
+        ? $(`div[id=${category}div]`).append("<i id='nocovericon' class='fa-regular fa-image fa-6x'></i>") 
+        : $(`img[id=${category}]`).css("display", "");
         $(`img[id=${category}]`).attr("src", cover);
     });
 
@@ -194,9 +190,6 @@
             <div class="technical-info-description-hardware">
                 Wires
             </div>
-            <div class="technical-info-description-hardware">
-                Processing
-            </div>
             <!--digitization-->
             <div class="technical-info-icon-digitization">
                 <div id="vinylstatediv" class="spinner-border justifiy-element-size" style="display: none">
@@ -244,7 +237,8 @@
                     <img id="player" class="justifiy-element-size" style="display: none" />
                 </div>
                 <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Player?.Manufacturer?.Data - @Model?.Album?.TechnicalInfo?.Player?.Data
+                    @Model?.Album?.TechnicalInfo?.Player?.Manufacturer?.Data<br />
+                    @Model?.Album?.TechnicalInfo?.Player?.Data
                 </div>
             </div>
             <div class="technical-info-icon-hardware">
@@ -252,7 +246,8 @@
                     <img id="cartridge" class="justifiy-element-size" style="display: none" />
                 </div>
                 <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Cartrige?.Manufacturer?.Data - @Model?.Album?.TechnicalInfo?.Cartrige?.Data
+                    @Model?.Album?.TechnicalInfo?.Cartrige?.Manufacturer?.Data<br />
+                    @Model?.Album?.TechnicalInfo?.Cartrige?.Data
                 </div>
             </div>
             <div class="technical-info-icon-hardware">
@@ -260,7 +255,8 @@
                     <img id="amp" class="justifiy-element-size" style="display: none" />
                 </div>
                 <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Amplifier?.Manufacturer?.Data - @Model?.Album?.TechnicalInfo?.Amplifier?.Data
+                    @Model?.Album?.TechnicalInfo?.Amplifier?.Manufacturer?.Data<br />
+                    @Model?.Album?.TechnicalInfo?.Amplifier?.Data
                 </div>
             </div>
             <div class="technical-info-icon-hardware">
@@ -268,7 +264,8 @@
                     <img id="adc" class="justifiy-element-size" style="display: none" />
                 </div>
                 <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Adc?.Manufacturer?.Data - @Model?.Album?.TechnicalInfo?.Adc?.Data
+                    @Model?.Album?.TechnicalInfo?.Adc?.Manufacturer?.Data<br />
+                    @Model?.Album?.TechnicalInfo?.Adc?.Data
                 </div>
             </div>
             <div class="technical-info-icon-hardware">
@@ -276,15 +273,7 @@
                     <img id="wire" class="justifiy-element-size" style="display: none" />
                 </div>
                 <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Wire?.Manufacturer?.Data - @Model?.Album?.TechnicalInfo?.Wire?.Data
-                </div>
-            </div>
-            <div class="technical-info-icon-hardware">
-                <div id="processingdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="processing" class="justifiy-element-size" style="display: none" />
-                </div>
-                <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Processing?.Data
+                    @Model?.Album?.TechnicalInfo?.Wire?.Manufacturer?.Data<br /> @Model?.Album?.TechnicalInfo?.Wire?.Data
                 </div>
             </div>
         </div>

@@ -144,20 +144,6 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Processings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Data = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    OpeationCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Processings", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Reissues",
                 columns: table => new
                 {
@@ -423,7 +409,6 @@ namespace Web.Migrations
                     DigitalFormatId = table.Column<int>(type: "int", nullable: true),
                     PlayerId = table.Column<int>(type: "int", nullable: true),
                     SourceFormatId = table.Column<int>(type: "int", nullable: true),
-                    ProcessingId = table.Column<int>(type: "int", nullable: true),
                     AdcId = table.Column<int>(type: "int", nullable: true),
                     SamplingId = table.Column<int>(type: "int", nullable: true),
                     VinylStateId = table.Column<int>(type: "int", nullable: true),
@@ -467,11 +452,6 @@ namespace Web.Migrations
                         name: "FK_TechnicalInfos_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_TechnicalInfos_Processings_ProcessingId",
-                        column: x => x.ProcessingId,
-                        principalTable: "Processings",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TechnicalInfos_Samplings_SamplingId",
@@ -651,11 +631,6 @@ namespace Web.Migrations
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfos_ProcessingId",
-                table: "TechnicalInfos",
-                column: "ProcessingId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_TechnicalInfos_SamplingId",
                 table: "TechnicalInfos",
                 column: "SamplingId");
@@ -707,9 +682,6 @@ namespace Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "Players");
-
-            migrationBuilder.DropTable(
-                name: "Processings");
 
             migrationBuilder.DropTable(
                 name: "Samplings");

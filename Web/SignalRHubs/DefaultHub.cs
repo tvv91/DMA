@@ -205,11 +205,6 @@ namespace Web.SignalRHubs
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, EntityType.Adc));
             }
 
-            if (tInfo?.ProcessingId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "processing", _imgService.GetImageUrl(tInfo.ProcessingId.Value, EntityType.Processing));
-            }
-
             if (tInfo?.WireId != null)
             {
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, EntityType.Wire));

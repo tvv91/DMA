@@ -91,7 +91,6 @@ namespace Web.Controllers
                 .Include(i => i.Amplifier)
                 .Include(i => i.Adc)
                 .Include(i => i.Wire)
-                .Include(i => i.Processing)
                 .FirstOrDefaultAsync(i => i.AlbumId == albumId);            
 
             var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumDetailCover);
@@ -123,8 +122,7 @@ namespace Web.Controllers
                 Cartridge = tInfo?.Cartrige?.Data,
                 Amplifier = tInfo?.Amplifier?.Data,
                 Adc = tInfo?.Adc?.Data,
-                Wire = tInfo?.Wire?.Data,
-                Processing = tInfo?.Processing?.Data,
+                Wire = tInfo?.Wire?.Data
             };
             return View("CreateOrUpdate", albumModel);
         }
@@ -233,20 +231,33 @@ namespace Web.Controllers
         [HttpPost("/uploadcover")]
         public async Task<IActionResult> UploadCover(IFormFile filedata)
         {
-            var files = HttpContext.Request.Form.Files;
-            if (files.Any())
+            try
             {
-                var guid = Guid.NewGuid().ToString("N");
-                var ext = Path.GetExtension(files[0].FileName);
-                await using var target = new MemoryStream();
-                await files[0].CopyToAsync(target);
-                var physicalPath = $"{new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp")).Root}{$@"{guid}{ext}"}";
-                await using FileStream fs = System.IO.File.Create(physicalPath);
-                await files[0].CopyToAsync(fs);
-                fs.Flush();
-                return Json(new { Filename = $"{guid}{ext}" });
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp");
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                
+                var files = HttpContext.Request.Form.Files;
+                if (files.Any())
+                {
+                    var guid = Guid.NewGuid().ToString("N");
+                    var ext = Path.GetExtension(files[0].FileName);
+                    await using var target = new MemoryStream();
+                    await files[0].CopyToAsync(target);
+                    var physicalPath = $"{new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp")).Root}{$@"{guid}{ext}"}";
+                    await using FileStream fs = System.IO.File.Create(physicalPath);
+                    await files[0].CopyToAsync(fs);
+                    fs.Flush();
+                    return Json(new { Filename = $"{guid}{ext}" });
+                }
+                return Ok();
             }
-            return Ok();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

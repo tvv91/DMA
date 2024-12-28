@@ -21,7 +21,6 @@ namespace Web.Db.Implementation
         public IQueryable<Player> Players => _context.Players;
         public IQueryable<PlayerManufacturer> PlayerManufacturers => _context.PlayerManufacturers;
         public IQueryable<SourceFormat> SourceFormats => _context.SourceFormats;
-        public IQueryable<Processing> Processings => _context.Processings;
         public IQueryable<Sampling> Samplings => _context.Samplings;
         public IQueryable<VinylState> VinylStates => _context.VinylStates;
         public IQueryable<Wire> Wires => _context.Wires;
@@ -47,7 +46,6 @@ namespace Web.Db.Implementation
             await CreateOrUpdateBitnessAsync(tinfo, request);
             await CreateOrUpdateDigitalFormatAsync(tinfo, request);
             await CreateOrUpdateSourceFormatAsync(tinfo, request);
-            await CreateOrUpdateProcessingAsync(tinfo, request);
             await CreateOrUpdateVinylStateAsync(tinfo, request);
             await CreateOrUpdateSamplingAsync(tinfo, request);                  
 
@@ -283,26 +281,6 @@ namespace Web.Db.Implementation
             }
         }
 
-        private async Task CreateOrUpdateProcessingAsync(TechnicalInfo tinfo, AlbumDataRequest request)
-        {
-            if (string.IsNullOrWhiteSpace(request.Processing))
-            {
-                tinfo.ProcessingId = null;
-            }
-            else
-            {
-                var _processing = await _context.Processings.FirstOrDefaultAsync(x => x.Data == request.Processing);
-
-                if (_processing == null)
-                {
-                    _processing = new () { Data = request.Processing };
-                    await _context.Processings.AddAsync(_processing);
-                }
-
-                tinfo.Processing = _processing;
-            }
-        }
-
         private async Task CreateOrUpdateVinylStateAsync(TechnicalInfo tinfo, AlbumDataRequest request)
         {
             if (string.IsNullOrWhiteSpace(request.VinylState))
@@ -363,7 +341,6 @@ namespace Web.Db.Implementation
                 .ThenInclude(x => x.Manufacturer)
                 .Include(x => x.Wire)
                 .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Processing)
                 .FirstOrDefaultAsync(x => x.AlbumId == id);
         }
         #endregion

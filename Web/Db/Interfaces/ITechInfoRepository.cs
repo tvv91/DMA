@@ -17,7 +17,6 @@ namespace Web.Db
         IQueryable<Player> Players { get; }
         IQueryable<PlayerManufacturer> PlayerManufacturers { get; }
         IQueryable<SourceFormat> SourceFormats { get; }
-        IQueryable<Processing> Processings { get; }
         IQueryable<Sampling> Samplings { get; }
         IQueryable<VinylState> VinylStates { get; }
         IQueryable<Wire> Wires { get; }

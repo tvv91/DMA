@@ -30,7 +30,6 @@ namespace Web.Db
         public DbSet<Player> Players { get; set; }
         public DbSet<PlayerManufacturer> PlayerManufacturers { get; set; }
         public DbSet<SourceFormat> SourceFormats { get; set; }
-        public DbSet<Processing> Processings { get; set; }
         public DbSet<Sampling> Samplings { get; set; }
         public DbSet<VinylState> VinylStates { get; set; }
         public DbSet<Wire> Wires { get; set; }

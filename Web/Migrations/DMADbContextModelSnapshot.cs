@@ -409,26 +409,6 @@ namespace Web.Migrations
                     b.ToTable("PlayerManufacturers");
                 });
 
-            modelBuilder.Entity("Web.Models.Processing", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Data")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("OpeationCount")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Processings");
-                });
-
             modelBuilder.Entity("Web.Models.Reissue", b =>
                 {
                     b.Property<int>("Id")
@@ -593,9 +573,6 @@ namespace Web.Migrations
                     b.Property<int?>("PlayerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProcessingId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("SamplingId")
                         .HasColumnType("int");
 
@@ -624,8 +601,6 @@ namespace Web.Migrations
                     b.HasIndex("DigitalFormatId");
 
                     b.HasIndex("PlayerId");
-
-                    b.HasIndex("ProcessingId");
 
                     b.HasIndex("SamplingId");
 
@@ -864,10 +839,6 @@ namespace Web.Migrations
                         .WithMany("TechnicalInfos")
                         .HasForeignKey("PlayerId");
 
-                    b.HasOne("Web.Models.Processing", "Processing")
-                        .WithMany("TechnicalInfos")
-                        .HasForeignKey("ProcessingId");
-
                     b.HasOne("Web.Models.Sampling", "Sampling")
                         .WithMany("TechnicalInfos")
                         .HasForeignKey("SamplingId");
@@ -897,8 +868,6 @@ namespace Web.Migrations
                     b.Navigation("DigitalFormat");
 
                     b.Navigation("Player");
-
-                    b.Navigation("Processing");
 
                     b.Navigation("Sampling");
 
@@ -991,11 +960,6 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.PlayerManufacturer", b =>
                 {
                     b.Navigation("Players");
-                });
-
-            modelBuilder.Entity("Web.Models.Processing", b =>
-                {
-                    b.Navigation("TechnicalInfos");
                 });
 
             modelBuilder.Entity("Web.Models.Reissue", b =>

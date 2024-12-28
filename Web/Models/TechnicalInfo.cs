@@ -16,7 +16,6 @@
         public int? DigitalFormatId { get; set; }
         public int? PlayerId { get; set; }
         public int? SourceFormatId { get; set; }
-        public int? ProcessingId { get; set; }
         public int? AdcId { get; set; }
         public int? SamplingId { get; set; }
         public int? VinylStateId { get; set; }
@@ -33,7 +32,6 @@
         public DigitalFormat? DigitalFormat { get; set; }
         public Player? Player { get; set; }
         public SourceFormat? SourceFormat { get; set; }
-        public Processing? Processing { get; set; }
         public Sampling? Sampling { get; set; }
         public VinylState? VinylState { get; set; }
         public Wire? Wire { get; set; }

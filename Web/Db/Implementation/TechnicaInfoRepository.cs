@@ -1,6 +1,4 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Web.Models;
 using Web.Request;
 
@@ -343,6 +341,30 @@ namespace Web.Db.Implementation
 
                 tinfo.Sampling = _sampling;
             }
+        }
+
+        public async Task<TechnicalInfo> GetByIdAsync(int id)
+        {
+            return await _context.TechnicalInfos
+                .Include(x => x.VinylState)
+                .Include(x => x.DigitalFormat)
+                .Include(x => x.Bitness)
+                .Include(x => x.Sampling)
+                .Include(x => x.SourceFormat)
+                .Include(x => x.Player)
+                .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.Cartrige)
+                .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.Amplifier)
+                .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.Adc)
+                .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.Adc)
+                .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.Wire)
+                .ThenInclude(x => x.Manufacturer)
+                .Include(x => x.Processing)
+                .FirstOrDefaultAsync(x => x.AlbumId == id);
         }
         #endregion
     }

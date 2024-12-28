@@ -14,5 +14,6 @@ namespace Web.Db
         IQueryable<Reissue> Reissues { get; }
         IQueryable<Storage> Storages { get; }
         Task<Album> CreateOrUpdateAlbumAsync(AlbumDataRequest request);
+        Task<Album> GetByIdAsync(int albumId);
     }
 }

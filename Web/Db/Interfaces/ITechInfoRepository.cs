@@ -23,5 +23,6 @@ namespace Web.Db
         IQueryable<Wire> Wires { get; }
         IQueryable<WireManufacturer> WireManufacturers { get; }
         Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumDataRequest request);
+        Task<TechnicalInfo> GetByIdAsync(int id);
     }
 }

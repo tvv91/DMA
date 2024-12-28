@@ -46,41 +46,14 @@ namespace Web.Controllers
                 return BadRequest();
             }
             
-            var album = await _albumRepository.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Country)
-                .Include(a => a.Genre)
-                .Include(a => a.Label)
-                .Include(a => a.Reissue)
-                .Include(a => a.Year)
-                .Include(a => a.Storage)
-                .FirstOrDefaultAsync(a => a.Id == id);
+            var album = await _albumRepository.GetByIdAsync(id);
             
             if (album == null)
             {
                 return NotFound();
             }
 
-            var tinfo = await _techInfoRepository.TechInfos
-                .Include(x => x.VinylState)
-                .Include(x => x.DigitalFormat)
-                .Include(x => x.Bitness)
-                .Include(x => x.Sampling)
-                .Include(x => x.SourceFormat)
-                .Include(x => x.Player)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Cartrige)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Amplifier)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Adc)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Adc)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Wire)
-                .ThenInclude(x => x.Manufacturer)
-                .Include(x => x.Processing)
-                .FirstOrDefaultAsync(x => x.AlbumId == album.Id);
+            var tinfo = await _techInfoRepository.GetByIdAsync(id);
 
             if (tinfo != null)
             {
@@ -102,15 +75,7 @@ namespace Web.Controllers
             if (albumId <= 0)
                 return BadRequest();
             
-            var album = await _albumRepository.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Country)
-                .Include(a => a.Genre)
-                .Include(a => a.Label)
-                .Include(a => a.Reissue)
-                .Include(a => a.Year)
-                .Include(a => a.Storage)
-                .FirstOrDefaultAsync(a => a.Id == albumId);
+            var album = await _albumRepository.GetByIdAsync(albumId);
 
             if (album == null)
                 return NotFound();

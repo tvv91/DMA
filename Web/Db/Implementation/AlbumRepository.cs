@@ -176,5 +176,18 @@ namespace Web.Db
                 album.Storage = _storage;
             }
         }
+
+        public async Task<Album> GetByIdAsync(int albumId)
+        {
+            return await _context.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Country)
+                .Include(a => a.Genre)
+                .Include(a => a.Label)
+                .Include(a => a.Reissue)
+                .Include(a => a.Year)
+                .Include(a => a.Storage)
+                .FirstOrDefaultAsync(a => a.Id == albumId);
+        }
     }
 }

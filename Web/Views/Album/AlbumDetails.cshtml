@@ -13,6 +13,9 @@
             $('#toastinfo_created').toast('show');
             sessionStorage.removeItem("albumcreated");
         }
+        if (localStorage.getItem("BACK_PAGE_INDEX") !== "1") {
+            $("#back_button").attr("href", `/album?page=${localStorage.getItem("BACK_PAGE_INDEX")}`);
+        }
     })
 
     async function getTechnicalInfoIcons(albumId) {
@@ -119,7 +122,7 @@
         </div>
     </div>
 </div>
-<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
+<a id="back_button" class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
 <div class="test mt-3">
     <div id="coverdiv" class="box1">
         <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>

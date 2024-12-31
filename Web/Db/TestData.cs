@@ -190,25 +190,27 @@ namespace Web.Db
             };
             #endregion
             #endregion
-            // Album with
-            var album = new Album
-            {
-                Data = "Album 1",
-                Size = 2.4,
-                Source = "https://somelink.com",
-                Discogs = "https://somelink.com",
-                AddedDate = DateTime.Now,
-                Artist = artist1,
-                Genre = genre1,
-                Year = year,
-                Reissue = reissue,
-                Country = country1,
-                Label = label,
-                Storage = storage,
-                TechnicalInfo = tInfo1,
-            };
 
-            albums.Add(album);
+            for (int i = 1; i <= 100; i++)
+            {
+                var album = new Album
+                {
+                    Data = $"Album {i}",
+                    Size = 2.4,
+                    Source = "https://somelink.com",
+                    Discogs = "https://somelink.com",
+                    AddedDate = DateTime.Now,
+                    Artist = artist1,
+                    Genre = genre1,
+                    Year = year,
+                    Reissue = reissue,
+                    Country = country1,
+                    Label = label,
+                    Storage = storage,
+                    TechnicalInfo = tInfo1,
+                };
+                albums.Add(album);
+            }
             return albums;            
         }
     }

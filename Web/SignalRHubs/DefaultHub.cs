@@ -32,10 +32,7 @@ namespace Web.SignalRHubs
         {
             // otherwise album covers will load sequentially
             Random.Shared.Shuffle(albums);
-            foreach (var id in albums)
-            { 
-                await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", id, _imgService.GetImageUrl(id, EntityType.AlbumCover));
-            }
+            await Task.WhenAll(albums.Select(async id => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", id, _imgService.GetImageUrl(id, EntityType.AlbumCover))));
         }
 
         public async Task GetAlbumCover(string connectionId, int albumId)

@@ -81,7 +81,8 @@
     grid-template-rows: 50px 0px 10px 10px 100px 25px 0px 10px 10px 100px 10px;
     grid-template-columns: repeat(6, 100px);
     justify-content: center;
-    row-gap: 10px
+    row-gap: 10px;
+    column-gap: 50px;
 }
 
 .technical-info-title {
@@ -157,7 +158,7 @@
 
 .new-update-album {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: auto;
     border: 1px solid;
     padding: 10px;
@@ -180,20 +181,12 @@
     border: 0px;
 }
 
-.main-info-part1 {
+.album-main-info {
     grid-row: 1;
-    grid-column: span 2;
+    grid-column: span 3;
     border: 1px solid;
-    padding: 10px;
     margin: 0 0 0 10px;
-}
-
-.main-info-part2 {
-    grid-row: 1;
-    grid-column: span 2;
-    border: 1px solid;
-    padding: 10px;
-    margin: 0 0 0 10px;
+    padding-right: 10px;
 }
 
 .tech-info-wrapper {
@@ -203,9 +196,9 @@
 }
 
 .tech-info-digitization {
-    margin: 10px 0 0px 0;
+    margin: 10px 0 0 0;
     border: 1px solid;
-    padding: 10px 10px 0 10px;
+    padding: 10px 10px 10px 0;
 }
 
 .alert {
@@ -215,16 +208,16 @@
 .tech-info-hardware {
     margin: 10px 0 0 10px;
     border: 1px solid;
-    padding: 10px;
+    padding: 10px 10px 10px 0;
 }
 
-.new-album-input {
+.album-form-input {
     display: grid;
     grid-template-columns: 50% 50%;
 }
 
 .input-textbox {
-    margin-bottom: 10px;
+    margin: 10px 0px 0 10px;
 }
 
 .input-validation-error {

@@ -346,8 +346,8 @@ namespace Web.Migrations
                     Discogs = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ArtistId = table.Column<int>(type: "int", nullable: false),
-                    GenreId = table.Column<int>(type: "int", nullable: false),
-                    YearId = table.Column<int>(type: "int", nullable: false),
+                    GenreId = table.Column<int>(type: "int", nullable: true),
+                    YearId = table.Column<int>(type: "int", nullable: true),
                     ReissueId = table.Column<int>(type: "int", nullable: true),
                     CountryId = table.Column<int>(type: "int", nullable: true),
                     LabelId = table.Column<int>(type: "int", nullable: true),
@@ -371,8 +371,7 @@ namespace Web.Migrations
                         name: "FK_Albums_Genres_GenreId",
                         column: x => x.GenreId,
                         principalTable: "Genres",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Albums_Labels_LabelId",
                         column: x => x.LabelId,
@@ -392,8 +391,7 @@ namespace Web.Migrations
                         name: "FK_Albums_Years_YearId",
                         column: x => x.YearId,
                         principalTable: "Years",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(

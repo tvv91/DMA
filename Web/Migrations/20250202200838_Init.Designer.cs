@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20241228231535_Init")]
+    [Migration("20250202200838_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Web.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.3")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -52,11 +52,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.AdcManufacturer", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -91,7 +91,7 @@ namespace Web.Migrations
                     b.Property<string>("Discogs")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GenreId")
+                    b.Property<int?>("GenreId")
                         .HasColumnType("int");
 
                     b.Property<int?>("LabelId")
@@ -109,7 +109,7 @@ namespace Web.Migrations
                     b.Property<int?>("StorageId")
                         .HasColumnType("int");
 
-                    b.Property<int>("YearId")
+                    b.Property<int?>("YearId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -158,11 +158,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.AmplifierManufacturer", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -397,11 +397,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.PlayerManufacturer", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -692,11 +692,11 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.WireManufacturer", b =>
                 {
-                    b.Property<int?>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int?>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Data")
                         .IsRequired()
@@ -746,9 +746,7 @@ namespace Web.Migrations
 
                     b.HasOne("Web.Models.Genre", "Genre")
                         .WithMany("Albums")
-                        .HasForeignKey("GenreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GenreId");
 
                     b.HasOne("Web.Models.Label", "Label")
                         .WithMany("Albums")
@@ -764,9 +762,7 @@ namespace Web.Migrations
 
                     b.HasOne("Web.Models.Year", "Year")
                         .WithMany("Albums")
-                        .HasForeignKey("YearId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("YearId");
 
                     b.Navigation("Artist");
 

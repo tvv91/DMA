@@ -9,10 +9,8 @@ namespace Web.Request
         public string Album { get; set; }
         [Required]
         public string Artist { get; set; }
-        [Required]
-        public string Genre { get; set; }
-        [Required]
-        public int Year { get; set; }
+        public string? Genre { get; set; }
+        public int? Year { get; set; }
         public int? Reissue { get; set; }
         public string? Country { get; set; }
         public string? Label { get; set; }

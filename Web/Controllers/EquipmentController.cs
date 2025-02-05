@@ -84,5 +84,35 @@ namespace Web.Controllers
         {
             return Ok(await _repository.Wires.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
+
+        [HttpGet("search/player_manufacturer")]
+        public async Task<IActionResult> SearchPlayerManufacturer(string term)
+        {
+            return Ok(await _repository.PlayerManufacturers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/cartridge_manufacturer")]
+        public async Task<IActionResult> SearchCartrigeManufacturer(string term)
+        {
+            return Ok(await _repository.CartrigeManufacturers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/amp_manufacturer")]
+        public async Task<IActionResult> SearchAmpManufacturer(string term)
+        {
+            return Ok(await _repository.AmplifierManufacturers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/adc_manufacturer")]
+        public async Task<IActionResult> SearchAdcManufacturer(string term)
+        {
+            return Ok(await _repository.AdcManufacturers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
+
+        [HttpGet("search/wire_manufacturer")]
+        public async Task<IActionResult> SearchWireManufacturer(string term)
+        {
+            return Ok(await _repository.WireManufacturers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+        }
     }
 }

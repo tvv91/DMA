@@ -4,10 +4,9 @@
     let albumIds = [];
     // get album covers after rendering album list
     $(document).ready(async () => {
-        // set active current page
-        $(`a[id=${@Model.CurrentPage}]`).attr("class", "page-link active");
-        await start();   
-        
+    // set active current page
+    $(`a[id=${@Model.CurrentPage}]`).attr("class", "page-link active");
+        await start();    
         await getAlbumCovers();
 
         if (sessionStorage.getItem("albumdeleted") == "1") {
@@ -17,15 +16,15 @@
 
         // need for returning page from album/{id}
         localStorage.setItem("BACK_PAGE_INDEX", @Model.CurrentPage);
-    })
+        })
 
-     // pass album id's to hub
-    async function getAlbumCovers() {
-        try {
-            await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
-        } catch (err) {
-            console.log("Error sending request to GetAlbumCovers");
-        }
+        // pass album id's to hub
+        async function getAlbumCovers() {
+            try {
+                await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
+            } catch (err) {
+                console.log("Error sending request to GetAlbumCovers");
+            }
     }
 
     // SignalR handlers

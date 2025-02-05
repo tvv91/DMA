@@ -90,7 +90,7 @@ namespace Web.Db
 
             if (_year == null)
             {
-                _year = new() { Data = request.Year };
+                _year = new() { Data = request.Year.Value };
                 await _context.Years.AddAsync(_year);
             }
 

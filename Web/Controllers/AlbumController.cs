@@ -83,18 +83,7 @@ namespace Web.Controllers
             if (album == null)
                 return NotFound();
             
-            var tInfo = await _techInfoRepository.TechInfos
-                .Include(i => i.VinylState)
-                .Include(i => i.DigitalFormat)
-                .Include(i => i.Bitness)
-                .Include(i => i.Sampling)
-                .Include(i => i.SourceFormat)
-                .Include(i => i.Player)
-                .Include(i => i.Cartrige)
-                .Include(i => i.Amplifier)
-                .Include(i => i.Adc)
-                .Include(i => i.Wire)
-                .FirstOrDefaultAsync(i => i.AlbumId == albumId);            
+            var tInfo = await _techInfoRepository.GetByIdAsync(albumId);
 
             var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumDetailCover);
 
@@ -105,8 +94,8 @@ namespace Web.Controllers
                 // Base info
                 Album = album.Data,
                 Artist = album.Artist.Data,
-                Genre = album.Genre.Data,
-                Year = album.Year.Data,
+                Genre = album.Genre?.Data,
+                Year = album.Year?.Data,
                 Reissue = album.Reissue?.Data,
                 Country = album.Country?.Data,
                 Label = album.Label?.Data,
@@ -122,10 +111,15 @@ namespace Web.Controllers
                 Sampling = tInfo?.Sampling?.Data,
                 SourceFormat = tInfo?.SourceFormat?.Data,
                 Player = tInfo?.Player?.Data,
+                PlayerManufacturer = tInfo?.Player?.Manufacturer?.Data,
                 Cartridge = tInfo?.Cartrige?.Data,
+                CartridgeManufacturer = tInfo?.Cartrige?.Manufacturer?.Data,
                 Amplifier = tInfo?.Amplifier?.Data,
+                AmplifierManufacturer = tInfo?.Amplifier?.Manufacturer?.Data,
                 Adc = tInfo?.Adc?.Data,
-                Wire = tInfo?.Wire?.Data
+                AdcManufacturer = tInfo?.Adc?.Manufacturer?.Data,
+                Wire = tInfo?.Wire?.Data,
+                WireManufacturer = tInfo?.Wire?.Manufacturer?.Data
             };
             return View("CreateOrUpdate", albumModel);
         }
@@ -135,8 +129,7 @@ namespace Web.Controllers
         {
             if (ModelState.IsValid 
                 && !string.IsNullOrEmpty(request.Artist) 
-                && !string.IsNullOrEmpty(request.Album) 
-                && !string.IsNullOrEmpty(request.Genre))
+                && !string.IsNullOrEmpty(request.Album))
             {                
                 var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
                 var tinfo = await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
@@ -162,8 +155,7 @@ namespace Web.Controllers
 
             if (ModelState.IsValid
                 && !string.IsNullOrEmpty(request.Artist)
-                && !string.IsNullOrEmpty(request.Album)
-                && !string.IsNullOrEmpty(request.Genre))
+                && !string.IsNullOrEmpty(request.Album))
             {
 
                 var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);

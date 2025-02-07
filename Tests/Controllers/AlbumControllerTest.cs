@@ -102,7 +102,7 @@ namespace Tests.Controllers
                 Data = request.Album,
                 Artist = new Artist { Data = request.Artist },
                 Genre = new Genre { Data = request.Genre },
-                Year = new Year { Data = request.Year }
+                Year = new Year { Data = request.Year.Value }
             });
 
             IActionResult result = await _controller.NewAlbum(request);

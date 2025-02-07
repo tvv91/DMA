@@ -72,7 +72,11 @@ namespace Web.Db.Implementation
                     await _context.Adces.AddAsync(_adc);
                 }
 
-                if (!string.IsNullOrWhiteSpace(request.AdcManufacturer))
+                if (string.IsNullOrWhiteSpace(request.AdcManufacturer))
+                {
+                    _adc.ManufacturerId = null;
+                }
+                else
                 {
                     var _manufacturer = await _context.AdcManufacturers.FirstOrDefaultAsync(x => x.Data == request.AdcManufacturer);
 
@@ -105,7 +109,11 @@ namespace Web.Db.Implementation
                     await _context.Amplifiers.AddAsync(_amp);
                 }
 
-                if (!string.IsNullOrWhiteSpace(request.AmplifierManufacturer))
+                if (string.IsNullOrWhiteSpace(request.AmplifierManufacturer))
+                {
+                    _amp.ManufacturerId = null;
+                }
+                else
                 {
                     var manufacturer = await _context.AmplifierManufacturers.FirstOrDefaultAsync(x => x.Data == request.AmplifierManufacturer);
 
@@ -138,7 +146,11 @@ namespace Web.Db.Implementation
                     await _context.Cartriges.AddAsync(_cartridge);
                 }
 
-                if (!string.IsNullOrWhiteSpace(request.CartridgeManufacturer))
+                if (string.IsNullOrWhiteSpace(request.CartridgeManufacturer))
+                {
+                    _cartridge.ManufacturerId = null;
+                }
+                else
                 {
                     var _manufacturer = await _context.CartrigeManufacturers.FirstOrDefaultAsync(x => x.Data == request.CartridgeManufacturer);
 
@@ -159,7 +171,7 @@ namespace Web.Db.Implementation
         {
             if (string.IsNullOrWhiteSpace(request.Player))
             {
-                tinfo.PlayerId = null; 
+                tinfo.PlayerId = null;
             }
             else
             {
@@ -171,7 +183,11 @@ namespace Web.Db.Implementation
                     await _context.Players.AddAsync(_player);
                 }
 
-                if (!string.IsNullOrWhiteSpace(request.PlayerManufacturer))
+                if (string.IsNullOrWhiteSpace(request.PlayerManufacturer))
+                {
+                    _player.ManufacturerId = null;
+                }
+                else
                 {
                     var _manufacturer = await _context.PlayerManufacturers.FirstOrDefaultAsync(x => x.Data == request.PlayerManufacturer);
 
@@ -204,7 +220,11 @@ namespace Web.Db.Implementation
                     await _context.Wires.AddAsync(_wire);
                 }
 
-                if (!string.IsNullOrWhiteSpace(request.WireManufacturer))
+                if (string.IsNullOrWhiteSpace(request.WireManufacturer))
+                {
+                    _wire.ManufacturerId = null;
+                }
+                else
                 {
                     var _manufacturer = await _context.WireManufacturers.FirstOrDefaultAsync(x => x.Data == request.WireManufacturer);
 
@@ -321,7 +341,7 @@ namespace Web.Db.Implementation
             }
         }
 
-        public async Task<TechnicalInfo> GetByIdAsync(int id)
+        public async Task<TechnicalInfo?> GetByIdAsync(int id)
         {
             return await _context.TechnicalInfos
                 .Include(x => x.VinylState)

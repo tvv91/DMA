@@ -9,6 +9,7 @@
         public string Data { get; set; }
         public string? Description { get; set; }
         public PlayerManufacturer? Manufacturer { get; set; }
+        public int? ManufacturerId { get; set; }
         public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }
 }

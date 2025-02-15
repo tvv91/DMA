@@ -1,6 +1,6 @@
 ﻿namespace Web.Enums
 {
-    public enum EntityType
+    public enum Entity
     {
         AlbumCover,
         VinylState,

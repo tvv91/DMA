@@ -9,27 +9,27 @@ namespace Web.Services
         private const string NO_COVER = "resources/nocover.png";
         private const string TEMP = $"{STORAGE}/temp";
 
-        private Dictionary<EntityType, string> path = new Dictionary<EntityType, string> {
-            { EntityType.AlbumCover, "/covers/"},
-            { EntityType.VinylState, "/resources/vinylstate/"},
-            { EntityType.DigitalFormat, "/resources/codec/"},
-            { EntityType.Bitness, "/resources/bitness/"},
-            { EntityType.Sampling, "/resources/sampling/"},
-            { EntityType.SourceFormat, "/resources/sourceformat/"},
-            { EntityType.Player, "/resources/device/"},
-            { EntityType.Cartridge, "/resources/cartridge/"},
-            { EntityType.Amp, "/resources/amp/"},
-            { EntityType.Adc, "/resources/adc/"},
-            { EntityType.Wire, "/resources/wire/"},
-            { EntityType.AlbumDetailCover, "/covers/"},
+        private Dictionary<Entity, string> path = new Dictionary<Entity, string> {
+            { Entity.AlbumCover, "/covers/"},
+            { Entity.VinylState, "/resources/vinylstate/"},
+            { Entity.DigitalFormat, "/resources/codec/"},
+            { Entity.Bitness, "/resources/bitness/"},
+            { Entity.Sampling, "/resources/sampling/"},
+            { Entity.SourceFormat, "/resources/sourceformat/"},
+            { Entity.Player, "/resources/device/"},
+            { Entity.Cartridge, "/resources/cartridge/"},
+            { Entity.Amp, "/resources/amp/"},
+            { Entity.Adc, "/resources/adc/"},
+            { Entity.Wire, "/resources/wire/"},
+            { Entity.AlbumDetailCover, "/covers/"},
         };        
 
-        public string GetImageUrl(int id, EntityType entity)
+        public string GetImageUrl(int id, Entity entity)
         {
-            var ext = entity == EntityType.AlbumCover || entity == EntityType.AlbumDetailCover ? ".jpg" : ".png";
+            var ext = entity == Entity.AlbumCover || entity == Entity.AlbumDetailCover ? ".jpg" : ".png";
             return File.Exists($"{STORAGE}{path[entity]}{id}{ext}") 
                 ? $"{path[entity]}{id}{ext}" 
-                : entity == EntityType.AlbumCover 
+                : entity == Entity.AlbumCover 
                 ? NO_COVER 
                 : string.Empty;
         }

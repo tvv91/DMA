@@ -11,9 +11,9 @@
     });
     
     $(() => {
-        $("input[id$='_input']").on("keypress", (e) => {
+        $("input[id$='_input']").on("input", (e) => {
             $("input[id$='_input']").autocomplete({
-                source: `/search/${e.target.id.replace("_input", "")}`,
+                source: `/search/${e.target.id.replace("_input", "")}?value=${e.target.value}`,
                 messages: {
                         noResults: '',
                         results: () => {}

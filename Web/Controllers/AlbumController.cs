@@ -67,7 +67,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("album/create")]
-        public async Task<IActionResult> Create()
+        public IActionResult Create()
         {
             return View("CreateOrUpdate", new AlbumDataRequest());
         }
@@ -85,7 +85,7 @@ namespace Web.Controllers
             
             var tInfo = await _techInfoRepository.GetByIdAsync(albumId);
 
-            var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumDetailCover);
+            var cover = _imageService.GetImageUrl(album.Id, Entity.AlbumDetailCover);
 
             var albumModel = new AlbumDataRequest
             {
@@ -199,28 +199,35 @@ namespace Web.Controllers
             return Ok();
         }
 
-        [HttpGet("search/artist")]
-        public async Task<IActionResult> SearchArtist(string term)
+        [HttpGet("search/{category?}")]
+        public async Task<IActionResult> Search(string category, string value)
         {
-            return Ok(await _albumRepository.Artists.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-        }
-        
-        [HttpGet("search/genre")]
-        public async Task<IActionResult> SearchGenre(string term)
-        {
-            return Ok(await _albumRepository.Genres.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-        }
+            switch (category)
+            {
+                case "artist":  return Ok(await _albumRepository.Artists.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "genre": return Ok(await _albumRepository.Genres.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "year": return Ok(await _albumRepository.Years.Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+                case "reissue": return Ok(await _albumRepository.Reissues.Where(x => x.Data.ToString()!.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString()! }).ToArrayAsync());
+                // technical info
+                case "vinylstate": return Ok(await _techInfoRepository.VinylStates.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "digitalformat": return Ok(await _techInfoRepository.DigitalFormats.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "bitness": return Ok(await _techInfoRepository.Bitnesses.Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+                case "sampling": return Ok(await _techInfoRepository.Samplings.Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+                case "sourceformat": return Ok(await _techInfoRepository.SourceFormats.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "player": return Ok(await _techInfoRepository.Players.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "cartridge": return Ok(await _techInfoRepository.Cartriges.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "amp": return Ok(await _techInfoRepository.Amplifiers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "adc": return Ok(await _techInfoRepository.Adcs.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "wire": return Ok(await _techInfoRepository.Wires.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                // manufacturers
+                case "player_manufacturer": return Ok(await _techInfoRepository.PlayerManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "cartridge_manufacturer": return Ok(await _techInfoRepository.CartrigeManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "amp_manufacturer": return Ok(await _techInfoRepository.AmplifierManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "adc_manufacturer": return Ok(await _techInfoRepository.AdcManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "wire_manufacturer": return Ok(await _techInfoRepository.WireManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                default: return Ok(new AutocompleteResponse());
+            }
 
-        [HttpGet("search/year")]
-        public async Task<IActionResult> SearchYear(string term)
-        {
-            return Ok(await _albumRepository.Years.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-        }
-
-        [HttpGet("search/reissue")]
-        public async Task<IActionResult> SearchReissue(string term)
-        {
-            return Ok(await _albumRepository.Reissues.Where(x => x.Data.ToString().Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
         }
 
         [HttpPost("/uploadcover")]

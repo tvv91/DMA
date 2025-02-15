@@ -14,13 +14,13 @@ namespace Web.SignalRHubs
         private readonly IImageService _imgService;
         private readonly ITechInfoRepository _techInfoRepository;
         private const int ITEMS_PER_PAGE = 20;
-        private readonly Dictionary<string, EntityType> _categoryEntitityMap = new Dictionary<string, EntityType>()
+        private readonly Dictionary<string, Entity> _categoryEntitityMap = new Dictionary<string, Entity>()
         {
-            { "adc", EntityType.Adc },
-            { "amplifier", EntityType.Amp },
-            { "cartrige", EntityType.Cartridge },
-            { "player", EntityType.Player },
-            { "wire", EntityType.Wire },
+            { "adc", Entity.Adc },
+            { "amplifier", Entity.Amp },
+            { "cartrige", Entity.Cartridge },
+            { "player", Entity.Player },
+            { "wire", Entity.Wire },
         };
 
         public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository)
@@ -33,12 +33,12 @@ namespace Web.SignalRHubs
         {
             // otherwise album covers will load sequentially
             Random.Shared.Shuffle(albums);
-            await Task.WhenAll(albums.Select(async id => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", id, _imgService.GetImageUrl(id, EntityType.AlbumCover))));
+            await Task.WhenAll(albums.Select(async id => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", id, _imgService.GetImageUrl(id, Entity.AlbumCover))));
         }
 
         public async Task GetAlbumCover(string connectionId, int albumId)
         {
-            await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _imgService.GetImageUrl(albumId, EntityType.AlbumDetailCover));
+            await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _imgService.GetImageUrl(albumId, Entity.AlbumDetailCover));
         }
         
         private async Task<List<EquipmentResponse>> GetAdcItems(int page)
@@ -211,52 +211,52 @@ namespace Web.SignalRHubs
 
             if (tInfo?.VinylStateId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, Entity.VinylState));
             }
 
             if (tInfo?.DigitalFormatId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, Entity.DigitalFormat));
             }
 
             if (tInfo?.BitnessId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, EntityType.Bitness));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, Entity.Bitness));
             }
 
             if (tInfo?.SamplingId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, EntityType.Sampling));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, Entity.Sampling));
             }
 
             if (tInfo?.SourceFormatId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, Entity.SourceFormat));
             }
 
             if (tInfo?.PlayerId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "player", _imgService.GetImageUrl(tInfo.PlayerId.Value, EntityType.Player));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "player", _imgService.GetImageUrl(tInfo.PlayerId.Value, Entity.Player));
             }
 
             if (tInfo?.CartrigeId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartrigeId.Value, EntityType.Cartridge));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartrigeId.Value, Entity.Cartridge));
             }
 
             if (tInfo?.AmplifierId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, EntityType.Amp));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, Entity.Amp));
             }
 
             if (tInfo?.AdcId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, EntityType.Adc));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, Entity.Adc));
             }
 
             if (tInfo?.WireId != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, EntityType.Wire));
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, Entity.Wire));
             }
         }
     }

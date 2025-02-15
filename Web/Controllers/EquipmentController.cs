@@ -67,7 +67,7 @@ namespace Web.Controllers
             return Ok(await _repository.Cartriges.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
         }
 
-        [HttpGet("search/amplifier")]
+        [HttpGet("search/amp")]
         public async Task<IActionResult> SearchAmp(string term)
         {
             return Ok(await _repository.Amplifiers.Where(x => x.Data.Contains(term)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());

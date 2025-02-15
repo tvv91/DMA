@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
-using Web.Enum;
+using Web.Enums;
 using Web.Extentsions;
+using Web.Models;
 using Web.Response;
 using Web.Services;
 
@@ -151,6 +152,57 @@ namespace Web.SignalRHubs
             {
                 await Clients.Clients(connectionId).SendAsync("ReceivedItemImage", item.Id, _imgService.GetImageUrl(item.Id, _categoryEntitityMap[category]));          
             }
+        }
+
+        /// <summary>
+        /// Auto load manufacturer if exists
+        /// </summary>
+        /// <param name="connectionId"></param>
+        /// <param name="category"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public async Task GetManufacturer(string connectionId, string category, string value)
+        {
+            string result = string.Empty;
+            switch (category)
+            {
+                case "adc":
+                    var adc_manufacturer = await _techInfoRepository.Adcs.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    if (adc_manufacturer?.Manufacturer != null)
+                    {
+                        result = adc_manufacturer.Manufacturer.Data;
+                    }
+                    break;
+                case "amp":
+                    var amp_manufacturer = await _techInfoRepository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    if (amp_manufacturer?.Manufacturer != null)
+                    {
+                        result = amp_manufacturer.Manufacturer.Data;
+                    }
+                    break;
+                case "cartridge":
+                    var cartrige_manufacturer = await _techInfoRepository.Cartriges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    if (cartrige_manufacturer?.Manufacturer != null)
+                    {
+                        result = cartrige_manufacturer.Manufacturer.Data;
+                    }
+                    break;
+                case "player":
+                    var player_manufacturer = await _techInfoRepository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    if (player_manufacturer?.Manufacturer != null)
+                    {
+                        result = player_manufacturer.Manufacturer.Data;
+                    }
+                    break;
+                case "wire":
+                    var wire_manufacturer = await _techInfoRepository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    if (wire_manufacturer?.Manufacturer != null)
+                    {
+                        result = wire_manufacturer.Manufacturer.Data;
+                    }
+                    break;
+            }
+            await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
         public async Task GetTechnicalInfoIcons(string connectionId, int albumId)

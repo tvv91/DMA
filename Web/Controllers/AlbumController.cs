@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Web.Db;
-using Web.Enum;
+using Web.Enums;
 using Web.Request;
 using Web.Response;
 using Web.Services;

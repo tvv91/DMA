@@ -10,18 +10,33 @@
         await start();
     });
     
-    $(()=> {
-        $("input[id$='_input']").on("keypress", (e)=> {
+    $(() => {
+        $("input[id$='_input']").on("keypress", (e) => {
             $("input[id$='_input']").autocomplete({
                 source: `/search/${e.target.id.replace("_input", "")}`,
                 messages: {
-                    noResults: '',
-                    results: () => {}
+                        noResults: '',
+                        results: () => {}
+                        },
+                select: function(event, sender) {
+                    getManufacturer(event.target.id.replace("_input", ""), sender.item.value);
                 }
             });
         });
     });
+    
+    async function getManufacturer(category, value) {
+        try {
+            await connection.invoke("GetManufacturer", connection.connectionId, category, value);
+        } catch (err) {
+            console.log("Error sending request to GetManufacturer");
+        }
+    }
 
+    connection.on("ReceivedManufacturer", (category, result) => {
+         $(`input[id$='${category}_manufacturer_input']`).val(result);
+    });
+    
     function showError(message) {
         $("#errormessage").text(message);
         $(".alert").addClass("show");

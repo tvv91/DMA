@@ -1,8 +1,5 @@
-﻿namespace Web.Enum
+﻿namespace Web.Enums
 {
-    /// <summary>
-    /// Defines where we should find image
-    /// </summary>
     public enum EntityType
     {
         AlbumCover,

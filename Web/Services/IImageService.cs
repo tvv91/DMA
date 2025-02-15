@@ -1,4 +1,4 @@
-﻿using Web.Enum;
+﻿using Web.Enums;
 
 namespace Web.Services
 {

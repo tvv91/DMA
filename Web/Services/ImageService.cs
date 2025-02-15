@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
-using Web.Enum;
+using Web.Enums;
 
 namespace Web.Services
 {

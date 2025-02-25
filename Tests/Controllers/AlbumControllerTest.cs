@@ -66,9 +66,9 @@ namespace Tests.Controllers
         // GET album/create
         // Just return New.cshtml view
         [Fact]
-        public async Task GET_Create()
+        public void GET_Create()
         {
-            IActionResult result = await _controller.Create();
+            IActionResult result =  _controller.Create();
             ViewResult viewResult = result as ViewResult;
             Assert.NotNull(viewResult);
             Assert.Equal("CreateOrUpdate", viewResult.ViewName);

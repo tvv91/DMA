@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Enums;
 using Web.Extentsions;
-using Web.Models;
 using Web.Response;
 using Web.Services;
 
@@ -13,6 +12,7 @@ namespace Web.SignalRHubs
     {
         private readonly IImageService _imgService;
         private readonly ITechInfoRepository _techInfoRepository;
+        private readonly IAlbumRepository _albumRepository;
         private const int ITEMS_PER_PAGE = 20;
         private readonly Dictionary<string, Entity> _categoryEntitityMap = new Dictionary<string, Entity>()
         {
@@ -23,10 +23,11 @@ namespace Web.SignalRHubs
             { "wire", Entity.Wire },
         };
 
-        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository)
+        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository)
         {
             _imgService = coverImageService;
             _techInfoRepository = techInfoRepository;
+            _albumRepository = albumRepository;
         }
 
         public async Task GetAlbumCovers(string connectionId, int[] albums)
@@ -110,6 +111,40 @@ namespace Web.SignalRHubs
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
                 }).ToListAsync();
+        }
+
+        public async Task CheckAlbum(string connectionId, string album, string artist, string source)
+        {
+            var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Data == album && x.Artist.Data == artist).ToListAsync();
+
+            if (result?.Count > 0)
+            {
+                // "100 or 50" is detection level.
+                // 100 means that user trying add album to db that alredy exists from same source
+                // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
+                if (source != null)
+                {
+                    var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
+                    
+                    if (containsSource.Length > 0)
+                    {
+                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
+                    }
+                    else
+                    {
+                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+                    }
+                } 
+                else
+                {
+                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+                }
+            } 
+            else
+            {
+                // if nothing found send 0 for reset warn message (if set)
+                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
+            }
         }
 
         public async Task GetHardwareByCategory(string connectionId, string category, int page)

@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Enums;
-using Web.Extentsions;
 using Web.Response;
 using Web.Services;
 
@@ -14,6 +13,14 @@ namespace Web.SignalRHubs
         private readonly ITechInfoRepository _techInfoRepository;
         private readonly IAlbumRepository _albumRepository;
         private const int ITEMS_PER_PAGE = 20;
+
+        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository)
+        {
+            _imgService = coverImageService;
+            _techInfoRepository = techInfoRepository;
+            _albumRepository = albumRepository;
+        }
+
         private readonly Dictionary<string, Entity> _categoryEntitityMap = new Dictionary<string, Entity>()
         {
             { "adc", Entity.Adc },
@@ -23,29 +30,86 @@ namespace Web.SignalRHubs
             { "wire", Entity.Wire },
         };
 
-        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository)
-        {
-            _imgService = coverImageService;
-            _techInfoRepository = techInfoRepository;
-            _albumRepository = albumRepository;
-        }
-
+        #region Albums workload
+        
+        /// <summary>
+        /// Get album covers
+        /// </summary>
+        /// <param name="connectionId">Connection Id</param>
+        /// <param name="albums">List of album ids</param>
+        /// <returns></returns>
         public async Task GetAlbumCovers(string connectionId, int[] albums)
         {
-            // otherwise album covers will load sequentially
-            Random.Shared.Shuffle(albums);
-            await Task.WhenAll(albums.Select(async id => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", id, _imgService.GetImageUrl(id, Entity.AlbumCover))));
+            await Task.WhenAll(albums.Select(async albumId => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", albumId, _imgService.GetImageUrl(albumId, Entity.AlbumCover))));
         }
 
+        /// <summary>
+        /// Get cover of specific album 
+        /// </summary>
+        /// <param name="connectionId">Connection Id</param>
+        /// <param name="albumId">Album Id</param>
+        /// <returns></returns>
         public async Task GetAlbumCover(string connectionId, int albumId)
         {
             await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _imgService.GetImageUrl(albumId, Entity.AlbumDetailCover));
         }
-        
+
+        /// <summary>
+        /// Check if similar albums already exists in db / possible dublications checker
+        /// </summary>
+        /// <param name="connectionId">Connection Id</param>
+        /// <param name="currentAlbum">Current album Id</param>
+        /// <param name="album">Album title</param>
+        /// <param name="artist">Artist title</param>
+        /// <param name="source">Album sources</param>
+        /// <returns></returns>
+        public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
+        {
+            var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Data == album && x.Artist.Data == artist && x.Id != currentAlbum).ToListAsync();
+
+            if (result?.Count > 0)
+            {
+                // "100 or 50" is detection level.
+                // 100 means that user trying add album to db that alredy exists from same source
+                // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
+                if (source != null)
+                {
+                    var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
+
+                    if (containsSource.Length > 0)
+                    {
+                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
+                    }
+                    else
+                    {
+                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+                    }
+                }
+                else
+                {
+                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+                }
+            }
+            else
+            {
+                // if nothing found send 0 for reset warn message (if set)
+                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
+            }
+        }
+        #endregion
+
+        #region TechInfo workload
+        // TODO: Is id possible to refactor all this methods to single (generic?) or by using expression trees?
+
+        /// <summary>
+        /// Get list of adc
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
         private async Task<List<EquipmentResponse>> GetAdcItems(int page)
         {
             return await _techInfoRepository.Adcs
-                .Skip((page - 1)* ITEMS_PER_PAGE)
+                .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
                 .Select(x => new EquipmentResponse()
@@ -57,6 +121,11 @@ namespace Web.SignalRHubs
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Get list of amp
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
         private async Task<List<EquipmentResponse>> GetAmplifierItems(int page)
         {
             return await _techInfoRepository.Amplifiers
@@ -71,6 +140,11 @@ namespace Web.SignalRHubs
                 }).ToListAsync();
         }
 
+        /// <summary>
+        /// Get list of cartridges
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
         private async Task<List<EquipmentResponse>> GetCartrigeItems(int page)
         {
             return await _techInfoRepository.Cartriges
@@ -85,6 +159,11 @@ namespace Web.SignalRHubs
                 }).ToListAsync();
         }
 
+        /// <summary>
+        /// Get list of players
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
         private async Task<List<EquipmentResponse>> GetPlayerItems(int page)
         {
             return await _techInfoRepository.Players
@@ -99,6 +178,11 @@ namespace Web.SignalRHubs
                 }).ToListAsync();
         }
 
+        /// <summary>
+        /// Get list of wires
+        /// </summary>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
         private async Task<List<EquipmentResponse>> GetWireItems(int page)
         {
             return await _techInfoRepository.Wires
@@ -113,45 +197,18 @@ namespace Web.SignalRHubs
                 }).ToListAsync();
         }
 
-        public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
-        {
-            var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Data == album && x.Artist.Data == artist && x.Id != currentAlbum).ToListAsync();
-
-            if (result?.Count > 0)
-            {
-                // "100 or 50" is detection level.
-                // 100 means that user trying add album to db that alredy exists from same source
-                // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
-                if (source != null)
-                {
-                    var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
-                    
-                    if (containsSource.Length > 0)
-                    {
-                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
-                    }
-                    else
-                    {
-                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
-                    }
-                } 
-                else
-                {
-                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
-                }
-            } 
-            else
-            {
-                // if nothing found send 0 for reset warn message (if set)
-                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
-            }
-        }
-
+        /// <summary>
+        /// Get hardware by category
+        /// </summary>
+        /// <param name="connectionId">Connection Id</param>
+        /// <param name="category">Category</param>
+        /// <param name="page">Page number</param>
+        /// <returns></returns>
         public async Task GetHardwareByCategory(string connectionId, string category, int page)
         {
             var result = new List<EquipmentResponse>();
             int itemsCount = 0;
-            
+
             switch (category)
             {
                 case "adc":
@@ -177,24 +234,22 @@ namespace Web.SignalRHubs
             }
 
             int pageCount = itemsCount % ITEMS_PER_PAGE == 0 ? itemsCount / ITEMS_PER_PAGE : itemsCount / ITEMS_PER_PAGE + 1;
-            
+
             await Clients.Client(connectionId).SendAsync("ReceivedItems", result);
             await Clients.Client(connectionId).SendAsync("ReceivedItemsCount", pageCount);
 
-            result.Shuffle();
-            
             foreach (var item in result)
             {
-                await Clients.Clients(connectionId).SendAsync("ReceivedItemImage", item.Id, _imgService.GetImageUrl(item.Id, _categoryEntitityMap[category]));          
+                await Clients.Clients(connectionId).SendAsync("ReceivedItemImage", item.Id, _imgService.GetImageUrl(item.Id, _categoryEntitityMap[category]));
             }
         }
 
         /// <summary>
-        /// Auto load manufacturer if exists
+        /// Auto load manufacturer if exists for specific hardware
         /// </summary>
-        /// <param name="connectionId"></param>
-        /// <param name="category"></param>
-        /// <param name="value"></param>
+        /// <param name="connectionId">Connection Id</param>
+        /// <param name="category">Category</param>
+        /// <param name="value">Value from input</param>
         /// <returns></returns>
         public async Task GetManufacturer(string connectionId, string category, string value)
         {
@@ -240,6 +295,13 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
+        //TODO: Make more generic? Just detect entity type, all another parts same
+        /// <summary>
+        /// Get technical info icons for album
+        /// </summary>
+        /// <param name="connectionId">Connection Id</param>
+        /// <param name="albumId">Album ID</param>
+        /// <returns></returns>
         public async Task GetTechnicalInfoIcons(string connectionId, int albumId)
         {
             var tInfo = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);
@@ -294,5 +356,7 @@ namespace Web.SignalRHubs
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, Entity.Wire));
             }
         }
+
+        #endregion
     }
 }

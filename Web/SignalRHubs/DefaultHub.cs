@@ -113,9 +113,9 @@ namespace Web.SignalRHubs
                 }).ToListAsync();
         }
 
-        public async Task CheckAlbum(string connectionId, string album, string artist, string source)
+        public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
         {
-            var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Data == album && x.Artist.Data == artist).ToListAsync();
+            var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Data == album && x.Artist.Data == artist && x.Id != currentAlbum).ToListAsync();
 
             if (result?.Count > 0)
             {

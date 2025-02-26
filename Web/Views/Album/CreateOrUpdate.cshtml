@@ -130,13 +130,13 @@
 
         if (artist !== '' && album !== '') {
             let source = $("#source").val();
-            checkAlbum(album, artist, source);
+            checkAlbum(@Model.AlbumId, album, artist, source);
         }
     }
 
-    async function checkAlbum(artist, album, source) {
+    async function checkAlbum(albumId, artist, album, source) {
         try {
-            await connection.invoke("CheckAlbum", connection.connectionId, artist, album, source);
+            await connection.invoke("CheckAlbum", connection.connectionId, albumId, artist, album, source);
         } catch (err) {
             console.log("Error sending request to GetManufacturer");
         }

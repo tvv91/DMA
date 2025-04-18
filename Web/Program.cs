@@ -5,6 +5,7 @@ using Web.Services;
 using Web.SignalRHubs;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DMADbContext>(opts =>
 {

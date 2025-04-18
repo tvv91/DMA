@@ -12,7 +12,7 @@
         public int AlbumId { get; set; }
         public int? AmplifierId { get; set; }
         public int? BitnessId { get; set; }
-        public int? CartrigeId { get; set; }
+        public int? CartridgeId { get; set; }
         public int? DigitalFormatId { get; set; }
         public int? PlayerId { get; set; }
         public int? SourceFormatId { get; set; }
@@ -28,7 +28,7 @@
         public Adc? Adc { get; set; }
         public Amplifier? Amplifier { get; set; }
         public Bitness? Bitness { get; set; }
-        public Cartrige? Cartrige { get; set; }
+        public Cartridge? Cartridge { get; set; }
         public DigitalFormat? DigitalFormat { get; set; }
         public Player? Player { get; set; }
         public SourceFormat? SourceFormat { get; set; }

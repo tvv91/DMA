@@ -1,6 +1,6 @@
 ﻿namespace Web.Enums
 {
-    public enum Entity
+    public enum EntityType
     {
         AlbumCover,
         VinylState,
@@ -10,9 +10,8 @@
         SourceFormat,
         Player,
         Cartridge,
-        Amp,
+        Amplifier,
         Adc,
-        Wire,
-        AlbumDetailCover
+        Wire
     }
 }

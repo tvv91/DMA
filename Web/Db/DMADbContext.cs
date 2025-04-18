@@ -24,8 +24,8 @@ namespace Web.Db
         public DbSet<Amplifier> Amplifiers { get; set; }
         public DbSet<AmplifierManufacturer> AmplifierManufacturers { get; set; }
         public DbSet<Bitness> Bitnesses { get; set; }
-        public DbSet<Cartrige> Cartriges { get; set; }
-        public DbSet<CartrigeManufacturer> CartrigeManufacturers { get; set; }
+        public DbSet<Cartridge> Cartridges { get; set; }
+        public DbSet<CartridgeManufacturer> CartridgeManufacturers { get; set; }
         public DbSet<DigitalFormat> DigitalFormats { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<PlayerManufacturer> PlayerManufacturers { get; set; }

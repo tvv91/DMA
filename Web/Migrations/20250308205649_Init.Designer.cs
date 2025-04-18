@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20250207035630_Init")]
+    [Migration("20250308205649_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -228,7 +228,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.Cartrige", b =>
+            modelBuilder.Entity("Web.Models.Cartridge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -250,10 +250,10 @@ namespace Web.Migrations
 
                     b.HasIndex("ManufacturerId");
 
-                    b.ToTable("Cartriges");
+                    b.ToTable("Cartridges");
                 });
 
-            modelBuilder.Entity("Web.Models.CartrigeManufacturer", b =>
+            modelBuilder.Entity("Web.Models.CartridgeManufacturer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -267,7 +267,7 @@ namespace Web.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CartrigeManufacturers");
+                    b.ToTable("CartridgeManufacturers");
                 });
 
             modelBuilder.Entity("Web.Models.Country", b =>
@@ -567,7 +567,7 @@ namespace Web.Migrations
                     b.Property<int?>("BitnessId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CartrigeId")
+                    b.Property<int?>("CartridgeId")
                         .HasColumnType("int");
 
                     b.Property<int?>("DigitalFormatId")
@@ -599,7 +599,7 @@ namespace Web.Migrations
 
                     b.HasIndex("BitnessId");
 
-                    b.HasIndex("CartrigeId");
+                    b.HasIndex("CartridgeId");
 
                     b.HasIndex("DigitalFormatId");
 
@@ -788,10 +788,10 @@ namespace Web.Migrations
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.Cartrige", b =>
+            modelBuilder.Entity("Web.Models.Cartridge", b =>
                 {
-                    b.HasOne("Web.Models.CartrigeManufacturer", "Manufacturer")
-                        .WithMany("Cartriges")
+                    b.HasOne("Web.Models.CartridgeManufacturer", "Manufacturer")
+                        .WithMany("Cartridges")
                         .HasForeignKey("ManufacturerId");
 
                     b.Navigation("Manufacturer");
@@ -826,9 +826,9 @@ namespace Web.Migrations
                         .WithMany("TechnicalInfos")
                         .HasForeignKey("BitnessId");
 
-                    b.HasOne("Web.Models.Cartrige", "Cartrige")
+                    b.HasOne("Web.Models.Cartridge", "Cartridge")
                         .WithMany("TechnicalInfos")
-                        .HasForeignKey("CartrigeId");
+                        .HasForeignKey("CartridgeId");
 
                     b.HasOne("Web.Models.DigitalFormat", "DigitalFormat")
                         .WithMany("TechnicalInfos")
@@ -862,7 +862,7 @@ namespace Web.Migrations
 
                     b.Navigation("Bitness");
 
-                    b.Navigation("Cartrige");
+                    b.Navigation("Cartridge");
 
                     b.Navigation("DigitalFormat");
 
@@ -921,14 +921,14 @@ namespace Web.Migrations
                     b.Navigation("TechnicalInfos");
                 });
 
-            modelBuilder.Entity("Web.Models.Cartrige", b =>
+            modelBuilder.Entity("Web.Models.Cartridge", b =>
                 {
                     b.Navigation("TechnicalInfos");
                 });
 
-            modelBuilder.Entity("Web.Models.CartrigeManufacturer", b =>
+            modelBuilder.Entity("Web.Models.CartridgeManufacturer", b =>
                 {
-                    b.Navigation("Cartriges");
+                    b.Navigation("Cartridges");
                 });
 
             modelBuilder.Entity("Web.Models.Country", b =>

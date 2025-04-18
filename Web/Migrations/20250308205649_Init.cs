@@ -66,7 +66,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "CartrigeManufacturers",
+                name: "CartridgeManufacturers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -75,7 +75,7 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CartrigeManufacturers", x => x.Id);
+                    table.PrimaryKey("PK_CartridgeManufacturers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -275,7 +275,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cartriges",
+                name: "Cartridges",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -286,11 +286,11 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cartriges", x => x.Id);
+                    table.PrimaryKey("PK_Cartridges", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Cartriges_CartrigeManufacturers_ManufacturerId",
+                        name: "FK_Cartridges_CartridgeManufacturers_ManufacturerId",
                         column: x => x.ManufacturerId,
-                        principalTable: "CartrigeManufacturers",
+                        principalTable: "CartridgeManufacturers",
                         principalColumn: "Id");
                 });
 
@@ -403,7 +403,7 @@ namespace Web.Migrations
                     AlbumId = table.Column<int>(type: "int", nullable: false),
                     AmplifierId = table.Column<int>(type: "int", nullable: true),
                     BitnessId = table.Column<int>(type: "int", nullable: true),
-                    CartrigeId = table.Column<int>(type: "int", nullable: true),
+                    CartridgeId = table.Column<int>(type: "int", nullable: true),
                     DigitalFormatId = table.Column<int>(type: "int", nullable: true),
                     PlayerId = table.Column<int>(type: "int", nullable: true),
                     SourceFormatId = table.Column<int>(type: "int", nullable: true),
@@ -437,9 +437,9 @@ namespace Web.Migrations
                         principalTable: "Bitnesses",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_TechnicalInfos_Cartriges_CartrigeId",
-                        column: x => x.CartrigeId,
-                        principalTable: "Cartriges",
+                        name: "FK_TechnicalInfos_Cartridges_CartridgeId",
+                        column: x => x.CartridgeId,
+                        principalTable: "Cartridges",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_TechnicalInfos_DigitalFormats_DigitalFormatId",
@@ -583,8 +583,8 @@ namespace Web.Migrations
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Cartriges_ManufacturerId",
-                table: "Cartriges",
+                name: "IX_Cartridges_ManufacturerId",
+                table: "Cartridges",
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
@@ -614,9 +614,9 @@ namespace Web.Migrations
                 column: "BitnessId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TechnicalInfos_CartrigeId",
+                name: "IX_TechnicalInfos_CartridgeId",
                 table: "TechnicalInfos",
-                column: "CartrigeId");
+                column: "CartridgeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TechnicalInfos_DigitalFormatId",
@@ -673,7 +673,7 @@ namespace Web.Migrations
                 name: "Bitnesses");
 
             migrationBuilder.DropTable(
-                name: "Cartriges");
+                name: "Cartridges");
 
             migrationBuilder.DropTable(
                 name: "DigitalFormats");
@@ -721,7 +721,7 @@ namespace Web.Migrations
                 name: "AmplifierManufacturers");
 
             migrationBuilder.DropTable(
-                name: "CartrigeManufacturers");
+                name: "CartridgeManufacturers");
 
             migrationBuilder.DropTable(
                 name: "PlayerManufacturers");

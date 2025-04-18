@@ -21,13 +21,13 @@ namespace Web.SignalRHubs
             _albumRepository = albumRepository;
         }
 
-        private readonly Dictionary<string, Entity> _categoryEntitityMap = new Dictionary<string, Entity>()
+        private readonly Dictionary<string, EntityType> _categoryEntitityMap = new Dictionary<string, EntityType>()
         {
-            { "adc", Entity.Adc },
-            { "amplifier", Entity.Amp },
-            { "cartrige", Entity.Cartridge },
-            { "player", Entity.Player },
-            { "wire", Entity.Wire },
+            { "adc", EntityType.Adc },
+            { "amplifier", EntityType.Amplifier },
+            { "cartridge", EntityType.Cartridge },
+            { "player", EntityType.Player },
+            { "wire", EntityType.Wire },
         };
 
         #region Albums workload
@@ -40,7 +40,7 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetAlbumCovers(string connectionId, int[] albums)
         {
-            await Task.WhenAll(albums.Select(async albumId => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", albumId, _imgService.GetImageUrl(albumId, Entity.AlbumCover))));
+            await Task.WhenAll(albums.Select(async albumId => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", albumId, _imgService.GetImageUrl(albumId, EntityType.AlbumCover))));
         }
 
         /// <summary>
@@ -51,7 +51,12 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetAlbumCover(string connectionId, int albumId)
         {
-            await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _imgService.GetImageUrl(albumId, Entity.AlbumDetailCover));
+            await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _imgService.GetImageUrl(albumId, EntityType.AlbumCover));
+        }
+
+        public async Task GetEquipmentImage(string connectionId, int equipmentId, string type)
+        {
+            await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", _imgService.GetImageUrl(equipmentId, Enum.Parse<EntityType>(type)));
         }
 
         /// <summary>
@@ -99,7 +104,7 @@ namespace Web.SignalRHubs
         #endregion
 
         #region TechInfo workload
-        // TODO: Is id possible to refactor all this methods to single (generic?) or by using expression trees?
+        // TODO: Is it possible to refactor all this methods to single (generic?) or by using expression trees?
 
         /// <summary>
         /// Get list of adc
@@ -117,6 +122,7 @@ namespace Web.SignalRHubs
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
+                    EntityType = EntityType.Adc
                 })
                 .ToListAsync();
         }
@@ -137,6 +143,7 @@ namespace Web.SignalRHubs
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
+                    EntityType = EntityType.Amplifier
                 }).ToListAsync();
         }
 
@@ -145,9 +152,9 @@ namespace Web.SignalRHubs
         /// </summary>
         /// <param name="page">Page number</param>
         /// <returns></returns>
-        private async Task<List<EquipmentResponse>> GetCartrigeItems(int page)
+        private async Task<List<EquipmentResponse>> GetCartridgeItems(int page)
         {
-            return await _techInfoRepository.Cartriges
+            return await _techInfoRepository.Cartridges
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
@@ -156,6 +163,7 @@ namespace Web.SignalRHubs
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
+                    EntityType = EntityType.Cartridge
                 }).ToListAsync();
         }
 
@@ -175,6 +183,7 @@ namespace Web.SignalRHubs
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
+                    EntityType = EntityType.Player
                 }).ToListAsync();
         }
 
@@ -194,6 +203,7 @@ namespace Web.SignalRHubs
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
+                    EntityType = EntityType.Amplifier
                 }).ToListAsync();
         }
 
@@ -219,9 +229,9 @@ namespace Web.SignalRHubs
                     itemsCount = await _techInfoRepository.Amplifiers.CountAsync();
                     result = await GetAmplifierItems(page);
                     break;
-                case "cartrige":
-                    itemsCount = await _techInfoRepository.Cartriges.CountAsync();
-                    result = await GetCartrigeItems(page);
+                case "cartridge":
+                    itemsCount = await _techInfoRepository.Cartridges.CountAsync();
+                    result = await GetCartridgeItems(page);
                     break;
                 case "player":
                     itemsCount = await _techInfoRepository.Players.CountAsync();
@@ -271,10 +281,10 @@ namespace Web.SignalRHubs
                     }
                     break;
                 case "cartridge":
-                    var cartrige_manufacturer = await _techInfoRepository.Cartriges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
-                    if (cartrige_manufacturer?.Manufacturer != null)
+                    var cartridge_manufacturer = await _techInfoRepository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    if (cartridge_manufacturer?.Manufacturer != null)
                     {
-                        result = cartrige_manufacturer.Manufacturer.Data;
+                        result = cartridge_manufacturer.Manufacturer.Data;
                     }
                     break;
                 case "player":
@@ -306,54 +316,57 @@ namespace Web.SignalRHubs
         {
             var tInfo = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);
 
-            if (tInfo?.VinylStateId != null)
+            if (tInfo != null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, Entity.VinylState));
-            }
+                if (tInfo?.VinylStateId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetIconUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
+                }
 
-            if (tInfo?.DigitalFormatId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, Entity.DigitalFormat));
-            }
+                if (tInfo?.DigitalFormatId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetIconUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
+                }
 
-            if (tInfo?.BitnessId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, Entity.Bitness));
-            }
+                if (tInfo?.BitnessId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetIconUrl(tInfo.BitnessId.Value, EntityType.Bitness));
+                }
 
-            if (tInfo?.SamplingId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, Entity.Sampling));
-            }
+                if (tInfo?.SamplingId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetIconUrl(tInfo.SamplingId.Value, EntityType.Sampling));
+                }
 
-            if (tInfo?.SourceFormatId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, Entity.SourceFormat));
-            }
+                if (tInfo?.SourceFormatId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetIconUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
+                }
 
-            if (tInfo?.PlayerId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "player", _imgService.GetImageUrl(tInfo.PlayerId.Value, Entity.Player));
-            }
+                if (tInfo?.PlayerId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "player", _imgService.GetImageUrl(tInfo.PlayerId.Value, EntityType.Player));
+                }
 
-            if (tInfo?.CartrigeId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartrigeId.Value, Entity.Cartridge));
-            }
+                if (tInfo?.CartridgeId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartridgeId.Value, EntityType.Cartridge));
+                }
 
-            if (tInfo?.AmplifierId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, Entity.Amp));
-            }
+                if (tInfo?.AmplifierId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, EntityType.Amplifier));
+                }
 
-            if (tInfo?.AdcId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, Entity.Adc));
-            }
+                if (tInfo?.AdcId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, EntityType.Adc));
+                }
 
-            if (tInfo?.WireId != null)
-            {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, Entity.Wire));
+                if (tInfo?.WireId != null)
+                {
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, EntityType.Wire));
+                }
             }
         }
 

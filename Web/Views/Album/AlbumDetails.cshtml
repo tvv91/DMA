@@ -44,14 +44,12 @@
     });
 
     connection.on("ReceivedAlbumConverDetailed", (cover) => {
-        if (cover == '') {
+        if (cover.includes("nocover")) {
             $('#nocovericon').css("display", "");
             $('#coverspinner').css("display", "none");
             $('#coverdiv').css("border", "solid");
         } else {
-            $('#cover').fadeIn(1000);
-            $('#cover').css("display", "")
-            $('#cover').attr("src", cover);
+            $('#cover').fadeIn(1000).css("display", "").attr("src", cover);
             $('#coverspinner').css("display", "none");
         }
     });
@@ -133,15 +131,12 @@
         <a data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash fa-lg fa-pull-right"></i></a>
         <a href="/album/edit/@Model.Album.Id"><i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i></a>
         <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
-        @if (Model.Album.Reissue == null)
+        <h5>Year: <b>@Model.Album?.Year?.Data</b></h5>
+        @if (Model.Album?.Reissue != null)
         {
-            <h5>Year: <b>@Model.Album.Year.Data</b></h5>
+            <h5>Reissue: <b>@Model.Album.Reissue.Data</b></h5>
         }
-        else
-        {
-            <h5>Year: <b>@Model.Album.Year.Data</b> (Reissue: <b>@Model.Album.Reissue.Data</b>)</h5>
-        }
-        <h5>Genre: <b>@Model.Album.Genre.Data</b></h5>
+        <h5>Genre: <b>@Model.Album?.Genre?.Data</b></h5>
         <h5>Country: <b>@Model.Album?.Country?.Data</b></h5>
         <h5>Label: <b>@Model.Album?.Label?.Data</b></h5>
         <h5>Size: <b>@Model.Album?.Size</b> Gb</h5>
@@ -249,8 +244,8 @@
                     <img id="cartridge" class="justifiy-element-size" style="display: none" />
                 </div>
                 <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Cartrige?.Manufacturer?.Data<br />
-                    @Model?.Album?.TechnicalInfo?.Cartrige?.Data
+                    @Model?.Album?.TechnicalInfo?.Cartridge?.Manufacturer?.Data<br />
+                    @Model?.Album?.TechnicalInfo?.Cartridge?.Data
                 </div>
             </div>
             <div class="technical-info-icon-hardware">

@@ -1,11 +1,12 @@
 ﻿<script>
     const CURRENT_TAB = "CURRENT_TAB";
+    const BACK_PAGE_EQUIPMENT_INDEX = "BACK_PAGE_EQUIPMENT_INDEX";
 
     // for simpler category handling
     const CATEGORY_MAP = new Map([
         ["adc-tab", "adc"],
         ["amplifier-tab", "amplifier"],
-        ["cartrige-tab", "cartrige"],
+        ["cartridge-tab", "cartridge"],
         ["player-tab", "player"],
         ["wire-tab", "wire"],
     ]);
@@ -13,16 +14,42 @@
     $(document).ready(async () => {
         await start();        
 
-        // init: load first tab items, set current tab, first page active
-        await getHardwareByCategory(CATEGORY_MAP.get("adc-tab"), 1);
-        localStorage.setItem(CURRENT_TAB, "adc-tab");
-        $("a[id=1]").attr("class", "page-link active");
+        // Init
+        /*
+            For more convenient navigation we should remember last opened equipment tab and page
+            Otherwise, every time when you open concrete item to watch details and then click back button,
+            you will be redirected to first tab (Adc) and first page, that is very annoys.
+            If we have no previose state, then make active first tab and first page
+            May be, better way is to open modal window with details without all this jquery's shit =) 
+            Who knows, but currently implemented as is
+        */
+        if (localStorage.getItem(CURRENT_TAB) !== null) {
+            const lastOpenTab = localStorage.getItem(CURRENT_TAB);
+            const lastOpenPage = localStorage.getItem(BACK_PAGE_EQUIPMENT_INDEX);
+            // make last tab active
+            $(`#${lastOpenTab}`).attr("class", "nav-link active");
+            // load items for last opened tab
+            await getHardwareByCategory(CATEGORY_MAP.get(lastOpenTab), parseInt(lastOpenPage));
+            // highlight last active page
+            $(`a[id=${lastOpenPage}]`).attr("class", "page-link active");
+        } else {
+            $(`#adc-tab`).attr("class", "nav-link active");
+            // load first tab items, set current tab
+            await getHardwareByCategory(CATEGORY_MAP.get("adc-tab"), 1);
+            // remember active tab
+            localStorage.setItem(CURRENT_TAB, "adc-tab");
+             // need for returning page from equipment/{id}
+            localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, 1);
+            // highlight fist page as active
+            $("a[id=1]").attr("class", "page-link active");
+        }      
 
         // when click page on pagination
         $("#pagination").on("click", async (e)=> {
             // paginate only when click new page, because it's useless requests to backend
             if ($(".page-link.active").attr("id") !== e.target.id) {
                 const currentTab = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
+                localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, e.target.id);
                 // remove items
                 $(`#items-container`).find('div').remove();
                 // remove pagination bar
@@ -34,17 +61,20 @@
             }
         });        
         
+        // when we click on equipment category tab
         $("#navigation li button").on("click", async(e) => {
             // get last active tab
             const currentTab = localStorage.getItem(CURRENT_TAB);
             // if new tab opened
             if (currentTab !== e.target.id) {
-                // update active tab
+                // save state of current tab
                 localStorage.setItem(CURRENT_TAB, e.target.id);
                 // remove elements from previous category
                 $(`#items-container`).find('div').remove();
                 // load elements of new category
                 await getHardwareByCategory(CATEGORY_MAP.get(e.target.id), 1);
+                // reset last page
+                localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, 1);
                 $("a[id=1]").attr("class", "page-link active");
             }
         });
@@ -65,15 +95,17 @@
                 There are no items
             <div>`);
         } else {
+            const category = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
             result.forEach(x => {
             $("#items-container").append(
-            `<div>
+            `<div class="equipment-detail-item">
                 <div id="${x.id}" class="spinner-border justifiy-element-size">
-                    <img id="${x.id}"class="justifiy-element-size" style="display:none"/>
+                    <a href="equipment/${category}/${x.id}">
+                        <img id="${x.id}"class="justifiy-element-size" style="display:none"/>
+                    </a>                    
                 </div>
                 <div class="eq-item-info">
-                    <b>${x.manufacturer}</b >
-                    <br />
+                    <b>${x.manufacturer !== null ? x.manufacturer + "<br>" : ''}</b>
                     <b>${x.model}</b>
                 </div>
             <div>`);
@@ -82,18 +114,19 @@
     });
 
     connection.on("ReceivedItemImage", (id, result) => {
-        if (result !== "") {
+        if (result) {
             $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size");
-            $(`#items-container img[id=${id}]`).attr("src", result).attr("display", "");
-            $(`#items-container img[id=${id}]`).css("display", "");
+            $(`#items-container img[id=${id}]`).attr("src", result).css("display", "");
         } else {
-            $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size");
-            $(`#items-container img[id=${id}]`).remove();
-            $(`#items-container div[id=${id}]`).append(`<i id='nocovericon' class='fa-regular fa-image fa-6x'/>`);
+            const category = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
+            $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size").append
+            (`<a href="equipment/${category}/${id}" style="color: black;">
+                <i id='nocovericon' class="fa-regular fa-image fa-4x equipment-detail-image"></i>
+             </a>`);
         }
     });
 
-    // generate pagination
+    // generate pagination buttons
     connection.on("ReceivedItemsCount", (count) => {
         // reset pagination
         $("#pagination").find('li').remove();
@@ -113,7 +146,7 @@
     <div class="container">
         <ul id="navigation" class="nav nav-tabs mt-2" role="tablist">
             <li class="nav-item" role="presentation">
-                <button class="nav-link active"
+                <button class="nav-link"
                         id="adc-tab"
                         data-bs-toggle="tab"
                         data-bs-target="#adc"
@@ -136,13 +169,13 @@
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link"
-                        id="cartrige-tab"
+                        id="cartridge-tab"
                         data-bs-toggle="tab"
-                        data-bs-target="#cartrige"
+                        data-bs-target="#cartridge"
                         type="button" role="tab"
-                        aria-controls="cartrige"
+                        aria-controls="cartridge"
                         aria-selected="false">
-                    Cartrige
+                    Cartridge
                 </button>
             </li>
             <li class="nav-item" role="presentation">

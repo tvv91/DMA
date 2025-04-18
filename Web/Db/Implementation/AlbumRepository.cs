@@ -73,28 +73,42 @@ namespace Web.Db
 
         private async Task CreateOrUpdateGenreAsync(Album album, AlbumDataRequest request)
         {
-            var _genre = await _context.Genres.FirstOrDefaultAsync(x => x.Data == request.Genre);
-
-            if (_genre == null)
+            if (request.Genre == null)
             {
-                _genre = new() { Data = request.Genre };
-                await _context.Genres.AddAsync(_genre);
+                album.GenreId = null;
             }
+            else
+            {
+                var _genre = await _context.Genres.FirstOrDefaultAsync(x => x.Data == request.Genre);
 
-            album.Genre = _genre;
+                if (_genre == null)
+                {
+                    _genre = new() { Data = request.Genre };
+                    await _context.Genres.AddAsync(_genre);
+                }
+
+                album.Genre = _genre;
+            } 
         }
 
         private async Task CreateOrUpdateYearAsync(Album album, AlbumDataRequest request)
         {
-            var _year = await _context.Years.FirstOrDefaultAsync(x => x.Data == request.Year);
-
-            if (_year == null)
+            if (request.Year == null)
             {
-                _year = new() { Data = request.Year.Value };
-                await _context.Years.AddAsync(_year);
+                album.YearId = null;
             }
+            else
+            {
+                var _year = await _context.Years.FirstOrDefaultAsync(x => x.Data == request.Year);
 
-            album.Year = _year;
+                if (_year == null)
+                {
+                    _year = new() { Data = request.Year.Value };
+                    await _context.Years.AddAsync(_year);
+                }
+                
+                album.Year = _year;
+            }            
         }
 
         private async Task CreateOrUpdateReissueAsync(Album album, AlbumDataRequest request)

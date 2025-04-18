@@ -78,7 +78,7 @@ namespace Tests.Controllers
         [Fact]
         public async Task POST_New_Album_With_Empty_Request()
         {
-            IActionResult result = await _controller.NewAlbum(new AlbumDataRequest { });
+            IActionResult result = await _controller.Create(new AlbumDataRequest { });
             var viewResult = Assert.IsType<ViewResult>(result);
             Assert.NotNull(viewResult);
             Assert.Equal("CreateOrUpdate", viewResult.ViewName);
@@ -105,7 +105,7 @@ namespace Tests.Controllers
                 Year = new Year { Data = request.Year.Value }
             });
 
-            IActionResult result = await _controller.NewAlbum(request);
+            IActionResult result = await _controller.Create(request);
             _mockRepo.Verify(r => r.CreateOrUpdateAlbumAsync(request), Times.Once());
             var redirecResult = Assert.IsType<RedirectResult>(result);
             Assert.Equal("123", redirecResult.Url);

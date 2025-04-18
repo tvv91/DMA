@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
 using Web.Db;
 using Web.Enums;
 using Web.Request;
@@ -36,6 +35,7 @@ namespace Web.Controllers
                  .Skip((page - 1) * ALBUMS_PER_PAGE)
                  .Take(ALBUMS_PER_PAGE)
                  .Include(a => a.Artist)
+                 .AsNoTracking()
                  .ToListAsync()
             };
             return View("Index", albumViewModel);
@@ -85,11 +85,11 @@ namespace Web.Controllers
             
             var tInfo = await _techInfoRepository.GetByIdAsync(albumId);
 
-            var cover = _imageService.GetImageUrl(album.Id, Entity.AlbumDetailCover);
+            var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumCover);
 
             var albumModel = new AlbumDataRequest
             {
-                Action = "update",
+                Action = ActionType.Update,
                 AlbumId = album.Id,
                 // Base info
                 Album = album.Data,
@@ -112,8 +112,8 @@ namespace Web.Controllers
                 SourceFormat = tInfo?.SourceFormat?.Data,
                 Player = tInfo?.Player?.Data,
                 PlayerManufacturer = tInfo?.Player?.Manufacturer?.Data,
-                Cartridge = tInfo?.Cartrige?.Data,
-                CartridgeManufacturer = tInfo?.Cartrige?.Manufacturer?.Data,
+                Cartridge = tInfo?.Cartridge?.Data,
+                CartridgeManufacturer = tInfo?.Cartridge?.Manufacturer?.Data,
                 Amplifier = tInfo?.Amplifier?.Data,
                 AmplifierManufacturer = tInfo?.Amplifier?.Manufacturer?.Data,
                 Adc = tInfo?.Adc?.Data,
@@ -125,7 +125,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> NewAlbum(AlbumDataRequest request)
+        public async Task<IActionResult> Create(AlbumDataRequest request)
         {
             if (ModelState.IsValid 
                 && !string.IsNullOrEmpty(request.Artist) 
@@ -136,7 +136,7 @@ namespace Web.Controllers
 
                 if (request.AlbumCover != null)
                 {
-                    _imageService.SaveCover(album.Id, request.AlbumCover);
+                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
                 }
 
                 return new RedirectResult($"{album.Id}");
@@ -150,7 +150,7 @@ namespace Web.Controllers
         [HttpPost("album/update")]
         public async Task<IActionResult> Update(AlbumDataRequest request)
         {
-            if (request.AlbumId <= 0 || request.AlbumId > int.MaxValue)
+            if (request.AlbumId <= 0)
                 return BadRequest();
 
             if (ModelState.IsValid
@@ -163,11 +163,11 @@ namespace Web.Controllers
 
                 if (request.AlbumCover == null)
                 {
-                    _imageService.RemoveCover(album.Id);
+                    _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
                 } 
                 else
                 {
-                    _imageService.SaveCover(album.Id, request.AlbumCover);
+                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
                 }
 
                 return new RedirectResult($"/album/{request.AlbumId}");
@@ -183,12 +183,12 @@ namespace Web.Controllers
         {
             if (id <= 0 || id > int.MaxValue)
                 return BadRequest();
-            var album = await _albumRepository.Albums.Where(a => a.Id == id).SingleOrDefaultAsync();
+            var album = await _albumRepository.Albums.Where(a => a.Id == id).AsNoTracking().FirstOrDefaultAsync();
             if (album == null)
                 return NotFound();
             try
             {
-                _imageService.RemoveCover(album.Id);
+                _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
                 await _techInfoRepository.TechInfos.Where(t => t.AlbumId == id).ExecuteDeleteAsync();
                 await _albumRepository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
             }
@@ -204,61 +204,28 @@ namespace Web.Controllers
         {
             switch (category)
             {
-                case "artist":  return Ok(await _albumRepository.Artists.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "genre": return Ok(await _albumRepository.Genres.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "year": return Ok(await _albumRepository.Years.Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-                case "reissue": return Ok(await _albumRepository.Reissues.Where(x => x.Data.ToString()!.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString()! }).ToArrayAsync());
+                case "artist":  return Ok(await _albumRepository.Artists.AsNoTracking().AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "genre": return Ok(await _albumRepository.Genres.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "year": return Ok(await _albumRepository.Years.AsNoTracking().Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+                case "reissue": return Ok(await _albumRepository.Reissues.AsNoTracking().Where(x => x.Data.ToString()!.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString()! }).ToArrayAsync());
                 // technical info
-                case "vinylstate": return Ok(await _techInfoRepository.VinylStates.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "digitalformat": return Ok(await _techInfoRepository.DigitalFormats.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "bitness": return Ok(await _techInfoRepository.Bitnesses.Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-                case "sampling": return Ok(await _techInfoRepository.Samplings.Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-                case "sourceformat": return Ok(await _techInfoRepository.SourceFormats.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "player": return Ok(await _techInfoRepository.Players.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "cartridge": return Ok(await _techInfoRepository.Cartriges.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "amp": return Ok(await _techInfoRepository.Amplifiers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "adc": return Ok(await _techInfoRepository.Adcs.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "wire": return Ok(await _techInfoRepository.Wires.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "vinylstate": return Ok(await _techInfoRepository.VinylStates.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "digitalformat": return Ok(await _techInfoRepository.DigitalFormats.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "bitness": return Ok(await _techInfoRepository.Bitnesses.AsNoTracking().Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+                case "sampling": return Ok(await _techInfoRepository.Samplings.AsNoTracking().Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
+                case "sourceformat": return Ok(await _techInfoRepository.SourceFormats.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "player": return Ok(await _techInfoRepository.Players.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "cartridge": return Ok(await _techInfoRepository.Cartridges.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "amp": return Ok(await _techInfoRepository.Amplifiers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "adc": return Ok(await _techInfoRepository.Adcs.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "wire": return Ok(await _techInfoRepository.Wires.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
                 // manufacturers
-                case "player_manufacturer": return Ok(await _techInfoRepository.PlayerManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "cartridge_manufacturer": return Ok(await _techInfoRepository.CartrigeManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "amp_manufacturer": return Ok(await _techInfoRepository.AmplifierManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "adc_manufacturer": return Ok(await _techInfoRepository.AdcManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "wire_manufacturer": return Ok(await _techInfoRepository.WireManufacturers.Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "player_manufacturer": return Ok(await _techInfoRepository.PlayerManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "cartridge_manufacturer": return Ok(await _techInfoRepository.CartridgeManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "amp_manufacturer": return Ok(await _techInfoRepository.AmplifierManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "adc_manufacturer": return Ok(await _techInfoRepository.AdcManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
+                case "wire_manufacturer": return Ok(await _techInfoRepository.WireManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
                 default: return Ok(new AutocompleteResponse());
-            }
-
-        }
-
-        [HttpPost("/uploadcover")]
-        public async Task<IActionResult> UploadCover(IFormFile filedata)
-        {
-            try
-            {
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp");
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
-                
-                var files = HttpContext.Request.Form.Files;
-                if (files.Any())
-                {
-                    var guid = Guid.NewGuid().ToString("N");
-                    var ext = Path.GetExtension(files[0].FileName);
-                    await using var target = new MemoryStream();
-                    await files[0].CopyToAsync(target);
-                    var physicalPath = $"{new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp")).Root}{$@"{guid}{ext}"}";
-                    await using FileStream fs = System.IO.File.Create(physicalPath);
-                    await files[0].CopyToAsync(fs);
-                    fs.Flush();
-                    return Json(new { Filename = $"{guid}{ext}" });
-                }
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
             }
         }
     }

@@ -1,9 +1,9 @@
 ﻿namespace Web.Models
 {
-    public class CartrigeManufacturer
+    public class CartridgeManufacturer
     {
         public int Id { get; set; }
         public string Data { get; set; }
-        public ICollection<Cartrige> Cartriges { get; set; }
+        public ICollection<Cartridge> Cartridges { get; set; }
     }
 }

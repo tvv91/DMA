@@ -217,7 +217,7 @@
 }
 
 .input-textbox {
-    margin: 10px 0px 0 10px;
+    margin: 10px 0 0 10px;
 }
 
 .input-validation-error {
@@ -285,3 +285,73 @@
     grid-column: span 10;
     font-weight: bold;
 }
+
+/* Equipment Create / Update view styles*/
+
+.new-update-equipment {
+    display: grid;
+    grid-template-columns: 350px auto;
+    border: 1px solid;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.equipment-info {
+    grid-row: 1;
+    border: 1px solid;
+    margin: 0 0 0 10px;
+    padding-right: 10px;
+}
+
+.equipment-form-input {
+    display: grid;
+}
+
+.equipment-textarea {
+    resize: none;
+    margin: 10px 0 10px 10px;
+    height: 200px;
+}
+
+.equipment-select {
+    margin: 10px 0 0 10px;
+}
+
+.equipment-detail-containter {
+    display: grid;
+    grid-template-columns: 30% 70%;
+    grid-template-rows: 110px 290px;
+}
+
+.equipment-detail-box {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: left;
+    padding-left: 100px;
+}
+
+.equipment-description {
+    width: 100%;
+    height: 100%;
+    resize: none;
+}
+
+.equipment-detail-description {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+    padding-left: 100px;
+    border: none;
+    outline: none;
+}
+.equipment-detail-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100px;
+    height: 100px;
+}
+.equipment-detail-item:hover {
+    box-shadow: 0px 0px 5px 0px rgb(0 0 0 / 25%);  
+}
+

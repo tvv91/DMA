@@ -1,4 +1,5 @@
-﻿using Web.Models;
+﻿using Web.Enums;
+using Web.Models;
 using Web.Request;
 
 namespace Web.Db
@@ -11,8 +12,8 @@ namespace Web.Db
         IQueryable<Amplifier> Amplifiers { get; }
         IQueryable<AmplifierManufacturer> AmplifierManufacturers { get; }
         IQueryable<Bitness> Bitnesses { get; }
-        IQueryable<Cartrige> Cartriges { get; }
-        IQueryable<CartrigeManufacturer> CartrigeManufacturers { get; }
+        IQueryable<Cartridge> Cartridges { get; }
+        IQueryable<CartridgeManufacturer> CartridgeManufacturers { get; }
         IQueryable<DigitalFormat> DigitalFormats { get; }
         IQueryable<Player> Players { get; }
         IQueryable<PlayerManufacturer> PlayerManufacturers { get; }
@@ -23,5 +24,6 @@ namespace Web.Db
         IQueryable<WireManufacturer> WireManufacturers { get; }
         Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumDataRequest request);
         Task<TechnicalInfo?> GetByIdAsync(int id);
+        Task<int> CreateOrUpdateEquipmentAsync(EquipmentDataRequest request);
     }
 }

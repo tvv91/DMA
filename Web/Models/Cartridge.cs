@@ -1,14 +1,14 @@
 ﻿namespace Web.Models
 {
     /// <summary>
-    /// Information about playback device cartrige / headshell
+    /// Information about playback device cartridge / headshell
     /// </summary>
-    public class Cartrige
+    public class Cartridge
     {
         public int Id { get; set; }
         public string Data { get; set; }
         public string? Description { get; set; }
-        public CartrigeManufacturer? Manufacturer { get; set; }
+        public CartridgeManufacturer? Manufacturer { get; set; }
         public int? ManufacturerId { get; set; }
         public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
     }

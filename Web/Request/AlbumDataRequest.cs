@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Web.Enums;
 
 namespace Web.Request
 {
@@ -40,7 +41,7 @@ namespace Web.Request
         public string? WireManufacturer { get; set; }
         #endregion
 
-        public string Action { get; set; } = "newalbum";
+        public ActionType Action { get; set; }
         public int AlbumId { get; set; }
     }
 }

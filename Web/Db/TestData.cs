@@ -96,27 +96,27 @@ namespace Web.Db
             #endregion
             #endregion
 
-            #region Cartrige
+            #region Cartridge
             #region Manufacturers
-            var cartrigeManufacturer1 = new CartrigeManufacturer { Data = "Lyra" };
-            var cartrigeManufacturer2 = new CartrigeManufacturer { Data = "Ortofon" };
-            var cartrigeManufacturer3 = new CartrigeManufacturer { Data = "Audio-Technica" };
+            var cartridgeManufacturer1 = new CartridgeManufacturer { Data = "Lyra" };
+            var cartridgeManufacturer2 = new CartridgeManufacturer { Data = "Ortofon" };
+            var cartridgeManufacturer3 = new CartridgeManufacturer { Data = "Audio-Technica" };
             #endregion
 
             #region Models
-            var cartrige1 = new Cartrige
+            var cartridge1 = new Cartridge
             {
-                Manufacturer = cartrigeManufacturer1,
+                Manufacturer = cartridgeManufacturer1,
                 Data = "Delos"
             };
-            var cartrige2 = new Cartrige
+            var cartridge2 = new Cartridge
             {
-                Manufacturer = cartrigeManufacturer2,
+                Manufacturer = cartridgeManufacturer2,
                 Data = "SPU Royal N"
             };
-            var cartrige3 = new Cartrige
+            var cartridge3 = new Cartridge
             {
-                Manufacturer = cartrigeManufacturer3,
+                Manufacturer = cartridgeManufacturer3,
                 Data = "AT-OC9XSL"
             };
             #endregion
@@ -184,7 +184,7 @@ namespace Web.Db
                 VinylStateId = 1,
                 Adc = adc1,
                 Amplifier = amp1,
-                Cartrige = cartrige1,
+                Cartridge = cartridge1,
                 Player = player1,
                 Wire = wire1
             };

@@ -11,6 +11,7 @@ namespace Web.Controllers
             try
             {
                 var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "temp");
+                
                 if (!Directory.Exists(path))
                 {
                     Directory.CreateDirectory(path);

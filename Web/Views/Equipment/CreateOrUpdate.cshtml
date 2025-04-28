@@ -1,15 +1,15 @@
-﻿@model EquipmentDataRequest;
+﻿@model EquipmentViewModel;
 <script>
     
     $(document).ready(async () => {
         await start();
 
         /*
-            Disable ability to change entity type during updating.
+        Disable ability to change entity type during updating.
 
-            This follows from the fact that each entity corresponds to a separate table in the database. 
-            Suppose we have Adc and Cartridge with Id=1. What if we change the type of Adc to Cartridge? 
-            We can't There are several options. We can't keep two entities with the same PK.
+        This follows from the fact that each entity corresponds to a separate table in the database. 
+        Suppose we have Adc and Cartridge with Id=1. What if we change the type of Adc to Cartridge? 
+        We can't There are several options. We can't keep two entities with the same PK.
 
         1. Have one Entities table but with different EntityTypeId, then we can change only EntityTypeId, 
         but this will create other problems. What if over time we go to augment some entity with additional fields? 
@@ -28,7 +28,22 @@
         await start();
     });
     
+    function onSubmit() {
+        switch ("@Model.Action") {
+            case "Create":
+                sessionStorage.setItem("equipment_created", "1");
+                break;
+            case "Update":
+                sessionStorage.setItem("equipment_updated", "1");
+                break;
+        }
+    }
 
+    // Change selected Equipment type, because 'asp-for' tag helper inside <select>
+    // component supports only string types (but Enums more flexible)
+    function onChange(e) {
+        $("#entitytype").val(e.value);
+    }
 </script>
 
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="equipment">Back</a>
@@ -37,7 +52,7 @@
     <input type="hidden" id="coverid" asp-for="EquipmentCover" />
     <input type="hidden" id="albumid" asp-for="EquipmentId" />
     <input type="hidden" id="action" asp-for="Action" />
-    <input type="hidden" id="entitytype" asp-for="EntityType" />
+    <input type="hidden" id="entitytype" asp-for="EquipmentType" />
     <div class="new-update-equipment">
         <div class="cover-image">
             <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
@@ -45,16 +60,10 @@
         <div class="equipment-info">
             <div class="equipment-form-input">
                 <div class="equipment-select">
-                    <select class="form-select" asp-for="EntityType">
-                        <option value="Adc">Adc</option>
-                        <option value="Amplifier">Amplifier</option>
-                        <option value="Cartridge">Cartridge </option>
-                        <option value="Player">Player </option>
-                        <option value="Wire">Wire </option>
-                    </select>
+                    <select class="form-select" asp-for="EquipmentType" asp-items="Model.Equipments" onchange="onChange(this)"></select>
                 </div>
-                <input id="artist_input" class="input-textbox" asp-for="Model" autocomplete="on" placeholder="Model" onchange="checkAlbumIsExists()" />
-                <input id="album" class="input-textbox" asp-for="Manufacturer" placeholder="Manufacturer" onchange="checkAlbumIsExists()" />
+                <input id="artist_input" class="input-textbox" asp-for="Model" autocomplete="on" placeholder="Model" />
+                <input id="album" class="input-textbox" asp-for="Manufacturer" placeholder="Manufacturer" />
                 <textarea id="description" class="equipment-textarea" asp-for="Description" type="text" placeholder="Description"></textarea>
             </div>
         </div>

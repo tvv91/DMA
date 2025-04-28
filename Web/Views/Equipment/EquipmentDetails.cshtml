@@ -4,18 +4,20 @@
   $(document).ready(async () => {
     await start();
     await getEquipmentImage(@Model.Id);
-    if (sessionStorage.getItem("albumupdated") == "1") {
+    if (sessionStorage.getItem("equipment_updated") == "1") {
       $('#toastinfo_updated').toast('show');
-      sessionStorage.removeItem("albumupdated");
+        sessionStorage.removeItem("equipment_updated");
     }
-    if (sessionStorage.getItem("albumcreated") == "1") {
+
+    if (sessionStorage.getItem("equipment_created") == "1") {
       $('#toastinfo_created').toast('show');
-      sessionStorage.removeItem("albumcreated");
+        sessionStorage.removeItem("equipment_created");
     }
+    
   })
   async function getEquipmentImage(id) {
     try {
-      await connection.invoke("GetEquipmentImage", connection.connectionId, id, "@Model.EntityType");
+      await connection.invoke("GetEquipmentImage", connection.connectionId, id, "@Model.EquipmentType");
     } catch (err) {
       console.log("Error sending request to GetEquipmentImage");
     }
@@ -31,14 +33,14 @@
     }
   });
 
-  function onRemove(albumId) {
-    const request = new Request(`delete?id=${albumId}`, {
+  function onRemove(id) {
+    const request = new Request(`delete?id=${id}`, {
       method: "DELETE"
     });
     fetch(request).then((response) => {
       if (response.status === 200) {
-        sessionStorage.setItem("albumdeleted", "1");
-        window.location.href = "/album";
+          sessionStorage.setItem("equipment_deleted", "1");
+        window.location.href = "/equipment";
       }
       if (response.status === 400) {
         $('#toasterror').toast('show');
@@ -61,7 +63,7 @@
       <strong class="me-auto">Information</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div id="toastmsg" class="toast-body"> Album updated </div>
+    <div id="toastmsg" class="toast-body"> Equipment updated </div>
   </div>
 </div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -70,7 +72,7 @@
       <strong class="me-auto">Information</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div id="toastmsg" class="toast-body"> Album created </div>
+    <div id="toastmsg" class="toast-body"> Equipment created </div>
   </div>
 </div>
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -80,7 +82,7 @@
         <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure?</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body"> Album data cannot be restored </div>
+      <div class="modal-body">Data cannot be restored </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Id)">Delete</button>
@@ -93,13 +95,13 @@
   <div id="coverdiv" class="box1">
     <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
     <i id="nocovericon" class="fa-regular fa-image fa-10x" style="top:30%; left:30%; position: relative; display: none"></i>
-    <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
+        <img id="cover" class="equipment-cover justifiy-element-size" style="display: none" />
   </div>
   <div class="equipment-detail-box">
     <a data-bs-toggle="modal" data-bs-target="#exampleModal">
       <i class="fa-solid fa-trash fa-lg fa-pull-right"></i>
     </a>
-    <a href="/equipment/@Model.EntityType.ToString().ToLower()/@Model.Id/edit">
+    <a href="/equipment/@Model.EquipmentType.ToString().ToLower()/@Model.Id/edit">
       <i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i>
     </a> @if (Model?.Manufacturer != null) { <h1>
       <b>@Model?.Manufacturer</b> @Model?.Model

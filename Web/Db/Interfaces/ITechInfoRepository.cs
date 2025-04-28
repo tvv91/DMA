@@ -1,6 +1,6 @@
-﻿using Web.Enums;
-using Web.Models;
+﻿using Web.Models;
 using Web.Request;
+using Web.ViewModels;
 
 namespace Web.Db
 {
@@ -24,6 +24,6 @@ namespace Web.Db
         IQueryable<WireManufacturer> WireManufacturers { get; }
         Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumDataRequest request);
         Task<TechnicalInfo?> GetByIdAsync(int id);
-        Task<int> CreateOrUpdateEquipmentAsync(EquipmentDataRequest request);
+        Task<int> CreateOrUpdateEquipmentAsync(EquipmentViewModel request);
     }
 }

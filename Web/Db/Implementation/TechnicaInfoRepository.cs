@@ -2,6 +2,7 @@
 using Web.Enums;
 using Web.Models;
 using Web.Request;
+using Web.ViewModels;
 
 namespace Web.Db.Implementation
 {
@@ -410,9 +411,9 @@ namespace Web.Db.Implementation
         #endregion
 
         #region Equipment methods
-        public async Task<int> CreateOrUpdateEquipmentAsync(EquipmentDataRequest request)
+        public async Task<int> CreateOrUpdateEquipmentAsync(EquipmentViewModel request)
         {
-            switch (request.EntityType)
+            switch (request.EquipmentType)
             {
                 case EntityType.Adc:
                     var adc = await CreateOrUpdateAdcAsync(request.Model, request.Manufacturer, request.Description, request.EquipmentId);

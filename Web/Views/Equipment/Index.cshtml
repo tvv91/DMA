@@ -12,7 +12,12 @@
     ]);
 
     $(document).ready(async () => {
-        await start();        
+        await start();    
+        
+        if (sessionStorage.getItem("equipment_deleted") == "1") {
+            $('#toast_deleted').toast('show');
+                sessionStorage.removeItem("equipment_deleted");
+        }
 
         // Init
         /*
@@ -142,6 +147,17 @@
         await start();
     });
 </script>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast_deleted" class="toast toast-body-deleted" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Information</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            Equipment successfully deleted
+        </div>
+    </div>
+</div>
 <div>
     <div class="container">
         <ul id="navigation" class="nav nav-tabs mt-2" role="tablist">

@@ -4,6 +4,7 @@ using Web.Db;
 using Web.Enums;
 using Web.Response;
 using Web.Services;
+using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
@@ -111,18 +112,18 @@ namespace Web.SignalRHubs
         /// </summary>
         /// <param name="page">Page number</param>
         /// <returns></returns>
-        private async Task<List<EquipmentResponse>> GetAdcItems(int page)
+        private async Task<List<EquipmentViewModel>> GetAdcItems(int page)
         {
             return await _techInfoRepository.Adcs
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentResponse()
+                .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
-                    EntityType = EntityType.Adc
+                    EquipmentType = EntityType.Adc
                 })
                 .ToListAsync();
         }
@@ -132,18 +133,18 @@ namespace Web.SignalRHubs
         /// </summary>
         /// <param name="page">Page number</param>
         /// <returns></returns>
-        private async Task<List<EquipmentResponse>> GetAmplifierItems(int page)
+        private async Task<List<EquipmentViewModel>> GetAmplifierItems(int page)
         {
             return await _techInfoRepository.Amplifiers
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentResponse()
+                .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
-                    EntityType = EntityType.Amplifier
+                    EquipmentType = EntityType.Amplifier
                 }).ToListAsync();
         }
 
@@ -152,18 +153,18 @@ namespace Web.SignalRHubs
         /// </summary>
         /// <param name="page">Page number</param>
         /// <returns></returns>
-        private async Task<List<EquipmentResponse>> GetCartridgeItems(int page)
+        private async Task<List<EquipmentViewModel>> GetCartridgeItems(int page)
         {
             return await _techInfoRepository.Cartridges
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentResponse()
+                .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
-                    EntityType = EntityType.Cartridge
+                    EquipmentType = EntityType.Cartridge
                 }).ToListAsync();
         }
 
@@ -172,18 +173,18 @@ namespace Web.SignalRHubs
         /// </summary>
         /// <param name="page">Page number</param>
         /// <returns></returns>
-        private async Task<List<EquipmentResponse>> GetPlayerItems(int page)
+        private async Task<List<EquipmentViewModel>> GetPlayerItems(int page)
         {
             return await _techInfoRepository.Players
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentResponse()
+                .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
-                    EntityType = EntityType.Player
+                    EquipmentType = EntityType.Player
                 }).ToListAsync();
         }
 
@@ -192,18 +193,18 @@ namespace Web.SignalRHubs
         /// </summary>
         /// <param name="page">Page number</param>
         /// <returns></returns>
-        private async Task<List<EquipmentResponse>> GetWireItems(int page)
+        private async Task<List<EquipmentViewModel>> GetWireItems(int page)
         {
             return await _techInfoRepository.Wires
                 .Skip((page - 1) * ITEMS_PER_PAGE)
                 .Take(ITEMS_PER_PAGE)
                 .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentResponse()
+                .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
                     Model = x.Data,
                     Manufacturer = x.Manufacturer.Data,
-                    EntityType = EntityType.Amplifier
+                    EquipmentType = EntityType.Amplifier
                 }).ToListAsync();
         }
 
@@ -216,7 +217,7 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetHardwareByCategory(string connectionId, string category, int page)
         {
-            var result = new List<EquipmentResponse>();
+            var result = new List<EquipmentViewModel>();
             int itemsCount = 0;
 
             switch (category)

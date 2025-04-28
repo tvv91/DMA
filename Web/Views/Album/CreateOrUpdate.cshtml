@@ -73,11 +73,11 @@
             $("#sizeinput:text").val(value.replace(/\./g, ','));
         }
         
-        switch ($("#action").val()) {
-            case "newalbum":
+        switch ("@Model.Action") {
+            case "Create":
                 sessionStorage.setItem("albumcreated", "1");
                 break;
-            case "update":
+            case "Update":
                 sessionStorage.setItem("albumupdated", "1");
                 break;
         }

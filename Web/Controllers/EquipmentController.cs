@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Enums;
-using Web.Request;
 using Web.Services;
 using Web.ViewModels;
 
@@ -30,8 +29,119 @@ namespace Web.Controllers
             return Ok();
         }
 
+        [HttpDelete("[controller]/{category}/delete/")]
+        public async Task<IActionResult> Delete(EntityType? category, int id)
+        {
+            if (id > 0 && category != null)
+            {
+                switch (category)
+                {
+                    case EntityType.Adc:
+                        if (await _repository.Adcs.AnyAsync(a => a.Id == id))
+                        {
+                            try
+                            {
+                                _imageService.RemoveCover(id, EntityType.Adc);
+                                // TODO: Add loging what TInfo was updated
+                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
+                                await _repository.TechInfos.Where(t => t.AdcId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.AdcId, p => null));
+                                await _repository.Adcs.Where(x => x.Id == id).ExecuteDeleteAsync();
+                                return Ok();
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: Add logging
+                                throw new InvalidOperationException("Error during deleting Adc");
+                            }
+                            
+                        }
+                        else return NotFound(); 
+                    case EntityType.Amplifier:
+                        if (await _repository.Amplifiers.AnyAsync(a => a.Id == id))
+                        {
+                            try
+                            {
+                                _imageService.RemoveCover(id, EntityType.Amplifier);
+                                // TODO: Add loging what TInfo was updated
+                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
+                                await _repository.TechInfos.Where(t => t.AmplifierId == id).ExecuteUpdateAsync(x => x.SetProperty(x => x.AmplifierId, x => null));
+                                await _repository.Amplifiers.Where(x => x.Id == id).ExecuteDeleteAsync();
+                                return Ok();
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: Add logging
+                                throw new InvalidOperationException("Error during deleting Amp");
+                            }
+                        }
+                        else return NotFound();
+                    case EntityType.Cartridge:
+                        if (await _repository.Cartridges.AnyAsync(a => a.Id == id))
+                        {
+                            try
+                            {
+                                _imageService.RemoveCover(id, EntityType.Cartridge);
+                                // TODO: Add loging what TInfo was updated
+                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
+                                await _repository.TechInfos.Where(t => t.CartridgeId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.CartridgeId, p => null));
+                                await _repository.Cartridges.Where(x => x.Id == id).ExecuteDeleteAsync();
+                                return Ok();
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: Add logging
+                                throw new InvalidOperationException("Error during deleting Cartridge");
+                            }
+                        }
+                        else return NotFound();
+                    case EntityType.Player:
+                        if (await _repository.Players.AnyAsync(a => a.Id == id))
+                        {
+                            try
+                            {
+                                _imageService.RemoveCover(id, EntityType.Player);
+                                // TODO: Add loging what TInfo was updated
+                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
+                                await _repository.TechInfos.Where(t => t.PlayerId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.PlayerId, p => null));
+                                await _repository.Players.Where(adc => adc.Id == id).ExecuteDeleteAsync();
+                                return Ok();
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: Add logging
+                                throw new InvalidOperationException("Error during deleting Player");
+                            }
+                        }
+                        else return NotFound();
+                    case EntityType.Wire:
+                        if (await _repository.Wires.AnyAsync(a => a.Id == id))
+                        {
+                            try
+                            {
+                                _imageService.RemoveCover(id, EntityType.Wire);
+                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
+                                await _repository.TechInfos.Where(t => t.PlayerId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.PlayerId, p => null));
+                                await _repository.Wires.Where(adc => adc.Id == id).ExecuteDeleteAsync();
+                                return Ok();
+                            }
+                            catch (Exception ex)
+                            {
+                                // TODO: Add logging
+                                throw new InvalidOperationException("Error during deleting Wire");
+                            }
+                        }
+                        else return NotFound();
+                    default: throw new InvalidOperationException("Invalid EntityType");
+                }
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpPost("[controller]/update")]
-        public async Task<IActionResult> Update(EquipmentDataRequest request)
+        public async Task<IActionResult> Update(EquipmentViewModel request)
         {
             if (request.EquipmentId <= 0 || request.Action != ActionType.Update)
             {
@@ -44,14 +154,14 @@ namespace Web.Controllers
 
                 if (request.EquipmentCover == null)
                 {
-                    _imageService.RemoveCover(entityId, request.EntityType);
+                    _imageService.RemoveCover(entityId, request.EquipmentType);
                 }
                 else
                 {
-                    _imageService.SaveCover(entityId, request.EquipmentCover, request.EntityType);
+                    _imageService.SaveCover(entityId, request.EquipmentCover, request.EquipmentType);
                 }
 
-                return new RedirectResult($"/equipment/{request.EntityType.ToString().ToLower()}/{entityId}");
+                return new RedirectResult($"/equipment/{request.EquipmentType.ToString().ToLower()}/{entityId}");
             }
             return View("CreateOrUpdate", request);
         }
@@ -68,10 +178,10 @@ namespace Web.Controllers
                         var adc = await _repository.Adcs.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (adc != null)
                         {
-                            var equipment = new EquipmentDataRequest
+                            var equipment = new EquipmentViewModel
                             {
                                 Action = ActionType.Update,
-                                EntityType = EntityType.Adc,
+                                EquipmentType = EntityType.Adc,
                                 EquipmentCover = img,
                                 Description = adc?.Description,
                                 Manufacturer = adc?.Manufacturer?.Data,
@@ -85,10 +195,10 @@ namespace Web.Controllers
                         var amp = await _repository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (amp != null)
                         {
-                            var equipment = new EquipmentDataRequest
+                            var equipment = new EquipmentViewModel
                             {
                                 Action = ActionType.Update,
-                                EntityType = EntityType.Amplifier,
+                                EquipmentType = EntityType.Amplifier,
                                 EquipmentCover = img,
                                 Description = amp?.Description,
                                 Manufacturer = amp?.Manufacturer?.Data,
@@ -102,10 +212,10 @@ namespace Web.Controllers
                         var player = await _repository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (player != null)
                         {
-                            var equipment = new EquipmentDataRequest
+                            var equipment = new EquipmentViewModel
                             {
                                 Action = ActionType.Update,
-                                EntityType = EntityType.Player,
+                                EquipmentType = EntityType.Player,
                                 EquipmentCover = img,
                                 Description = player?.Description,
                                 Manufacturer = player?.Manufacturer?.Data,
@@ -119,10 +229,10 @@ namespace Web.Controllers
                         var cartridge = await _repository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (cartridge != null)
                         {
-                            var equipment = new EquipmentDataRequest
+                            var equipment = new EquipmentViewModel
                             {
                                 Action = ActionType.Update,
-                                EntityType = EntityType.Cartridge,
+                                EquipmentType = EntityType.Cartridge,
                                 EquipmentCover = img,
                                 Description = cartridge?.Description,
                                 Manufacturer = cartridge?.Manufacturer?.Data,
@@ -136,10 +246,10 @@ namespace Web.Controllers
                         var wire = await _repository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (wire != null)
                         {
-                            var equipment = new EquipmentDataRequest
+                            var equipment = new EquipmentViewModel
                             {
                                 Action = ActionType.Update,
-                                EntityType = EntityType.Wire,
+                                EquipmentType = EntityType.Wire,
                                 EquipmentCover = img,
                                 Description = wire?.Description,
                                 Manufacturer = wire?.Manufacturer?.Data,
@@ -170,7 +280,7 @@ namespace Web.Controllers
                             return View("EquipmentDetails", new EquipmentViewModel
                             {
                                 Id = adc.Id,
-                                EntityType = EntityType.Adc,
+                                EquipmentType = EntityType.Adc,
                                 Model = adc.Data,
                                 Description = adc.Description,
                                 Manufacturer = adc?.Manufacturer?.Data,
@@ -185,7 +295,7 @@ namespace Web.Controllers
                             return View("EquipmentDetails", new EquipmentViewModel
                             {
                                 Id = amp.Id,
-                                EntityType = EntityType.Amplifier,
+                                EquipmentType = EntityType.Amplifier,
                                 Model = amp.Data,
                                 Description = amp.Description,
                                 Manufacturer = amp?.Manufacturer?.Data,
@@ -199,7 +309,7 @@ namespace Web.Controllers
                             return View("EquipmentDetails", new EquipmentViewModel
                             {
                                 Id = cartridge.Id,
-                                EntityType = EntityType.Cartridge,
+                                EquipmentType = EntityType.Cartridge,
                                 Model = cartridge.Data,
                                 Description = cartridge.Description,
                                 Manufacturer = cartridge?.Manufacturer?.Data,
@@ -207,13 +317,13 @@ namespace Web.Controllers
                         }
                         else return NotFound();
                     case EntityType.Player:
-                        var player = await _repository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
+                        var player = await _repository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (player != null)
                         {
                             return View("EquipmentDetails", new EquipmentViewModel
                             {
                                 Id = player.Id,
-                                EntityType = EntityType.Player,
+                                EquipmentType = EntityType.Player,
                                 Model = player.Data,
                                 Description = player.Description,
                                 Manufacturer = player?.Manufacturer?.Data,
@@ -221,13 +331,13 @@ namespace Web.Controllers
                         }
                         else return NotFound();
                     case EntityType.Wire:
-                        var wire = await _repository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
+                        var wire = await _repository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (wire != null)
                         {
                             return View("EquipmentDetails", new EquipmentViewModel
                             {
                                 Id = wire.Id,
-                                EntityType = EntityType.Player,
+                                EquipmentType = EntityType.Wire,
                                 Model = wire.Data,
                                 Description = wire.Description,
                                 Manufacturer = wire?.Manufacturer?.Data,
@@ -240,24 +350,24 @@ namespace Web.Controllers
         }        
 
         [HttpGet("equipment/create")]
-        public IActionResult Creaate()
+        public IActionResult Create()
         {
-            return View("CreateOrUpdate", new EquipmentDataRequest());
+            return View("CreateOrUpdate", new EquipmentViewModel { Action = ActionType.Create, EquipmentType = EntityType.Adc });
         }
         
         [HttpPost]
-        public async Task<IActionResult> NewEquipment(EquipmentDataRequest request)
+        public async Task<IActionResult> Create(EquipmentViewModel request)
         {
-            if (ModelState.IsValid && !string.IsNullOrEmpty(request.Model) && request?.EntityType != null)
+            if (ModelState.IsValid && !string.IsNullOrEmpty(request.Model) && request?.EquipmentType != null)
             {
                 var equipmentId = await _repository.CreateOrUpdateEquipmentAsync(request);
 
                 if (request.EquipmentCover != null)
                 {
-                    _imageService.SaveCover(equipmentId, request.EquipmentCover, request.EntityType);
+                    _imageService.SaveCover(equipmentId, request.EquipmentCover, request.EquipmentType);
                 }
 
-                return new RedirectResult($"{request.EntityType.ToString().ToLower()}/{equipmentId}");
+                return new RedirectResult($"{request.EquipmentType.ToString().ToLower()}/{equipmentId}");
             }
             else
             {

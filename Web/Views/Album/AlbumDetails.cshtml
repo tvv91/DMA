@@ -103,11 +103,11 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="removeDialogModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Are you sure?</h1>
+                <h1 class="modal-title fs-5">Are you sure?</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -128,7 +128,7 @@
         <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
     </div>
     <div class="box2">
-        <a data-bs-toggle="modal" data-bs-target="#exampleModal"><i class="fa-solid fa-trash fa-lg fa-pull-right"></i></a>
+        <a data-bs-toggle="modal" data-bs-target="#removeDialogModal"><i class="fa-solid fa-trash fa-lg fa-pull-right"></i></a>
         <a href="/album/edit/@Model.Album.Id"><i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i></a>
         <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
         <h5>Year: <b>@Model.Album?.Year?.Data</b></h5>

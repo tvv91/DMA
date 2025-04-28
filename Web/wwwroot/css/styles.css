@@ -234,6 +234,10 @@
     cursor: pointer;
 }
 
+.fa-pen-to-square {
+    color: black;
+}
+
 .fa-pen-to-square:hover {
     color: green;
     cursor: pointer;

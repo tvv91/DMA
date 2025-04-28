@@ -52,7 +52,7 @@
         // when click page on pagination
         $("#pagination").on("click", async (e)=> {
             // paginate only when click new page, because it's useless requests to backend
-            if ($(".page-link.active").attr("id") !== e.target.id) {
+            if ($(".page-link.active").attr("id") !== e.target.id && e.target.id !== "pagination") {
                 const currentTab = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
                 localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, e.target.id);
                 // remove items

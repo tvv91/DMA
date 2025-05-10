@@ -26,19 +26,26 @@ namespace Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(int page = 1)
         {
-            int albumCount = await _albumRepository.Albums.CountAsync();
-            var albumViewModel = new AlbumViewModel
+            if (page > 0)
             {
-                CurrentPage = page,
-                AlbumCount = albumCount % ALBUMS_PER_PAGE == 0 ? albumCount / ALBUMS_PER_PAGE : albumCount / ALBUMS_PER_PAGE + 1,
-                Albums = await _albumRepository.Albums
-                 .Skip((page - 1) * ALBUMS_PER_PAGE)
-                 .Take(ALBUMS_PER_PAGE)
-                 .Include(a => a.Artist)
-                 .AsNoTracking()
-                 .ToListAsync()
-            };
-            return View("Index", albumViewModel);
+                int albumsCount = await _albumRepository.Albums.CountAsync();
+                var albumViewModel = new AlbumViewModel
+                {
+                    CurrentPage = page,
+                    PageCount = albumsCount % ALBUMS_PER_PAGE == 0 ? albumsCount / ALBUMS_PER_PAGE : albumsCount / ALBUMS_PER_PAGE + 1,
+                    Albums = await _albumRepository.Albums
+                     .Skip((page - 1) * ALBUMS_PER_PAGE)
+                     .Take(ALBUMS_PER_PAGE)
+                     .Include(a => a.Artist)
+                     .AsNoTracking()
+                     .ToListAsync()
+                };
+                return View("Index", albumViewModel);
+            }
+            else
+            {
+                return BadRequest("Page number should be positive");
+            }            
         }
          
         [HttpGet("album/{id}")]

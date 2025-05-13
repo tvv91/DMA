@@ -37,12 +37,22 @@ namespace Web.Db
             #region Label
             var label = new Label { Data = "Roadrunner Records" };
             #endregion
+              
+            #region VinylState
+            var vinylState1 = new VinylState { Data = "Mint" };
+            #endregion
+
+            #region Bitness
+            var bitness1 = new Bitness { Data = 24 };
+            #endregion
+
+            #region Sampling
+            var sampling1 = new Sampling { Data = 192 };
+            #endregion
 
             #region Storage
             var storage = new Storage { Data = "D1" };
             #endregion
-
-            #region Manufacturers
 
             #region Adc
             #region Manufacturers
@@ -172,16 +182,24 @@ namespace Web.Db
                 Data = "SignatureX Tuned ARAY"
             };
             #endregion
+            #endregion           
+
+            #region DigitalFormat
+            var flac = new DigitalFormat { Data = "FLAC" };
             #endregion
+
+            #region SourceFormat
+            var sourceFormat1 = new SourceFormat { Data = "LP 12'' 33RPM" };
+            #endregion           
 
             #region Technical Info
             var tInfo1 = new TechnicalInfo
             {
-                BitnessId = 1,
-                DigitalFormatId = 2,
-                SourceFormatId = 1,
-                SamplingId = 4,
-                VinylStateId = 1,
+                Bitness = bitness1,
+                DigitalFormat = flac,
+                SourceFormat = sourceFormat1,
+                Sampling = sampling1,
+                VinylState = vinylState1,
                 Adc = adc1,
                 Amplifier = amp1,
                 Cartridge = cartridge1,
@@ -189,12 +207,12 @@ namespace Web.Db
                 Wire = wire1
             };
             #endregion
-            #endregion
 
             for (int i = 1; i <= 100; i++)
             {
                 var album = new Album
                 {
+                    Id = i,
                     Data = $"Album {i}",
                     Size = 2.4,
                     Source = "https://somelink.com",

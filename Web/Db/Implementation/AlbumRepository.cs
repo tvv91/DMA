@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Web.Models;
-using Web.Request;
+using Web.ViewModels;
 
 namespace Web.Db
 {
@@ -29,7 +29,7 @@ namespace Web.Db
 
         public IQueryable<Storage> Storages => _context.Storages;
 
-        public async Task<Album> CreateOrUpdateAlbumAsync(AlbumDataRequest request)
+        public async Task<Album> CreateOrUpdateAlbumAsync(AlbumCreateUpdateViewModel request)
         {
             var _album = await _context.Albums.FirstOrDefaultAsync(x => x.Id == request.AlbumId);
 
@@ -58,7 +58,7 @@ namespace Web.Db
             return _album;
         }
 
-        private async Task CreateOrUpdateArtistAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateArtistAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             var _artist = await _context.Artists.FirstOrDefaultAsync(x => x.Data == request.Artist);
 
@@ -71,7 +71,7 @@ namespace Web.Db
             album.Artist = _artist;
         }
 
-        private async Task CreateOrUpdateGenreAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateGenreAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             if (request.Genre == null)
             {
@@ -91,7 +91,7 @@ namespace Web.Db
             } 
         }
 
-        private async Task CreateOrUpdateYearAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateYearAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             if (request.Year == null)
             {
@@ -111,7 +111,7 @@ namespace Web.Db
             }            
         }
 
-        private async Task CreateOrUpdateReissueAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateReissueAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             if (request.Reissue == null)
             {
@@ -131,7 +131,7 @@ namespace Web.Db
             }
         }
 
-        private async Task CreateOrUpdateCountryAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateCountryAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             if (string.IsNullOrWhiteSpace(request.Country))
             {
@@ -151,7 +151,7 @@ namespace Web.Db
             }
         }
 
-        private async Task CreateOrUpdateLabelAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateLabelAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             if (string.IsNullOrWhiteSpace(request.Label))
             {
@@ -171,7 +171,7 @@ namespace Web.Db
             }
         }
 
-        private async Task CreateOrUpdateStorageAsync(Album album, AlbumDataRequest request)
+        private async Task CreateOrUpdateStorageAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             if (string.IsNullOrWhiteSpace(request.Storage))
             {

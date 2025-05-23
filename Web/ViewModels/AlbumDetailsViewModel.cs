@@ -4,6 +4,6 @@ namespace Web.ViewModels
 {
     public class AlbumDetailsViewModel
     {
-        public Album Album { get; set; }
+        public Album? Album { get; set; }
     }
 }

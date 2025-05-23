@@ -16,7 +16,7 @@ namespace Web.Db
             }
             if (!ctx.Albums.Any())
             {
-                await ctx.Albums.AddRangeAsync(TestData.GetAlbums());
+                await ctx.Albums.AddRangeAsync(new TestData().GetAlbums());
             }
             await ctx.SaveChangesAsync();
         }

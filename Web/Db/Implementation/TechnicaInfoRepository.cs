@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Web.Enums;
 using Web.Models;
-using Web.Request;
 using Web.ViewModels;
 
 namespace Web.Db.Implementation
@@ -29,7 +28,7 @@ namespace Web.Db.Implementation
         public IQueryable<WireManufacturer> WireManufacturers => _context.WireManufacturers;
         public IQueryable<TechnicalInfo> TechInfos => _context.TechnicalInfos;
 
-        public async Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumDataRequest request)
+        public async Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumCreateUpdateViewModel request)
         {
             var tinfo = await _context.TechnicalInfos.FirstOrDefaultAsync(x => x.AlbumId == album.Id);
 

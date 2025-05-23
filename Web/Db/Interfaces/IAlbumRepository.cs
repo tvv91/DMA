@@ -1,5 +1,5 @@
 ﻿using Web.Models;
-using Web.Request;
+using Web.ViewModels;
 
 namespace Web.Db
 {
@@ -13,7 +13,7 @@ namespace Web.Db
         IQueryable<Label> Labels { get; }
         IQueryable<Reissue> Reissues { get; }
         IQueryable<Storage> Storages { get; }
-        Task<Album> CreateOrUpdateAlbumAsync(AlbumDataRequest request);
+        Task<Album> CreateOrUpdateAlbumAsync(AlbumCreateUpdateViewModel request);
         Task<Album> GetByIdAsync(int albumId);
     }
 }

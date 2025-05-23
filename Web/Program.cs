@@ -16,6 +16,8 @@ builder.Services.AddScoped<ITechInfoRepository, TechnicalnfoRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddSignalR();
 var app = builder.Build();
+app.UseDeveloperExceptionPage();
+app.UseStatusCodePages();
 app.UseStaticFiles();
 app.MapDefaultControllerRoute();
 app.MapHub<DefaultHub>("/defaulthub");

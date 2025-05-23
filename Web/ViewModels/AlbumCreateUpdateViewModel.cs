@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Web.Enums;
 
-namespace Web.Request
+namespace Web.ViewModels
 {
-    public class AlbumDataRequest
+    public class AlbumCreateUpdateViewModel
     {
         #region Main info
         [Required]

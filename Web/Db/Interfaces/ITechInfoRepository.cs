@@ -1,5 +1,4 @@
 ﻿using Web.Models;
-using Web.Request;
 using Web.ViewModels;
 
 namespace Web.Db
@@ -22,7 +21,7 @@ namespace Web.Db
         IQueryable<VinylState> VinylStates { get; }
         IQueryable<Wire> Wires { get; }
         IQueryable<WireManufacturer> WireManufacturers { get; }
-        Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumDataRequest request);
+        Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumCreateUpdateViewModel request);
         Task<TechnicalInfo?> GetByIdAsync(int id);
         Task<int> CreateOrUpdateEquipmentAsync(EquipmentViewModel request);
     }

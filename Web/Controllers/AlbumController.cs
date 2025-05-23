@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Enums;
-using Web.Request;
 using Web.Response;
 using Web.Services;
 using Web.ViewModels;
@@ -76,7 +75,7 @@ namespace Web.Controllers
         [HttpGet("album/create")]
         public IActionResult Create()
         {
-            return View("CreateOrUpdate", new AlbumDataRequest());
+            return View("CreateOrUpdate", new AlbumCreateUpdateViewModel());
         }
 
         [HttpGet("album/edit/{albumId}")]
@@ -94,7 +93,7 @@ namespace Web.Controllers
 
             var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumCover);
 
-            var albumModel = new AlbumDataRequest
+            var albumModel = new AlbumCreateUpdateViewModel
             {
                 Action = ActionType.Update,
                 AlbumId = album.Id,
@@ -132,7 +131,7 @@ namespace Web.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(AlbumDataRequest request)
+        public async Task<IActionResult> Create(AlbumCreateUpdateViewModel request)
         {
             if (ModelState.IsValid 
                 && !string.IsNullOrEmpty(request.Artist) 
@@ -155,7 +154,7 @@ namespace Web.Controllers
         }
 
         [HttpPost("album/update")]
-        public async Task<IActionResult> Update(AlbumDataRequest request)
+        public async Task<IActionResult> Update(AlbumCreateUpdateViewModel request)
         {
             if (request.AlbumId <= 0)
                 return BadRequest();

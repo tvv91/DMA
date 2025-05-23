@@ -2,11 +2,11 @@
 
 namespace Web.Db
 {
-    public static class TestData
+    public class TestData
     { 
-        private static List<Album> albums = new List<Album>();
+        private List<Album> albums = new List<Album>();
 
-        public static List<Album> GetAlbums()
+        public List<Album> GetAlbums()
         {
             #region Artist
             var artist1 = new Artist { Data = "Artist 1" };

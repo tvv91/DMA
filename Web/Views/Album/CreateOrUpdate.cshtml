@@ -260,7 +260,7 @@
             },
             init: function() {
                 const coverId = $("#coverid").val();
-                if (coverId !== "") {
+                if (coverId !== "" && !coverId.includes("nocover")) {
                     let myDropzone = this;
                     let coverUrl = window.location.href.includes("edit") ? coverId : `/temp/${coverId}`;
                     myDropzone.displayExistingFile({}, coverUrl);

@@ -23,6 +23,11 @@ namespace Tests
                 Storage = new Storage { Data = "Some storage" },
                 TechnicalInfo = new TechnicalInfo
                 {
+                    Bitness = new Bitness { Data = 24 },
+                    DigitalFormat = new DigitalFormat { Data = "FLAC" },
+                    SourceFormat = new SourceFormat { Data = "LP 12'' 33RPM" },
+                    Sampling = new Sampling { Data = 192 },
+                    VinylState = new VinylState { Data = "Mint" },
                     Adc = new Adc
                     {
                         Data = "Some Adc Model",
@@ -33,21 +38,16 @@ namespace Tests
                         Data = "Some Amplifier Model",
                         Manufacturer = new AmplifierManufacturer { Data = "Some Amplifier Manufacturer" }
                     },
-                    Bitness = new Bitness { Data = 24 },
                     Cartridge = new Cartridge
                     {
                         Data = "Some Cartridge Model",
                         Manufacturer = new CartridgeManufacturer { Data = "Some Cartridge Manufacturer" }
                     },
-                    DigitalFormat = new DigitalFormat { Data = "FLAC" },
                     Player = new Player
                     {
                         Data = "Some Player Model",
                         Manufacturer = new PlayerManufacturer { Data = "Some Player Manufacturer" }
                     },
-                    SourceFormat = new SourceFormat { Data = "LP 12'' 33RPM" },
-                    Sampling = new Sampling { Data = 192 },
-                    VinylState = new VinylState { Data = "Mint" },
                     Wire = new Wire
                     {
                         Data = "Some Wire Model",

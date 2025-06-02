@@ -14,7 +14,7 @@ namespace Tests.Controllers
     public class AlbumControllerTests
     {
         private readonly Mock<IAlbumRepository> _albumRepoMock = new Mock<IAlbumRepository>();
-        private readonly Mock<ITechInfoRepository> _techInfoRepoMock = new Mock<ITechInfoRepository>(); 
+        private readonly Mock<ITechInfoRepository> _techInfoRepoMock = new Mock<ITechInfoRepository>();
         private readonly Mock<IImageService> _imageServiceMock = new Mock<IImageService>();
 
         public AlbumControllerTests()
@@ -81,7 +81,7 @@ namespace Tests.Controllers
                     Assert.Equal("Artist 1", album.Artist.Data);
                     Assert.Equal($"Album {albumIndex++}", album.Data);
                 }
-            }            
+            }
         }
         #endregion
 
@@ -153,7 +153,7 @@ namespace Tests.Controllers
         #endregion
 
         #region POST album/create
-        
+
         // shouldn't create new album if not enter required data
         [Fact]
         public async Task POST_Album_Create_Model_Error()
@@ -199,13 +199,13 @@ namespace Tests.Controllers
         public async Task POST_Album_Create_No_Cover()
         {
             var album = Shared.GetFullAlbum();
-            
+
             _albumRepoMock.Setup(x => x.CreateOrUpdateAlbumAsync(It.IsAny<AlbumCreateUpdateViewModel>())).Returns(Task.FromResult(album)).Verifiable();
             _techInfoRepoMock.Setup(x => x.CreateOrUpdateTechnicalInfoAsync(It.IsAny<Album>(), It.IsAny<AlbumCreateUpdateViewModel>())).Returns(Task.FromResult(album.TechnicalInfo)).Verifiable();
             _imageServiceMock.Setup(x => x.SaveCover(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<EntityType>())).Verifiable();
-            
+
             var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
-            
+
             var result = await controller.Create(new AlbumCreateUpdateViewModel
             {
                 Album = album.Data,
@@ -235,15 +235,15 @@ namespace Tests.Controllers
                 Wire = album.TechnicalInfo.Wire.Data,
                 WireManufacturer = album.TechnicalInfo.Wire.Manufacturer.Data
             });
-            
+
             var viewResult = Assert.IsType<RedirectResult>(result);
 
             _albumRepoMock.Verify(x => x.CreateOrUpdateAlbumAsync(It.IsAny<AlbumCreateUpdateViewModel>()), Times.Once);
             _techInfoRepoMock.Verify(x => x.CreateOrUpdateTechnicalInfoAsync(It.IsAny<Album>(), It.IsAny<AlbumCreateUpdateViewModel>()), Times.Once);
             _imageServiceMock.Verify(x => x.SaveCover(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<EntityType>()), Times.Never);
-            
+
             Assert.Equal("123", viewResult.Url);
-            
+
         }
 
         // should create new album and redirect to it, image service should be called
@@ -296,6 +296,83 @@ namespace Tests.Controllers
             _imageServiceMock.Verify(x => x.SaveCover(It.IsAny<int>(), It.IsAny<string>(), It.IsAny<EntityType>()), Times.Once);
 
             Assert.Equal("123", viewResult.Url);
+
+        }
+        #endregion
+
+        #region GET album/edit/{albumId}
+
+        // should return BadRequest
+        [Fact]
+        public async Task GET_Album_Edit_Invalid_Album_Id()
+        {
+            var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
+            var result = await controller.Edit(0);
+            var actionResult = Assert.IsType<BadRequestResult>(result);
+            Assert.Equal(400, actionResult.StatusCode);
+        }
+
+        // should return NotFoundResult
+        [Fact]
+        public async Task GET_Album_Edit_Album_Not_Found()
+        {
+            // suggest album with this id not found in db
+            _albumRepoMock.Setup(x => x.GetByIdAsync(It.IsAny<int>())).Returns(Task.FromResult<Album>(null));
+
+            var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
+            var result = await controller.Edit(1);
+            var actionResult = Assert.IsType<NotFoundResult>(result);
+            Assert.Equal(404, actionResult.StatusCode);
+
+        }
+
+        // should return CreateOrUpdate view with AlbumCreateUpdateViewModel
+        [Fact]
+        public async Task GET_Album_Edit_Album_Found()
+        {
+            var album = Shared.GetFullAlbum();
+
+            _albumRepoMock.Setup(x => x.GetByIdAsync(It.IsAny<int>())).Returns(Task.FromResult(album)).Verifiable();
+            _techInfoRepoMock.Setup(x => x.GetByIdAsync(It.IsAny<int>())).Returns(Task.FromResult(album.TechnicalInfo)).Verifiable();
+            _imageServiceMock.Setup(x => x.GetImageUrl(It.IsAny<int>(), EntityType.AlbumCover)).Returns("cover.jpg").Verifiable();
+
+            var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
+            var result = await controller.Edit(1);
+            var viewResult = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<AlbumCreateUpdateViewModel>(viewResult.ViewData.Model);
+            
+            Assert.Equal(123, model.AlbumId);
+            Assert.Equal("Some album", model.Album);
+            Assert.Equal(5.4, model.Size);
+            Assert.Equal("https://somesource.com", model.Source);
+            Assert.Equal("https://discogs.com", model.Discogs);
+            Assert.Equal("Some artist", model.Artist);
+            Assert.Equal("Heavy Metal", model.Genre);
+            Assert.Equal(2010, model.Year);
+            Assert.Equal(2020, model.Reissue);
+            Assert.Equal("USA", model.Country);
+            Assert.Equal("Some label", model.Label);
+            Assert.Equal("Some storage", model.Storage);
+            Assert.Equal("Some Adc Model", model.Adc);
+            Assert.Equal("Some Adc Manufacturer", model.AdcManufacturer);
+            Assert.Equal("Some Amplifier Model", model.Amplifier);
+            Assert.Equal("Some Amplifier Manufacturer", model.AmplifierManufacturer);
+            Assert.Equal("Some Cartridge Model", model.Cartridge);
+            Assert.Equal("Some Cartridge Manufacturer", model.CartridgeManufacturer);
+            Assert.Equal("Some Player Model", model.Player);
+            Assert.Equal("Some Player Manufacturer", model.PlayerManufacturer);
+            Assert.Equal("Some Wire Model", model.Wire);
+            Assert.Equal("Some Wire Manufacturer", model.WireManufacturer);
+            Assert.Equal("LP 12'' 33RPM", model.SourceFormat);
+            Assert.Equal(192, model.Sampling);
+            Assert.Equal("Mint", model.VinylState);
+            Assert.Equal(24, model.Bitness);
+            Assert.Equal("FLAC", model.DigitalFormat);
+            Assert.Equal("cover.jpg", model.AlbumCover);
+
+            _albumRepoMock.Verify(x => x.GetByIdAsync(It.IsAny<int>()), Times.Once);
+            _techInfoRepoMock.Verify(x => x.GetByIdAsync(It.IsAny<int>()), Times.Once);
+            _imageServiceMock.Verify(x => x.GetImageUrl(It.IsAny<int>(), EntityType.AlbumCover), Times.Once);
 
         }
         #endregion

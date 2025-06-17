@@ -165,6 +165,7 @@ namespace Web.Controllers
             {
 
                 var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
+
                 await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
 
                 if (request.AlbumCover == null)
@@ -187,11 +188,14 @@ namespace Web.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            if (id <= 0 || id > int.MaxValue)
+            if (id <= 0)
                 return BadRequest();
+            
             var album = await _albumRepository.Albums.Where(a => a.Id == id).AsNoTracking().FirstOrDefaultAsync();
+            
             if (album == null)
                 return NotFound();
+
             try
             {
                 _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
@@ -200,6 +204,7 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
+                // TODO: Add logging
                 return BadRequest();
             }
             return Ok();

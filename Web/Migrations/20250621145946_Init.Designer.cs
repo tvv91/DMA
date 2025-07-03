@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20250308205649_Init")]
+    [Migration("20250621145946_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -528,6 +528,26 @@ namespace Web.Migrations
                             Id = 6,
                             Data = "SHELLAC 10'' 78RPM"
                         });
+                });
+
+            modelBuilder.Entity("Web.Models.Statistic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statistic");
                 });
 
             modelBuilder.Entity("Web.Models.Storage", b =>

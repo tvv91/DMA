@@ -527,6 +527,26 @@ namespace Web.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Web.Models.Statistic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Statistic");
+                });
+
             modelBuilder.Entity("Web.Models.Storage", b =>
                 {
                     b.Property<int>("Id")

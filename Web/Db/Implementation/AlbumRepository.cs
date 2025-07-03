@@ -8,10 +8,7 @@ namespace Web.Db
     {
         private readonly DMADbContext _context;
 
-        public AlbumRepository(DMADbContext ctx, ITechInfoRepository repository)
-        {
-            _context = ctx;
-        }
+        public AlbumRepository(DMADbContext ctx) => _context = ctx;
 
         public IQueryable<Album> Albums => _context.Albums;
 

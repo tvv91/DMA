@@ -36,19 +36,7 @@ namespace Web.Db
 
             #region Label
             var label = new Label { Data = "Roadrunner Records" };
-            #endregion
-              
-            #region VinylState
-            var vinylState1 = new VinylState { Data = "Mint" };
-            #endregion
-
-            #region Bitness
-            var bitness1 = new Bitness { Data = 24 };
-            #endregion
-
-            #region Sampling
-            var sampling1 = new Sampling { Data = 192 };
-            #endregion
+            #endregion            
 
             #region Storage
             var storage = new Storage { Data = "D1" };
@@ -182,24 +170,16 @@ namespace Web.Db
                 Data = "SignatureX Tuned ARAY"
             };
             #endregion
-            #endregion           
-
-            #region DigitalFormat
-            var flac = new DigitalFormat { Data = "FLAC" };
-            #endregion
-
-            #region SourceFormat
-            var sourceFormat1 = new SourceFormat { Data = "LP 12'' 33RPM" };
-            #endregion           
+            #endregion                
 
             #region Technical Info
             var tInfo1 = new TechnicalInfo
             {
-                Bitness = bitness1,
-                DigitalFormat = flac,
-                SourceFormat = sourceFormat1,
-                Sampling = sampling1,
-                VinylState = vinylState1,
+                BitnessId = 2,
+                DigitalFormatId = 1,
+                SourceFormatId = 1,
+                SamplingId = 2,
+                VinylStateId = 1,
                 Adc = adc1,
                 Amplifier = amp1,
                 Cartridge = cartridge1,
@@ -212,7 +192,6 @@ namespace Web.Db
             {
                 var album = new Album
                 {
-                    Id = i,
                     Data = $"Album {i}",
                     Size = 2.4,
                     Source = "https://somelink.com",

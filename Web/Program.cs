@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Db.Implementation;
+using Web.Db.Interfaces;
 using Web.Services;
 using Web.SignalRHubs;
 
@@ -14,6 +15,7 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<ITechInfoRepository, TechnicalnfoRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddSignalR();
 var app = builder.Build();
 app.UseDeveloperExceptionPage();

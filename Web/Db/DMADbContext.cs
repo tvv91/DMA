@@ -35,6 +35,7 @@ namespace Web.Db
         public DbSet<Wire> Wires { get; set; }
         public DbSet<WireManufacturer> WireManufacturers { get; set; }
         public DbSet<TechnicalInfo> TechnicalInfos { get; set; }
+        public DbSet<Statistic> Statistic { get; set; }
         #endregion
 
         // pre-defined entities

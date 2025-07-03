@@ -14,10 +14,12 @@ namespace Web.Db
             {
                 ctx.Database.Migrate();
             }
+            
             if (!ctx.Albums.Any())
             {
                 await ctx.Albums.AddRangeAsync(new TestData().GetAlbums());
             }
+            
             await ctx.SaveChangesAsync();
         }
     }

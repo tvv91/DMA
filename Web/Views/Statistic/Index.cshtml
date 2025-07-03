@@ -1,8 +1,186 @@
-﻿<div class="container">
-    <div class="row">
-        <div class="col-md-12 text-center">
-            <h1 class="animate-charcter">Under development</h1>
+﻿@model StatisticViewModel;
+@using static System.Math;
+<div>
+    <div class="st-last-update">
+        Statistic updated once per day. Last update: <b>@Model.LastUpdate</b>
+    </div>
+    <h4>General information</h4>
+    <hr />
+    <div class="st-general-counters">
+        <h1>@Model.TotalAlbums</h1>
+        <h1>@Math.Truncate(@Model.TotalSize) Gb</h1>
+        <h1>@Model.StorageCount</h1>
+    </div>
+    <div class="st-general-labels">
+        <h5>Total albums</h5>
+        <h5>Total size</h5>
+        <h5>Storages</h5>
+    </div>
+    <hr />
+    <div class="st-block">
+        <div>
+            <h4>Genres</h4>
+            <table class="st-table">
+                @foreach (var genre in Model.Genre)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Years</h4>
+            <table class="st-table">
+                @foreach (var year in Model.Year)
+                {
+                    <tr>
+                        <td>@year.Description</td>
+                        <td>@year.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Country</h4>
+            <table class="st-table">
+                @foreach (var country in Model.Country)
+                {
+                    <tr>
+                        <td>@country.Description</td>
+                        <td>@country.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Labels</h4>
+            <table class="st-table">
+                @foreach (var genre in Model.Label)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
         </div>
     </div>
+    <hr />
+    <div class="st-block">
+        <div>
+            <h4>Bitness</h4>
+            <table class="st-table">
+                @foreach (var genre in Model.Bitness)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Sampling</h4>
+            <table class="st-table">
+                @foreach (var item in Model.Sampling)
+                {
+                    <tr>
+                        <td>@item.Description</td>
+                        <td>@item.Count</td>
+                    </tr>
+                }
+                
+            </table>
+        </div>
+        <div>
+            <h4>Digital Format</h4>
+            <table class="st-table">
+                @foreach (var country in Model.DigitalFormat)
+                {
+                    <tr>
+                        <td>@country.Description</td>
+                        <td>@country.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>SourceFormat</h4>
+            <table class="st-table">
+                @foreach (var genre in Model.SourceFormat)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <hr />
+    <div class="st-block-last">
+        <div>
+            <h4>Adc</h4>
+            <table class="st-table">
+                @foreach (var genre in Model.Adc)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Amplifier</h4>
+            <table class="st-table">
+                @foreach (var year in Model.Amplifier)
+                {
+                    <tr>
+                        <td>@year.Description</td>
+                        <td>@year.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Cartridge</h4>
+            <table class="st-table">
+                @foreach (var country in Model.Cartridge)
+                {
+                    <tr>
+                        <td>@country.Description</td>
+                        <td>@country.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Player</h4>
+            <table class="st-table">
+                @foreach (var genre in Model.Player)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+        <div>
+            <h4>Vinyl</h4>
+            <table class="st-table">
+                @foreach (var genre in Model?.VinylState)
+                {
+                    <tr>
+                        <td>@genre.Description</td>
+                        <td>@genre.Count</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    </div>
+    <hr />
 </div>
-Detailed statistic about archive

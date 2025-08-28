@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
+using Web.Db.Interfaces;
 using Web.Enums;
+using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 
@@ -12,13 +14,15 @@ namespace Web.SignalRHubs
         private readonly IImageService _imgService;
         private readonly ITechInfoRepository _techInfoRepository;
         private readonly IAlbumRepository _albumRepository;
+        private readonly IPostRepository _postRepository;
         private const int ITEMS_PER_PAGE = 20;
 
-        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository)
+        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)
         {
             _imgService = coverImageService;
             _techInfoRepository = techInfoRepository;
             _albumRepository = albumRepository;
+            _postRepository = postRepository;
         }
 
         private readonly Dictionary<string, EntityType> _categoryEntitityMap = new Dictionary<string, EntityType>()
@@ -370,6 +374,93 @@ namespace Web.SignalRHubs
             }
         }
 
+        #endregion
+
+        #region Blog workload
+        public async Task GetPosts(string connectionId, int page)
+        {
+            var result =  await _postRepository.PostCategories
+                .Skip((page - 1) * ITEMS_PER_PAGE)
+                .Take(ITEMS_PER_PAGE)
+                .Select(x => new
+                {
+                    x.Post,
+                    Category = x.Category.Title,
+                    Created = x.Post.CreatedDate.Value.ToShortDateString()
+                })
+                .ToListAsync();
+
+            await Clients.Client(connectionId).SendAsync("ReceivedPosts", result);
+        }
+
+        public async Task AutoSavePost(string connectionId, int id, string title, string description, string content, string category)
+        {
+            // create new draft
+           if (id == 0)
+            {
+                var _post = new Post
+                {
+                    Title = title,
+                    Description = description,
+                    Content = content,
+                    CreatedDate = DateTime.Now,
+                    IsDraft = true
+                };
+
+                var _category = await _postRepository.Categories.FirstOrDefaultAsync(x => x.Title == category);
+                
+                var postCategory = new PostCategory
+                {
+                    Post = _post,
+                    Category = _category ??= new Category { Title = category }
+                };
+
+                var result = await _postRepository.AddPostAsync(postCategory);
+
+                await Clients.Client(connectionId).SendAsync("PostCreated", result.Post.Id, $"Automatically saved: {_post.CreatedDate.Value.ToShortDateString()}, {_post.CreatedDate.Value.ToShortTimeString()}");
+            }
+
+            // update existed draft
+            if (id != 0)
+            {
+                var _post = await _postRepository.Posts.FirstOrDefaultAsync(x => x.Id == id);
+                var updatedDate = DateTime.Now;
+
+                if (_post != null)
+                {
+                    _post.Title = title;
+                    _post.Description = description;
+                    _post.Content = content;
+                    _post.UpdatedDate = updatedDate;
+
+                    var _postCategory = await _postRepository.PostCategories.Include(x => x.Category).FirstOrDefaultAsync(x => x.Post.Id == _post.Id);
+
+                    // if we change category, we need to remove old relation and add new
+                    if (_postCategory?.Category.Title != category)
+                    {
+                        await _postRepository.PostCategories.Where(x => x.Post.Id == _post.Id).ExecuteDeleteAsync();
+                        
+                        var _category = await _postRepository.Categories.FirstOrDefaultAsync(x => x.Title == category);
+
+                        var postCategory = new PostCategory
+                        {
+                            Post = _post,
+                            Category = _category ??= new Category { Title = category }
+                        };
+
+                        var result = await _postRepository.AddPostAsync(postCategory);
+                    }
+                    
+                    await _postRepository.Posts.Where(x => x.Id == id).ExecuteUpdateAsync(x => x
+                    .SetProperty(x => x.Title, title)
+                    .SetProperty(x => x.Description, description)
+                    .SetProperty(x => x.Content, content)
+                    .SetProperty(x => x.UpdatedDate, updatedDate));
+
+                    await Clients.Client(connectionId).SendAsync("PostUpdated", $"Automatically saved: {updatedDate.ToShortDateString()}, {updatedDate.ToShortTimeString()}");
+                }                
+            }
+        }
         #endregion
     }
 }

@@ -1,0 +1,56 @@
+﻿@model PostViewModel
+<script>
+    function onRemove(postId) {
+        const request = new Request(`delete?id=${postId}`, {
+            method: "DELETE"
+        });
+        fetch(request).then((response) => {
+            if (response.status === 200) {
+                window.location.href = "/";
+            }
+        });
+    };
+</script>
+
+<div class="mt-2 position-relative">
+    <a id="back_button" class="btn btn-secondary" asp-action="index" asp-controller="post">Back</a>
+    <span class="position-absolute end-0">
+        <a id="back_button" class="btn btn-outline-warning" asp-action="edit" asp-controller="post" asp-route-id="@Model.Id">Edit</a>
+        <a id="back_button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removemodal">Remove</a>
+    </span>
+</div>
+<div>
+    <div id="post-header">
+        <h1><b>@Model.Title</b></h1>
+        <h4><i>@Model.Description</i></h4>
+    </div>
+    <hr />
+    <div id="post-content">
+        @Model.Content
+    </div>
+    <hr />
+    <div id="post-footer">
+        <i>Created: <b>@Model.CreatedDate</b></i>&nbsp;
+        @if(Model.UpdatedTime != null) {
+            <i>Updated: <b>@Model.UpdatedTime</b></i>
+        }
+    </div>
+</div>
+<div class="modal fade" id="removemodal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove post?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Data cannot be restored
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Id)">Remove</button>
+            </div> 
+        </div>
+    </div>
+</div>
+

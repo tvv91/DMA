@@ -1,0 +1,52 @@
+﻿<script>
+    $(document).ready(async () => {
+        await start();
+        await getPosts();
+    })
+
+    connection.onclose(async () => {
+        await start();
+    });
+    
+    async function getPosts() {
+        try {
+            await connection.invoke("GetPosts", connection.connectionId, 1);
+        } catch (err) {
+            console.log("Error sending request to GetPosts");
+        }
+    }
+
+    connection.on("ReceivedPosts", (posts) => {
+        if (posts !== null && posts.length != 0) {
+            $("#spinner").remove();
+            
+            posts.forEach(x => {
+                $("#post-container").append(
+                   `<div class="${x.post.isDraft === true ? "post post-draft" : "post post-published"}">
+                        <h4><a href="post/${x.post.id}">${x.post.title}</a></h4>
+                        <div>
+                            ${x.post.description}
+                        </div>
+                        <div class="news-article-info">
+                            <i>Added: <b>${x.created}</b></i>&nbsp;
+                            <i>Category: <b>${x.category}</b></i>
+                        </div>
+                   </div>`);
+            });
+        } else {
+            $("#spinner").remove();
+            $("#post-container").append('<div style="text-align: center"><h4>No posts :(</h4></div>');
+        }
+    });
+</script>
+<div class="news-container">
+    <div id="post-container" class="news-article">
+        <div id="spinner" class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
+    </div>
+    <div class="news-side-panel">
+        TODO: Implement side panel
+    </div>
+</div>

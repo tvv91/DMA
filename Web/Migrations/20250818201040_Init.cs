@@ -79,6 +79,19 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Category",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Category", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Countries",
                 columns: table => new
                 {
@@ -141,6 +154,24 @@ namespace Web.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PlayerManufacturers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Posts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsDraft = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -326,6 +357,32 @@ namespace Web.Migrations
                         column: x => x.ManufacturerId,
                         principalTable: "PlayerManufacturers",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PostCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CategoryId = table.Column<int>(type: "int", nullable: false),
+                    PostId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PostCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PostCategories_Category_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Category",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PostCategories_Posts_PostId",
+                        column: x => x.PostId,
+                        principalTable: "Posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -607,6 +664,16 @@ namespace Web.Migrations
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PostCategories_CategoryId",
+                table: "PostCategories",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PostCategories_PostId",
+                table: "PostCategories",
+                column: "PostId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TechnicalInfos_AdcId",
                 table: "TechnicalInfos",
                 column: "AdcId");
@@ -672,10 +739,19 @@ namespace Web.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "PostCategories");
+
+            migrationBuilder.DropTable(
                 name: "Statistic");
 
             migrationBuilder.DropTable(
                 name: "TechnicalInfos");
+
+            migrationBuilder.DropTable(
+                name: "Category");
+
+            migrationBuilder.DropTable(
+                name: "Posts");
 
             migrationBuilder.DropTable(
                 name: "Adces");

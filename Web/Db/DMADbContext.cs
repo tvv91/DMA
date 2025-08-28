@@ -36,6 +36,10 @@ namespace Web.Db
         public DbSet<WireManufacturer> WireManufacturers { get; set; }
         public DbSet<TechnicalInfo> TechnicalInfos { get; set; }
         public DbSet<Statistic> Statistic { get; set; }
+        public DbSet<Post> Posts { get; set; }
+        public DbSet<Category> Category { get; set; }
+        public DbSet<PostCategory> PostCategories { get; set; }
+        
         #endregion
 
         // pre-defined entities

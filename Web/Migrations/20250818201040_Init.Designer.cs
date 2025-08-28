@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20250621145946_Init")]
+    [Migration("20250818201040_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -270,6 +270,23 @@ namespace Web.Migrations
                     b.ToTable("CartridgeManufacturers");
                 });
 
+            modelBuilder.Entity("Web.Models.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Category");
+                });
+
             modelBuilder.Entity("Web.Models.Country", b =>
                 {
                     b.Property<int>("Id")
@@ -410,6 +427,63 @@ namespace Web.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PlayerManufacturers");
+                });
+
+            modelBuilder.Entity("Web.Models.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDraft")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Web.Models.PostCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostCategories");
                 });
 
             modelBuilder.Entity("Web.Models.Reissue", b =>
@@ -826,6 +900,25 @@ namespace Web.Migrations
                     b.Navigation("Manufacturer");
                 });
 
+            modelBuilder.Entity("Web.Models.PostCategory", b =>
+                {
+                    b.HasOne("Web.Models.Category", "Category")
+                        .WithMany("PostCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Web.Models.Post", "Post")
+                        .WithMany("PostCategories")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Post");
+                });
+
             modelBuilder.Entity("Web.Models.TechnicalInfo", b =>
                 {
                     b.HasOne("Web.Models.Adc", "Adc")
@@ -951,6 +1044,11 @@ namespace Web.Migrations
                     b.Navigation("Cartridges");
                 });
 
+            modelBuilder.Entity("Web.Models.Category", b =>
+                {
+                    b.Navigation("PostCategories");
+                });
+
             modelBuilder.Entity("Web.Models.Country", b =>
                 {
                     b.Navigation("Albums");
@@ -979,6 +1077,11 @@ namespace Web.Migrations
             modelBuilder.Entity("Web.Models.PlayerManufacturer", b =>
                 {
                     b.Navigation("Players");
+                });
+
+            modelBuilder.Entity("Web.Models.Post", b =>
+                {
+                    b.Navigation("PostCategories");
                 });
 
             modelBuilder.Entity("Web.Models.Reissue", b =>

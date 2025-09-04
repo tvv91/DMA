@@ -16,6 +16,7 @@ namespace Web.SignalRHubs
         private readonly IAlbumRepository _albumRepository;
         private readonly IPostRepository _postRepository;
         private const int ITEMS_PER_PAGE = 20;
+        private const int BLOGS_PER_PAGE = 10;
 
         public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)
         {
@@ -380,13 +381,14 @@ namespace Web.SignalRHubs
         public async Task GetPosts(string connectionId, int page)
         {
             var result =  await _postRepository.PostCategories
-                .Skip((page - 1) * ITEMS_PER_PAGE)
-                .Take(ITEMS_PER_PAGE)
+                .OrderByDescending(x => x.Post.CreatedDate)
+                .Skip((page - 1) * BLOGS_PER_PAGE)
+                .Take(BLOGS_PER_PAGE)
                 .Select(x => new
                 {
                     x.Post,
                     Category = x.Category.Title,
-                    Created = x.Post.CreatedDate.Value.ToShortDateString()
+                    Created = x.Post.CreatedDate.HasValue ? x.Post.CreatedDate.Value.ToShortDateString() : null
                 })
                 .ToListAsync();
 

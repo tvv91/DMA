@@ -5,7 +5,68 @@ namespace Web.Db
     public class TestData
     { 
         private List<Album> albums = new List<Album>();
+        private List<PostCategory> posts = new List<PostCategory>();
+        
+        #region Random generation
+        private static readonly Category[] categories =
+        {
+            new Category { Title = "Developing" },
+            new Category { Title = "Releases" },
+            new Category { Title = "Other" }
+        };
 
+        static string GenerateRandomText(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        static DateTime GenerateRandomDate(DateTime start, DateTime end)
+        {
+            var random = new Random();
+            var range = (end - start).Days;
+            return start.AddDays(random.Next(range));
+        }       
+
+        static Category GetRandomCategory()
+        {
+            var random = new Random();
+            int index = random.Next(categories.Length);
+            return categories[index];
+        }
+        static bool GetRandomBool()
+        {
+            var random = new Random();
+            return random.Next(2) == 1;
+        }
+        #endregion
+
+        public List<PostCategory> GetPosts()
+        {
+            for (int i = 1; i <= 100; i++)
+            {
+                var post = new Post()
+                {
+                    Content = GenerateRandomText(1024),
+                    Description = GenerateRandomText(50),
+                    Title = GenerateRandomText(32),
+                    CreatedDate = GenerateRandomDate(new DateTime(2015, 1, 1), DateTime.Today),
+                    UpdatedDate = DateTime.Now,
+                    IsDraft = GetRandomBool(),
+                };
+
+                var postCategory = new PostCategory
+                {
+                    Post = post,
+                    Category = GetRandomCategory()
+                };
+
+                posts.Add(postCategory);
+            }
+
+            return posts;
+        }
         public List<Album> GetAlbums()
         {
             #region Artist

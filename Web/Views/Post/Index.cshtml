@@ -1,23 +1,41 @@
 ﻿<script>
+    const BACK_PAGE_POST_INDEX = "BACK_PAGE_POST_INDEX";
     $(document).ready(async () => {
         await start();
         await getPosts();
+        // init page
+        $(`a[id=${localStorage.getItem(BACK_PAGE_POST_INDEX) ?? 1}]`).attr("class", "page-link active");
+
+        // when click page on pagination
+        $("#pagination").on("click", async (e) => {
+            if ($(".page-link.active").attr("id") !== e.target.id && e.target.id !== "pagination") {
+                localStorage.setItem(BACK_PAGE_POST_INDEX, e.target.id);
+                // remove post items
+                $(`#post-container`).find('div').remove();
+                // remove pagination bar
+                $("#pagination").find('li').remove();
+                // paginate to specific page
+                await getPosts(parseInt(e.target.id));
+                // highlight active page
+                $(`a[id=${e.target.id }]`).attr("class", "page-link active");
+            }
+        });
     })
 
     connection.onclose(async () => {
         await start();
     });
     
-    async function getPosts() {
+    async function getPosts(page) {
         try {
-            await connection.invoke("GetPosts", connection.connectionId, 1);
+            await connection.invoke("GetPosts", connection.connectionId, page ?? 1);
         } catch (err) {
             console.log("Error sending request to GetPosts");
         }
     }
 
     connection.on("ReceivedPosts", (posts) => {
-        if (posts !== null && posts.length != 0) {
+        if (posts !== null && posts.length !== 0) {
             $("#spinner").remove();
             
             posts.forEach(x => {
@@ -33,22 +51,54 @@
                         </div>
                    </div>`);
             });
+            // pagination
+            $("#pagination").find('li').remove();
+            if (posts.length !== 0) {
+                for(let c = 1; c <= posts.length; c++) {
+                    $("#pagination").append(
+                    `<li class="page-item"><a id="${c}" class="page-link" href="#">${c}</a></li>`);
+                }
+        }
         } else {
             $("#spinner").remove();
             $("#post-container").append('<div style="text-align: center"><h4>No posts :(</h4></div>');
         }
     });
+
+    
 </script>
 <div class="blog-container">
     <div id="post-container" class="blog-post">
         <div id="spinner" class="d-flex justify-content-center">
-            <div class="spinner-border" role="status">
-            </div>
+            <div class="spinner-border" role="status"></div>
         </div>
     </div>
     <div class="blog-side-panel">
-        <div>
-
+        <div class="blog-side-panel-filters">
+            <input class="form-control" type="search" placeholder="Search in blogs">
+            <label class="mt-2">Filter blogs:</label>
+            <div class="d-flex gap-2">
+                <select id="categoryfilter" class="custom-select flex-fill">
+                    <option selected>Category</option>
+                    <option value="Developing">Developing</option>
+                    <option value="Releases">Releases</option>
+                    <option value="Other">Other</option>
+                </select>
+                <select id="yearfilter" class="custom-select flex-fill">
+                    <option selected>Years</option>
+                    <option value="Developing">Developing</option>
+                    <option value="Releases">Releases</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <!--TODO: Only fo admin-->
+            <input type="checkbox"> Only drafts />
+            <hr />
         </div>
+    </div>
+    <div>
+        <nav>
+            <ul id="pagination" class="pagination justify-content-center"></ul>
+        </nav>
     </div>
 </div>

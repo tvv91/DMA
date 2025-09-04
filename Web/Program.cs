@@ -10,7 +10,10 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DMADbContext>(opts =>
 {
-    opts.UseSqlServer(builder.Configuration["ConnectionStrings:DbConnectionDev"]);
+    opts.UseSqlServer(builder.Configuration["ConnectionStrings:DbConnectionDev"], sqlServerOptionsAction =>
+    {
+        sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+    });
 });
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<ITechInfoRepository, TechnicalnfoRepository>();

@@ -2,18 +2,16 @@
     const BACK_PAGE_POST_INDEX = "BACK_PAGE_POST_INDEX";
     $(document).ready(async () => {
         await start();
-        await getPosts();
-        // init page
+        await getPosts(Number(localStorage.getItem("BACK_PAGE_POST_INDEX")) || 1);
+        
         $(`a[id=${localStorage.getItem(BACK_PAGE_POST_INDEX) ?? 1}]`).attr("class", "page-link active");
 
-        // when click page on pagination
+        // when click page button on pagination
         $("#pagination").on("click", async (e) => {
             if ($(".page-link.active").attr("id") !== e.target.id && e.target.id !== "pagination") {
                 localStorage.setItem(BACK_PAGE_POST_INDEX, e.target.id);
                 // remove post items
                 $(`#post-container`).find('div').remove();
-                // remove pagination bar
-                $("#pagination").find('li').remove();
                 // paginate to specific page
                 await getPosts(parseInt(e.target.id));
                 // highlight active page
@@ -92,7 +90,7 @@
                 </select>
             </div>
             <!--TODO: Only fo admin-->
-            <input type="checkbox"> Only drafts />
+            <input type="checkbox">Only drafts</>
             <hr />
         </div>
     </div>

@@ -4,38 +4,42 @@
         await start();
         await getPosts(Number(localStorage.getItem("BACK_PAGE_POST_INDEX")) || 1);
         
+        // make active 1 or last active page
         $(`a[id=${localStorage.getItem(BACK_PAGE_POST_INDEX) ?? 1}]`).attr("class", "page-link active");
 
         // when click page button on pagination
         $("#pagination").on("click", async (e) => {
             if ($(".page-link.active").attr("id") !== e.target.id && e.target.id !== "pagination") {
                 localStorage.setItem(BACK_PAGE_POST_INDEX, e.target.id);
-                // remove post items
-                $(`#post-container`).find('div').remove();
-                // paginate to specific page
-                await getPosts(parseInt(e.target.id));
+                // remove post items and pagination
+                $("#post-container").find("div").remove();
+                $("#pagination").find("li").remove();
+                // paginate to specific page without resetting page
+                await onFilterChange(false);
                 // highlight active page
-                $(`a[id=${e.target.id }]`).attr("class", "page-link active");
+                $("#pagination a").removeClass("active");
+                $(`#pagination a[id=${e.target.id}]`).addClass("active");
             }
         });
     })
 
     connection.onclose(async () => {
         await start();
-    });
+    });    
     
-    async function getPosts(page) {
+    async function getPosts(page, searchText, category, year, onlyDrafts) {
+        $("#spinner").removeClass("d-none");
         try {
-            await connection.invoke("GetPosts", connection.connectionId, page ?? 1);
+            await connection.invoke("GetPosts", connection.connectionId, page ?? 1, searchText ?? "", category ?? "", year ?? "", onlyDrafts ?? false);
         } catch (err) {
             console.log("Error sending request to GetPosts");
         }
     }
 
-    connection.on("ReceivedPosts", (posts) => {
-        if (posts !== null && posts.length !== 0) {
-            $("#spinner").remove();
-            
+    connection.on("ReceivedPosts", (posts, totalItems) => {
+        if (posts !== null && posts.length) {
+            $("#spinner").addClass("d-none");
+            $("#post-container").find('div').remove();
             posts.forEach(x => {
                 $("#post-container").append(
                    `<div class="${x.post.isDraft === true ? "post post-draft" : "post post-published"}">
@@ -48,49 +52,65 @@
                             <i>Category: <b>${x.category}</b></i>
                         </div>
                    </div>`);
-            });
-            // pagination
-            $("#pagination").find('li').remove();
-            if (posts.length !== 0) {
-                for(let c = 1; c <= posts.length; c++) {
-                    $("#pagination").append(
-                    `<li class="page-item"><a id="${c}" class="page-link" href="#">${c}</a></li>`);
-                }
+            })
         }
+
+        // render pagination buttons
+        $("#pagination").find("li").remove();
+        if (totalItems > 0) {
+            let currentPage = Number(localStorage.getItem(BACK_PAGE_POST_INDEX)) || 1;
+            for (let page = 1; page <= totalItems; page++) {
+                $("#pagination").append(`<li class="page-item"><a id="${page}" class="page-link" href="#">${page}</a></li>`);
+            }            
+            $(`#pagination a[id='${currentPage}']`).addClass("active");
         } else {
-            $("#spinner").remove();
+            $("#spinner").addClass("d-none");
+            $("#post-container").find('div').remove();
             $("#post-container").append('<div style="text-align: center"><h4>No posts :(</h4></div>');
         }
     });
 
-    
+    async function onFilterChange(resetPage = true, textSearch = false) {
+            let searchText = $("#searchfilter").val();
+            let category = $("#categoryfilter").val();
+            let year = $("#yearfilter").val();
+            let onlyDrafts = $("#draftfilter").is(":checked");
+            let page = Number(localStorage.getItem(BACK_PAGE_POST_INDEX)) || 1;
+
+            if (resetPage) {
+                localStorage.setItem(BACK_PAGE_POST_INDEX, 1);
+            }
+            
+            // for optimization requests to db, send request only when entered text lengh >= 3
+            if (textSearch && searchText.length >= 3 || year.length === 3) {
+                await getPosts(page, searchText, category, year, onlyDrafts);
+            } else if (!textSearch || searchText.length === 0) {
+                await getPosts(page, searchText, category, year, onlyDrafts);
+            }
+    }
 </script>
 <div class="blog-container">
-    <div id="post-container" class="blog-post">
+    <div class="blog-post">
         <div id="spinner" class="d-flex justify-content-center">
             <div class="spinner-border" role="status"></div>
         </div>
+        <div id="post-container" class="blog-post"></div>
     </div>
     <div class="blog-side-panel">
         <div class="blog-side-panel-filters">
-            <input class="form-control" type="search" placeholder="Search in blogs">
+            <input id="searchfilter" class="form-control" type="search" placeholder="Search in blogs" oninput="onFilterChange(true, true)">
             <label class="mt-2">Filter blogs:</label>
             <div class="d-flex gap-2">
-                <select id="categoryfilter" class="custom-select flex-fill">
-                    <option selected>Category</option>
+                <select id="categoryfilter" class="custom-select flex-fill" onchange="onFilterChange()">
+                    <option selected value="">Category</option>
                     <option value="Developing">Developing</option>
                     <option value="Releases">Releases</option>
                     <option value="Other">Other</option>
                 </select>
-                <select id="yearfilter" class="custom-select flex-fill">
-                    <option selected>Years</option>
-                    <option value="Developing">Developing</option>
-                    <option value="Releases">Releases</option>
-                    <option value="Other">Other</option>
-                </select>
+                <input id="yearfilter" class="form-control" placeholder="Year" oninput="onFilterChange(true, true)">
             </div>
             <!--TODO: Only fo admin-->
-            <input type="checkbox">Only drafts</>
+            <input id="draftfilter" type="checkbox" onchange="onFilterChange()">Only drafts</>
             <hr />
         </div>
     </div>

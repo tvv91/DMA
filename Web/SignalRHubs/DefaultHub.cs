@@ -378,9 +378,26 @@ namespace Web.SignalRHubs
         #endregion
 
         #region Blog workload
-        public async Task GetPosts(string connectionId, int page)
+        public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {
-            var result =  await _postRepository.PostCategories
+              var query = _postRepository.PostCategories.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchText))
+                query = query.Where(x => x.Post.Title.Contains(searchText) || x.Post.Description.Contains(searchText) || x.Post.Content.Contains(searchText));
+
+            if (!string.IsNullOrWhiteSpace(category))
+                query = query.Where(x => x.Category.Title == category);
+
+            if (!string.IsNullOrWhiteSpace(year) && int.TryParse(year, out var yearValue))
+                query = query.Where(x => x.Post.CreatedDate.HasValue && x.Post.CreatedDate.Value.Year == yearValue);
+
+            if (onlyDrafts)
+                query = query.Where(x => x.Post.IsDraft == onlyDrafts);
+
+            var totalItems = await query.CountAsync();
+            int pageCount = totalItems % BLOGS_PER_PAGE == 0 ? totalItems / BLOGS_PER_PAGE : totalItems / BLOGS_PER_PAGE + 1;
+
+            var result = await query
                 .OrderByDescending(x => x.Post.CreatedDate)
                 .Skip((page - 1) * BLOGS_PER_PAGE)
                 .Take(BLOGS_PER_PAGE)
@@ -392,12 +409,12 @@ namespace Web.SignalRHubs
                 })
                 .ToListAsync();
 
-            await Clients.Client(connectionId).SendAsync("ReceivedPosts", result);
+            await Clients.Client(connectionId).SendAsync("ReceivedPosts", result, pageCount);
         }
 
         public async Task AutoSavePost(string connectionId, int id, string title, string description, string content, string category)
         {
-            // create new draft
+           // create new draft
            if (id == 0)
             {
                 var _post = new Post

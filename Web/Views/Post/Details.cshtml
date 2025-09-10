@@ -1,0 +1,52 @@
+﻿@model PostViewModel
+@Html.AntiForgeryToken()
+
+<body data-page="view-post">
+    <div class="mt-2 position-relative">
+        <a class="btn btn-secondary" asp-action="index" asp-controller="post">Back</a>
+        <span class="position-absolute end-0">
+            <a class="btn btn-outline-warning" asp-action="edit" asp-controller="post" asp-route-id="@Model.Id">Edit</a>
+            <a class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removemodal">Remove</a>
+        </span>
+    </div>
+    <div>
+        <div id="post-header">
+            <h1><b>@Model.Title</b></h1>
+            <h4><i>@Model.Description</i></h4>
+        </div>
+        <hr />
+        <div id="post-content" class="post-content">
+            @Html.Raw(Model.Content)
+        </div>
+        <hr />
+        <div id="post-footer">
+            <i>Created: <b>@Model.CreatedDate</b></i>&nbsp;
+            @if (Model.UpdatedTime != null)
+            {
+                <i>Updated: <b>@Model.UpdatedTime</b></i>
+            }
+        </div>
+    </div>
+    <div class="modal fade" id="removemodal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Remove post?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    This action <b>cannot be undone</b>. Are you sure you want to remove the post?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Id)">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="~/js/post.js"></script>
+    }
+</body>
+

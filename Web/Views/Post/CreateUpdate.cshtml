@@ -1,0 +1,83 @@
+﻿@model PostViewModel
+
+<body data-page="new-post">
+    <form method="post" asp-action="create">
+        <input id="Id" asp-for="Id" type="hidden" />
+        <div class="post-container">
+            <div asp-validation-summary="ModelOnly"></div>
+            <div class="post-buttons mt-2 mb-2">
+                <label id="updatedAt"></label>
+
+                <button id="previewButton"
+                        class="btn btn-outline-dark"
+                        type="button"
+                        data-bs-toggle="modal"
+                        data-bs-target="#previewModal">
+                    Preview
+                </button>
+
+                <button id="savebutton"
+                        class="btn btn-outline-info"
+                        type="button"
+                        disabled>
+                    <span id="spinnerbutton"
+                          class="spinner-border spinner-border-sm"
+                          role="status"
+                          aria-hidden="true"
+                          hidden></span>
+                    Save (Draft)
+                </button>
+
+                <button id="publishbutton"
+                        class="btn btn-outline-success"
+                        type="submit">
+                    Publish
+                </button>
+            </div>
+
+            <div class="input-group mb-2">
+                <input id="title"
+                       type="text"
+                       class="form-control me-1"
+                       placeholder="Title"
+                       asp-for="Title">
+
+                <input id="description"
+                       type="text"
+                       class="form-control ms-1"
+                       placeholder="Description"
+                       asp-for="Description">
+
+                <select id="category"
+                        class="custom-select ms-1"
+                        asp-for="Category">
+                    <option selected>Category</option>
+                    <option value="Developing">Developing</option>
+                    <option value="Releases">Releases</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <textarea id="content"
+                      class="form-control"
+                      rows="25"
+                      asp-for="Content"></textarea>
+        </div>
+    </form>
+
+    <div class="modal fade"
+         id="previewModal"
+         tabindex="-1"
+         role="dialog"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-body"></div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script src="~/js/post.js"></script>
+    }
+</body>

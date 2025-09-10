@@ -11,12 +11,13 @@
         <link rel="stylesheet" href="/lib/jqueryui/themes/base/jquery-ui.min.css" />
         <link rel="stylesheet" href="/lib/dropzone//dropzone.min.css" />
         <link rel="stylesheet" href="/css/styles.css" />
-        <script src="/lib/bootstrap//js//bootstrap.js"></script>
         <script src="/lib/jquery/jquery.min.js"></script>
+        <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="/lib/jqueryui/jquery-ui.js"></script>
         <script src="/lib/microsoft-signalr/signalr.js"></script>
         <script src="/lib/dropzone//dropzone.min.js"></script>
         <script src="/js/hubconnection.js"></script>
+        <script src="/lib/dompurify/purify.min.js"></script>
         <script>
             $(document).ready(() => {
                 window.location.pathname === "/"
@@ -78,7 +79,6 @@
             }                    
         })
     </script>
-    <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
     </body>
 </html>

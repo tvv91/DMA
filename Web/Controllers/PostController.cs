@@ -22,7 +22,7 @@ namespace Web.Controllers
         [HttpGet("post/new")]
         public IActionResult New()
         {
-            return View("NewPost");
+            return View("CreateUpdate");
         }
 
         [HttpGet("post/{id}")]
@@ -45,7 +45,7 @@ namespace Web.Controllers
                 UpdatedTime = post.UpdatedDate
             };
 
-            return View("Post", postViewModel);
+            return View("Details", postViewModel);
         }
 
         [HttpPost("post/create")]
@@ -94,8 +94,7 @@ namespace Web.Controllers
                 }
                 return Redirect("/");
             }
-            
-            return View("NewPost", model);
+            return View("CreateUpdate", model);
         }
 
         [HttpDelete("post/delete")]
@@ -140,10 +139,11 @@ namespace Web.Controllers
                 Category = post.PostCategories.First().Category.Title
             };
 
-            return View("EditPost", postdata);
+            return View("CreateUpdate", postdata);
         }
 
         [HttpPost("post/update")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(PostViewModel model)
         {
             if (model.Id is null)

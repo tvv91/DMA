@@ -369,3 +369,4 @@ FodyWeavers.xsd
 /Web/wwwroot/lib/jqueryui
 /Web/wwwroot/lib/dropzone
 /Web/wwwroot/temp
+/Web/wwwroot/lib/dompurify

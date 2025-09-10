@@ -25,6 +25,10 @@
     {
       "library": "dropzone@5.9.3",
       "destination": "wwwroot/lib/dropzone/"
+    },
+    {
+      "library": "dompurify@3.0.5",
+      "destination": "wwwroot/lib/dompurify"
     }
   ]
 }

@@ -9,5 +9,8 @@ namespace Web.Db.Interfaces
         public IQueryable<Category> Categories { get; }
         public IQueryable<PostCategory> PostCategories { get; }
         public Task<PostCategory> AddPostAsync(PostCategory postCategory);
+        public Task<Category> GetOrCreateCategory(string title);
+        public Task UpdatePostCategory(Post post, string categoryTitle);
+        public Task UpdatePostAsync(Post post, string title, string description, string content, string categoryTitle);
     }
 }

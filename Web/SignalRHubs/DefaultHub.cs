@@ -18,7 +18,7 @@ namespace Web.SignalRHubs
         private readonly IPostRepository _postRepository;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
         private const int ITEMS_PER_PAGE = 20;
-        private const int BLOGS_PER_PAGE = 10;
+        private const int POSTS_PER_PAGE = 10;
 
         public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)
         {
@@ -403,7 +403,7 @@ namespace Web.SignalRHubs
         #region Blog workload
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {
-              var query = _postRepository.PostCategories.AsQueryable();
+            var query = _postRepository.PostCategories.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchText))
                 query = query.Where(x => x.Post.Title.Contains(searchText) || x.Post.Description.Contains(searchText) || x.Post.Content.Contains(searchText));
@@ -417,13 +417,13 @@ namespace Web.SignalRHubs
             if (onlyDrafts)
                 query = query.Where(x => x.Post.IsDraft == onlyDrafts);
 
-            var totalItems = await query.CountAsync();
-            int pageCount = totalItems % BLOGS_PER_PAGE == 0 ? totalItems / BLOGS_PER_PAGE : totalItems / BLOGS_PER_PAGE + 1;
+            int totalItems = await query.CountAsync();
+            int pageCount = totalItems % POSTS_PER_PAGE == 0 ? totalItems / POSTS_PER_PAGE : totalItems / POSTS_PER_PAGE + 1;
 
             var result = await query
                 .OrderByDescending(x => x.Post.CreatedDate)
-                .Skip((page - 1) * BLOGS_PER_PAGE)
-                .Take(BLOGS_PER_PAGE)
+                .Skip((page - 1) * POSTS_PER_PAGE)
+                .Take(POSTS_PER_PAGE)
                 .Select(x => new
                 {
                     x.Post,

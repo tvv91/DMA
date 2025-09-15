@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 using Web.Db;
 using Web.Enums;
+using Web.Extentions;
+using Web.Models;
 using Web.Response;
 using Web.Services;
 using Web.ViewModels;
@@ -14,62 +17,79 @@ namespace Web.Controllers
         private readonly IAlbumRepository _albumRepository;
         private readonly IImageService _imageService;
         private readonly ITechInfoRepository _techInfoRepository;
+        private readonly Dictionary<string, Func<string, Task<IActionResult>>> _searchMap;
 
         public AlbumController(IAlbumRepository albumRepository, IImageService imageService, ITechInfoRepository tinfoRepository)
         {
             _albumRepository = albumRepository;
             _imageService = imageService;
             _techInfoRepository = tinfoRepository;
+            _searchMap = new()
+            {
+                // album
+                ["artist"] = v => SearchStringAsync(albumRepository.Artists, x => x.Data, v),
+                ["genre"] = v => SearchStringAsync(albumRepository.Genres, x => x.Data, v),
+                ["year"] = v => SearchNumberAsync(albumRepository.Years, x => x.Data, v),
+                ["reissue"] = v => SearchNumberAsync(albumRepository.Reissues, x => x.Data, v),
+
+                // tech info
+                ["vinylstate"] = v => SearchStringAsync(_techInfoRepository.VinylStates, x => x.Data, v),
+                ["digitalformat"] = v => SearchStringAsync(_techInfoRepository.DigitalFormats, x => x.Data, v),
+                ["bitness"] = v => SearchNumberAsync(_techInfoRepository.Bitnesses, x => x.Data, v),
+                ["sampling"] = v => SearchNumberAsync(_techInfoRepository.Samplings, x => x.Data, v),
+                ["sourceformat"] = v => SearchStringAsync(_techInfoRepository.SourceFormats, x => x.Data, v),
+                ["player"] = v => SearchStringAsync(_techInfoRepository.Players, x => x.Data, v),
+                ["cartridge"] = v => SearchStringAsync(_techInfoRepository.Cartridges, x => x.Data, v),
+                ["amp"] = v => SearchStringAsync(_techInfoRepository.Amplifiers, x => x.Data, v),
+                ["adc"] = v => SearchStringAsync(_techInfoRepository.Adcs, x => x.Data, v),
+                ["wire"] = v => SearchStringAsync(_techInfoRepository.Wires, x => x.Data, v),
+
+                // manufacturers
+                ["player_manufacturer"] = v => SearchStringAsync(_techInfoRepository.PlayerManufacturers, x => x.Data, v),
+                ["cartridge_manufacturer"] = v => SearchStringAsync(_techInfoRepository.CartridgeManufacturers, x => x.Data, v),
+                ["amp_manufacturer"] = v => SearchStringAsync(_techInfoRepository.AmplifierManufacturers, x => x.Data, v),
+                ["adc_manufacturer"] = v => SearchStringAsync(_techInfoRepository.AdcManufacturers, x => x.Data, v),
+                ["wire_manufacturer"] = v => SearchStringAsync(_techInfoRepository.WireManufacturers, x => x.Data, v),
+            };
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(int page = 1)
         {
-            if (page > 0)
-            {
-                int albumsCount = await _albumRepository.Albums.CountAsync();
-                var albumViewModel = new AlbumViewModel
-                {
-                    CurrentPage = page,
-                    PageCount = albumsCount % ALBUMS_PER_PAGE == 0 ? albumsCount / ALBUMS_PER_PAGE : albumsCount / ALBUMS_PER_PAGE + 1,
-                    Albums = await _albumRepository.Albums
-                     .Skip((page - 1) * ALBUMS_PER_PAGE)
-                     .Take(ALBUMS_PER_PAGE)
-                     .Include(a => a.Artist)
-                     .AsNoTracking()
-                     .ToListAsync()
-                };
-                return View("Index", albumViewModel);
-            }
-            else
-            {
+            if (page < 1) 
                 return BadRequest("Page number should be positive");
-            }            
+
+            var pagedAlbums = await _albumRepository.Albums
+                .Include(x => x.Artist)
+                .AsNoTracking()
+                .ToPagedResultAsync(page, ALBUMS_PER_PAGE, x => x.Id);
+            
+            var albumViewModel = new AlbumViewModel
+            {
+                CurrentPage = page,
+                PageCount = pagedAlbums.TotalPages,
+                Albums = pagedAlbums.Items
+            };
+
+            return View("Index", albumViewModel);
         }
          
         [HttpGet("album/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            if (id == 0 || id < 0)
-            {
+            if (id < 1)
                 return BadRequest();
-            }
             
             var album = await _albumRepository.GetByIdAsync(id);
             
             if (album == null)
-            {
                 return NotFound();
-            }
 
             var tinfo = await _techInfoRepository.GetByIdAsync(id);
+            album.TechnicalInfo ??= tinfo;
 
-            if (tinfo != null)
-            {
-                album.TechnicalInfo = tinfo;
-            }
-
-            return View("AlbumDetails", new AlbumDetailsViewModel {  Album = album });
+            var model = new AlbumDetailsViewModel { Album = album };
+            return View("AlbumDetails", model);
         }
 
         [HttpGet("album/create")]
@@ -78,26 +98,121 @@ namespace Web.Controllers
             return View("CreateOrUpdate", new AlbumCreateUpdateViewModel());
         }
 
-        [HttpGet("album/edit/{albumId}")]
-        public async Task<IActionResult> Edit(int albumId)
+        [HttpGet("album/edit/{id}")]
+        public async Task<IActionResult> Edit(int id)
         {
-            if (albumId <= 0)
-                return BadRequest();
-            
-            var album = await _albumRepository.GetByIdAsync(albumId);
+            if (id < 1)
+                return BadRequest("Invalid album Id");
+
+            var album = await _albumRepository.GetByIdAsync(id);
 
             if (album == null)
                 return NotFound();
             
-            var tInfo = await _techInfoRepository.GetByIdAsync(albumId);
-
+            var tInfo = await _techInfoRepository.GetByIdAsync(id);
             var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumCover);
+            var albumModel = MapToViewModel(album, tInfo);
+            
+            return View("CreateOrUpdate", albumModel);
+        }
 
-            var albumModel = new AlbumCreateUpdateViewModel
+        [HttpPost]
+        public async Task<IActionResult> Create(AlbumCreateUpdateViewModel request)
+        {
+            if (!ModelState.IsValid)
+                return View("CreateOrUpdate", request);
+
+            try
+            {
+                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
+                await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
+
+                if (request.AlbumCover != null)
+                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
+
+                return RedirectToAction("Edit", new { id = album.Id });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Failed to save album. " + ex.Message);
+                return View("CreateOrUpdate", request);
+            }
+        }
+
+        [HttpPost("album/update")]
+        public async Task<IActionResult> Update(AlbumCreateUpdateViewModel request)
+        {
+            if (request.AlbumId < 1)
+                return BadRequest("Invalid album ID");
+
+            if (!ModelState.IsValid)
+                return View("CreateOrUpdate", request);
+
+            try
+            {
+                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
+                await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
+
+                if (request.AlbumCover is not null)
+                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
+                else
+                    _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
+
+                return RedirectToAction("Edit", "Album", new { id = request.AlbumId });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Failed to update album. " + ex.Message);
+                return View("CreateOrUpdate", request);
+            }
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (id < 1)
+                return BadRequest("Invalid album ID");
+
+            var album = await _albumRepository.Albums
+                .Where(x => x.Id == id)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            if (album == null)
+                return NotFound();
+
+            try
+            {
+                _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
+                await _techInfoRepository.TechInfos.Where(t => t.AlbumId == id).ExecuteDeleteAsync();
+                await _albumRepository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
+            }
+            catch (Exception ex)
+            {
+                // TODO: Add logging
+                return BadRequest("Failed to delete album");
+            }
+            return Ok();
+        }
+
+        [HttpGet("search/{category?}")]
+        public async Task<IActionResult> Search(string category, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return Ok(Array.Empty<AutocompleteResponse>());
+
+            return _searchMap.TryGetValue(category ?? "", out var searchFunc)
+                ? await searchFunc(value)
+                : Ok(Array.Empty<AutocompleteResponse>());
+        }
+
+        #region Private methods
+        private AlbumCreateUpdateViewModel MapToViewModel(Album album, TechnicalInfo? tInfo)
+        {
+            return new AlbumCreateUpdateViewModel
             {
                 Action = ActionType.Update,
                 AlbumId = album.Id,
-                // Base info
                 Album = album.Data,
                 Artist = album.Artist.Data,
                 Genre = album.Genre?.Data,
@@ -109,8 +224,7 @@ namespace Web.Controllers
                 Size = album.Size,
                 Storage = album.Storage?.Data,
                 Discogs = album.Discogs,
-                AlbumCover = cover,
-                // Technical info
+                AlbumCover = _imageService.GetImageUrl(album.Id, EntityType.AlbumCover),
                 VinylState = tInfo?.VinylState?.Data,
                 DigitalFormat = tInfo?.DigitalFormat?.Data,
                 Bitness = tInfo?.Bitness?.Data,
@@ -127,117 +241,38 @@ namespace Web.Controllers
                 Wire = tInfo?.Wire?.Data,
                 WireManufacturer = tInfo?.Wire?.Manufacturer?.Data
             };
-            return View("CreateOrUpdate", albumModel);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(AlbumCreateUpdateViewModel request)
+        private async Task<IActionResult> SearchStringAsync<TEntity>(IQueryable<TEntity> query, Expression<Func<TEntity, string>> selector,string value) 
+            where TEntity : class
         {
-            if (ModelState.IsValid 
-                && !string.IsNullOrEmpty(request.Artist) 
-                && !string.IsNullOrEmpty(request.Album))
-            {                
-                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
-                var tinfo = await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
+            var likePattern = $"%{value}%";
 
-                if (request.AlbumCover != null)
-                {
-                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
-                }
+            var result = await query
+                .AsNoTracking()
+                .Where(x => EF.Functions.Like(EF.Property<string>(x, ((MemberExpression)selector.Body).Member.Name), likePattern))
+                .Select(x => new AutocompleteResponse { Label = EF.Property<string>(x, ((MemberExpression)selector.Body).Member.Name) })
+                .ToListAsync();
 
-                return new RedirectResult($"{album.Id}");
-            } 
-            else
-            {
-                return View("CreateOrUpdate", request);
-            }
+            return Ok(result);
         }
 
-        [HttpPost("album/update")]
-        public async Task<IActionResult> Update(AlbumCreateUpdateViewModel request)
+        private async Task<IActionResult> SearchNumberAsync<TEntity, TProperty>(IQueryable<TEntity> query, Expression<Func<TEntity, TProperty>> selector, string value)
+            where TEntity : class
         {
-            if (request.AlbumId <= 0)
-                return BadRequest();
+            var func = selector.Compile();
 
-            if (ModelState.IsValid
-                && !string.IsNullOrEmpty(request.Artist)
-                && !string.IsNullOrEmpty(request.Album))
-            {
+            var list = await query
+                .AsNoTracking()
+                .ToListAsync();
 
-                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
+            var results = list
+                .Where(x => func(x)?.ToString()?.Contains(value, StringComparison.OrdinalIgnoreCase) == true)
+                .Select(x => new AutocompleteResponse { Label = func(x)?.ToString() ?? "" })
+                .ToArray();
 
-                await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
-
-                if (request.AlbumCover == null)
-                {
-                    _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
-                } 
-                else
-                {
-                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
-                }
-
-                return new RedirectResult($"/album/{request.AlbumId}");
-            }
-            else
-            {
-                return View("CreateOrUpdate", request);
-            }
+            return Ok(results);
         }
-
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
-        {
-            if (id <= 0)
-                return BadRequest();
-            
-            var album = await _albumRepository.Albums.Where(a => a.Id == id).AsNoTracking().FirstOrDefaultAsync();
-            
-            if (album == null)
-                return NotFound();
-
-            try
-            {
-                _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
-                await _techInfoRepository.TechInfos.Where(t => t.AlbumId == id).ExecuteDeleteAsync();
-                await _albumRepository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
-            }
-            catch (Exception ex)
-            {
-                // TODO: Add logging
-                return BadRequest();
-            }
-            return Ok();
-        }
-
-        [HttpGet("search/{category?}")]
-        public async Task<IActionResult> Search(string category, string value)
-        {
-            switch (category)
-            {
-                case "artist":  return Ok(await _albumRepository.Artists.AsNoTracking().AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "genre": return Ok(await _albumRepository.Genres.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "year": return Ok(await _albumRepository.Years.AsNoTracking().Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-                case "reissue": return Ok(await _albumRepository.Reissues.AsNoTracking().Where(x => x.Data.ToString()!.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString()! }).ToArrayAsync());
-                // technical info
-                case "vinylstate": return Ok(await _techInfoRepository.VinylStates.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "digitalformat": return Ok(await _techInfoRepository.DigitalFormats.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "bitness": return Ok(await _techInfoRepository.Bitnesses.AsNoTracking().Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-                case "sampling": return Ok(await _techInfoRepository.Samplings.AsNoTracking().Where(x => x.Data.ToString().Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data.ToString() }).ToArrayAsync());
-                case "sourceformat": return Ok(await _techInfoRepository.SourceFormats.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "player": return Ok(await _techInfoRepository.Players.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "cartridge": return Ok(await _techInfoRepository.Cartridges.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "amp": return Ok(await _techInfoRepository.Amplifiers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "adc": return Ok(await _techInfoRepository.Adcs.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "wire": return Ok(await _techInfoRepository.Wires.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                // manufacturers
-                case "player_manufacturer": return Ok(await _techInfoRepository.PlayerManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "cartridge_manufacturer": return Ok(await _techInfoRepository.CartridgeManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "amp_manufacturer": return Ok(await _techInfoRepository.AmplifierManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "adc_manufacturer": return Ok(await _techInfoRepository.AdcManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                case "wire_manufacturer": return Ok(await _techInfoRepository.WireManufacturers.AsNoTracking().Where(x => x.Data.Contains(value)).Select(x => new AutocompleteResponse { Label = x.Data }).ToArrayAsync());
-                default: return Ok(new AutocompleteResponse());
-            }
-        }
+        #endregion
     }
 }

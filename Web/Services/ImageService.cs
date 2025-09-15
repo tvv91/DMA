@@ -4,84 +4,88 @@ namespace Web.Services
 {
     internal class ImageService : IImageService
     {
-        private const string STORAGE = "wwwroot/";
-        private const string NO_COVER = "/resources/nocover.png";
-        private const string TEMP = $"{STORAGE}/temp";
+        private const string STORAGE = "wwwroot";
+        private const string NO_COVER = "resources/nocover.png";
+        private const string TEMP = "wwwroot/temp";
 
-        private Dictionary<EntityType, string> path = new Dictionary<EntityType, string> {
-            { EntityType.AlbumCover, "/covers/album/"},
-            { EntityType.VinylState, "/resources/vinylstate/"},
-            { EntityType.DigitalFormat, "/resources/codec/"},
-            { EntityType.Bitness, "/resources/bitness/"},
-            { EntityType.Sampling, "/resources/sampling/"},
-            { EntityType.SourceFormat, "/resources/sourceformat/"},
-            { EntityType.Player, "/covers//player/"},
-            { EntityType.Cartridge, "/covers/cartridge/"},
-            { EntityType.Amplifier, "/covers/amp/"},
-            { EntityType.Adc, "/covers/adc/"},
-            { EntityType.Wire, "/covers/wire/"},
-        };
+        private readonly ILogger<ImageService> _logger;
 
-        public string GetIconUrl(int id, EntityType entity)
+        private readonly Dictionary<EntityType, (string Path, string Ext)> _map = new()
+            {
+                { EntityType.AlbumCover, ("covers/album", ".jpg") },
+                { EntityType.VinylState, ("resources/vinylstate", ".png") },
+                { EntityType.DigitalFormat, ("resources/codec", ".png") },
+                { EntityType.Bitness, ("resources/bitness", ".png") },
+                { EntityType.Sampling, ("resources/sampling", ".png") },
+                { EntityType.SourceFormat, ("resources/sourceformat", ".png") },
+                { EntityType.Player, ("covers/player", ".jpg") },
+                { EntityType.Cartridge, ("covers/cartridge", ".jpg") },
+                { EntityType.Amplifier, ("covers/amp", ".jpg") },
+                { EntityType.Adc, ("covers/adc", ".jpg") },
+                { EntityType.Wire, ("covers/wire", ".jpg") },
+            };
+
+        public ImageService(ILogger<ImageService> logger)
         {
-            return File.Exists($"{STORAGE}{path[entity]}{id}.png") ? $"{path[entity]}{id}.png" : string.Empty;
+            _logger = logger;
         }
 
         public string GetImageUrl(int id, EntityType entity)
         {
-            switch (entity)
-            {
-                case EntityType.Amplifier:
-                case EntityType.Adc:
-                case EntityType.Wire:
-                case EntityType.Cartridge:
-                case EntityType.Player:
-                    return File.Exists($"{STORAGE}{path[entity]}{id}.jpg") ? $"{path[entity]}{id}.jpg" : string.Empty;
-                default:
-                    return File.Exists($"{STORAGE}{path[entity]}{id}.jpg") ? $"{path[entity]}{id}.jpg" : NO_COVER;
-            }
+            if (!_map.TryGetValue(entity, out var info))
+                return NO_COVER;
+
+            var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
+            var fullPath = Path.Combine(STORAGE, relativePath);
+
+            return File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}";
         }
 
         public void RemoveCover(int id, EntityType entity)
         {
-            var file = $"{STORAGE}/{path[entity]}{id}.jpg";
-            if (File.Exists(file))
+            if (!_map.TryGetValue(entity, out var info))
+                return;
+
+            var fullPath = Path.Combine(STORAGE, info.Path, $"{id}{info.Ext}");
+
+            try
             {
-                try
+                if (File.Exists(fullPath))
                 {
-                    File.Delete(file);
+                    File.Delete(fullPath);
                 }
-                catch(Exception e)
-                {
-                    // TODO: Add logging
-                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during cover removing {Entity}:{Id}", entity, id);
             }
         }
 
-        // TODO: Need to check image type and convert to jpg (or set filter)
         public void SaveCover(int id, string filename, EntityType entity)
         {
+            if (!_map.TryGetValue(entity, out var info))
+                return;
+
             try
             {
-                var file = $"{TEMP}/{filename}";
-                if (File.Exists(file))
+                var tempFile = Path.Combine(TEMP, filename);
+                if (File.Exists(tempFile))
                 {
-                    var _path = $"{STORAGE}/{path[entity]}";
-                    if (!Directory.Exists(_path))
-                    {
-                        Directory.CreateDirectory(_path);
-                    }
-                    File.Move(file, $"{_path}{id}.jpg", true);
-                    // clean temp directory
-                    foreach (var f in Directory.GetFiles(TEMP))
-                    {
-                        File.Delete(f);
-                    }
+                    var targetDir = Path.Combine(STORAGE, info.Path);
+                    if (!Directory.Exists(targetDir))
+                        Directory.CreateDirectory(targetDir);
+
+                    var destFile = Path.Combine(targetDir, $"{id}{info.Ext}");
+                    File.Move(tempFile, destFile, true);
+
+
+                    if (File.Exists(tempFile))
+                        File.Delete(tempFile);
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                // TODO: Add logging
+                _logger.LogError(ex, "Error during cover removing {Entity}:{Id}", entity, id);
             }
         }
     }

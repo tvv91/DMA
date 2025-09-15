@@ -325,27 +325,27 @@ namespace Web.SignalRHubs
             {
                 if (tInfo?.VinylStateId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetIconUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
                 }
 
                 if (tInfo?.DigitalFormatId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetIconUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
                 }
 
                 if (tInfo?.BitnessId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetIconUrl(tInfo.BitnessId.Value, EntityType.Bitness));
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, EntityType.Bitness));
                 }
 
                 if (tInfo?.SamplingId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetIconUrl(tInfo.SamplingId.Value, EntityType.Sampling));
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, EntityType.Sampling));
                 }
 
                 if (tInfo?.SourceFormatId != null)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetIconUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
+                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
                 }
 
                 if (tInfo?.PlayerId != null)

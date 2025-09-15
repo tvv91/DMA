@@ -1,51 +1,52 @@
 ﻿@model AlbumViewModel
 
 <script>
-    let albumIds = [];
-    // get album covers after rendering album list
+    let albumIds = @Json.Serialize(Model.Albums.Select(a => a.Id));
+    let currentPage = @Json.Serialize(Model.CurrentPage);
+
     $(document).ready(async () => {
-        if (@Model.Albums.Count() === 0)
-        {
+
+        if (@Json.Serialize(Model.Albums.Count()) === 0) {
             $("#add-button").attr("class", "fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton blinker-button");
         }
 
-        // set active current page
-        $(`a[id=${@Model.CurrentPage}]`).attr("class", "page-link active");
-        await start();    
+        $(`#pagination a[id=${currentPage}]`).addClass("active");
+
+        // старт SignalR
+        await start();
         await getAlbumCovers();
 
-        if (sessionStorage.getItem("albumdeleted") == "1") {
+        if (sessionStorage.getItem("albumdeleted") === "1") {
             $('#toast_deleted').toast('show');
             sessionStorage.removeItem("albumdeleted");
         }
 
-        // need for returning previous page from album/{id}
-        localStorage.setItem("BACK_PAGE_INDEX", @Model.CurrentPage);
-    })
+        localStorage.setItem("BACK_PAGE_INDEX", currentPage);
+    });
 
-    // pass album id's to hub
     async function getAlbumCovers() {
         try {
             await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
         } catch (err) {
-            console.log("Error sending request to GetAlbumCovers");
+            console.error("Error sending request to GetAlbumCovers", err);
         }
     }
 
-    // SignalR handlers
     connection.onclose(async () => {
         await start();
     });
 
-    // change img src and stop loading animation
-    connection.on("ReceivedAlbumConver", (albumId, cover) => {
-        $(`img[id=${albumId}]`).attr("src", cover).attr("class", "");
+    connection.on("ReceivedAlbumCover", (albumId, cover) => {
+        $(`#${albumId}`).attr("src", cover).removeClass("spinner-border text-black");
     });
 
     function onAlbumLoad(albumId) {
-        albumIds.push(albumId);
+        if (!albumIds.includes(albumId)) {
+            albumIds.push(albumId);
+        }
     }
 </script>
+
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_deleted" class="toast toast-body-deleted" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -57,14 +58,12 @@
         </div>
     </div>
 </div>
-@if(Model.Albums.Any())
+
+@if (Model.Albums.Any())
 {
     <div class="wrapper">
         @foreach (var album in Model.Albums)
         {
-            <script>
-                albumIds.push(@album.Id);
-            </script>
             <div>
                 <a href="album/@album.Id">
                     <img id="@album.Id" class="spinner-border text-black" onload="onAlbumLoad(@album.Id)" />
@@ -80,7 +79,9 @@
                 <ul id="pagination" class="pagination justify-content-center">
                     @for (int i = 1; i <= Model.PageCount; i++)
                     {
-                        <li class="page-item"><a id="@i" class="page-link" href="album?page=@i">@i</a></li>
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a id="@i" class="page-link" href="album?page=@i">@i</a>
+                        </li>
                     }
                 </ul>
             </nav>
@@ -89,7 +90,7 @@
 }
 else
 {
-    <h4 class="mt-5" style="text-align: center">
+    <h4 class="mt-5 text-center">
         Ooops... Invalid page / no data in database. Try to add first album.
     </h4>
 }

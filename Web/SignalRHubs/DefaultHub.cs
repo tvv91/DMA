@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Concurrent;
 using Web.Db;
 using Web.Db.Interfaces;
 using Web.Enums;
@@ -15,6 +16,7 @@ namespace Web.SignalRHubs
         private readonly ITechInfoRepository _techInfoRepository;
         private readonly IAlbumRepository _albumRepository;
         private readonly IPostRepository _postRepository;
+        private static readonly ConcurrentDictionary<int, string> _coverCache = new();
         private const int ITEMS_PER_PAGE = 20;
         private const int BLOGS_PER_PAGE = 10;
 
@@ -45,7 +47,28 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetAlbumCovers(string connectionId, int[] albums)
         {
-            await Task.WhenAll(albums.Select(async albumId => await Clients.Client(connectionId).SendAsync("ReceivedAlbumConver", albumId, _imgService.GetImageUrl(albumId, EntityType.AlbumCover))));
+            const int chunkSize = 50;
+
+            for (int i = 0; i < albums.Length; i += chunkSize)
+            {
+                var chunk = albums
+                    .Skip(i)
+                    .Take(chunkSize)
+                    .Select(albumId => Clients.Client(connectionId)
+                    .SendAsync("ReceivedAlbumCover", albumId, GetCachedAlbumCover(albumId)));
+
+                await Task.WhenAll(chunk);
+            }
+        }
+
+        private string GetCachedAlbumCover(int albumId)
+        {
+            return _coverCache.GetOrAdd(albumId, id => _imgService.GetImageUrl(id, EntityType.AlbumCover));
+        }
+
+        public void InvalidateAlbumCache(int albumId)
+        {
+            _coverCache.TryRemove(albumId, out _);
         }
 
         /// <summary>

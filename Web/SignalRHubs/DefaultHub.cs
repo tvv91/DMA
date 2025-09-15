@@ -47,6 +47,8 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetAlbumCovers(string connectionId, int[] albums)
         {
+            // show random album cover on view
+            Random.Shared.Shuffle(albums);
             const int chunkSize = 50;
 
             for (int i = 0; i < albums.Length; i += chunkSize)

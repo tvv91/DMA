@@ -89,7 +89,7 @@ namespace Web.Controllers
             album.TechnicalInfo ??= tinfo;
 
             var model = new AlbumDetailsViewModel { Album = album };
-            return View("AlbumDetails", model);
+            return View("Details", model);
         }
 
         [HttpGet("album/create")]

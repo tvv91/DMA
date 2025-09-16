@@ -11,8 +11,8 @@
 /* Views/Album/Index */
 .wrapper {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(50px, 200px)); /* фикс ширина карточек */
-    justify-content: center; /* выравнивание по центру */
+    grid-template-columns: repeat(auto-fill, minmax(50px, 200px));
+    justify-content: center;
     gap: 1.2rem;
     padding: 1rem;
 }
@@ -124,27 +124,91 @@
     pointer-events: none;
 }
 
-.test {
+.album-container {
     display: grid;
-    grid-template-columns: 30% 70%;
-    grid-template-rows: 200px 200px;
+    grid-template-rows: auto auto 1fr;
+    gap: 20px;
 }
 
-.box1 {
-    grid-row: span 2;
+.album-title-row {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
 }
 
-.box2 {
-    grid-column: 2;
-    grid-row: span 2;
-    text-align: left;
-    padding-left: 100px;
+.album-info-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
 }
 
-.box3 {
-    grid-row: 3;
-    grid-column: span 2;
+.album-main-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
 }
+
+.album-cover-box {
+    flex: 0 0 30%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+    .album-cover-box #coverdiv {
+        width: 100%;
+        max-height: 500px;
+    }
+
+.album-tech-box {
+    flex: 1;
+}
+
+.album-info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.info-card {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+.info-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #444;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1rem;
+    color: #111;
+}
+
+    .info-value a {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .info-value a:hover {
+            text-decoration: underline;
+        }
 
 .technical-info {
     display: grid;

@@ -121,157 +121,156 @@
     </div>
 </div>
 <a id="back_button" class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
-<div class="test mt-3">
-    <div id="coverdiv" class="box1">
-        <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
-        <i id="nocovericon"class="fa-regular fa-image fa-10x" style="top:30%; left:30%; position: relative; display: none"></i>
-        <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
+<div class="album-container">
+    <div class="album-title-row">
+        @Model.Album.Artist.Data &mdash; @Model.Album.Data
     </div>
-    <div class="box2">
-        <a data-bs-toggle="modal" data-bs-target="#removeDialogModal"><i class="fa-solid fa-trash fa-lg fa-pull-right"></i></a>
-        <a href="/album/edit/@Model.Album.Id"><i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i></a>
-        <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
-        <h5>Year: <b>@Model.Album?.Year?.Data</b></h5>
+    <div class="album-info-cards">
+        <div class="info-card">
+            <span class="info-label">Year</span>
+            <span class="info-value">@Model.Album?.Year?.Data</span>
+        </div>
         @if (Model.Album?.Reissue != null)
         {
-            <h5>Reissue: <b>@Model.Album.Reissue.Data</b></h5>
+            <div class="info-card">
+                <span class="info-label">Reissue</span>
+                <span class="info-value">@Model.Album.Reissue.Data</span>
+            </div>
         }
-        <h5>Genre: <b>@Model.Album?.Genre?.Data</b></h5>
-        <h5>Country: <b>@Model.Album?.Country?.Data</b></h5>
-        <h5>Label: <b>@Model.Album?.Label?.Data</b></h5>
-        <h5>Size: <b>@Model.Album?.Size</b> Gb</h5>
-        <h5>Source: <a href=@Model?.Album?.Source>@Model?.Album?.Source</a></h5>
-        <h5>Discogs: <a href=@Model?.Album?.Discogs>@Model?.Album?.Discogs</a></h5>
-        <h5>Added: <b>@Model?.Album?.AddedDate</b></h5>
-        <h5>Storage: <b>@Model?.Album?.Storage?.Data</b></h5>
+        <div class="info-card">
+            <span class="info-label">Genre</span>
+            <span class="info-value">@Model.Album?.Genre?.Data</span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Country</span>
+            <span class="info-value">@Model.Album?.Country?.Data</span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Label</span>
+            <span class="info-value">@Model.Album?.Label?.Data</span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Size</span>
+            <span class="info-value">@Model.Album?.Size Gb</span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Source</span>
+            <span class="info-value"><a href="@Model?.Album?.Source">@Model?.Album?.Source</a></span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Discogs</span>
+            <span class="info-value"><a href="@Model?.Album?.Discogs">@Model?.Album?.Discogs</a></span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Added</span>
+            <span class="info-value">@Model?.Album?.AddedDate</span>
+        </div>
+        <div class="info-card">
+            <span class="info-label">Storage</span>
+            <span class="info-value">@Model?.Album?.Storage?.Data</span>
+        </div>
     </div>
-    <div class="box3">
-        <div id="techinfoicons" class="technical-info">
-            <div class="technical-info-title">
-                Technical Info
+    <div class="album-main-row">
+        <div class="album-cover-box">
+            <div id="coverdiv">
+                <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
+                <i id="nocovericon" class="fa-regular fa-image fa-10x" style="display: none"></i>
+                <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
             </div>
-            <div class="digitization-info ">
-                Information about source format and digitization
-            </div>
-            <hr class="hr1" />
-            <div class="technical-info-description-digitization">
-                Vinyl state
-            </div>
-            <div class="technical-info-description-digitization">
-                Codec
-            </div>
-            <div class="technical-info-description-digitization">
-                Bitness
-            </div>
-            <div class="technical-info-description-digitization">
-                Sampling
-            </div>
-            <div class="technical-info-description-digitization">
-                Format
-            </div>
-            <div class="digitization-hardware ">
-                Information about source format and digitization
-            </div>
-            <hr class="hr2" />
-            <div class="technical-info-description-hardware">
-                Player
-            </div>
-            <div class="technical-info-description-hardware">
-                Cartridge
-            </div>
-            <div class="technical-info-description-hardware">
-                Amplifier
-            </div>
-            <div class="technical-info-description-hardware">
-                Adc
-            </div>
-            <div class="technical-info-description-hardware">
-                Wires
-            </div>
-            <!--digitization-->
-            <div class="technical-info-icon-digitization">
-                <div id="vinylstatediv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="vinylstate" class="justifiy-element-size" style="display: none" />
+        </div>
+        <div class="album-tech-box">
+            <div class="technical-info">
+                <div class="technical-info-title">Technical Info</div>
+                <div class="digitization-info">Information about source format and digitization</div>
+                <hr class="hr1" />
+                <div class="technical-info-description-digitization">Vinyl state</div>
+                <div class="technical-info-description-digitization">Codec</div>
+                <div class="technical-info-description-digitization">Bitness</div>
+                <div class="technical-info-description-digitization">Sampling</div>
+                <div class="technical-info-description-digitization">Format</div>
+
+                <div class="technical-info-icon-digitization">
+                    <div id="vinylstatediv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="vinylstate" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-digitization">@Model?.Album?.TechnicalInfo?.VinylState?.Data</div>
                 </div>
-                <div class="technical-info-icon-title-digitization">
-                    @Model?.Album?.TechnicalInfo?.VinylState?.Data
+                <div class="technical-info-icon-digitization">
+                    <div id="digitalformatdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="digitalformat" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-digitization">@Model?.Album?.TechnicalInfo?.DigitalFormat?.Data</div>
                 </div>
-            </div>
-            <div class="technical-info-icon-digitization">
-                <div id="digitalformatdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="digitalformat" class="justifiy-element-size" style="display: none" />
+                <div class="technical-info-icon-digitization">
+                    <div id="bitnessdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="bitness" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-digitization">@Model?.Album?.TechnicalInfo?.Bitness?.Data</div>
                 </div>
-                <div class="technical-info-icon-title-digitization">
-                    @Model?.Album?.TechnicalInfo?.DigitalFormat?.Data
+                <div class="technical-info-icon-digitization">
+                    <div id="samplingdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="sampling" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-digitization">@Model?.Album?.TechnicalInfo?.Sampling?.Data</div>
                 </div>
-            </div>
-            <div class="technical-info-icon-digitization">
-                <div id="bitnessdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="bitness" class="justifiy-element-size" style="display: none" />
+                <div class="technical-info-icon-digitization">
+                    <div id="formatdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="format" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-digitization">@Model?.Album?.TechnicalInfo?.SourceFormat?.Data</div>
                 </div>
-                <div class="technical-info-icon-title-digitization">
-                    @Model?.Album?.TechnicalInfo?.Bitness?.Data
+                <div class="digitization-hardware">Information about source format and digitization</div>
+                <hr class="hr2" />
+                <div class="technical-info-description-hardware">Player</div>
+                <div class="technical-info-description-hardware">Cartridge</div>
+                <div class="technical-info-description-hardware">Amplifier</div>
+                <div class="technical-info-description-hardware">Adc</div>
+                <div class="technical-info-description-hardware">Wires</div>
+
+                <div class="technical-info-icon-hardware">
+                    <div id="playerdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="player" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-hardware">
+                        @Model?.Album?.TechnicalInfo?.Player?.Manufacturer?.Data<br />
+                        @Model?.Album?.TechnicalInfo?.Player?.Data
+                    </div>
                 </div>
-            </div>
-            <div class="technical-info-icon-digitization">
-                <div id="samplingdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="sampling" class="justifiy-element-size" style="display: none" />
+                <div class="technical-info-icon-hardware">
+                    <div id="cartridgediv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="cartridge" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-hardware">
+                        @Model?.Album?.TechnicalInfo?.Cartridge?.Manufacturer?.Data<br />
+                        @Model?.Album?.TechnicalInfo?.Cartridge?.Data
+                    </div>
                 </div>
-                <div class="technical-info-icon-title-digitization">
-                    @Model?.Album?.TechnicalInfo?.Sampling?.Data
+                <div class="technical-info-icon-hardware">
+                    <div id="ampdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="amp" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-hardware">
+                        @Model?.Album?.TechnicalInfo?.Amplifier?.Manufacturer?.Data<br />
+                        @Model?.Album?.TechnicalInfo?.Amplifier?.Data
+                    </div>
                 </div>
-            </div>
-            <div class="technical-info-icon-digitization">
-                <div id="formatdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="format" class="justifiy-element-size" style="display: none" />
+                <div class="technical-info-icon-hardware">
+                    <div id="adcdiv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="adc" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-hardware">
+                        @Model?.Album?.TechnicalInfo?.Adc?.Manufacturer?.Data<br />
+                        @Model?.Album?.TechnicalInfo?.Adc?.Data
+                    </div>
                 </div>
-                <div class="technical-info-icon-title-digitization">
-                    @Model?.Album?.TechnicalInfo?.SourceFormat?.Data
-                </div>
-            </div>
-            <!--hardware-->
-            <div class="technical-info-icon-hardware">
-                <div id="playerdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="player" class="justifiy-element-size" style="display: none" />
-                </div>
-                <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Player?.Manufacturer?.Data<br />
-                    @Model?.Album?.TechnicalInfo?.Player?.Data
-                </div>
-            </div>
-            <div class="technical-info-icon-hardware">
-                <div id="cartridgediv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="cartridge" class="justifiy-element-size" style="display: none" />
-                </div>
-                <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Cartridge?.Manufacturer?.Data<br />
-                    @Model?.Album?.TechnicalInfo?.Cartridge?.Data
-                </div>
-            </div>
-            <div class="technical-info-icon-hardware">
-                <div id="ampdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="amp" class="justifiy-element-size" style="display: none" />
-                </div>
-                <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Amplifier?.Manufacturer?.Data<br />
-                    @Model?.Album?.TechnicalInfo?.Amplifier?.Data
-                </div>
-            </div>
-            <div class="technical-info-icon-hardware">
-                <div id="adcdiv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="adc" class="justifiy-element-size" style="display: none" />
-                </div>
-                <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Adc?.Manufacturer?.Data<br />
-                    @Model?.Album?.TechnicalInfo?.Adc?.Data
-                </div>
-            </div>
-            <div class="technical-info-icon-hardware">
-                <div id="wirediv" class="spinner-border justifiy-element-size" style="display: none">
-                    <img id="wire" class="justifiy-element-size" style="display: none" />
-                </div>
-                <div class="technical-info-icon-title-hardware">
-                    @Model?.Album?.TechnicalInfo?.Wire?.Manufacturer?.Data<br /> @Model?.Album?.TechnicalInfo?.Wire?.Data
+                <div class="technical-info-icon-hardware">
+                    <div id="wirediv" class="spinner-border justifiy-element-size" style="display: none">
+                        <img id="wire" class="justifiy-element-size" style="display: none" />
+                    </div>
+                    <div class="technical-info-icon-title-hardware">
+                        @Model?.Album?.TechnicalInfo?.Wire?.Manufacturer?.Data<br />
+                        @Model?.Album?.TechnicalInfo?.Wire?.Data
+                    </div>
                 </div>
             </div>
         </div>

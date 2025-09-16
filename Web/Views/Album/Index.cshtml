@@ -1,52 +1,5 @@
 ﻿@model AlbumViewModel
 
-<script>
-    let albumIds = @Json.Serialize(Model.Albums.Select(a => a.Id));
-    let currentPage = @Json.Serialize(Model.CurrentPage);
-
-    $(document).ready(async () => {
-
-        if (@Json.Serialize(Model.Albums.Count()) === 0) {
-            $("#add-button").attr("class", "fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton blinker-button");
-        }
-
-        $(`#pagination a[id=${currentPage}]`).addClass("active");
-
-        // старт SignalR
-        await start();
-        await getAlbumCovers();
-
-        if (sessionStorage.getItem("albumdeleted") === "1") {
-            $('#toast_deleted').toast('show');
-            sessionStorage.removeItem("albumdeleted");
-        }
-
-        localStorage.setItem("BACK_PAGE_INDEX", currentPage);
-    });
-
-    async function getAlbumCovers() {
-        try {
-            await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
-        } catch (err) {
-            console.error("Error sending request to GetAlbumCovers", err);
-        }
-    }
-
-    connection.onclose(async () => {
-        await start();
-    });
-
-    connection.on("ReceivedAlbumCover", (albumId, cover) => {
-        $(`#${albumId}`).attr("src", cover).removeClass("spinner-border text-black");
-    });
-
-    function onAlbumLoad(albumId) {
-        if (!albumIds.includes(albumId)) {
-            albumIds.push(albumId);
-        }
-    }
-</script>
-
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_deleted" class="toast toast-body-deleted" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -61,26 +14,58 @@
 
 @if (Model.Albums.Any())
 {
-    <div class="wrapper">
-        @foreach (var album in Model.Albums)
-        {
-            <div>
-                <a href="album/@album.Id">
-                    <img id="@album.Id" class="spinner-border text-black" onload="onAlbumLoad(@album.Id)" />
-                </a>
-                <div class="album-base-info">
-                    <div>@album.Artist.Data</div>
-                    <div>@album.Data</div>
-                </div>
-            </div>
-        }
+    <div class="album-page">
+        <div class="wrapper">
+            @foreach (var album in Model.Albums)
+            {
+                <article class="album-card">
+                    <a asp-controller="Album" asp-action="GetById" asp-route-id="@album.Id" class="album-link">
+                        <div class="album-img-wrapper">
+                            <div id="spinner-@album.Id" class="spinner-overlay">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </div>
+                            <img id="album-img-@album.Id"
+                                 class="album-cover d-none"
+                                 alt="@album.Artist.Data - @album.Data" />
+                        </div>
+                    </a>
+                    <div class="album-base-info">
+                        <div class="album-artist">@album.Artist.Data</div>
+                        <div class="album-title">@album.Data</div>
+                    </div>
+                </article>
+            }
+        </div>
+
         <div class="album-pagination">
-            <nav aria-label="Page navigation example">
+            <nav aria-label="Page navigation">
                 <ul id="pagination" class="pagination justify-content-center">
+                    @* Prev button *@
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage - 1 })" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    }
+
                     @for (int i = 1; i <= Model.PageCount; i++)
                     {
-                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                            <a id="@i" class="page-link" href="album?page=@i">@i</a>
+                        var isActive = i == Model.CurrentPage ? "active" : "";
+                        var ariaCurrent = i == Model.CurrentPage ? "aria-current=\"page\"" : "";
+                        <li class="page-item @isActive">
+                            <a data-page="@i" class="page-link" href="@Url.Action("Index", "Album", new { page = i })" @Html.Raw(ariaCurrent)>@i</a>
+                        </li>
+                    }
+
+                    @* Next button *@
+                    @if (Model.CurrentPage < Model.PageCount)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage + 1 })" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
                         </li>
                     }
                 </ul>
@@ -90,7 +75,68 @@
 }
 else
 {
-    <h4 class="mt-5 text-center">
-        Ooops... Invalid page / no data in database. Try to add first album.
-    </h4>
+    <div class="text-center mt-5">
+        <h4>Ooops... This page is empty!</h4>
+        <a href="@Url.Action("Create", "Album")" class="btn btn-primary mt-3">Add First Album</a>
+    </div>
 }
+
+<script>
+    let albumIds = new Set(@Json.Serialize(Model.Albums.Select(a => a.Id)));
+    let currentPage = @Json.Serialize(Model.CurrentPage);
+
+    $(document).ready(async () => {
+        if (@Json.Serialize(Model.Albums.Count()) === 0) {
+            $("#add-button").attr("class", "fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton blinker-button");
+        }
+
+        $(`#pagination a[data-page=${currentPage}]`).addClass("active").attr("aria-current", "page");
+
+        await start();
+        await getAlbumCovers();
+
+        if (sessionStorage.getItem("albumdeleted") === "1") {
+            showToast('toast_deleted');
+            sessionStorage.removeItem("albumdeleted");
+        }
+
+        localStorage.setItem("BACK_PAGE_INDEX", currentPage);
+    });
+
+    async function getAlbumCovers() {
+        try {
+            await connection.invoke("GetAlbumCovers", connection.connectionId, Array.from(albumIds));
+        } catch (err) {
+            console.error("Error sending request to GetAlbumCovers", err);
+        }
+    }
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    connection.on("ReceivedAlbumCover", (albumId, cover) => {
+        const img = $(`#album-img-${albumId}`);
+        const spinner = $(`#spinner-${albumId}`);
+
+        img.attr("src", cover)
+            .removeClass("d-none")
+            .on("load", () => spinner.addClass("hidden"))
+            .on("error", () => {
+                img.attr("src", "/img/nocover.png");
+                spinner.addClass("hidden");
+            });
+    });
+
+    function onAlbumLoad(albumId) {
+        albumIds.add(albumId);
+    }
+
+    function showToast(id) {
+        const $toastEl = $('#' + id);
+        if ($toastEl.length) {
+            const toast = new bootstrap.Toast($toastEl[0]);
+            toast.show();
+        }
+    }
+</script>

@@ -165,13 +165,10 @@
             <span class="info-label">Year</span>
             <span class="info-value">@Model.Album?.Year?.Data</span>
         </div>
-        @if (Model.Album?.Reissue != null)
-        {
-            <div class="info-card">
-                <span class="info-label">Reissue</span>
-                <span class="info-value">@Model.Album.Reissue.Data</span>
-            </div>
-        }
+        <div class="info-card">
+            <span class="info-label">Reissue</span>
+            <span class="info-value">@Model.Album?.Reissue?.Data</span>
+        </div>
         <div class="info-card">
             <span class="info-label">Genre</span>
             <span class="info-value">@Model.Album?.Genre?.Data</span>
@@ -185,8 +182,8 @@
             <span class="info-value">@Model.Album?.Label?.Data</span>
         </div>
         <div class="info-card">
-            <span class="info-label">Size</span>
-            <span class="info-value">@Model.Album?.Size Gb</span>
+            <span class="info-label">Size (Gb)</span>
+            <span class="info-value">@Model.Album?.Size</span>
         </div>
         <div class="info-card">
             <span class="info-label">Source</span>

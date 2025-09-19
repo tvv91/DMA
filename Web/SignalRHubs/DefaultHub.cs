@@ -68,7 +68,7 @@ namespace Web.SignalRHubs
             return _coverCache.GetOrAdd(albumId, id => _imgService.GetImageUrl(id, EntityType.AlbumCover));
         }
 
-        public void InvalidateAlbumCache(int albumId)
+        public static void InvalidateAlbumCache(int albumId)
         {
             _coverCache.TryRemove(albumId, out _);
         }

@@ -7,6 +7,7 @@ using Web.Extentions;
 using Web.Models;
 using Web.Response;
 using Web.Services;
+using Web.SignalRHubs;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -31,7 +32,6 @@ namespace Web.Controllers
                 ["genre"] = v => SearchStringAsync(albumRepository.Genres, x => x.Data, v),
                 ["year"] = v => SearchNumberAsync(albumRepository.Years, x => x.Data, v),
                 ["reissue"] = v => SearchNumberAsync(albumRepository.Reissues, x => x.Data, v),
-
                 // tech info
                 ["vinylstate"] = v => SearchStringAsync(_techInfoRepository.VinylStates, x => x.Data, v),
                 ["digitalformat"] = v => SearchStringAsync(_techInfoRepository.DigitalFormats, x => x.Data, v),
@@ -43,8 +43,6 @@ namespace Web.Controllers
                 ["amp"] = v => SearchStringAsync(_techInfoRepository.Amplifiers, x => x.Data, v),
                 ["adc"] = v => SearchStringAsync(_techInfoRepository.Adcs, x => x.Data, v),
                 ["wire"] = v => SearchStringAsync(_techInfoRepository.Wires, x => x.Data, v),
-
-                // manufacturers
                 ["player_manufacturer"] = v => SearchStringAsync(_techInfoRepository.PlayerManufacturers, x => x.Data, v),
                 ["cartridge_manufacturer"] = v => SearchStringAsync(_techInfoRepository.CartridgeManufacturers, x => x.Data, v),
                 ["amp_manufacturer"] = v => SearchStringAsync(_techInfoRepository.AmplifierManufacturers, x => x.Data, v),
@@ -130,7 +128,7 @@ namespace Web.Controllers
                 if (request.AlbumCover != null)
                     _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
 
-                return RedirectToAction("Edit", new { id = album.Id });
+                return RedirectToAction("GetById", "Album", new { id = album.Id });
             }
             catch (Exception ex)
             {
@@ -154,11 +152,17 @@ namespace Web.Controllers
                 await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
 
                 if (request.AlbumCover is not null)
+                {
                     _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
+                    DefaultHub.InvalidateAlbumCache(album.Id);
+                }
                 else
+                {
                     _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
+                    DefaultHub.InvalidateAlbumCache(album.Id);
+                }
 
-                return RedirectToAction("Edit", "Album", new { id = request.AlbumId });
+                return RedirectToAction("GetById", "Album", new { id = request.AlbumId });
             }
             catch (Exception ex)
             {

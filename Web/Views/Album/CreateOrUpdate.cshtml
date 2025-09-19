@@ -1,175 +1,5 @@
 ﻿@model AlbumCreateUpdateViewModel;
 
-<script>
-    
-    $(document).ready(async () => {
-        await start();
-    });
-
-    connection.onclose(async () => {
-        await start();
-    });
-    
-    $(() => {
-        $("input[id$='_input']").on("input", (e) => {
-            $("input[id$='_input']").autocomplete({
-                source: `/search/${e.target.id.replace("_input", "")}?value=${e.target.value}`,
-                messages: {
-                        noResults: '',
-                        results: () => {}
-                        },
-                select: function(event, sender) {
-                    getManufacturer(event.target.id.replace("_input", ""), sender.item.value);
-                }
-            });
-        });
-    });
-    
-    async function getManufacturer(category, value) {
-        try {
-            await connection.invoke("GetManufacturer", connection.connectionId, category, value);
-        } catch (err) {
-            console.log("Error sending request to GetManufacturer");
-        }
-    }    
-    
-    /* 
-    Show some bootstrap alerts. Alerts using for additional validation
-    Alert level defines css style of alert (danger, warning, etc.)
-    */
-    function showAlert(alertId, alertLevel, message) {
-        // remove all previous style classes
-        $(`#${alertId}`).removeClass("alert-success alert-warning alert-danger ");
-        // remove fa icon
-        $(`#${alertId} i`).removeClass();
-        
-        // set alert title and icon according to alert level (TODO: make more generic?)
-        switch (alertLevel) {
-            case "alert-success":
-                $(`#${alertId} strong`).text("OK");
-                $(`#${alertId} i`).addClass("fa-solid fa-circle-check");
-            break;
-            case "alert-warning":
-                $(`#${alertId} strong`).text("WARNING");
-                $(`#${alertId} i`).addClass("fa-solid fa-circle-exclamation");
-            break;
-            case "alert-danger":
-                $(`#${alertId} strong`).text("ATTENTION");
-                $(`#${alertId} i`).addClass("fa-solid fa-triangle-exclamation");
-            break;
-
-        }
-        
-        // clean previous message
-        $(`#${alertId} div`).empty().append(message);
-        // show alert
-        $(`#${alertId}`).addClass(`${alertLevel} show`).alert();
-    }
-
-    function onSubmit() {
-        let value = $("#sizeinput").val();
-        
-        if (value.includes(".")) {
-            $("#sizeinput:text").val(value.replace(/\./g, ','));
-        }
-        
-        switch ("@Model.Action") {
-            case "Create":
-                sessionStorage.setItem("albumcreated", "1");
-                break;
-            case "Update":
-                sessionStorage.setItem("albumupdated", "1");
-                break;
-        }
-    }
-
-    /*
-    Some checks for prevention to save incorrect data
-    for example, if you select any DSD format as digital format
-    and bitness more than 1, which impossible
-    */
-    function checkValidData() {
-        const dsdformats = ["dsd64", "dsd128", "dsd256", "dsd512"];
-        let codec = $("#digitalformat_input").val().toLowerCase();
-        let bitness = $("#bitness_input").val();
-        let sampling = $("#sampling_input").val();
-
-        if (codec !== "" && bitness !== "" && sampling !== "") {
-            if (dsdformats.some(x => codec.includes(x))) {
-                if (bitness !== "1") {
-                    showAlert("digitization_warning", "alert-warning", "DSD is 1 bit/s format");
-                }
-                else if (codec == 'dsd64' && (sampling !== "2.8" && sampling !== "2,8")) {
-                    showAlert("digitization_warning", "alert-warning",  "DSD64 sampling is 2.8 (MHz)");
-                }
-                else if (codec == 'dsd128' && sampling !== "5.6" && sampling !== "5,6") {
-                    showAlert("digitization_warning", "alert-warning", "DSD128 sampling is 5.6 (MHz)");
-                }
-                else if (codec == 'dsd256' && sampling !== "11.2" && sampling !== "11,2") {
-                    showAlert("digitization_warning", "alert-warning", "DSD256 sampling is 11.2 (MHz)");
-                }
-                else if (codec == 'dsd512' && sampling !== "22.5" && sampling !== "22,5") {
-                    showAlert("digitization_warning", "alert-warning", "DSD512 sampling is 22.5 (MHz)");
-                } else {
-                    $("#digitization_warning").removeClass("show");
-                }
-            }
-        }
-    }
-
-    /*
-    Check if album that you want to add is already present in db
-    You can store many samy albums but for example, digitized by
-    different hardware or different releases, etc. So, we should to know
-    if album present. So we should inform by very simple coincidences
-    (just album title and artist) and more specific (album, artist, storage, source, hardware etc.)
-    */
-    function checkAlbumIsExists() {
-        let artist = $("#artist_input").val();
-        let album = $("#album").val();
-
-        if (artist !== '' && album !== '') {
-            let source = $("#source").val();
-            checkAlbum(@Model.AlbumId, album, artist, source);
-        }
-    }
-
-    async function checkAlbum(albumId, artist, album, source) {
-        try {
-            await connection.invoke("CheckAlbum", connection.connectionId, albumId, artist, album, source);
-        } catch (err) {
-            console.log("Error sending request to GetManufacturer");
-        }
-    }
-
-    function prepareAlbumLinks(albumIds) {
-        let markup = '';
-        if (albumIds.length > 0) {
-            albumIds.forEach(id => markup += `&nbsp<a href="/album/${id}" target="_blank">${id}</a>&nbsp`)
-        }
-        return markup;
-    }
-
-    connection.on("ReceivedManufacturer", (category, result) => {
-         $(`input[id$='${category}_manufacturer_input']`).val(result);
-    });
-
-    connection.on("AlbumIsExist", (factor, albumIds) => { 
-        switch (factor) {
-             case 0:
-                showAlert("album-alert", "alert-success", "Similar albums / duplicates not found. The album will be added for the first time.");
-                break;
-             case 50:
-                showAlert("album-alert", "alert-warning", `Next album(s) [${prepareAlbumLinks(albumIds)}] already exists, Probably, digitized by another hardware.`);
-             break;
-             case 100: 
-                showAlert("album-alert", "alert-danger", `Next album(s) [${prepareAlbumLinks(albumIds)}] already exists with such source. Please, check for be sure that it's not duplication.`);
-             break;
-         }
-    });
-
-</script>
-
 <a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
 <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
     <div asp-validation-summary="ModelOnly"></div>
@@ -240,10 +70,159 @@
         Save
     </button>
 </form>
-
 <script>
+    const alertMessages = {
+        0: { type: "success", text: "No duplicates found. The album will be added." },
+        50: { type: "warning", text: (ids) => `Album(s) [${prepareAlbumLinks(ids)}] already exist with the same source. Please check to make sure this is not a duplicate.` },
+        100: { type: "danger", text: (ids) => `These album(s) [${prepareAlbumLinks(ids)}] already exist with this source. Please double-check to avoid duplicates.` }
+    };
+
+    const levels = {
+        "alert-success": { title: "OK",        icon: "fa-solid fa-circle-check" },
+        "alert-warning": { title: "WARNING",   icon: "fa-solid fa-circle-exclamation" },
+        "alert-danger":  { title: "ATTENTION", icon: "fa-solid fa-triangle-exclamation" }
+    };
+
+    const actions = {
+        "Create": "albumcreated",
+        "Update": "albumupdated"
+    };
+
+    const dsdFormats = {
+            dsd64:  "2.8",
+            dsd128: "5.6",
+            dsd256: "11.2",
+            dsd512: "22.5"
+    };
+
+    $(document).ready(async () => {
+        await start();
+    });
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    $(() => {
+        const getEntityName = (id) => id.replace("_input", "");
+        $("input[id$='_input']").each(function () {
+            const $input = $(this);
+            const entity = getEntityName(this.id);
+
+            $input.autocomplete({
+                source: (request, response) => {
+                    $.getJSON(`/search/${entity}`, { value: request.term }, response);
+                },
+                delay: 300,
+                minLength: 2,
+                messages: {
+                    noResults: '',
+                    results: () => {}
+                },
+                select: function (event, ui) {
+                    getManufacturer(entity, ui.item.value);
+                }
+            });
+        });
+    });
+
+    async function getManufacturer(category, value) {
+        try {
+            await connection.invoke("GetManufacturer", connection.connectionId, category, value);
+        } catch (err) {
+            console.log("Error sending request to GetManufacturer");
+        }
+    }
+
+    function showAlert(alertId, alertLevel, message) {
+        const $alert = $(`#${alertId}`);
+        const $icon = $alert.find("i");
+        const $title = $alert.find("strong");
+        const $body = $alert.find("div");
+
+        $alert.removeClass((_, cls) => (cls.match(/alert-\S+/g) || []).join(" "));
+        $icon.removeClass();
+
+        if (levels[alertLevel]) {
+            $title.text(levels[alertLevel].title);
+            $icon.addClass(levels[alertLevel].icon);
+        }
+
+        $body.empty().append(message);
+        $alert.addClass(`${alertLevel} show`).alert();
+    }
+
+    function onSubmit() {
+        const $input = $("#sizeinput");
+        const action = "@Model.Action";
+        let value = $input.val();
+
+        $input.val(value.replace(/\./g, ","));
+
+        if (actions[action]) {
+            sessionStorage.setItem(actions[action], "1");
+        }
+    }
+
+    function checkValidData() {
+        const codec = $("#digitalformat_input").val().toLowerCase();
+        const bitness = $("#bitness_input").val();
+        let sampling = $("#sampling_input").val().replace(",", ".");
+
+        if (!codec || !bitness || !sampling)
+            return;
+
+        if (dsdFormats[codec]) {
+            if (bitness !== "1") {
+                showAlert("digitization_warning", "alert-warning", "DSD is 1 bit/s format");
+            } else if (sampling !== dsdFormats[codec]) {
+                showAlert("digitization_warning", "alert-warning", `${codec.toUpperCase()} sampling is ${dsdFormats[codec]} (MHz)`);
+            } else {
+                $("#digitization_warning").removeClass("show");
+            }
+        }
+    }
+
+    function checkAlbumIsExists() {
+        let artist = $("#artist_input").val();
+        let album = $("#album").val();
+
+        if (artist !== '' && album !== '') {
+            let source = $("#source").val();
+            checkAlbum(@Model.AlbumId, album, artist, source);
+        }
+    }
+
+    async function checkAlbum(albumId, artist, album, source) {
+        try {
+            await connection.invoke("CheckAlbum", connection.connectionId, albumId, artist, album, source);
+        } catch (err) {
+            console.log("Error sending request to GetManufacturer");
+        }
+    }
+
+    function prepareAlbumLinks(albumIds) {
+        let markup = '';
+        if (albumIds.length > 0) {
+            albumIds.forEach(id => markup += `&nbsp<a href="/album/${id}" target="_blank">${id}</a>&nbsp`)
+        }
+        return markup;
+    }
+
+    connection.on("ReceivedManufacturer", (category, result) => {
+         $(`input[id$='${category}_manufacturer_input']`).val(result);
+    });
+
+    connection.on("AlbumIsExist", (factor, albumIds) => {
+        const message = alertMessages[factor];
+        if (!message)
+            return;
+        const text = typeof message.text === "function" ? message.text(albumIds) : message.text;
+        showAlert("album-alert", `alert-${message.type}`, text);
+    });
+
     Dropzone.autoDiscover = false;
-    let myDropzone = new Dropzone("div#mydropzone", 
+    let myDropzone = new Dropzone("div#mydropzone",
     {
         url: "/uploadimage",
         addRemoveLinks: true,

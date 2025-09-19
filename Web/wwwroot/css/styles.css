@@ -472,30 +472,57 @@
 /* Equipment styles */
 .equipment-box {
     display: grid;
-    grid-template-columns: repeat(10, 100px);
-    grid-template-rows: 100px 100px auto;
-    grid-column-gap: 10px;
-    grid-row-gap: 100px;
-    justify-content: center;
-    padding-top: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+    justify-items: center;
 }
 
-.eq-item-info {
+.equipment-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    overflow: hidden;
+    width: 100%;
+    max-width: 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .equipment-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    .equipment-card img {
+        width: 100%;
+        height: 150px;
+        object-fit: contain;
+        background-color: #f5f5f5;
+        display: block;
+    }
+
+.equipment-info {
+    padding: 10px;
     text-align: center;
 }
 
-.eq-pagination {
-    grid-row: 3;
-}
+    .equipment-info b {
+        display: block;
+        font-size: 0.9rem;
+        color: #333;
+    }
 
-.eq-noitems {
-    text-align: center;
-    grid-column: span 10;
-    font-weight: bold;
-}
+    .equipment-info .manufacturer {
+        font-weight: normal;
+        color: #666;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
 
 /* Equipment Create / Update view styles*/
-
 .new-update-equipment {
     display: grid;
     grid-template-columns: 350px auto;
@@ -504,7 +531,7 @@
     margin-top: 10px;
 }
 
-.equipment-info {
+.equipment-info-temp {
     grid-row: 1;
     border: 1px solid;
     margin: 0 0 0 10px;

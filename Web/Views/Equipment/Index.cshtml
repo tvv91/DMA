@@ -1,153 +1,4 @@
-﻿<script>
-    const CURRENT_TAB = "CURRENT_TAB";
-    const BACK_PAGE_EQUIPMENT_INDEX = "BACK_PAGE_EQUIPMENT_INDEX";
-
-    // for simpler category handling
-    const CATEGORY_MAP = new Map([
-        ["adc-tab", "adc"],
-        ["amplifier-tab", "amplifier"],
-        ["cartridge-tab", "cartridge"],
-        ["player-tab", "player"],
-        ["wire-tab", "wire"],
-    ]);
-
-    $(document).ready(async () => {
-        await start();    
-        
-        if (sessionStorage.getItem("equipment_deleted") == "1") {
-            $('#toast_deleted').toast('show');
-                sessionStorage.removeItem("equipment_deleted");
-        }
-
-        // Init
-        /*
-            For more convenient navigation we should remember last opened equipment tab and page
-            Otherwise, every time when you open concrete item to watch details and then click back button,
-            you will be redirected to first tab (Adc) and first page, that is very annoys.
-            If we have no previose state, then make active first tab and first page
-            May be, better way is to open modal window with details without all this jquery's shit =) 
-            Who knows, but currently implemented as is
-        */
-        if (localStorage.getItem(CURRENT_TAB) !== null) {
-            const lastOpenTab = localStorage.getItem(CURRENT_TAB);
-            const lastOpenPage = localStorage.getItem(BACK_PAGE_EQUIPMENT_INDEX);
-            // make last tab active
-            $(`#${lastOpenTab}`).attr("class", "nav-link active");
-            // load items for last opened tab
-            await getHardwareByCategory(CATEGORY_MAP.get(lastOpenTab), parseInt(lastOpenPage));
-            // highlight last active page
-            $(`a[id=${lastOpenPage}]`).attr("class", "page-link active");
-        } else {
-            $(`#adc-tab`).attr("class", "nav-link active");
-            // load first tab items, set current tab
-            await getHardwareByCategory(CATEGORY_MAP.get("adc-tab"), 1);
-            // remember active tab
-            localStorage.setItem(CURRENT_TAB, "adc-tab");
-             // need for returning page from equipment/{id}
-            localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, 1);
-            // highlight fist page as active
-            $("a[id=1]").attr("class", "page-link active");
-        }      
-
-        // when click page on pagination
-        $("#pagination").on("click", async (e)=> {
-            // paginate only when click new page, because it's useless requests to backend
-            if ($(".page-link.active").attr("id") !== e.target.id && e.target.id !== "pagination") {
-                const currentTab = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
-                localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, e.target.id);
-                // remove items
-                $(`#items-container`).find('div').remove();
-                // remove pagination bar
-                $("#pagination").find('li').remove();
-                // paginate to specific page
-                await getHardwareByCategory(currentTab, parseInt(e.target.id));
-                // highlight active page
-                $(`a[id=${e.target.id}]`).attr("class", "page-link active");
-            }
-        });        
-        
-        // when we click on equipment category tab
-        $("#navigation li button").on("click", async(e) => {
-            // get last active tab
-            const currentTab = localStorage.getItem(CURRENT_TAB);
-            // if new tab opened
-            if (currentTab !== e.target.id) {
-                // save state of current tab
-                localStorage.setItem(CURRENT_TAB, e.target.id);
-                // remove elements from previous category
-                $(`#items-container`).find('div').remove();
-                // load elements of new category
-                await getHardwareByCategory(CATEGORY_MAP.get(e.target.id), 1);
-                // reset last page
-                localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, 1);
-                $("a[id=1]").attr("class", "page-link active");
-            }
-        });
-    });
-    
-    async function getHardwareByCategory(category, page) {
-        try {
-            await connection.invoke("GetHardwareByCategory", connection.connectionId, category, page);
-        } catch {
-            console.log("Error sending request to GetHardwareByCategory");
-        }
-    }
-
-    connection.on("ReceivedItems", async (result) => {
-        if (result.length === 0) {
-            $("#items-container").append(
-            `<div class="eq-noitems">
-                There are no items
-            <div>`);
-        } else {
-            const category = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
-            result.forEach(x => {
-            $("#items-container").append(
-            `<div class="equipment-detail-item">
-                <div id="${x.id}" class="spinner-border justifiy-element-size">
-                    <a href="equipment/${category}/${x.id}">
-                        <img id="${x.id}"class="justifiy-element-size" style="display:none"/>
-                    </a>                    
-                </div>
-                <div class="eq-item-info">
-                    <b>${x.manufacturer !== null ? x.manufacturer + "<br>" : ''}</b>
-                    <b>${x.model}</b>
-                </div>
-            <div>`);
-        });
-        }
-    });
-
-    connection.on("ReceivedItemImage", (id, result) => {
-        if (result) {
-            $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size");
-            $(`#items-container img[id=${id}]`).attr("src", result).css("display", "");
-        } else {
-            const category = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
-            $(`#items-container div[id=${id}]`).attr("class", "justifiy-element-size").append
-            (`<a href="equipment/${category}/${id}" style="color: black;">
-                <i id='nocovericon' class="fa-regular fa-image fa-4x equipment-detail-image"></i>
-             </a>`);
-        }
-    });
-
-    // generate pagination buttons
-    connection.on("ReceivedItemsCount", (count) => {
-        // reset pagination
-        $("#pagination").find('li').remove();
-        if (count > 0) {
-            for(let c = 1; c <= count; c++) {
-                $("#pagination").append(
-                `<li class="page-item"><a id="${c}" class="page-link" href="#">${c}</a></li>`);
-            }
-        }
-    });
-
-    connection.onclose(async () => {
-        await start();
-    });
-</script>
-<div class="toast-container position-fixed bottom-0 end-0 p-3">
+﻿<div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_deleted" class="toast toast-body-deleted" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Information</strong>
@@ -225,3 +76,124 @@
         </nav>
     </div>
 </div>
+<script>
+    const CURRENT_TAB = "CURRENT_TAB";
+    const BACK_PAGE_EQUIPMENT_INDEX = "BACK_PAGE_EQUIPMENT_INDEX";
+    const CATEGORY_MAP = new Map([
+        ["adc-tab", "adc"],
+        ["amplifier-tab", "amplifier"],
+        ["cartridge-tab", "cartridge"],
+        ["player-tab", "player"],
+        ["wire-tab", "wire"],
+    ]);
+
+    $(document).ready(async () => {
+        await start();
+
+        showDeletedToastIfNeeded();
+        await initializeTab();
+        setupEventHandlers();
+    });
+
+    function showDeletedToastIfNeeded() {
+        if (sessionStorage.getItem("equipment_deleted") === "1") {
+            $('#toast_deleted').toast('show');
+            sessionStorage.removeItem("equipment_deleted");
+        }
+    }
+
+    async function initializeTab() {
+        const lastTab = localStorage.getItem(CURRENT_TAB) || "adc-tab";
+        const lastPage = parseInt(localStorage.getItem(BACK_PAGE_EQUIPMENT_INDEX)) || 1;
+        await loadCategoryPage(lastTab, lastPage);
+    }
+
+    function setupEventHandlers() {
+        $("#pagination").on("click", async (e) => {
+            const pageId = e.target.id;
+            if (pageId !== "pagination" && $(".page-link.active").attr("id") !== pageId) {
+                await loadCategoryPage(localStorage.getItem(CURRENT_TAB), parseInt(pageId));
+            }
+        });
+
+        $("#navigation li button").on("click", async (e) => {
+            const newTab = e.target.id;
+            if (localStorage.getItem(CURRENT_TAB) !== newTab) {
+                await loadCategoryPage(newTab, 1);
+            }
+        });
+
+        connection.onclose(async () => {
+            console.log("Connection lost, retrying...");
+            await start();
+        });
+    }
+
+    async function loadCategoryPage(categoryId, page = 1) {
+        localStorage.setItem(CURRENT_TAB, categoryId);
+        localStorage.setItem(BACK_PAGE_EQUIPMENT_INDEX, page);
+
+        clearItemsAndPagination();
+        await getHardwareByCategory(CATEGORY_MAP.get(categoryId), page);
+        $(`a.page-link`).removeClass("active");
+        $(`a[id=${page}]`).addClass("active");
+        $("#navigation li button").removeClass("active");
+        $(`#${categoryId}`).addClass("active");
+    }
+
+    function clearItemsAndPagination() {
+        $('#items-container').empty();
+        $('#pagination').empty();
+    }
+
+    async function getHardwareByCategory(category, page) {
+        try {
+            await connection.invoke("GetHardwareByCategory", connection.connectionId, category, page);
+        } catch (err) {
+            console.error("Error sending request to GetHardwareByCategory", err);
+        }
+    }
+
+        connection.on("ReceivedItems", (items) => {
+        const container = $("#items-container").empty();
+
+        if (!items || items.length === 0) {
+            container.append(`<div class="eq-noitems">There are no items</div>`);
+            return;
+        }
+
+        const category = CATEGORY_MAP.get(localStorage.getItem(CURRENT_TAB));
+
+        items.forEach(x => {
+            container.append(`
+                <div class="equipment-card">
+                    <a href="equipment/${category}/${x.id}">
+                        <img id="img-${x.id}" src="" style="display:none" />
+                    </a>
+                    <div class="equipment-info">
+                        <span class="manufacturer">${x.manufacturer ?? ""}</span>
+                        <b>${x.model}</b>
+                    </div>
+                </div>
+            `);
+        });
+    });
+
+    connection.on("ReceivedItemImage", (id, src) => {
+        const img = $(`#img-${id}`);
+        if (src) {
+            img.attr("src", src).fadeIn(400);
+        } else {
+            img.replaceWith(`<i class="fa-regular fa-image fa-4x" style="color: #888; margin: 30px 0;"></i>`);
+        }
+    });
+
+    connection.on("ReceivedItemsCount", (count) => {
+        const pagination = $("#pagination").empty();
+        if (count > 0) {
+            for (let c = 1; c <= count; c++) {
+                pagination.append(`<li class="page-item"><a id="${c}" class="page-link" href="#">${c}</a></li>`);
+            }
+        }
+    });
+</script>

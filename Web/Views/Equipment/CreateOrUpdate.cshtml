@@ -1,4 +1,5 @@
 ﻿@model EquipmentViewModel;
+
 <script>
     
     $(document).ready(async () => {
@@ -57,7 +58,7 @@
         <div class="cover-image">
             <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
         </div>
-        <div class="equipment-info">
+        <div class="equipment-info-temp">
             <div class="equipment-form-input">
                 <div class="equipment-select">
                     <select class="form-select" asp-for="EquipmentType" asp-items="Model.Equipments" onchange="onChange(this)"></select>

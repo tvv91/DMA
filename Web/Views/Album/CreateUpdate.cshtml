@@ -1,0 +1,256 @@
+﻿@model AlbumCreateUpdateViewModel;
+
+<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
+<form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
+    <div asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" id="coverid" asp-for="AlbumCover" />
+    <input type="hidden" id="albumid" asp-for="AlbumId" />
+    <input type="hidden" id="action" asp-for="Action" />
+    <div class="new-update-album">
+        <div class="cover-image">
+            <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
+        </div>
+        <div class="album-main-info">
+            <div class="album-form-input">
+                <input id="artist_input" class="input-textbox" asp-for="Artist" autocomplete="on" placeholder="Artist" onchange="checkAlbumIsExists()" />
+                <input id="album" class="input-textbox" asp-for="Album" placeholder="Album" onchange="checkAlbumIsExists()" />
+                <input id="genre_input" class="input-textbox" asp-for="Genre" autocomplete="on" placeholder="Genre" />
+                <input id="year_input" class="input-textbox" asp-for="Year" autocomplete="on" placeholder="Year"/>
+                <input id="reissue_input" class="input-textbox" asp-for="Reissue" placeholder="Reissue" />
+                <input class="input-textbox" asp-for="Country" placeholder="Country"/>
+                <input class="input-textbox" asp-for="Label" placeholder="Label"/>
+                <input id="source" class="input-textbox" asp-for="Source" placeholder="Source" onchange="checkAlbumIsExists()" />
+                <input class="input-textbox" asp-for="Discogs" placeholder="Discogs"/>
+                <input id="sizeinput" class="input-textbox" asp-for="Size" placeholder="Size(Gb)"/>
+                <input class="input-textbox" asp-for="Storage" placeholder="Storage" />
+            </div>
+            <div id="album-alert" class="alert alert-danger alert-dismissible fade" role="alert">
+                <i>&nbsp</i>
+                <strong></strong>
+                <div></div>
+            </div>
+        </div>
+        <div class="tech-info-wrapper">
+            <div class="tech-info-digitization">
+                <h4 style="text-align:center">Digitization</h4>
+                <hr />
+                <div class="album-form-input">
+                    <input id="vinylstate_input" class="input-textbox" asp-for="VinylState" autocomplete="on" placeholder="Vinyl state"/>
+                    <input id="digitalformat_input" class="input-textbox" asp-for="DigitalFormat" placeholder="Digital format" autocomplete="on" onchange="checkValidData()" />
+                    <input id="bitness_input" class="input-textbox" asp-for="Bitness" onchange="checkValidData()" placeholder="Bitness" />
+                    <input id="sampling_input" class="input-textbox" asp-for="Sampling" onchange="checkValidData()" placeholder="Sampling" />
+                    <input id="sourceformat_input" class="input-textbox" asp-for="SourceFormat" placeholder="Source format" />
+                </div>
+                <div id="digitization_warning" class="alert alert-danger alert-dismissible fade" role="alert">
+                    <i id="alert-icon" class="">&nbsp</i>
+                    <strong></strong>
+                    <div></div>
+                </div>
+            </div>
+            <div class="tech-info-hardware">
+                <h4 style="text-align:center">Hardware</h4>
+                <hr />
+                <div class="album-form-input">
+                    <input id="player_input" class="input-textbox" asp-for="Player" placeholder="Player" />
+                    <input id="player_manufacturer_input" class="input-textbox" asp-for="PlayerManufacturer" placeholder="Manufacturer" />
+                    <input id="cartridge_input" class="input-textbox" asp-for="Cartridge" placeholder="Cartridge" />
+                    <input id="cartridge_manufacturer_input" class="input-textbox" asp-for="CartridgeManufacturer" placeholder="Manufacturer" />
+                    <input id="amp_input" class="input-textbox" asp-for="Amplifier" placeholder="Amplifier" />
+                    <input id="amp_manufacturer_input" class="input-textbox" asp-for="AmplifierManufacturer" placeholder="Manufacturer" />
+                    <input id="adc_input" class="input-textbox" asp-for="Adc" placeholder="Adc" />
+                    <input id="adc_manufacturer_input" class="input-textbox" asp-for="AdcManufacturer" placeholder="Manufacturer" />
+                    <input id="wire_input" class="input-textbox" asp-for="Wire" placeholder="Wire" />                    
+                    <input id="wire_manufacturer_input" class="input-textbox" asp-for="WireManufacturer" placeholder="Manufacturer" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="submit_button" type="submit" style="float:right;" class="mt-2">
+        <i class="fa-sharp fa-solid fa-check"></i>
+        Save
+    </button>
+</form>
+<script>
+    const alertMessages = {
+        0: { type: "success", text: "No duplicates found. The album will be added." },
+        50: { type: "warning", text: (ids) => `Album(s) [${prepareAlbumLinks(ids)}] already exist with the same source. Please check to make sure this is not a duplicate.` },
+        100: { type: "danger", text: (ids) => `These album(s) [${prepareAlbumLinks(ids)}] already exist with this source. Please double-check to avoid duplicates.` }
+    };
+
+    const levels = {
+        "alert-success": { title: "OK",        icon: "fa-solid fa-circle-check" },
+        "alert-warning": { title: "WARNING",   icon: "fa-solid fa-circle-exclamation" },
+        "alert-danger":  { title: "ATTENTION", icon: "fa-solid fa-triangle-exclamation" }
+    };
+
+    const actions = {
+        "Create": "albumcreated",
+        "Update": "albumupdated"
+    };
+
+    const dsdFormats = {
+            dsd64:  "2.8",
+            dsd128: "5.6",
+            dsd256: "11.2",
+            dsd512: "22.5"
+    };
+
+    $(document).ready(async () => {
+        await start();
+    });
+
+    connection.onclose(async () => {
+        await start();
+    });
+
+    $(() => {
+        const getEntityName = (id) => id.replace("_input", "");
+        $("input[id$='_input']").each(function () {
+            const $input = $(this);
+            const entity = getEntityName(this.id);
+
+            $input.autocomplete({
+                source: (request, response) => {
+                    $.getJSON(`/search/${entity}`, { value: request.term }, response);
+                },
+                delay: 300,
+                minLength: 2,
+                messages: {
+                    noResults: '',
+                    results: () => {}
+                },
+                select: function (event, ui) {
+                    getManufacturer(entity, ui.item.value);
+                }
+            });
+        });
+    });
+
+    async function getManufacturer(category, value) {
+        try {
+            await connection.invoke("GetManufacturer", connection.connectionId, category, value);
+        } catch (err) {
+            console.log("Error sending request to GetManufacturer");
+        }
+    }
+
+    function showAlert(alertId, alertLevel, message) {
+        const $alert = $(`#${alertId}`);
+        const $icon = $alert.find("i");
+        const $title = $alert.find("strong");
+        const $body = $alert.find("div");
+
+        $alert.removeClass((_, cls) => (cls.match(/alert-\S+/g) || []).join(" "));
+        $icon.removeClass();
+
+        if (levels[alertLevel]) {
+            $title.text(levels[alertLevel].title);
+            $icon.addClass(levels[alertLevel].icon);
+        }
+
+        $body.empty().append(message);
+        $alert.addClass(`${alertLevel} show`).alert();
+    }
+
+    function onSubmit() {
+        const $input = $("#sizeinput");
+        const action = "@Model.Action";
+        let value = $input.val();
+
+        $input.val(value.replace(/\./g, ","));
+
+        if (actions[action]) {
+            sessionStorage.setItem(actions[action], "1");
+        }
+    }
+
+    function checkValidData() {
+        const codec = $("#digitalformat_input").val().toLowerCase();
+        const bitness = $("#bitness_input").val();
+        let sampling = $("#sampling_input").val().replace(",", ".");
+
+        if (!codec || !bitness || !sampling)
+            return;
+
+        if (dsdFormats[codec]) {
+            if (bitness !== "1") {
+                showAlert("digitization_warning", "alert-warning", "DSD is 1 bit/s format");
+            } else if (sampling !== dsdFormats[codec]) {
+                showAlert("digitization_warning", "alert-warning", `${codec.toUpperCase()} sampling is ${dsdFormats[codec]} (MHz)`);
+            } else {
+                $("#digitization_warning").removeClass("show");
+            }
+        }
+    }
+
+    function checkAlbumIsExists() {
+        let artist = $("#artist_input").val();
+        let album = $("#album").val();
+
+        if (artist !== '' && album !== '') {
+            let source = $("#source").val();
+            checkAlbum(@Model.AlbumId, album, artist, source);
+        }
+    }
+
+    async function checkAlbum(albumId, artist, album, source) {
+        try {
+            await connection.invoke("CheckAlbum", connection.connectionId, albumId, artist, album, source);
+        } catch (err) {
+            console.log("Error sending request to GetManufacturer");
+        }
+    }
+
+    function prepareAlbumLinks(albumIds) {
+        let markup = '';
+        if (albumIds.length > 0) {
+            albumIds.forEach(id => markup += `&nbsp<a href="/album/${id}" target="_blank">${id}</a>&nbsp`)
+        }
+        return markup;
+    }
+
+    connection.on("ReceivedManufacturer", (category, result) => {
+         $(`input[id$='${category}_manufacturer_input']`).val(result);
+    });
+
+    connection.on("AlbumIsExist", (factor, albumIds) => {
+        const message = alertMessages[factor];
+        if (!message)
+            return;
+        const text = typeof message.text === "function" ? message.text(albumIds) : message.text;
+        showAlert("album-alert", `alert-${message.type}`, text);
+    });
+
+    Dropzone.autoDiscover = false;
+    let myDropzone = new Dropzone("div#mydropzone",
+    {
+        url: "/uploadimage",
+        addRemoveLinks: true,
+        thumbnailWidth: 300,
+        thumbnailHeight: 300,
+        resizeWidth: 300,
+        resizeHeight: 300,
+        dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
+        acceptedFiles: ".jpeg,.png,.jpg",
+            success: (file, data) => {
+                $("#coverid").val(data.filename);
+                let preview = $(file.previewElement);
+                preview.addClass("dz-success text-success");
+            },
+            init: function() {
+                const coverId = $("#coverid").val();
+                if (coverId !== "" && !coverId.includes("nocover")) {
+                    let myDropzone = this;
+                    let coverUrl = window.location.href.includes("edit") ? coverId : `/temp/${coverId}`;
+                    myDropzone.displayExistingFile({}, coverUrl);
+                }
+            },
+            removedfile: function(file) {
+                $("#coverid").val("");
+                if (file.previewElement != null && file.previewElement.parentNode != null) {
+                    file.previewElement.parentNode.removeChild(file.previewElement);
+                }
+                return this._updateMaxFilesReachedClass();
+            }
+    });
+</script>

@@ -61,14 +61,20 @@
         }
     });
 
-    connection.on("ReceivedAlbumCoverDetailed", (cover) => {
+        connection.on("ReceivedAlbumCoverDetailed", (cover) => {
+        const $cover = $('#cover');
+        const $spinnerOverlay = $('#coverSpinnerOverlay');
+        const $noCover = $('#nocovericon');
+
         if (cover.includes("nocover")) {
-            $('#nocovericon').css("display", "");
-            $('#coverspinner').css("display", "none");
+            $noCover.show();
+            $spinnerOverlay.addClass('hidden');
             $('#coverdiv').css("border", "solid");
         } else {
-            $('#cover').fadeIn(1000).css("display", "").attr("src", cover);
-            $('#coverspinner').css("display", "none");
+            $cover.attr("src", cover).show().on('load', () => {
+                $cover.addClass('loaded'); // плавное появление
+                $spinnerOverlay.addClass('hidden'); // скрываем спиннер
+            });
         }
     });
 
@@ -201,8 +207,10 @@
     </div>
     <div class="album-main-row">
         <div class="album-cover-box">
-            <div id="coverdiv">
-                <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
+            <div id="coverdiv" style="position: relative;">
+                <div class="spinner-overlay" id="coverSpinnerOverlay">
+                    <div class="spinner-border" role="status"></div>
+                </div>
                 <i id="nocovericon" class="fa-regular fa-image fa-10x" style="display: none"></i>
                 <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
             </div>

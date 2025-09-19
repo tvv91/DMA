@@ -1,100 +1,5 @@
 ﻿@model AlbumDetailsViewModel
 
-<script>
-        function showToastFromStorage(key, toastId) {
-        if (sessionStorage.getItem(key) === "1") {
-            $(`#${toastId}`).toast("show");
-            sessionStorage.removeItem(key);
-        }
-    }
-    $(document).ready(async () => {
-        await start();
-        await getTechnicalInfoIcons(@Model.Album.Id);
-        await getAlbumCover(@Model.Album.Id);
-
-        showToastFromStorage("albumupdated", "toastinfo_updated");
-        showToastFromStorage("albumcreated", "toastinfo_created");
-
-        const backIndex = localStorage.getItem("BACK_PAGE_INDEX");
-        if (backIndex && backIndex !== "1") {
-            $("#back_button").attr("href", `/album?page=${backIndex}`);
-        }
-    })
-
-    async function getTechnicalInfoIcons(albumId) {
-        try {
-            await connection.invoke("GetTechnicalInfoIcons", connection.connectionId, albumId);
-        } catch (err) {
-            console.log("Error sending request to GetTechnicalInfoIcons");
-        }
-    }
-
-    async function getAlbumCover(albumId) {
-        try {
-            await connection.invoke("GetAlbumCover", connection.connectionId, albumId);
-        } catch (err) {
-            console.log("Error sending request to GetAlbumCover");
-        }
-    }
-
-    connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
-        const $spinner = $(`#${category}spinner`);
-        const $img = $(`#${category}`);
-        const $icon = $(`#${category}icon`);
-        const $value = $(`#${category}`).closest(".tech-card").find(".value");
-        const noCover = !cover || cover.toLowerCase().includes("nocover");
-        const hasData = $value.text().trim() !== "No data";
-    
-        $spinner.hide();
-
-        if (hasData) {
-            if (noCover) {
-                $img.hide();
-                $icon.show();
-            } else {
-                $img.show().attr("src", cover);
-                $icon.hide();
-            }
-        } else {
-            $img.hide();
-            $icon.hide();
-        }
-    });
-
-        connection.on("ReceivedAlbumCoverDetailed", (cover) => {
-        const $cover = $('#cover');
-        const $spinnerOverlay = $('#coverSpinnerOverlay');
-        const $noCover = $('#nocovericon');
-
-        if (cover.includes("nocover")) {
-            $noCover.show();
-            $spinnerOverlay.addClass('hidden');
-            $('#coverdiv').css("border", "solid");
-        } else {
-            $cover.attr("src", cover).show().on('load', () => {
-                $cover.addClass('loaded'); // плавное появление
-                $spinnerOverlay.addClass('hidden'); // скрываем спиннер
-            });
-        }
-    });
-
-    async function onRemove(albumId) {
-        try {
-            const response = await fetch(`delete?id=${albumId}`, { method: "DELETE" });
-
-            if (response.ok) {
-                sessionStorage.setItem("albumdeleted", "1");
-                window.location.href = "/album";
-            } else {
-                $('#toasterror').toast('show');
-            }
-        } catch (err) {
-            console.error("Delete failed", err);
-            $('#toasterror').toast('show');
-        }
-    }
-</script>
-
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toasterror" class="toast toast-body-error" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header toast-header-error">
@@ -393,3 +298,98 @@
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(async () => {
+        await start();
+        await getTechnicalInfoIcons(@Model.Album.Id);
+        await getAlbumCover(@Model.Album.Id);
+
+        showToastFromStorage("albumupdated", "toastinfo_updated");
+        showToastFromStorage("albumcreated", "toastinfo_created");
+
+        const backIndex = localStorage.getItem("BACK_PAGE_INDEX");
+        if (backIndex && backIndex !== "1") {
+            $("#back_button").attr("href", `/album?page=${backIndex}`);
+        }
+    })
+
+    function showToastFromStorage(key, toastId) {
+        if (sessionStorage.getItem(key) === "1") {
+            $(`#${toastId}`).toast("show");
+            sessionStorage.removeItem(key);
+        }
+    }
+
+    async function getTechnicalInfoIcons(albumId) {
+        try {
+            await connection.invoke("GetTechnicalInfoIcons", connection.connectionId, albumId);
+        } catch (err) {
+            console.log("Error sending request to GetTechnicalInfoIcons");
+        }
+    }
+
+    async function getAlbumCover(albumId) {
+        try {
+            await connection.invoke("GetAlbumCover", connection.connectionId, albumId);
+        } catch (err) {
+            console.log("Error sending request to GetAlbumCover");
+        }
+    }
+
+    connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
+        const $spinner = $(`#${category}spinner`);
+        const $img = $(`#${category}`);
+        const $icon = $(`#${category}icon`);
+        const $value = $(`#${category}`).closest(".tech-card").find(".value");
+        const noCover = !cover || cover.toLowerCase().includes("nocover");
+        const hasData = $value.text().trim() !== "No data";
+
+        $spinner.hide();
+
+        if (hasData) {
+            if (noCover) {
+                $img.hide();
+                $icon.show();
+            } else {
+                $img.show().attr("src", cover);
+                $icon.hide();
+            }
+        } else {
+            $img.hide();
+            $icon.hide();
+        }
+    });
+
+    connection.on("ReceivedAlbumCoverDetailed", (cover) => {
+        const $cover = $('#cover');
+        const $spinnerOverlay = $('#coverSpinnerOverlay');
+        const $noCover = $('#nocovericon');
+
+        if (cover.includes("nocover")) {
+            $noCover.show();
+            $spinnerOverlay.addClass('hidden');
+            $('#coverdiv').css("border", "solid");
+        } else {
+            $cover.attr("src", cover).show().on('load', () => {
+                $cover.addClass('loaded');
+                $spinnerOverlay.addClass('hidden');
+            });
+        }
+    });
+
+    async function onRemove(albumId) {
+        try {
+            const response = await fetch(`delete?id=${albumId}`, { method: "DELETE" });
+
+            if (response.ok) {
+                sessionStorage.setItem("albumdeleted", "1");
+                window.location.href = "/album";
+            } else {
+                $('#toasterror').toast('show');
+            }
+        } catch (err) {
+            console.error("Delete failed", err);
+            $('#toasterror').toast('show');
+        }
+    }
+</script>

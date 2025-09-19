@@ -1,20 +1,23 @@
 ﻿@model AlbumDetailsViewModel
 
 <script>
+        function showToastFromStorage(key, toastId) {
+        if (sessionStorage.getItem(key) === "1") {
+            $(`#${toastId}`).toast("show");
+            sessionStorage.removeItem(key);
+        }
+    }
     $(document).ready(async () => {
         await start();
         await getTechnicalInfoIcons(@Model.Album.Id);
         await getAlbumCover(@Model.Album.Id);
-        if (sessionStorage.getItem("albumupdated") == "1") {
-            $('#toastinfo_updated').toast('show');
-            sessionStorage.removeItem("albumupdated");
-        }
-        if (sessionStorage.getItem("albumcreated") == "1") {
-            $('#toastinfo_created').toast('show');
-            sessionStorage.removeItem("albumcreated");
-        }
-        if (localStorage.getItem("BACK_PAGE_INDEX") !== "1") {
-            $("#back_button").attr("href", `/album?page=${localStorage.getItem("BACK_PAGE_INDEX")}`);
+
+        showToastFromStorage("albumupdated", "toastinfo_updated");
+        showToastFromStorage("albumcreated", "toastinfo_created");
+
+        const backIndex = localStorage.getItem("BACK_PAGE_INDEX");
+        if (backIndex && backIndex !== "1") {
+            $("#back_button").attr("href", `/album?page=${backIndex}`);
         }
     })
 
@@ -34,20 +37,31 @@
         }
     }
 
-connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
-    const $img = $(`#${category}`);
-    const $icon = $(`#${category}icon`);
+    connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
+        const $spinner = $(`#${category}spinner`);
+        const $img = $(`#${category}`);
+        const $icon = $(`#${category}icon`);
+        const $value = $(`#${category}`).closest(".tech-card").find(".value");
+        const noCover = !cover || cover.toLowerCase().includes("nocover");
+        const hasData = $value.text().trim() !== "No data";
+    
+        $spinner.hide();
 
-    if (!cover || cover.toLowerCase().includes("nocover")) {
-        $img.hide();
-        $icon.show();
-    } else {
-        $img.attr("src", cover).show();
-        $icon.hide();
-    }
-});
+        if (hasData) {
+            if (noCover) {
+                $img.hide();
+                $icon.show();
+            } else {
+                $img.show().attr("src", cover);
+                $icon.hide();
+            }
+        } else {
+            $img.hide();
+            $icon.hide();
+        }
+    });
 
-    connection.on("ReceivedAlbumConverDetailed", (cover) => {
+    connection.on("ReceivedAlbumCoverDetailed", (cover) => {
         if (cover.includes("nocover")) {
             $('#nocovericon').css("display", "");
             $('#coverspinner').css("display", "none");
@@ -58,20 +72,21 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
         }
     });
 
-    function onRemove(albumId) {
-        const request = new Request(`delete?id=${albumId}`, {
-            method: "DELETE"
-        });
-        fetch(request).then((response) => {
-            if (response.status === 200) {
+    async function onRemove(albumId) {
+        try {
+            const response = await fetch(`delete?id=${albumId}`, { method: "DELETE" });
+
+            if (response.ok) {
                 sessionStorage.setItem("albumdeleted", "1");
                 window.location.href = "/album";
-            }
-            if (response.status === 400) {
+            } else {
                 $('#toasterror').toast('show');
             }
-        });
-    };
+        } catch (err) {
+            console.error("Delete failed", err);
+            $('#toasterror').toast('show');
+        }
+    }
 </script>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
@@ -195,6 +210,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
         <div class="album-tech-box">
             <div class="tech-info-grid">
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Vinyl state">
+                    <div id="vinylstatespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="vinylstate" class="tech-icon" alt="Vinyl state" style="display:none;" />
                     <i id="vinylstateicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -209,6 +225,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Digital format">
+                    <div id="digitalformatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="digitalformat" class="tech-icon" alt="Digital format" style="display:none;" />
                     <i id="digitalformaticon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -223,6 +240,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Bitness">
+                    <div id="bitnessspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="bitness" class="tech-icon" alt="Bitness" style="display:none;" />
                     <i id="bitnessicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -237,6 +255,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Sampling">
+                    <div id="samplingspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="sampling" class="tech-icon" alt="Sampling" style="display:none;" />
                     <i id="samplingicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -251,6 +270,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Source format">
+                    <div id="formatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="format" class="tech-icon" alt="Source format" style="display:none;" />
                     <i id="formaticon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -265,6 +285,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Player">
+                    <div id="playerspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="player" class="tech-icon" alt="Player" style="display:none;" />
                     <i id="playericon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -284,6 +305,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Cartridge">
+                    <div id="cartridgespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="cartridge" class="tech-icon" alt="Cartridge" style="display:none;" />
                     <i id="cartridgeicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -303,6 +325,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Amplifier">
+                    <div id="ampspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="amp" class="tech-icon" alt="Amplifier" style="display:none;" />
                     <i id="ampicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -322,6 +345,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="ADC">
+                    <div id="adcspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="adc" class="tech-icon" alt="ADC" style="display:none;" />
                     <i id="adcicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
@@ -341,6 +365,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Wire">
+                    <div id="wirespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="wire" class="tech-icon" alt="Wires" style="display:none;" />
                     <i id="wireicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">

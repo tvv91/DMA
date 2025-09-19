@@ -81,7 +81,7 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetAlbumCover(string connectionId, int albumId)
         {
-            await Clients.Client(connectionId).SendAsync("ReceivedAlbumConverDetailed", _imgService.GetImageUrl(albumId, EntityType.AlbumCover));
+            await Clients.Client(connectionId).SendAsync("ReceivedAlbumCoverDetailed", _imgService.GetImageUrl(albumId, EntityType.AlbumCover));
         }
 
         public async Task GetEquipmentImage(string connectionId, int equipmentId, string type)
@@ -335,68 +335,34 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
-        //TODO: Make more generic? Just detect entity type, all another parts same
-        /// <summary>
-        /// Get technical info icons for album
-        /// </summary>
-        /// <param name="connectionId">Connection Id</param>
-        /// <param name="albumId">Album ID</param>
-        /// <returns></returns>
         public async Task GetTechnicalInfoIcons(string connectionId, int albumId)
         {
             var tInfo = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);
 
-            if (tInfo != null)
+            var mapping = new Dictionary<string, (int? id, EntityType type)>
             {
-                if (tInfo?.VinylStateId != null)
+                ["vinylstate"] = (tInfo?.VinylStateId, EntityType.VinylState),
+                ["digitalformat"] = (tInfo?.DigitalFormatId, EntityType.DigitalFormat),
+                ["bitness"] = (tInfo?.BitnessId, EntityType.Bitness),
+                ["sampling"] = (tInfo?.SamplingId, EntityType.Sampling),
+                ["format"] = (tInfo?.SourceFormatId, EntityType.SourceFormat),
+                ["player"] = (tInfo?.PlayerId, EntityType.Player),
+                ["cartridge"] = (tInfo?.CartridgeId, EntityType.Cartridge),
+                ["amp"] = (tInfo?.AmplifierId, EntityType.Amplifier),
+                ["adc"] = (tInfo?.AdcId, EntityType.Adc),
+                ["wire"] = (tInfo?.WireId, EntityType.Wire),
+            };
+
+            foreach (var kvp in mapping)
+            {
+                string? url = null;
+
+                if (kvp.Value.id.HasValue)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "vinylstate", _imgService.GetImageUrl(tInfo.VinylStateId.Value, EntityType.VinylState));
+                    url = _imgService.GetImageUrl(kvp.Value.id.Value, kvp.Value.type);
                 }
 
-                if (tInfo?.DigitalFormatId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "digitalformat", _imgService.GetImageUrl(tInfo.DigitalFormatId.Value, EntityType.DigitalFormat));
-                }
-
-                if (tInfo?.BitnessId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "bitness", _imgService.GetImageUrl(tInfo.BitnessId.Value, EntityType.Bitness));
-                }
-
-                if (tInfo?.SamplingId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "sampling", _imgService.GetImageUrl(tInfo.SamplingId.Value, EntityType.Sampling));
-                }
-
-                if (tInfo?.SourceFormatId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "format", _imgService.GetImageUrl(tInfo.SourceFormatId.Value, EntityType.SourceFormat));
-                }
-
-                if (tInfo?.PlayerId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "player", _imgService.GetImageUrl(tInfo.PlayerId.Value, EntityType.Player));
-                }
-
-                if (tInfo?.CartridgeId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "cartridge", _imgService.GetImageUrl(tInfo.CartridgeId.Value, EntityType.Cartridge));
-                }
-
-                if (tInfo?.AmplifierId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "amp", _imgService.GetImageUrl(tInfo.AmplifierId.Value, EntityType.Amplifier));
-                }
-
-                if (tInfo?.AdcId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "adc", _imgService.GetImageUrl(tInfo.AdcId.Value, EntityType.Adc));
-                }
-
-                if (tInfo?.WireId != null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", "wire", _imgService.GetImageUrl(tInfo.WireId.Value, EntityType.Wire));
-                }
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", kvp.Key, url);
             }
         }
 

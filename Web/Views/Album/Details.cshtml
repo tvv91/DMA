@@ -228,7 +228,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     <div class="value">
                         @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Bitness?.Data.ToString()))
                         {
-                            @Model.Album.TechnicalInfo.Bitness.Data
+                            @($"{Model.Album.TechnicalInfo.Bitness.Data} bit/s")
                         }
                         else
                         {
@@ -242,7 +242,7 @@ connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
                     <div class="value">
                         @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Sampling?.Data.ToString()))
                         {
-                            @Model.Album.TechnicalInfo.Sampling.Data
+                            @($"{Model.Album.TechnicalInfo.Sampling.Data}{(Model.Album.TechnicalInfo.DigitalFormat.Data.ToLower().Contains("dsd") ? " MHz" : " kHz")}")
                         }
                         else
                         {

@@ -154,7 +154,7 @@
         }
     }
 
-        connection.on("ReceivedItems", (items) => {
+    connection.on("ReceivedItems", (items) => {
         const container = $("#items-container").empty();
 
         if (!items || items.length === 0) {
@@ -168,7 +168,12 @@
             container.append(`
                 <div class="equipment-card">
                     <a href="equipment/${category}/${x.id}">
-                        <img id="img-${x.id}" src="" style="display:none" />
+                        <div class="image-wrapper" style="position:relative; min-height:120px; display:flex; justify-content:center; align-items:center;">
+                            <div id="spinner-${x.id}" class="spinner-border" role="status"
+                                 style="position:absolute;">
+                            </div>
+                            <img id="img-${x.id}" src="" style="display:none;" />
+                        </div>
                     </a>
                     <div class="equipment-info">
                         <span class="manufacturer">${x.manufacturer ?? ""}</span>
@@ -176,15 +181,21 @@
                     </div>
                 </div>
             `);
-        });
+    });
     });
 
     connection.on("ReceivedItemImage", (id, src) => {
+        const spinner = $(`#spinner-${id}`);
         const img = $(`#img-${id}`);
-        if (src) {
-            img.attr("src", src).fadeIn(400);
+
+        if (src && !src.includes("nocover")) {
+            img.attr("src", src).on("load", () => {
+                spinner.hide();
+                img.fadeIn(500);
+            });
         } else {
-            img.replaceWith(`<i class="fa-regular fa-image fa-4x" style="color: #888; margin: 30px 0;"></i>`);
+            spinner.hide();
+            img.replaceWith(`<i class="fa-regular fa-image fa-5x" style="color:black"></i>`);
         }
     });
 

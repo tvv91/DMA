@@ -17,7 +17,7 @@ namespace Web.SignalRHubs
         private readonly IAlbumRepository _albumRepository;
         private readonly IPostRepository _postRepository;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
-        private const int ITEMS_PER_PAGE = 20;
+        private const int ITEMS_PER_PAGE = 18;
         private const int POSTS_PER_PAGE = 10;
 
         public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)

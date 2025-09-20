@@ -1,0 +1,140 @@
+﻿@model EquipmentViewModel 
+
+<script>
+      $(document).ready(async () => {
+        await start();
+        await getEquipmentImage(@Model.Id);
+
+        showToast("equipment_updated", "toastinfo_updated");
+        showToast("equipment_created", "toastinfo_created");
+        showToast("equipment_deleted", "toastinfo_deleted");
+      });
+
+      function showToast(key, toastId) {
+        if (sessionStorage.getItem(key) === "1") {
+          $(`#${toastId}`).toast('show');
+          sessionStorage.removeItem(key);
+        }
+      }
+
+      async function getEquipmentImage(id) {
+        try {
+          await connection.invoke("GetEquipmentImage", connection.connectionId, id, "@Model.EquipmentType");
+        } catch (err) {
+          console.error("Error sending request to GetEquipmentImage:", err);
+        }
+      }
+
+
+    connection.on("ReceivedEquipmentImageDetailed", (result) => {
+        updateCover(result);
+    });
+
+
+    function updateCover(src) {
+      $('#coverspinner').addClass("d-none");
+      if (!src || src.includes("nocover")) {
+        $('#cover').attr("src", "").addClass("d-none");
+        $('#nocovericon').removeClass("d-none");
+        $('#coverdiv').css("border", "2px dashed #ccc");
+      } else {
+        $('#cover').attr("src", src).fadeIn(500).removeClass("d-none");
+        $('#nocovericon').addClass("d-none");
+        $('#coverdiv').css("border", "none");
+      }
+    }
+
+    async function onRemove(id) {
+    try {
+      const response = await fetch(`delete?id=${id}`, { method: "DELETE" });
+
+      if (response.ok) {
+        sessionStorage.setItem("equipment_deleted", "1");
+        window.location.href = "/equipment";
+      } else {
+        $('#toasterror').toast('show');
+      }
+    } catch (err) {
+      console.error("Deletion failed:", err);
+      $('#toasterror').toast('show');
+    }
+  }
+</script>
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="toasterror" class="toast toast-error" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header toast-header-error">
+      <strong class="me-auto">Error</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">Some error during deletion</div>
+  </div>
+  <div id="toastinfo_updated" class="toast toast-info" role="alert" aria-live="polite" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">Information</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">Equipment updated</div>
+  </div>
+  <div id="toastinfo_created" class="toast toast-success" role="alert" aria-live="polite" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">Information</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">Equipment created</div>
+  </div>
+  <div id="toastinfo_deleted" class="toast toast-warning" role="alert" aria-live="polite" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">Information</strong>
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+    <div class="toast-body">Equipment deleted</div>
+  </div>
+</div>
+<div class="modal fade" id="removeDialogModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Are you sure?</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Data cannot be restored
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Id)">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+<a id="back_button" class="btn btn-secondary mt-3" asp-action="index" asp-controller="equipment">Back</a>
+<div class="equipment-detail-containter mt-3">
+  <div id="coverdiv" class="box1">
+    <div id="coverspinner" class="spinner-border"></div>
+    <i id="nocovericon" class="fa-regular fa-image fa-10x"></i>
+    <img id="cover" class="equipment-cover justifiy-element-size" style="display: none" />
+  </div>
+  <div class="equipment-detail-box">
+    <a data-bs-toggle="modal" data-bs-target="#removeDialogModal">
+      <i class="fa-solid fa-trash fa-lg fa-pull-right"></i>
+    </a>
+    <a href="/equipment/@Model.EquipmentType.ToString().ToLower()/@Model.Id/edit">
+      <i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i>
+    </a>
+    @if (Model?.Manufacturer != null) {
+      <h1>
+        <b>@Model?.Manufacturer</b> @Model?.Model
+      </h1>
+      <b>Manufacturer: </b> @Model?.Manufacturer <br />
+      <b>Model: </b> @Model?.Model
+    } else {
+      <h1>@Model?.Model</h1>
+      <b>Model: </b> @Model?.Model
+    }
+  </div>
+  @if (Model?.Description != null) {
+    <div class="equipment-detail-description">
+      <textarea class="equipment-description">@Model?.Description</textarea>
+    </div>
+  }
+</div>

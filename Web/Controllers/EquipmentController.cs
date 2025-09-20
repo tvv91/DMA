@@ -277,7 +277,7 @@ namespace Web.Controllers
                         if (adc != null)
                         {
                             var cover = _imageService.GetImageUrl(adc.Id, EntityType.Adc);
-                            return View("EquipmentDetails", new EquipmentViewModel
+                            return View("Details", new EquipmentViewModel
                             {
                                 Id = adc.Id,
                                 EquipmentType = EntityType.Adc,
@@ -292,7 +292,7 @@ namespace Web.Controllers
                         var amp = await _repository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (amp != null)
                         {
-                            return View("EquipmentDetails", new EquipmentViewModel
+                            return View("Details", new EquipmentViewModel
                             {
                                 Id = amp.Id,
                                 EquipmentType = EntityType.Amplifier,
@@ -306,7 +306,7 @@ namespace Web.Controllers
                         var cartridge = await _repository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (cartridge != null)
                         {
-                            return View("EquipmentDetails", new EquipmentViewModel
+                            return View("Details", new EquipmentViewModel
                             {
                                 Id = cartridge.Id,
                                 EquipmentType = EntityType.Cartridge,
@@ -320,7 +320,7 @@ namespace Web.Controllers
                         var player = await _repository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (player != null)
                         {
-                            return View("EquipmentDetails", new EquipmentViewModel
+                            return View("Details", new EquipmentViewModel
                             {
                                 Id = player.Id,
                                 EquipmentType = EntityType.Player,
@@ -334,7 +334,7 @@ namespace Web.Controllers
                         var wire = await _repository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
                         if (wire != null)
                         {
-                            return View("EquipmentDetails", new EquipmentViewModel
+                            return View("Details", new EquipmentViewModel
                             {
                                 Id = wire.Id,
                                 EquipmentType = EntityType.Wire,

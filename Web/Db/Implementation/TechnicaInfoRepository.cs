@@ -415,19 +415,19 @@ namespace Web.Db.Implementation
             switch (request.EquipmentType)
             {
                 case EntityType.Adc:
-                    var adc = await CreateOrUpdateAdcAsync(request.Model, request.Manufacturer, request.Description, request.EquipmentId);
+                    var adc = await CreateOrUpdateAdcAsync(request.ModelName, request.Manufacturer, request.Description, request.EquipmentId);
                     return adc.Id;
                 case EntityType.Amplifier:
-                    var amp = await CreateOrUpdateAmplifierAsync(request.Model, request.Manufacturer, request.Description, request.EquipmentId);
+                    var amp = await CreateOrUpdateAmplifierAsync(request.ModelName, request.Manufacturer, request.Description, request.EquipmentId);
                     return amp.Id;
                 case EntityType.Cartridge:
-                    var cartridge = await CreateOrUpdateCartridgeAsync(request.Model, request.Manufacturer, request.Description, request.EquipmentId);
+                    var cartridge = await CreateOrUpdateCartridgeAsync(request.ModelName, request.Manufacturer, request.Description, request.EquipmentId);
                     return cartridge.Id;
                 case EntityType.Player:
-                    var player = await CreateOrUpdatePlayerAsync(request.Model, request.Manufacturer, request.Description, request.EquipmentId);
+                    var player = await CreateOrUpdatePlayerAsync(request.ModelName, request.Manufacturer, request.Description, request.EquipmentId);
                     return player.Id;
                 case EntityType.Wire:
-                    var wire = await CreateOrUpdateWireAsync(request.Model, request.Manufacturer, request.Description, request.EquipmentId);
+                    var wire = await CreateOrUpdateWireAsync(request.ModelName, request.Manufacturer, request.Description, request.EquipmentId);
                     return wire.Id;
                 default:
                     return 0;

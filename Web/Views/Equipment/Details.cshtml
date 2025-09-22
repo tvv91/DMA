@@ -64,12 +64,12 @@
             </a>
 
             @if (Model?.Manufacturer != null) {
-                <h1><b>@Model?.Manufacturer</b> @Model?.Model</h1>
+                <h1><b>@Model?.Manufacturer</b> @Model?.ModelName</h1>
                 <b>Manufacturer: </b> @Model?.Manufacturer <br />
-                <b>Model: </b> @Model?.Model
+                <b>Model: </b> @Model?.ModelName
             } else {
-                <h1>@Model?.Model</h1>
-                <b>Model: </b> @Model?.Model
+                <h1>@Model?.ModelName</h1>
+                <b>Model: </b> @Model?.ModelName
             }
         </div>
         @if (Model?.Description != null) {

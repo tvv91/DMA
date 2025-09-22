@@ -163,7 +163,7 @@ namespace Web.Controllers
 
                 return new RedirectResult($"/equipment/{request.EquipmentType.ToString().ToLower()}/{entityId}");
             }
-            return View("CreateOrUpdate", request);
+            return View("CreateUpdate", request);
         }
 
         [HttpGet("[controller]/{category}/{id}/edit")]
@@ -185,10 +185,10 @@ namespace Web.Controllers
                                 EquipmentCover = img,
                                 Description = adc?.Description,
                                 Manufacturer = adc?.Manufacturer?.Data,
-                                Model = adc?.Data,
+                                ModelName = adc?.Data,
                                 EquipmentId = adc.Id
                             };
-                            return View("CreateOrUpdate", equipment);
+                            return View("CreateUpdate", equipment);
                         }
                         else return NotFound();
                     case EntityType.Amplifier:
@@ -202,10 +202,10 @@ namespace Web.Controllers
                                 EquipmentCover = img,
                                 Description = amp?.Description,
                                 Manufacturer = amp?.Manufacturer?.Data,
-                                Model = amp?.Data,
+                                ModelName = amp?.Data,
                                 EquipmentId = amp.Id
                             };
-                            return View("CreateOrUpdate", equipment);
+                            return View("CreateUpdate", equipment);
                         }
                         else return NotFound();
                     case EntityType.Player:
@@ -219,10 +219,10 @@ namespace Web.Controllers
                                 EquipmentCover = img,
                                 Description = player?.Description,
                                 Manufacturer = player?.Manufacturer?.Data,
-                                Model = player?.Data,
+                                ModelName = player?.Data,
                                 EquipmentId = player.Id
                             };
-                            return View("CreateOrUpdate", equipment);
+                            return View("CreateUpdate", equipment);
                         }
                         else return NotFound();
                     case EntityType.Cartridge:
@@ -236,10 +236,10 @@ namespace Web.Controllers
                                 EquipmentCover = img,
                                 Description = cartridge?.Description,
                                 Manufacturer = cartridge?.Manufacturer?.Data,
-                                Model = cartridge?.Data,
+                                ModelName = cartridge?.Data,
                                 EquipmentId = cartridge.Id
                             };
-                            return View("CreateOrUpdate", equipment);
+                            return View("CreateUpdate", equipment);
                         }
                         else return NotFound();
                     case EntityType.Wire:
@@ -253,10 +253,10 @@ namespace Web.Controllers
                                 EquipmentCover = img,
                                 Description = wire?.Description,
                                 Manufacturer = wire?.Manufacturer?.Data,
-                                Model = wire?.Data,
+                                ModelName = wire?.Data,
                                 EquipmentId = wire.Id
                             };
-                            return View("CreateOrUpdate", equipment);
+                            return View("CreateUpdate", equipment);
                         }
                         else return NotFound();
                     default: throw new ArgumentException("Unsupported Entity type");
@@ -281,7 +281,7 @@ namespace Web.Controllers
                             {
                                 Id = adc.Id,
                                 EquipmentType = EntityType.Adc,
-                                Model = adc.Data,
+                                ModelName = adc.Data,
                                 Description = adc.Description,
                                 Manufacturer = adc?.Manufacturer?.Data,
 
@@ -296,7 +296,7 @@ namespace Web.Controllers
                             {
                                 Id = amp.Id,
                                 EquipmentType = EntityType.Amplifier,
-                                Model = amp.Data,
+                                ModelName = amp.Data,
                                 Description = amp.Description,
                                 Manufacturer = amp?.Manufacturer?.Data,
                             });
@@ -310,7 +310,7 @@ namespace Web.Controllers
                             {
                                 Id = cartridge.Id,
                                 EquipmentType = EntityType.Cartridge,
-                                Model = cartridge.Data,
+                                ModelName = cartridge.Data,
                                 Description = cartridge.Description,
                                 Manufacturer = cartridge?.Manufacturer?.Data,
                             });
@@ -324,7 +324,7 @@ namespace Web.Controllers
                             {
                                 Id = player.Id,
                                 EquipmentType = EntityType.Player,
-                                Model = player.Data,
+                                ModelName = player.Data,
                                 Description = player.Description,
                                 Manufacturer = player?.Manufacturer?.Data,
                             });
@@ -338,7 +338,7 @@ namespace Web.Controllers
                             {
                                 Id = wire.Id,
                                 EquipmentType = EntityType.Wire,
-                                Model = wire.Data,
+                                ModelName = wire.Data,
                                 Description = wire.Description,
                                 Manufacturer = wire?.Manufacturer?.Data,
                             });
@@ -352,13 +352,13 @@ namespace Web.Controllers
         [HttpGet("equipment/create")]
         public IActionResult Create()
         {
-            return View("CreateOrUpdate", new EquipmentViewModel { Action = ActionType.Create, EquipmentType = EntityType.Adc });
+            return View("CreateUpdate", new EquipmentViewModel { Action = ActionType.Create, EquipmentType = EntityType.Adc });
         }
         
         [HttpPost]
         public async Task<IActionResult> Create(EquipmentViewModel request)
         {
-            if (ModelState.IsValid && !string.IsNullOrEmpty(request.Model) && request?.EquipmentType != null)
+            if (ModelState.IsValid && !string.IsNullOrEmpty(request.ModelName) && request?.EquipmentType != null)
             {
                 var equipmentId = await _repository.CreateOrUpdateEquipmentAsync(request);
 
@@ -371,7 +371,7 @@ namespace Web.Controllers
             }
             else
             {
-                return View("CreateOrUpdate", request);
+                return View("CreateUpdate", request);
             }
         }
     }

@@ -150,7 +150,7 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    Model = x.Data,
+                    ModelName = x.Data,
                     Manufacturer = x.Manufacturer.Data,
                     EquipmentType = EntityType.Adc
                 })
@@ -171,7 +171,7 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    Model = x.Data,
+                    ModelName = x.Data,
                     Manufacturer = x.Manufacturer.Data,
                     EquipmentType = EntityType.Amplifier
                 }).ToListAsync();
@@ -191,7 +191,7 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    Model = x.Data,
+                    ModelName = x.Data,
                     Manufacturer = x.Manufacturer.Data,
                     EquipmentType = EntityType.Cartridge
                 }).ToListAsync();
@@ -211,7 +211,7 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    Model = x.Data,
+                    ModelName = x.Data,
                     Manufacturer = x.Manufacturer.Data,
                     EquipmentType = EntityType.Player
                 }).ToListAsync();
@@ -231,7 +231,7 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    Model = x.Data,
+                    ModelName = x.Data,
                     Manufacturer = x.Manufacturer.Data,
                     EquipmentType = EntityType.Amplifier
                 }).ToListAsync();

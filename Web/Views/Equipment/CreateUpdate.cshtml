@@ -1,0 +1,119 @@
+﻿@model EquipmentViewModel;
+
+@{
+    var action = Model.Action;
+}
+
+<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="equipment">Back</a>
+
+<form asp-action="@action" method="post" onsubmit="onSubmit()">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <input type="hidden" id="coverid" asp-for="EquipmentCover" />
+    <input type="hidden" id="albumid" asp-for="EquipmentId" />
+    <input type="hidden" id="action" asp-for="Action" />
+    <input type="hidden" id="entitytype" asp-for="EquipmentType" />
+
+    <div class="new-update-equipment">
+        <div class="cover-image">
+            <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
+        </div>
+        <div class="equipment-info-temp">
+            <div class="equipment-form-input">
+                <div class="equipment-select">
+                    <label for="equipmentType">Type</label>
+                    <select id="equipmentType" class="form-select"
+                            asp-for="EquipmentType"
+                            asp-items="Model.Equipments"
+                            onchange="onChange(this)">
+                    </select>
+                </div>
+
+                <label for="artist_input">Model</label>
+                <input id="artist_input" class="input-textbox"
+                       asp-for="ModelName"
+                       autocomplete="on"
+                       placeholder="Model" />
+
+                <label for="album">Manufacturer</label>
+                <input id="album" class="input-textbox"
+                       asp-for="Manufacturer"
+                       placeholder="Manufacturer" />
+
+                <label for="description">Description</label>
+                <textarea id="description" class="equipment-textarea"
+                          asp-for="Description"
+                          placeholder="Description"></textarea>
+            </div>
+        </div>
+    </div>
+    <button id="submit_button" type="submit" class="btn btn-primary mt-2 float-end">
+        <i class="fa-sharp fa-solid fa-check"></i>
+        Save
+    </button>
+</form>
+<script>
+    const selectors = {
+                dropzone: "#mydropzone",
+                coverId: "#coverid",
+                entityType: "#entitytype",
+                formSelect: ".form-select"
+            };
+
+            $(document).ready(() => {
+                initForm();
+            });
+
+            connection.onclose(async () => {
+                await start();
+            });
+
+            function initForm() {
+                const action = "@action";
+                if (action === "Update") {
+                    $(selectors.formSelect).prop("disabled", true);
+                }
+            }
+
+            function onSubmit() {
+                const action = "@action".toLowerCase();
+                sessionStorage.setItem(`equipment_${action}`, "1");
+            }
+
+            function onChange(e) {
+                $(selectors.entityType).val(e.value);
+            }
+
+            Dropzone.autoDiscover = false;
+            let myDropzone = new Dropzone("div#mydropzone",
+            {
+                url: "/uploadimage",
+                addRemoveLinks: true,
+                thumbnailWidth: 300,
+                thumbnailHeight: 300,
+                resizeWidth: 300,
+                resizeHeight: 300,
+                dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
+                acceptedFiles: ".jpeg,.png,.jpg",
+                    success: (file, data) => {
+                        $("#coverid").val(data.filename);
+                        let preview = $(file.previewElement);
+                        preview.addClass("dz-success text-success");
+                    },
+                    init: function() {
+                        const coverId = $("#coverid").val();
+                        if (coverId !== "" && !coverId.includes("nocover")) {
+                            let myDropzone = this;
+                            let coverUrl = window.location.href.includes("edit") ? coverId : `/temp/${coverId}`;
+                            myDropzone.displayExistingFile({}, coverUrl);
+                        }
+                    },
+                    removedfile: function(file) {
+                        $("#coverid").val("");
+                        if (file.previewElement != null && file.previewElement.parentNode != null) {
+                            file.previewElement.parentNode.removeChild(file.previewElement);
+                        }
+                        return this._updateMaxFilesReachedClass();
+                    }
+            });
+</script>

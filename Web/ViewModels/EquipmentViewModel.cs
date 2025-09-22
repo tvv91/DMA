@@ -8,7 +8,7 @@ namespace Web.ViewModels
     {
         public int Id { get; set; }
         [Required]
-        public string Model { get; set; }
+        public string ModelName { get; set; }
         public string? Manufacturer { get; set; }
         public EntityType EquipmentType { get; set; }
         public ActionType? Action { get; set; }

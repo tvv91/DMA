@@ -66,101 +66,18 @@ namespace Web.Controllers
             return RedirectToAction("GetById", "Equipment", new {category = request.EquipmentType, id = entityId });
         }
 
+
         [HttpGet("[controller]/{category}/{id}/edit")]
-        public async Task<IActionResult> Edit(EntityType? category, int id)
+        public async Task<IActionResult> Edit(EntityType category, int id)
         {
-            if (id > 0 && category != null)
+            if (id > 0)
             {
-                var img = _imageService.GetImageUrl(id, category.Value);
-                switch (category)
-                {
-                    case EntityType.Adc:
-                        var adc = await _repository.Adcs.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
-                        if (adc != null)
-                        {
-                            var equipment = new EquipmentViewModel
-                            {
-                                Action = ActionType.Update,
-                                EquipmentType = EntityType.Adc,
-                                EquipmentCover = img,
-                                Description = adc?.Description,
-                                Manufacturer = adc?.Manufacturer?.Data,
-                                ModelName = adc?.Data,
-                                EquipmentId = adc.Id
-                            };
-                            return View("CreateUpdate", equipment);
-                        }
-                        else return NotFound();
-                    case EntityType.Amplifier:
-                        var amp = await _repository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
-                        if (amp != null)
-                        {
-                            var equipment = new EquipmentViewModel
-                            {
-                                Action = ActionType.Update,
-                                EquipmentType = EntityType.Amplifier,
-                                EquipmentCover = img,
-                                Description = amp?.Description,
-                                Manufacturer = amp?.Manufacturer?.Data,
-                                ModelName = amp?.Data,
-                                EquipmentId = amp.Id
-                            };
-                            return View("CreateUpdate", equipment);
-                        }
-                        else return NotFound();
-                    case EntityType.Player:
-                        var player = await _repository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
-                        if (player != null)
-                        {
-                            var equipment = new EquipmentViewModel
-                            {
-                                Action = ActionType.Update,
-                                EquipmentType = EntityType.Player,
-                                EquipmentCover = img,
-                                Description = player?.Description,
-                                Manufacturer = player?.Manufacturer?.Data,
-                                ModelName = player?.Data,
-                                EquipmentId = player.Id
-                            };
-                            return View("CreateUpdate", equipment);
-                        }
-                        else return NotFound();
-                    case EntityType.Cartridge:
-                        var cartridge = await _repository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
-                        if (cartridge != null)
-                        {
-                            var equipment = new EquipmentViewModel
-                            {
-                                Action = ActionType.Update,
-                                EquipmentType = EntityType.Cartridge,
-                                EquipmentCover = img,
-                                Description = cartridge?.Description,
-                                Manufacturer = cartridge?.Manufacturer?.Data,
-                                ModelName = cartridge?.Data,
-                                EquipmentId = cartridge.Id
-                            };
-                            return View("CreateUpdate", equipment);
-                        }
-                        else return NotFound();
-                    case EntityType.Wire:
-                        var wire = await _repository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
-                        if (wire != null)
-                        {
-                            var equipment = new EquipmentViewModel
-                            {
-                                Action = ActionType.Update,
-                                EquipmentType = EntityType.Wire,
-                                EquipmentCover = img,
-                                Description = wire?.Description,
-                                Manufacturer = wire?.Manufacturer?.Data,
-                                ModelName = wire?.Data,
-                                EquipmentId = wire.Id
-                            };
-                            return View("CreateUpdate", equipment);
-                        }
-                        else return NotFound();
-                    default: throw new ArgumentException("Unsupported Entity type");
-                }
+                var equipment = await _repository.GetEquipmentByIdAsync(category, id);
+                if (equipment == null)
+                    return NotFound();
+
+                equipment.EquipmentCover = _imageService.GetImageUrl(id, category);
+                return View("CreateUpdate", equipment);
             }
             return BadRequest();
         }

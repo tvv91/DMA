@@ -1,9 +1,11 @@
-﻿namespace Web.Models
+﻿using Web.Db.Interfaces;
+
+namespace Web.Models
 {
     /// <summary>
     /// Information about ADC (analog to digital converter)
     /// </summary>
-    public class Adc
+    public class Adc : IEquipmentEntity<AdcManufacturer>
     {
         public int Id { get; set; }
         public string Data { get; set; }

@@ -1,9 +1,11 @@
-﻿namespace Web.Models
+﻿using Web.Db.Interfaces;
+
+namespace Web.Models
 {
     /// <summary>
     /// Information about interconnect cables
     /// </summary>
-    public class Wire
+    public class Wire : IEquipmentEntity<WireManufacturer>
     {
         public int Id { get; set; }
         public string Data {  get; set; }

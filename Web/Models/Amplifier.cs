@@ -1,9 +1,11 @@
-﻿namespace Web.Models
+﻿using Web.Db.Interfaces;
+
+namespace Web.Models
 {
     /// <summary>
     /// Information about amplifier
     /// </summary>
-    public class Amplifier
+    public class Amplifier : IEquipmentEntity<AmplifierManufacturer>
     {
         public int Id { get; set; }
         public string Data { get; set; }

@@ -1,9 +1,11 @@
-﻿namespace Web.Models
+﻿using Web.Db.Interfaces;
+
+namespace Web.Models
 {
     /// <summary>
     /// Information about playback device
     /// </summary>
-    public class Player
+    public class Player : IEquipmentEntity<PlayerManufacturer>
     {
         public int Id { get; set; }
         public string Data { get; set; }

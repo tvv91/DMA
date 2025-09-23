@@ -1,6 +1,8 @@
-﻿namespace Web.Models
+﻿using Web.Db.Interfaces;
+
+namespace Web.Models
 {
-    public class WireManufacturer
+    public class WireManufacturer : IManufacturer
     {
         public int? Id { get; set; }
         public string Data { get; set; }

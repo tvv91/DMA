@@ -26,5 +26,6 @@ namespace Web.Db
         Task<TechnicalInfo?> GetByIdAsync(int id);
         Task<int> CreateOrUpdateEquipmentAsync(EquipmentViewModel request);
         Task<bool> DeleteEquipmentAsync(int id, EntityType categorye);
+        Task<EquipmentViewModel?> GetEquipmentByIdAsync(EntityType type, int id);
     }
 }

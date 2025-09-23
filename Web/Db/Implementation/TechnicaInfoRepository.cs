@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Web.Db.Interfaces;
 using Web.Enums;
 using Web.Models;
 using Web.ViewModels;
@@ -10,7 +11,6 @@ namespace Web.Db.Implementation
         private readonly DMADbContext _context;
 
         public TechnicalnfoRepository(DMADbContext ctx) => _context = ctx;
-
         public IQueryable<Adc> Adcs => _context.Adces;
         public IQueryable<AdcManufacturer> AdcManufacturers => _context.AdcManufacturers;
         public IQueryable<Amplifier> Amplifiers => _context.Amplifiers;
@@ -477,6 +477,39 @@ namespace Web.Db.Implementation
                     throw new InvalidOperationException("Invalid EntityType");
             }
             #endregion
+        }
+
+        public async Task<EquipmentViewModel?> GetEquipmentByIdAsync(EntityType type, int id)
+        {
+            return type switch
+            {
+                EntityType.Adc => await getEquipmentViewModel<Adc, AdcManufacturer>(id, type),
+                EntityType.Amplifier => await getEquipmentViewModel<Amplifier, AmplifierManufacturer>(id, type),
+                EntityType.Player => await getEquipmentViewModel<Player, PlayerManufacturer>(id, type),
+                EntityType.Cartridge => await getEquipmentViewModel<Cartridge, CartridgeManufacturer>(id, type),
+                EntityType.Wire => await getEquipmentViewModel<Wire, WireManufacturer>(id, type),
+                _ => null
+            };
+        }
+
+        private async Task<EquipmentViewModel?> getEquipmentViewModel<TEntity, TManufacturer>(int id, EntityType type)
+            where TEntity : class, IEquipmentEntity<TManufacturer>
+            where TManufacturer : class, IManufacturer
+        {
+            var entity = await _context.Set<TEntity>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entity == null)
+                return null;
+
+            return new EquipmentViewModel
+            {
+                Action = ActionType.Update,
+                EquipmentType = type,
+                Description = entity.Description,
+                Manufacturer = entity.Manufacturer?.Data,
+                ModelName = entity.Data,
+                EquipmentId = entity.Id
+            };
         }
     }
 }

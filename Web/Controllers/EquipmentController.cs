@@ -120,7 +120,7 @@ namespace Web.Controllers
                             {
                                 _imageService.RemoveCover(id, EntityType.Wire);
                                 // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
-                                await _repository.TechInfos.Where(t => t.PlayerId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.PlayerId, p => null));
+                                await _repository.TechInfos.Where(t => t.WireId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.WireId, p => null));
                                 await _repository.Wires.Where(adc => adc.Id == id).ExecuteDeleteAsync();
                                 return Ok();
                             }

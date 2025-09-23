@@ -1,4 +1,5 @@
-﻿using Web.Models;
+﻿using Web.Enums;
+using Web.Models;
 using Web.ViewModels;
 
 namespace Web.Db
@@ -24,5 +25,6 @@ namespace Web.Db
         Task<TechnicalInfo> CreateOrUpdateTechnicalInfoAsync(Album album, AlbumCreateUpdateViewModel request);
         Task<TechnicalInfo?> GetByIdAsync(int id);
         Task<int> CreateOrUpdateEquipmentAsync(EquipmentViewModel request);
+        Task<bool> DeleteEquipmentAsync(int id, EntityType categorye);
     }
 }

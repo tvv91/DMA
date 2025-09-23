@@ -43,7 +43,7 @@ namespace Web.Db.Implementation
             if (string.IsNullOrWhiteSpace(request.Adc))
             {
                 tinfo.AdcId = null;
-            } 
+            }
             else
             {
                 tinfo.Adc = await CreateOrUpdateAdcAsync(request.Adc, request.AdcManufacturer);
@@ -68,7 +68,7 @@ namespace Web.Db.Implementation
             {
                 tinfo.Cartridge = await CreateOrUpdateCartridgeAsync(request.Cartridge, request.CartridgeManufacturer);
             }
-                
+
             // player
             if (string.IsNullOrWhiteSpace(request.Player))
             {
@@ -152,7 +152,7 @@ namespace Web.Db.Implementation
 
             if (_adc == null)
             {
-                _adc = new() { Data = model, Description =  description};
+                _adc = new() { Data = model, Description = description };
                 await _context.Adces.AddAsync(_adc);
             }
 
@@ -169,7 +169,7 @@ namespace Web.Db.Implementation
                     _manufacturer = new() { Data = manufacturer };
                     await _context.AdcManufacturers.AddAsync(_manufacturer);
                 }
-                
+
                 _adc.Manufacturer = _manufacturer;
             }
 
@@ -182,7 +182,7 @@ namespace Web.Db.Implementation
 
         private async Task<Amplifier> CreateOrUpdateAmplifierAsync(string model, string? manufacturer, string? description = null, int id = 0)
         {
-            var _amp = id > 0 ? await _context.Amplifiers.FirstOrDefaultAsync(x => x.Id == id) :await _context.Amplifiers.FirstOrDefaultAsync(x => x.Data == model);
+            var _amp = id > 0 ? await _context.Amplifiers.FirstOrDefaultAsync(x => x.Id == id) : await _context.Amplifiers.FirstOrDefaultAsync(x => x.Data == model);
 
             if (_amp == null)
             {
@@ -432,7 +432,51 @@ namespace Web.Db.Implementation
                 default:
                     return 0;
             }
-        }        
-        #endregion
+        }
+
+        public async Task<bool> DeleteEquipmentAsync(int id, EntityType category)
+        {
+            switch (category)
+            {
+                case EntityType.Adc:
+                    if (!await Adcs.AnyAsync(a => a.Id == id))
+                        return false;
+                    await TechInfos.Where(t => t.AdcId == id).ExecuteUpdateAsync(u => u.SetProperty(t => t.AdcId, _ => null));
+                    await Adcs.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    return true;
+
+                case EntityType.Amplifier:
+                    if (!await Amplifiers.AnyAsync(a => a.Id == id))
+                        return false;
+                    await TechInfos.Where(t => t.AmplifierId == id).ExecuteUpdateAsync(u => u.SetProperty(t => t.AmplifierId, _ => (int?)null));
+                    await Amplifiers.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    return true;
+
+                case EntityType.Cartridge:
+                    if (!await Cartridges.AnyAsync(a => a.Id == id))
+                        return false;
+                    await TechInfos.Where(t => t.CartridgeId == id).ExecuteUpdateAsync(u => u.SetProperty(t => t.CartridgeId, _ => (int?)null));
+                    await Cartridges.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    return true;
+
+                case EntityType.Player:
+                    if (!await Players.AnyAsync(a => a.Id == id))
+                        return false;
+                    await TechInfos.Where(t => t.PlayerId == id).ExecuteUpdateAsync(u => u.SetProperty(t => t.PlayerId, _ => (int?)null));
+                    await Players.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    return true;
+
+                case EntityType.Wire:
+                    if (!await Wires.AnyAsync(a => a.Id == id))
+                        return false;
+                    await TechInfos.Where(t => t.WireId == id).ExecuteUpdateAsync(u => u.SetProperty(t => t.WireId, _ => (int?)null));
+                    await Wires.Where(a => a.Id == id).ExecuteDeleteAsync();
+                    return true;
+
+                default:
+                    throw new InvalidOperationException("Invalid EntityType");
+            }
+            #endregion
+        }
     }
 }

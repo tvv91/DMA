@@ -30,113 +30,20 @@ namespace Web.Controllers
         }
 
         [HttpDelete("[controller]/{category}/delete/")]
-        public async Task<IActionResult> Delete(EntityType? category, int id)
+        public async Task<IActionResult> Delete(EntityType category, int id)
         {
-            if (id > 0 && category != null)
-            {
-                switch (category)
-                {
-                    case EntityType.Adc:
-                        if (await _repository.Adcs.AnyAsync(a => a.Id == id))
-                        {
-                            try
-                            {
-                                _imageService.RemoveCover(id, EntityType.Adc);
-                                // TODO: Add loging what TInfo was updated
-                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
-                                await _repository.TechInfos.Where(t => t.AdcId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.AdcId, p => null));
-                                await _repository.Adcs.Where(x => x.Id == id).ExecuteDeleteAsync();
-                                return Ok();
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: Add logging
-                                throw new InvalidOperationException("Error during deleting Adc");
-                            }
-                            
-                        }
-                        else return NotFound(); 
-                    case EntityType.Amplifier:
-                        if (await _repository.Amplifiers.AnyAsync(a => a.Id == id))
-                        {
-                            try
-                            {
-                                _imageService.RemoveCover(id, EntityType.Amplifier);
-                                // TODO: Add loging what TInfo was updated
-                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
-                                await _repository.TechInfos.Where(t => t.AmplifierId == id).ExecuteUpdateAsync(x => x.SetProperty(x => x.AmplifierId, x => null));
-                                await _repository.Amplifiers.Where(x => x.Id == id).ExecuteDeleteAsync();
-                                return Ok();
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: Add logging
-                                throw new InvalidOperationException("Error during deleting Amp");
-                            }
-                        }
-                        else return NotFound();
-                    case EntityType.Cartridge:
-                        if (await _repository.Cartridges.AnyAsync(a => a.Id == id))
-                        {
-                            try
-                            {
-                                _imageService.RemoveCover(id, EntityType.Cartridge);
-                                // TODO: Add loging what TInfo was updated
-                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
-                                await _repository.TechInfos.Where(t => t.CartridgeId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.CartridgeId, p => null));
-                                await _repository.Cartridges.Where(x => x.Id == id).ExecuteDeleteAsync();
-                                return Ok();
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: Add logging
-                                throw new InvalidOperationException("Error during deleting Cartridge");
-                            }
-                        }
-                        else return NotFound();
-                    case EntityType.Player:
-                        if (await _repository.Players.AnyAsync(a => a.Id == id))
-                        {
-                            try
-                            {
-                                _imageService.RemoveCover(id, EntityType.Player);
-                                // TODO: Add loging what TInfo was updated
-                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
-                                await _repository.TechInfos.Where(t => t.PlayerId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.PlayerId, p => null));
-                                await _repository.Players.Where(adc => adc.Id == id).ExecuteDeleteAsync();
-                                return Ok();
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: Add logging
-                                throw new InvalidOperationException("Error during deleting Player");
-                            }
-                        }
-                        else return NotFound();
-                    case EntityType.Wire:
-                        if (await _repository.Wires.AnyAsync(a => a.Id == id))
-                        {
-                            try
-                            {
-                                _imageService.RemoveCover(id, EntityType.Wire);
-                                // TODO: Maybe need some precheck and notification that this equipment used in multiple albums to avoid random removing?
-                                await _repository.TechInfos.Where(t => t.WireId == id).ExecuteUpdateAsync(x => x.SetProperty(p => p.WireId, p => null));
-                                await _repository.Wires.Where(adc => adc.Id == id).ExecuteDeleteAsync();
-                                return Ok();
-                            }
-                            catch (Exception ex)
-                            {
-                                // TODO: Add logging
-                                throw new InvalidOperationException("Error during deleting Wire");
-                            }
-                        }
-                        else return NotFound();
-                    default: throw new InvalidOperationException("Invalid EntityType");
-                }
-            }
-            else
-            {
+            if (id <= 0)
                 return BadRequest();
+
+            try
+            {
+                var deleted = await _repository.DeleteEquipmentAsync(id, category);
+                _imageService.RemoveCover(id, category);
+                return deleted ? Ok() : NotFound();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Error during deleting equipment", ex);
             }
         }
 
@@ -144,26 +51,19 @@ namespace Web.Controllers
         public async Task<IActionResult> Update(EquipmentViewModel request)
         {
             if (request.EquipmentId <= 0 || request.Action != ActionType.Update)
-            {
                 return BadRequest();
-            }
 
-            if (ModelState.IsValid)
-            {
-                var entityId = await _repository.CreateOrUpdateEquipmentAsync(request);
+            if (!ModelState.IsValid)
+                return View("CreateUpdate", request);
 
-                if (request.EquipmentCover == null)
-                {
-                    _imageService.RemoveCover(entityId, request.EquipmentType);
-                }
-                else
-                {
-                    _imageService.SaveCover(entityId, request.EquipmentCover, request.EquipmentType);
-                }
+            var entityId = await _repository.CreateOrUpdateEquipmentAsync(request);
 
-                return new RedirectResult($"/equipment/{request.EquipmentType.ToString().ToLower()}/{entityId}");
-            }
-            return View("CreateUpdate", request);
+            if (request.EquipmentCover is null)
+                _imageService.RemoveCover(entityId, request.EquipmentType);
+            else
+                 _imageService.SaveCover(entityId, request.EquipmentCover, request.EquipmentType);
+
+            return RedirectToAction("GetById", "Equipment", new {category = request.EquipmentType, id = entityId });
         }
 
         [HttpGet("[controller]/{category}/{id}/edit")]

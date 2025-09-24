@@ -503,6 +503,7 @@ namespace Web.Db.Implementation
 
             return new EquipmentViewModel
             {
+                Id = id,
                 Action = ActionType.Update,
                 EquipmentType = type,
                 Description = entity.Description,

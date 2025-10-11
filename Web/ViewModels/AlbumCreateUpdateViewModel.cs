@@ -7,10 +7,16 @@ namespace Web.ViewModels
     {
         #region Main info
         [Required]
-        public string Album { get; set; }
+        public string Title { get; set; } = string.Empty;
         [Required]
-        public string Artist { get; set; }
-        public string? Genre { get; set; }
+        public string Artist { get; set; } = string.Empty;
+        [Required]
+        public string Genre { get; set; } = string.Empty;
+        public string? AlbumCover { get; set; }
+        #endregion
+
+        #region Technical Info
+        public string? Discogs { get; set; }
         public int? Year { get; set; }
         public int? Reissue { get; set; }
         public string? Country { get; set; }
@@ -18,12 +24,6 @@ namespace Web.ViewModels
         public string? Source { get; set; }
         public double? Size { get; set; }
         public string? Storage { get; set; }
-        public string? AlbumCover { get; set; }
-        public string? Discogs { get; set; }
-
-        #endregion
-
-        #region Technical Info
         public string? Adc { get; set; }
         public string? AdcManufacturer { get; set; }
         public string? Amplifier { get; set; }
@@ -43,5 +43,6 @@ namespace Web.ViewModels
 
         public ActionType Action { get; set; }
         public int AlbumId { get; set; }
+        public int DigtizationId { get; set; }
     }
 }

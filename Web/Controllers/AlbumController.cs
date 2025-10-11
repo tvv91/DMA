@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
-using Web.Db;
 using Web.Enums;
-using Web.Extentions;
+using Web.Interfaces;
 using Web.Models;
-using Web.Response;
 using Web.Services;
 using Web.SignalRHubs;
 using Web.ViewModels;
@@ -17,77 +13,45 @@ namespace Web.Controllers
         private const int ALBUMS_PER_PAGE = 15;
         private readonly IAlbumRepository _albumRepository;
         private readonly IImageService _imageService;
-        private readonly ITechInfoRepository _techInfoRepository;
-        private readonly Dictionary<string, Func<string, Task<IActionResult>>> _searchMap;
+        private readonly IDigitizationRepository _digitizationRepository;
 
-        public AlbumController(IAlbumRepository albumRepository, IImageService imageService, ITechInfoRepository tinfoRepository)
+        public AlbumController(IAlbumRepository albumRepository, IImageService imageService, IDigitizationRepository digitizationRepository)
         {
             _albumRepository = albumRepository;
             _imageService = imageService;
-            _techInfoRepository = tinfoRepository;
-            _searchMap = new()
-            {
-                // album
-                ["artist"] = v => SearchStringAsync(albumRepository.Artists, x => x.Data, v),
-                ["genre"] = v => SearchStringAsync(albumRepository.Genres, x => x.Data, v),
-                ["year"] = v => SearchNumberAsync(albumRepository.Years, x => x.Data, v),
-                ["reissue"] = v => SearchNumberAsync(albumRepository.Reissues, x => x.Data, v),
-                // tech info
-                ["vinylstate"] = v => SearchStringAsync(_techInfoRepository.VinylStates, x => x.Data, v),
-                ["digitalformat"] = v => SearchStringAsync(_techInfoRepository.DigitalFormats, x => x.Data, v),
-                ["bitness"] = v => SearchNumberAsync(_techInfoRepository.Bitnesses, x => x.Data, v),
-                ["sampling"] = v => SearchNumberAsync(_techInfoRepository.Samplings, x => x.Data, v),
-                ["sourceformat"] = v => SearchStringAsync(_techInfoRepository.SourceFormats, x => x.Data, v),
-                ["player"] = v => SearchStringAsync(_techInfoRepository.Players, x => x.Data, v),
-                ["cartridge"] = v => SearchStringAsync(_techInfoRepository.Cartridges, x => x.Data, v),
-                ["amp"] = v => SearchStringAsync(_techInfoRepository.Amplifiers, x => x.Data, v),
-                ["adc"] = v => SearchStringAsync(_techInfoRepository.Adcs, x => x.Data, v),
-                ["wire"] = v => SearchStringAsync(_techInfoRepository.Wires, x => x.Data, v),
-                ["player_manufacturer"] = v => SearchStringAsync(_techInfoRepository.PlayerManufacturers, x => x.Data, v),
-                ["cartridge_manufacturer"] = v => SearchStringAsync(_techInfoRepository.CartridgeManufacturers, x => x.Data, v),
-                ["amp_manufacturer"] = v => SearchStringAsync(_techInfoRepository.AmplifierManufacturers, x => x.Data, v),
-                ["adc_manufacturer"] = v => SearchStringAsync(_techInfoRepository.AdcManufacturers, x => x.Data, v),
-                ["wire_manufacturer"] = v => SearchStringAsync(_techInfoRepository.WireManufacturers, x => x.Data, v),
-            };
+            _digitizationRepository = digitizationRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(int page = 1)
         {
-            if (page < 1) 
+            if (page < 1)
                 return BadRequest("Page number should be positive");
 
-            var pagedAlbums = await _albumRepository.Albums
-                .Include(x => x.Artist)
-                .AsNoTracking()
-                .ToPagedResultAsync(page, ALBUMS_PER_PAGE, x => x.Id);
+            var result = await _albumRepository.GetIndexListAsync(page, ALBUMS_PER_PAGE);
             
-            var albumViewModel = new AlbumViewModel
+            var vm = new AlbumIndexViewModel
             {
                 CurrentPage = page,
-                PageCount = pagedAlbums.TotalPages,
-                Albums = pagedAlbums.Items
+                PageCount = result.TotalPages,
+                Albums = result.Items
             };
 
-            return View("Index", albumViewModel);
+            return View("Index", vm);
         }
-         
+
         [HttpGet("album/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             if (id < 1)
                 return BadRequest();
-            
+
             var album = await _albumRepository.GetByIdAsync(id);
-            
+
             if (album == null)
                 return NotFound();
 
-            var tinfo = await _techInfoRepository.GetByIdAsync(id);
-            album.TechnicalInfo ??= tinfo;
-
-            var model = new AlbumDetailsViewModel { Album = album };
-            return View("Details", model);
+            return View("Details", MapAlbumToAlbumDetailsVM(album));
         }
 
         [HttpGet("album/create")]
@@ -106,12 +70,8 @@ namespace Web.Controllers
 
             if (album == null)
                 return NotFound();
-            
-            var tInfo = await _techInfoRepository.GetByIdAsync(id);
-            var cover = _imageService.GetImageUrl(album.Id, EntityType.AlbumCover);
-            var albumModel = MapToViewModel(album, tInfo);
-            
-            return View("CreateUpdate", albumModel);
+
+            return View("CreateUpdate", MapAlbumToAlbumDetailsVM(album));
         }
 
         [HttpPost]
@@ -122,8 +82,22 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
-                await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
+                var album = await _albumRepository.FindByTitleAndArtistAsync(request.Title, request.Artist);
+
+                if (album is null)
+                {
+                    album = new Album
+                    {
+                        AddedDate = DateTime.Now,
+                        Title = request.Title,
+                        Artist = new Artist { Name = request.Artist },
+                        Genre = new Genre { Name = request.Genre }
+                    };
+                    
+                    album = await _albumRepository.AddAsync(album);
+                }
+
+                await _digitizationRepository.AddAsync(MapVMToDigitization(album.Id, request));
 
                 if (request.AlbumCover != null)
                     _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
@@ -132,7 +106,7 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Failed to save album. " + ex.Message);
+                ModelState.AddModelError("", $"Failed to save album. {ex.Message}");
                 return View("CreateUpdate", request);
             }
         }
@@ -148,19 +122,20 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumRepository.CreateOrUpdateAlbumAsync(request);
-                await _techInfoRepository.CreateOrUpdateTechnicalInfoAsync(album, request);
+                var album = await _albumRepository.UpdateAsync(new Album
+                {
+                    Id = request.AlbumId,
+                    Title = request.Title,
+                    Artist = new Artist { Name = request.Artist },
+                    Genre = new Genre { Name = request.Genre }
+                });
 
                 if (request.AlbumCover is not null)
-                {
                     _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
-                    DefaultHub.InvalidateAlbumCache(album.Id);
-                }
                 else
-                {
                     _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
-                    DefaultHub.InvalidateAlbumCache(album.Id);
-                }
+
+                DefaultHub.InvalidateAlbumCache(album.Id);
 
                 return RedirectToAction("GetById", "Album", new { id = request.AlbumId });
             }
@@ -177,19 +152,12 @@ namespace Web.Controllers
             if (id < 1)
                 return BadRequest("Invalid album ID");
 
-            var album = await _albumRepository.Albums
-                .Where(x => x.Id == id)
-                .AsNoTracking()
-                .FirstOrDefaultAsync();
-
-            if (album == null)
-                return NotFound();
+            if (!await _albumRepository.DeleteAsync(id))
+                return NotFound();                
 
             try
             {
-                _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
-                await _techInfoRepository.TechInfos.Where(t => t.AlbumId == id).ExecuteDeleteAsync();
-                await _albumRepository.Albums.Where(a => a.Id == id).ExecuteDeleteAsync();
+                _imageService.RemoveCover(id, EntityType.AlbumCover);
             }
             catch (Exception ex)
             {
@@ -199,83 +167,68 @@ namespace Web.Controllers
             return Ok();
         }
 
-        [HttpGet("search/{category?}")]
-        public async Task<IActionResult> Search(string category, string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-                return Ok(Array.Empty<AutocompleteResponse>());
-
-            return _searchMap.TryGetValue(category ?? "", out var searchFunc)
-                ? await searchFunc(value)
-                : Ok(Array.Empty<AutocompleteResponse>());
-        }
-
         #region Private methods
-        private AlbumCreateUpdateViewModel MapToViewModel(Album album, TechnicalInfo? tInfo)
+        private AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album)
         {
-            return new AlbumCreateUpdateViewModel
+            return new AlbumDetailsViewModel
             {
-                Action = ActionType.Update,
                 AlbumId = album.Id,
-                Album = album.Data,
-                Artist = album.Artist.Data,
-                Genre = album.Genre?.Data,
-                Year = album.Year?.Data,
-                Reissue = album.Reissue?.Data,
-                Country = album.Country?.Data,
-                Label = album.Label?.Data,
-                Source = album.Source,
-                Size = album.Size,
-                Storage = album.Storage?.Data,
-                Discogs = album.Discogs,
-                AlbumCover = _imageService.GetImageUrl(album.Id, EntityType.AlbumCover),
-                VinylState = tInfo?.VinylState?.Data,
-                DigitalFormat = tInfo?.DigitalFormat?.Data,
-                Bitness = tInfo?.Bitness?.Data,
-                Sampling = tInfo?.Sampling?.Data,
-                SourceFormat = tInfo?.SourceFormat?.Data,
-                Player = tInfo?.Player?.Data,
-                PlayerManufacturer = tInfo?.Player?.Manufacturer?.Data,
-                Cartridge = tInfo?.Cartridge?.Data,
-                CartridgeManufacturer = tInfo?.Cartridge?.Manufacturer?.Data,
-                Amplifier = tInfo?.Amplifier?.Data,
-                AmplifierManufacturer = tInfo?.Amplifier?.Manufacturer?.Data,
-                Adc = tInfo?.Adc?.Data,
-                AdcManufacturer = tInfo?.Adc?.Manufacturer?.Data,
-                Wire = tInfo?.Wire?.Data,
-                WireManufacturer = tInfo?.Wire?.Manufacturer?.Data
+                Title = album.Title,
+                Artist = album.Artist?.Name ?? string.Empty,
+                Genre = album.Genre?.Name ?? string.Empty,
+                Digitizations = album.Digitizations?
+                    .Select(d => new Digitization
+                    {
+                        Id = d.Id,
+                        AlbumId = d.AlbumId,
+                        Source = d.Source,
+                        Discogs = d.Discogs,
+                        IsFirstPress = d.IsFirstPress,
+                        CountryId = d.CountryId,
+                        LabelId = d.LabelId,
+                        ReissueId = d.ReissueId,
+                        YearId = d.YearId,
+                        AddedDate = d.AddedDate,
+                        UpdateDate = d.UpdateDate,
+                        StorageId = d.StorageId
+                    })
+                    .ToList()
             };
         }
-
-        private async Task<IActionResult> SearchStringAsync<TEntity>(IQueryable<TEntity> query, Expression<Func<TEntity, string>> selector,string value) 
-            where TEntity : class
+        private Digitization MapVMToDigitization(int albumId, AlbumCreateUpdateViewModel request)
         {
-            var likePattern = $"%{value}%";
+            return new Digitization
+            {
+                AlbumId = albumId,
+                AddedDate = DateTime.Now,
+                Source = request.Source,
+                Discogs = request.Discogs,
+                IsFirstPress = false,
+                YearId = request.Year,
+                ReissueId = request.Reissue,
+                Country = !string.IsNullOrEmpty(request.Country) ? new Country { Name = request.Country } : null,
+                Label = !string.IsNullOrEmpty(request.Label) ? new Label { Name = request.Label } : null,
+                Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Data = request.Storage } : null,
 
-            var result = await query
-                .AsNoTracking()
-                .Where(x => EF.Functions.Like(EF.Property<string>(x, ((MemberExpression)selector.Body).Member.Name), likePattern))
-                .Select(x => new AutocompleteResponse { Label = EF.Property<string>(x, ((MemberExpression)selector.Body).Member.Name) })
-                .ToListAsync();
+                Format = new FormatInfo
+                {
+                    Size = request.Size,
+                    BitnessId = request.Bitness,
+                    Sampling = request.Sampling.HasValue ? new Sampling { Value = request.Sampling.Value } : null,
+                    DigitalFormat = !string.IsNullOrEmpty(request.DigitalFormat) ? new DigitalFormat { Name = request.DigitalFormat } : null,
+                    SourceFormat = !string.IsNullOrEmpty(request.SourceFormat) ? new SourceFormat { Name = request.SourceFormat } : null,
+                    VinylState = !string.IsNullOrEmpty(request.VinylState) ? new VinylState { Name = request.VinylState } : null
+                },
 
-            return Ok(result);
-        }
-
-        private async Task<IActionResult> SearchNumberAsync<TEntity, TProperty>(IQueryable<TEntity> query, Expression<Func<TEntity, TProperty>> selector, string value)
-            where TEntity : class
-        {
-            var func = selector.Compile();
-
-            var list = await query
-                .AsNoTracking()
-                .ToListAsync();
-
-            var results = list
-                .Where(x => func(x)?.ToString()?.Contains(value, StringComparison.OrdinalIgnoreCase) == true)
-                .Select(x => new AutocompleteResponse { Label = func(x)?.ToString() ?? "" })
-                .ToArray();
-
-            return Ok(results);
+                Equipment = new EquipmentInfo
+                {
+                    Player = !string.IsNullOrEmpty(request.Player) ? new Player { Name = request.Player } : null,
+                    Cartridge = !string.IsNullOrEmpty(request.Cartridge) ? new Cartridge { Name = request.Cartridge } : null,
+                    Amplifier = !string.IsNullOrEmpty(request.Amplifier) ? new Amplifier { Name = request.Amplifier } : null,
+                    Adc = !string.IsNullOrEmpty(request.Adc) ? new Adc { Name = request.Adc } : null,
+                    Wire = !string.IsNullOrEmpty(request.Wire) ? new Wire { Name = request.Wire } : null
+                }
+            };
         }
         #endregion
     }

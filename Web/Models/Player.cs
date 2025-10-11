@@ -1,17 +1,14 @@
-﻿using Web.Db.Interfaces;
+﻿using Web.Interfaces;
 
 namespace Web.Models
 {
-    /// <summary>
-    /// Information about playback device
-    /// </summary>
-    public class Player : IEquipmentEntity<PlayerManufacturer>
+    public class Player : IManufacturer
     {
         public int Id { get; set; }
-        public string Data { get; set; }
+        public string Name { get; set; }
         public string? Description { get; set; }
-        public PlayerManufacturer? Manufacturer { get; set; }
+        public Manufacturer? Manufacturer { get; set; }
         public int? ManufacturerId { get; set; }
-        public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
+        public ICollection<Digitization> Digitizations { get; set; } = [];
     }
 }

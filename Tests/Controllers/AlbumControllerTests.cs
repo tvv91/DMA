@@ -5,6 +5,7 @@ using Moq;
 using Web.Controllers;
 using Web.Db;
 using Web.Enums;
+using Web.Interfaces;
 using Web.Models;
 using Web.Services;
 using Web.ViewModels;
@@ -15,7 +16,7 @@ namespace Tests.Controllers
     public class AlbumControllerTests
     {
         private readonly Mock<IAlbumRepository> _albumRepoMock = new Mock<IAlbumRepository>();
-        private readonly Mock<ITechInfoRepository> _techInfoRepoMock = new Mock<ITechInfoRepository>();
+        private readonly Mock<IDigitizationRepository> _techInfoRepoMock = new Mock<IDigitizationRepository>();
         private readonly Mock<IImageService> _imageServiceMock = new Mock<IImageService>();
 
         public AlbumControllerTests()
@@ -31,7 +32,7 @@ namespace Tests.Controllers
             var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
             var result = await controller.Index();
             var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<AlbumViewModel>(viewResult.ViewData.Model);
+            var model = Assert.IsAssignableFrom<AlbumIndexViewModel>(viewResult.ViewData.Model);
             Assert.Equal(7, model.PageCount);
             Assert.Equal(15, model.Albums.Count());
         }
@@ -52,7 +53,7 @@ namespace Tests.Controllers
             var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
             var result = await controller.Index(1);
             var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<AlbumViewModel>(viewResult.ViewData.Model);
+            var model = Assert.IsAssignableFrom<AlbumIndexViewModel>(viewResult.ViewData.Model);
             Assert.Equal(7, model.PageCount);
             Assert.Equal(15, model.Albums.Count());
         }
@@ -63,7 +64,7 @@ namespace Tests.Controllers
             var controller = new AlbumController(_albumRepoMock.Object, _imageServiceMock.Object, _techInfoRepoMock.Object);
             var result = await controller.Index(500);
             var viewResult = Assert.IsType<ViewResult>(result);
-            var model = Assert.IsAssignableFrom<AlbumViewModel>(viewResult.ViewData.Model);
+            var model = Assert.IsAssignableFrom<AlbumIndexViewModel>(viewResult.ViewData.Model);
             Assert.Empty(model.Albums);
         }
 
@@ -76,11 +77,11 @@ namespace Tests.Controllers
             {
                 var result = await controller.Index(i);
                 var viewResult = Assert.IsType<ViewResult>(result);
-                var model = Assert.IsAssignableFrom<AlbumViewModel>(viewResult.ViewData.Model);
+                var model = Assert.IsAssignableFrom<AlbumIndexViewModel>(viewResult.ViewData.Model);
                 foreach (var album in model.Albums)
                 {
                     Assert.Equal("Artist 1", album.Artist.Data);
-                    Assert.Equal($"Album {albumIndex++}", album.Data);
+                    Assert.Equal($"Album {albumIndex++}", album.Title);
                 }
             }
         }
@@ -104,8 +105,8 @@ namespace Tests.Controllers
             Assert.Equal("https://somelink.com", model.Album.Source);
             Assert.Equal("https://somelink.com", model.Album.Discogs);
             Assert.Equal("Artist 1", model.Album.Artist.Data);
-            Assert.Equal("Heavy Metal", model.Album.Genre?.Data);
-            Assert.Equal(2005, model.Album.Year?.Data);
+            Assert.Equal("Heavy Metal", model.Album.Genre?.Name);
+            Assert.Equal(2005, model.Album.Year?.YearValue);
             Assert.Equal(2020, model.Album.Reissue?.Data);
             Assert.Equal("USA", model.Album.Country?.Data);
             Assert.Equal("Roadrunner Records", model.Album.Label?.Data);
@@ -166,7 +167,7 @@ namespace Tests.Controllers
             var model = Assert.IsAssignableFrom<AlbumCreateUpdateViewModel>(viewResult.ViewData.Model);
             Assert.Null(model.Adc);
             Assert.Null(model.AdcManufacturer);
-            Assert.Null(model.Album);
+            Assert.Null(model.Title);
             Assert.Null(model.AlbumCover);
             Assert.Equal(0, model.AlbumId);
             Assert.Null(model.Amplifier);
@@ -209,10 +210,10 @@ namespace Tests.Controllers
 
             var result = await controller.Create(new AlbumCreateUpdateViewModel
             {
-                Album = album.Data,
+                Title = album.Title,
                 Artist = album.Artist.Data,
-                Genre = album.Genre.Data,
-                Year = album.Year.Data,
+                Genre = album.Genre.Name,
+                Year = album.Year.YearValue,
                 Reissue = album.Reissue.Data,
                 Country = album.Country.Data,
                 Label = album.Label.Data,
@@ -262,10 +263,10 @@ namespace Tests.Controllers
             var result = await controller.Create(new AlbumCreateUpdateViewModel
             {
                 AlbumCover = "file.jpg",
-                Album = album.Data,
+                Title = album.Title,
                 Artist = album.Artist.Data,
-                Genre = album.Genre.Data,
-                Year = album.Year.Data,
+                Genre = album.Genre.Name,
+                Year = album.Year.YearValue,
                 Reissue = album.Reissue.Data,
                 Country = album.Country.Data,
                 Label = album.Label.Data,
@@ -343,7 +344,7 @@ namespace Tests.Controllers
             var model = Assert.IsAssignableFrom<AlbumCreateUpdateViewModel>(viewResult.ViewData.Model);
             
             Assert.Equal(123, model.AlbumId);
-            Assert.Equal("Some album", model.Album);
+            Assert.Equal("Some album", model.Title);
             Assert.Equal(5.4, model.Size);
             Assert.Equal("https://somesource.com", model.Source);
             Assert.Equal("https://discogs.com", model.Discogs);
@@ -409,10 +410,10 @@ namespace Tests.Controllers
             {
                 AlbumId = 1,
                 AlbumCover = "cover.jpg",
-                Album = album.Data,
+                Title = album.Title,
                 Artist = album.Artist.Data,
-                Genre = album.Genre.Data,
-                Year = album.Year.Data,
+                Genre = album.Genre.Name,
+                Year = album.Year.YearValue,
                 Reissue = album.Reissue.Data,
                 Country = album.Country.Data,
                 Label = album.Label.Data,
@@ -449,7 +450,7 @@ namespace Tests.Controllers
             var model = Assert.IsAssignableFrom<AlbumCreateUpdateViewModel>(viewResult.ViewData.Model);
 
             Assert.Equal(1, model.AlbumId);
-            Assert.Equal("Some album", model.Album);
+            Assert.Equal("Some album", model.Title);
             Assert.Equal(5.4, model.Size);
             Assert.Equal("https://somesource.com", model.Source);
             Assert.Equal("https://discogs.com", model.Discogs);
@@ -492,10 +493,10 @@ namespace Tests.Controllers
             {
                 AlbumId = 1,
                 AlbumCover = "cover.jpg",
-                Album = album.Data,
+                Title = album.Title,
                 Artist = album.Artist.Data,
-                Genre = album.Genre.Data,
-                Year = album.Year.Data,
+                Genre = album.Genre.Name,
+                Year = album.Year.YearValue,
                 Reissue = album.Reissue.Data,
                 Country = album.Country.Data,
                 Label = album.Label.Data,
@@ -545,10 +546,10 @@ namespace Tests.Controllers
             {
                 AlbumId = 1,
                 //AlbumCover = "cover.jpg",
-                Album = album.Data,
+                Title = album.Title,
                 Artist = album.Artist.Data,
-                Genre = album.Genre.Data,
-                Year = album.Year.Data,
+                Genre = album.Genre.Name,
+                Year = album.Year.YearValue,
                 Reissue = album.Reissue.Data,
                 Country = album.Country.Data,
                 Label = album.Label.Data,

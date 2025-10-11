@@ -1,17 +1,14 @@
-﻿using Web.Db.Interfaces;
+﻿using Web.Interfaces;
 
 namespace Web.Models
 {
-    /// <summary>
-    /// Information about playback device cartridge / headshell
-    /// </summary>
-    public class Cartridge : IEquipmentEntity<CartridgeManufacturer>
+    public class Cartridge : IManufacturer
     {
         public int Id { get; set; }
-        public string Data { get; set; }
+        public string Name { get; set; }
         public string? Description { get; set; }
-        public CartridgeManufacturer? Manufacturer { get; set; }
+        public Manufacturer? Manufacturer { get; set; }
         public int? ManufacturerId { get; set; }
-        public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
+        public ICollection<Digitization> Digitizations { get; set; } = [];
     }
 }

@@ -1,4 +1,4 @@
-﻿@model AlbumViewModel
+﻿@model AlbumIndexViewModel
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_deleted" class="toast toast-body-deleted" role="alert" aria-live="assertive" aria-atomic="true">
@@ -26,12 +26,12 @@
                             </div>
                             <img id="album-img-@album.Id"
                                  class="album-cover d-none"
-                                 alt="@album.Artist.Data - @album.Data" />
+                                 alt="@album.Artist.Data - @album.Title" />
                         </div>
                     </a>
                     <div class="album-base-info">
                         <div class="album-artist">@album.Artist.Data</div>
-                        <div class="album-title">@album.Data</div>
+                        <div class="album-title">@album.Title</div>
                     </div>
                 </article>
             }

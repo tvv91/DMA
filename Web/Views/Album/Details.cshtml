@@ -54,7 +54,7 @@
 <div class="album-container">
     <div class="album-header">
         <div class="album-title-details">
-            <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Data</h1>
+            <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Title</h1>
         </div>
         <div class="album-actions">
             <a href="/album/edit/@Model.Album.Id" title="Edit">
@@ -68,7 +68,7 @@
     <div class="album-info-cards">
         <div class="info-card">
             <span class="info-label">Year</span>
-            <span class="info-value">@Model.Album?.Year?.Data</span>
+            <span class="info-value">@Model.Album?.Year?.YearValue</span>
         </div>
         <div class="info-card">
             <span class="info-label">Reissue</span>
@@ -76,7 +76,7 @@
         </div>
         <div class="info-card">
             <span class="info-label">Genre</span>
-            <span class="info-value">@Model.Album?.Genre?.Data</span>
+            <span class="info-value">@Model.Album?.Genre?.Name</span>
         </div>
         <div class="info-card">
             <span class="info-label">Country</span>

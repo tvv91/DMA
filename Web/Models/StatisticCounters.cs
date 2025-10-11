@@ -3,7 +3,7 @@
     public class StatisticCounters
     {
         public int TotalAlbums { get; set; }
-        public double? TotalSize { get; set; }
+        public double TotalSize { get; set; }
         public int StorageCount { get; set; }
         public List<CounterItem>? Genre { get; set; }
         public List<CounterItem>? Year { get; set; }
@@ -18,7 +18,7 @@
         public List<CounterItem>? Sampling { get; set; }
         public List<CounterItem>? VinylState { get; set; }
         public List<CounterItem>? Wire { get; set; }
-        public List<CounterItem> Label { get; set; }
+        public List<CounterItem>? Label { get; set; }
     }
 
     public class CounterItem

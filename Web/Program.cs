@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
-using Web.Db.Implementation;
-using Web.Db.Interfaces;
+using Web.Implementation;
+using Web.Interfaces;
 using Web.Services;
 using Web.SignalRHubs;
 
@@ -16,16 +16,32 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
     });
 });
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
-builder.Services.AddScoped<ITechInfoRepository, TechnicalnfoRepository>();
+builder.Services.AddScoped<IDigitizationRepository, DigitizationRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
+//builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IPostCategoryRepository, PostCategoryRepository>();
+builder.Services.AddScoped<ISearchRepository, SearchRepository>();
+builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
+
 builder.Services.AddSignalR();
 var app = builder.Build();
-app.UseDeveloperExceptionPage();
-app.UseStatusCodePages();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+} 
+else
+{
+    // TODO: Implement error page
+    app.UseExceptionHandler("/Home/Error");
+}
+
+    app.UseStatusCodePages();
 app.UseStaticFiles();
 app.MapControllerRoute(name: "default", pattern: "{controller=Post}/{action=Index}");
+// TODO: Separate hubs
 app.MapHub<DefaultHub>("/defaulthub");
 await SeedData.EnsurePopulated(app);
 app.Run();

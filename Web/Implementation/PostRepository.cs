@@ -1,25 +1,73 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Web.Db.Interfaces;
+using Web.Common;
+using Web.Db;
+using Web.Extentions;
+using Web.Interfaces;
 using Web.Models;
 
-namespace Web.Db.Implementation
+namespace Web.Implementation
 {
     public class PostRepository : IPostRepository
     {
         private readonly DMADbContext _context;
+        
         public PostRepository(DMADbContext context) => _context = context;
 
-        public IQueryable<Post> Posts => _context.Posts;
-        public IQueryable<Category> Categories => _context.Category;
-        public IQueryable<PostCategory> PostCategories => _context.PostCategories;
+        public async Task<Post> AddAsync(Post post)
+        {
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync();
+            return post;
+        }
 
+        public Task<bool> DeleteAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)
+        {
+            var query = _context.Posts
+            .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+            .AsQueryable();
+
+            return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
+        }
+
+        public async Task<Post?> GetByIdAsync(int id)
+        {
+            return await _context.Posts
+            .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+            .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        public async Task<Post> UpdateAsync(Post post)
+        {
+            post.UpdatedDate = DateTime.Now;
+
+            await _context.Posts
+                .Where(p => p.Id == post.Id)
+                .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.Title, post.Title)
+                    .SetProperty(p => p.Description, post.Description)
+                    .SetProperty(p => p.Content, post.Content)
+                    .SetProperty(p => p.IsDraft, post.IsDraft)
+                    .SetProperty(p => p.CreatedDate, post.CreatedDate)
+                    .SetProperty(p => p.UpdatedDate, post.UpdatedDate)
+                );
+
+            return post;
+        }
+
+
+        /*
         public async Task<Category> GetOrCreateCategory(string title)
         {
-            var category = await _context.Category.FirstOrDefaultAsync(x => x.Title == title);
+            var category = await _context.Categories.FirstOrDefaultAsync(x => x.Title == title);
             if (category == null)
             {
                 category = new Category { Title = title };
-                _context.Category.Add(category);
+                _context.Categories.Add(category);
                 await _context.SaveChangesAsync();
             }
             return category;
@@ -66,5 +114,6 @@ namespace Web.Db.Implementation
 
             await _context.SaveChangesAsync();
         }
+        */
     }
 }

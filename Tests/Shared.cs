@@ -9,49 +9,49 @@ namespace Tests
             return new Album
             {
                 Id = 123,
-                Data = "Some album",
+                Title = "Some album",
                 Size = 5.4,
                 Source = "https://somesource.com",
                 Discogs = "https://discogs.com",
                 AddedDate = DateTime.Now,
                 Artist = new Artist { Data = "Some artist" },
-                Genre = new Genre { Data = "Heavy Metal" },
-                Year = new Year { Data = 2010 },
+                Genre = new Genre { Name = "Heavy Metal" },
+                Year = new Year { YearValue = 2010 },
                 Reissue = new Reissue { Data = 2020 },
-                Country = new Country { Data = "USA" },
+                Country = new Country { Name = "USA" },
                 Label = new Label { Data = "Some label" },
                 Storage = new Storage { Data = "Some storage" },
                 TechnicalInfo = new TechnicalInfo
                 {
-                    Bitness = new Bitness { Data = 24 },
-                    DigitalFormat = new DigitalFormat { Data = "FLAC" },
-                    SourceFormat = new SourceFormat { Data = "LP 12'' 33RPM" },
-                    Sampling = new Sampling { Data = 192 },
-                    VinylState = new VinylState { Data = "Mint" },
+                    Bitness = new Bitness { Value = 24 },
+                    DigitalFormat = new DigitalFormat { Name = "FLAC" },
+                    SourceFormat = new SourceFormat { Name = "LP 12'' 33RPM" },
+                    Sampling = new Sampling { Value = 192 },
+                    VinylState = new VinylState { Name = "Mint" },
                     Adc = new Adc
                     {
-                        Data = "Some Adc Model",
-                        Manufacturer = new AdcManufacturer { Data = "Some Adc Manufacturer" }
+                        Name = "Some Adc Model",
+                        Manufacturer = new AdcManufacturer { Name = "Some Adc Manufacturer" }
                     },
                     Amplifier = new Amplifier
                     {
-                        Data = "Some Amplifier Model",
-                        Manufacturer = new AmplifierManufacturer { Data = "Some Amplifier Manufacturer" }
+                        Name = "Some Amplifier Model",
+                        Manufacturer = new AmplifierManufacturer { Name = "Some Amplifier Manufacturer" }
                     },
                     Cartridge = new Cartridge
                     {
-                        Data = "Some Cartridge Model",
-                        Manufacturer = new CartridgeManufacturer { Data = "Some Cartridge Manufacturer" }
+                        Name = "Some Cartridge Model",
+                        Manufacturer = new CartridgeManufacturer { Name = "Some Cartridge Manufacturer" }
                     },
                     Player = new Player
                     {
-                        Data = "Some Player Model",
-                        Manufacturer = new PlayerManufacturer { Data = "Some Player Manufacturer" }
+                        Name = "Some Player Model",
+                        Manufacturer = new PlayerManufacturer { Name = "Some Player Manufacturer" }
                     },
                     Wire = new Wire
                     {
-                        Data = "Some Wire Model",
-                        Manufacturer = new WireManufacturer { Data = "Some Wire Manufacturer" }
+                        Name = "Some Wire Model",
+                        Manufacturer = new WireManufacturer { Name = "Some Wire Manufacturer" }
                     }
                 }
             };

@@ -1,12 +1,12 @@
-﻿namespace Web.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Web.Models
 {
-    /// <summary>
-    /// Information about audio sampling
-    /// </summary>
     public class Sampling
     {
         public int Id { get; set; }
-        public double Data { get; set; }
-        public ICollection<TechnicalInfo> TechnicalInfos { get; set; }
+        [Required]
+        public double Value { get; set; }
+        public ICollection<Digitization> Digitizations { get; set; } = [];
     }
 }

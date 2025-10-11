@@ -1,6 +1,6 @@
 ﻿using Web.Models;
 
-namespace Web.Db.Interfaces
+namespace Web.Interfaces
 {
     public interface IStatisticRepository
     {

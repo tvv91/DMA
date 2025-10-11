@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Web.Db;
+using System.ComponentModel.DataAnnotations;
 using Web.Enums;
+using Web.Interfaces;
+using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 
@@ -8,13 +10,31 @@ namespace Web.Controllers
 {
     public class EquipmentController : Controller
     {
-        private readonly ITechInfoRepository _repository;
+        private readonly IDigitizationRepository _repository;
+        private readonly IRepository<Adc> _adcRepo;
+        private readonly IRepository<Amplifier> _amplifierRepo;
+        private readonly IRepository<Cartridge> _cartridgeRepo;
+        private readonly IRepository<Player> _playerRepo;
+        private readonly IRepository<Wire> _wireRepo;
+        
         private readonly IImageService _imageService;
 
-        public EquipmentController(ITechInfoRepository repository, IImageService imageService)
+        public EquipmentController(
+            IDigitizationRepository digitizationRepo, 
+            IImageService imageService, 
+            IRepository<Adc> adcRepo,
+            IRepository<Amplifier > amplifierRepo,
+            IRepository<Cartridge > cartridgeRepo,
+            IRepository<Player> playerRepo, 
+            IRepository<Wire> wireRepo)
         {
-            _repository = repository;
+            _repository = digitizationRepo;
             _imageService = imageService;
+            _adcRepo = adcRepo;
+            _amplifierRepo = amplifierRepo;
+            _cartridgeRepo = cartridgeRepo;
+            _playerRepo = playerRepo;
+            _wireRepo = wireRepo;
         }
 
         public IActionResult Index()
@@ -36,7 +56,7 @@ namespace Web.Controllers
 
             try
             {
-                var deleted = await _repository.DeleteEquipmentAsync(id, category);
+                var deleted = await _repository.DeleteAsync(id, category);
                 _imageService.RemoveCover(id, category);
                 return deleted ? Ok() : NotFound();
             }

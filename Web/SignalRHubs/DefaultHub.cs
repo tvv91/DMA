@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
-using Web.Db;
-using Web.Db.Interfaces;
 using Web.Enums;
+using Web.Interfaces;
 using Web.Models;
 using Web.Services;
 using Web.ViewModels;
@@ -13,14 +12,14 @@ namespace Web.SignalRHubs
     public class DefaultHub : Hub
     {
         private readonly IImageService _imgService;
-        private readonly ITechInfoRepository _techInfoRepository;
+        private readonly IDigitizationRepository _techInfoRepository;
         private readonly IAlbumRepository _albumRepository;
         private readonly IPostRepository _postRepository;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
         private const int ITEMS_PER_PAGE = 18;
         private const int POSTS_PER_PAGE = 10;
 
-        public DefaultHub(IImageService coverImageService, ITechInfoRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)
+        public DefaultHub(IImageService coverImageService, IDigitizationRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)
         {
             _imgService = coverImageService;
             _techInfoRepository = techInfoRepository;
@@ -89,48 +88,39 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", _imgService.GetImageUrl(equipmentId, Enum.Parse<EntityType>(type)));
         }
 
-        /// <summary>
-        /// Check if similar albums already exists in db / possible dublications checker
-        /// </summary>
-        /// <param name="connectionId">Connection Id</param>
-        /// <param name="currentAlbum">Current album Id</param>
-        /// <param name="album">Album title</param>
-        /// <param name="artist">Artist title</param>
-        /// <param name="source">Album sources</param>
-        /// <returns></returns>
-        public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
-        {
-            var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Data == album && x.Artist.Data == artist && x.Id != currentAlbum).ToListAsync();
+        //public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
+        //{
+        //    var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Title == album && x.Artist.Data == artist && x.Id != currentAlbum).ToListAsync();
 
-            if (result?.Count > 0)
-            {
-                // "100 or 50" is detection level.
-                // 100 means that user trying add album to db that alredy exists from same source
-                // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
-                if (source != null)
-                {
-                    var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
+        //    if (result?.Count > 0)
+        //    {
+        //        // "100 or 50" is detection level.
+        //        // 100 means that user trying add album to db that alredy exists from same source
+        //        // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
+        //        if (source != null)
+        //        {
+        //            var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
 
-                    if (containsSource.Length > 0)
-                    {
-                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
-                    }
-                    else
-                    {
-                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
-                    }
-                }
-                else
-                {
-                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
-                }
-            }
-            else
-            {
-                // if nothing found send 0 for reset warn message (if set)
-                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
-            }
-        }
+        //            if (containsSource.Length > 0)
+        //            {
+        //                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
+        //            }
+        //            else
+        //            {
+        //                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+        //            }
+        //        }
+        //        else
+        //        {
+        //            await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // if nothing found send 0 for reset warn message (if set)
+        //        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
+        //    }
+        //}
         #endregion
 
         #region TechInfo workload
@@ -150,8 +140,8 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    ModelName = x.Data,
-                    Manufacturer = x.Manufacturer.Data,
+                    ModelName = x.Name,
+                    Manufacturer = x.Manufacturer.Name,
                     EquipmentType = EntityType.Adc
                 })
                 .ToListAsync();
@@ -171,8 +161,8 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    ModelName = x.Data,
-                    Manufacturer = x.Manufacturer.Data,
+                    ModelName = x.Name,
+                    Manufacturer = x.Manufacturer.Name,
                     EquipmentType = EntityType.Amplifier
                 }).ToListAsync();
         }
@@ -191,8 +181,8 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    ModelName = x.Data,
-                    Manufacturer = x.Manufacturer.Data,
+                    ModelName = x.Name,
+                    Manufacturer = x.Manufacturer.Name,
                     EquipmentType = EntityType.Cartridge
                 }).ToListAsync();
         }
@@ -211,8 +201,8 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    ModelName = x.Data,
-                    Manufacturer = x.Manufacturer.Data,
+                    ModelName = x.Name,
+                    Manufacturer = x.Manufacturer.Name,
                     EquipmentType = EntityType.Player
                 }).ToListAsync();
         }
@@ -231,8 +221,8 @@ namespace Web.SignalRHubs
                 .Select(x => new EquipmentViewModel()
                 {
                     Id = x.Id,
-                    ModelName = x.Data,
-                    Manufacturer = x.Manufacturer.Data,
+                    ModelName = x.Name,
+                    Manufacturer = x.Manufacturer.Name,
                     EquipmentType = EntityType.Amplifier
                 }).ToListAsync();
         }
@@ -297,38 +287,38 @@ namespace Web.SignalRHubs
             switch (category)
             {
                 case "adc":
-                    var adc_manufacturer = await _techInfoRepository.Adcs.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    var adc_manufacturer = await _techInfoRepository.Adcs.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
                     if (adc_manufacturer?.Manufacturer != null)
                     {
-                        result = adc_manufacturer.Manufacturer.Data;
+                        result = adc_manufacturer.Manufacturer.Name;
                     }
                     break;
                 case "amp":
-                    var amp_manufacturer = await _techInfoRepository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    var amp_manufacturer = await _techInfoRepository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
                     if (amp_manufacturer?.Manufacturer != null)
                     {
-                        result = amp_manufacturer.Manufacturer.Data;
+                        result = amp_manufacturer.Manufacturer.Name;
                     }
                     break;
                 case "cartridge":
-                    var cartridge_manufacturer = await _techInfoRepository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    var cartridge_manufacturer = await _techInfoRepository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
                     if (cartridge_manufacturer?.Manufacturer != null)
                     {
-                        result = cartridge_manufacturer.Manufacturer.Data;
+                        result = cartridge_manufacturer.Manufacturer.Name;
                     }
                     break;
                 case "player":
-                    var player_manufacturer = await _techInfoRepository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    var player_manufacturer = await _techInfoRepository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
                     if (player_manufacturer?.Manufacturer != null)
                     {
-                        result = player_manufacturer.Manufacturer.Data;
+                        result = player_manufacturer.Manufacturer.Name;
                     }
                     break;
                 case "wire":
-                    var wire_manufacturer = await _techInfoRepository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Data == value);
+                    var wire_manufacturer = await _techInfoRepository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
                     if (wire_manufacturer?.Manufacturer != null)
                     {
-                        result = wire_manufacturer.Manufacturer.Data;
+                        result = wire_manufacturer.Manufacturer.Name;
                     }
                     break;
             }

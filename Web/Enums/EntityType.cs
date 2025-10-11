@@ -2,6 +2,10 @@
 {
     public enum EntityType
     {
+        Artist,
+        Genre,
+        Year,
+        Reissue,
         AlbumCover,
         VinylState,
         DigitalFormat,
@@ -9,9 +13,14 @@
         Sampling,
         SourceFormat,
         Player,
+        PlayerManufacturer,
         Cartridge,
+        CartridgeManufacturer,
         Amplifier,
+        AmplifierManufacturer,
         Adc,
-        Wire
+        AdcManufacturer,
+        Wire,
+        WireManufacturer
     }
 }

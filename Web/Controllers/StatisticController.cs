@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using Web.Db.Interfaces;
+using Web.Interfaces;
 using Web.ViewModels;
 
 namespace Web.Controllers
@@ -17,7 +17,7 @@ namespace Web.Controllers
         public async Task<IActionResult> Index()
         {
             var result = await _statisticRepository.Process();
-            var viewModel = JsonSerializer.Deserialize<StatisticViewModel>(result.Data);
+            var viewModel = JsonSerializer.Deserialize<StatisticViewModel>(result.Name);
             viewModel.LastUpdate = result.LastUpdate;
             return View("Index", viewModel);
         }

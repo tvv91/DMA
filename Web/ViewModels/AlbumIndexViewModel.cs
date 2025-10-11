@@ -2,7 +2,7 @@
 
 namespace Web.ViewModels
 {
-    public class AlbumViewModel
+    public class AlbumIndexViewModel
     {
         public IEnumerable<Album>? Albums { get; set; }
         public int PageCount { get; set; }

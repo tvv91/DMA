@@ -22,5 +22,6 @@
         public Storage? Storage { get; set; }
         public FormatInfo? Format { get; set; }
         public EquipmentInfo? Equipment { get; set; }
+        public double? Size { get; set; }
     }
 }

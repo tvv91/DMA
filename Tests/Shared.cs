@@ -16,7 +16,7 @@ namespace Tests
                 AddedDate = DateTime.Now,
                 Artist = new Artist { Data = "Some artist" },
                 Genre = new Genre { Name = "Heavy Metal" },
-                Year = new Year { YearValue = 2010 },
+                Year = new Year { Value = 2010 },
                 Reissue = new Reissue { Data = 2020 },
                 Country = new Country { Name = "USA" },
                 Label = new Label { Data = "Some label" },

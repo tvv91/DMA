@@ -10,5 +10,6 @@ namespace Web.Interfaces
         Task<IManufacturer> AddAsync(IManufacturer entity, EntityType type);
         Task<IManufacturer> UpdateAsync(IManufacturer entity, EntityType type);
         Task<bool> DeleteAsync(int id, EntityType type);
+        Task<IManufacturer?> GetManufacturerByNameAsync(string name, EntityType type);
     }
 }

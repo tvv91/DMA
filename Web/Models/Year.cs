@@ -6,7 +6,7 @@ namespace Web.Models
     {
         public int Id { get; set; }
         [Required]
-        public int YearValue { get; set; }
+        public int Value { get; set; }
         public ICollection<Album> Albums { get; set; } = [];
     }
 }

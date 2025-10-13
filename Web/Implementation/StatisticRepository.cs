@@ -6,225 +6,91 @@ using Web.Models;
 
 namespace Web.Implementation
 {
-    //public class StatisticRepository : IStatisticRepository
-    //{
-    //    private readonly DMADbContext _context;
-    //    private readonly double[] _dsdFreq = [2.8, 5.6, 11.2, 22.5];
+    public class StatisticRepository : IStatisticRepository
+    {
+        private readonly DMADbContext _context;
+        private static readonly double[] _dsdFreq = { 2.8, 5.6, 11.2, 22.5 };
 
-    //    public StatisticRepository(DMADbContext ctx) => _context = ctx;
+        public StatisticRepository(DMADbContext context) => _context = context;
 
-    //    public async Task<Statistic> Process()
-    //    {
-    //        var result = await _context.Statistics.FirstOrDefaultAsync();
+        public async Task<Statistic> Process()
+        {
+            var stat = await _context.Statistics.FirstOrDefaultAsync();
 
-    //        if (result == null)
-    //        {
-    //            result = await RefreshStatistic();
-    //            await _context.Statistics.AddAsync(result);
-    //            await _context.SaveChangesAsync();
-    //        }
-    //        else
-    //        {
-    //            var lastUpdate = result.LastUpdate;
-    //            // check that last time statistic updated less then 1 day ago
-    //            if ((DateTime.UtcNow - lastUpdate).Days > 1)
-    //            {
-    //                result = await RefreshStatistic();
-    //                await _context.Statistics
-    //                    .Where(x => x.Id == 1)
-    //                    .ExecuteUpdateAsync(x => x.SetProperty(e => e.Name, result.Name).SetProperty(e => e.LastUpdate, result.LastUpdate));
-    //            }
-    //        }
+            if (stat == null)
+            {
+                stat = await RefreshStatistic();
+                await _context.Statistics.AddAsync(stat);
+                await _context.SaveChangesAsync();
+                return stat;
+            }
 
-    //        return result;
-    //    }
+            if (DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1))
+            {
+                var refreshed = await RefreshStatistic();
+                stat.Name = refreshed.Name;
+                stat.LastUpdate = refreshed.LastUpdate;
+                await _context.SaveChangesAsync();
+            }
 
-    //    private async Task<Statistic> RefreshStatistic()
-    //    {
-    //        var statisticData = new StatisticCounters
-    //        {
-    //            TotalAlbums = await CountAlbums(),
-    //            TotalSize = await CountSize(),
-    //            StorageCount = await CountStorages(),
-    //            Genre = await CountGenres(),
-    //            Year = await CountYears(),
-    //            Country = await CountCountries(),
-    //            Label = await CountLabels(),
-    //            Bitness = await CountBitness(),
-    //            Sampling = await CountSampling(),
-    //            SourceFormat = await CountSourceFormat(),
-    //            DigitalFormat = await CountDigitalFormat(),
-    //            Adc = await CountAdc(),
-    //            Amplifier = await CountAmplifier(),
-    //            Cartridge = await CountCartridge(),
-    //            Player = await CountPlayer(),
-    //            VinylState = await CountVinylState(),
-    //            Wire = await CountWire(),
-    //        };
+            return stat;
+        }
 
-    //        var statistic = new Statistic
-    //        {
-    //            Name = JsonSerializer.Serialize(statisticData),
-    //            LastUpdate = DateTime.UtcNow
-    //        };
+        private async Task<Statistic> RefreshStatistic()
+        {
+            var data = new StatisticCounters
+            {
+                TotalAlbums = await _context.Albums.CountAsync(),
+                TotalSize = await _context.Albums.SumAsync(a => a.Digitizations.Sum(d => d.Format!.Size) ?? 0),
+                StorageCount = await _context.Storages.CountAsync(),
+                Genre = await CountGeneric(_context.Genres, g => g.Albums.SelectMany(a => a.Digitizations)),
+                Year = await CountGeneric(_context.Years, y => y.Albums.SelectMany(a => a.Digitizations)),
+                Country = await CountGeneric(_context.Countries, c => c.Digitizations),
+                Label = await CountGeneric(_context.Labels, l => l.Digitizations),
+                Bitness = await CountGeneric(_context.Bitnesses, b => b.Digitizations.Where(d => d.Format != null && d.Format.BitnessId == b.Id), d => $"{d.Format!.Bitness!.Value} bit/s"),
+                Sampling = await CountGeneric(_context.Samplings, s => s.Digitizations.Where(d => d.Format != null && d.Format.SamplingId == s.Id), d => $"{d.Format!.Sampling!.Value}{(_dsdFreq.Contains(d.Format.Sampling!.Value) ? " MHz" : " kHz")}"),
+                SourceFormat = await CountGeneric(_context.SourceFormats, s => s.Digitizations),
+                DigitalFormat = await CountGeneric(_context.DigitalFormats, d => d.Digitizations),
+                Adc = await CountGeneric(_context.Adces, e => e.Digitizations, f => $"{f.Equipment!.Adc!.Manufacturer?.Name} {f.Equipment.Adc.Name}"),
+                Amplifier = await CountGeneric(_context.Amplifiers, e => e.Digitizations, f => $"{f.Equipment!.Amplifier!.Manufacturer?.Name} {f.Equipment.Amplifier.Name}"),
+                Cartridge = await CountGeneric(_context.Cartridges, e => e.Digitizations, f => $"{f.Equipment!.Cartridge!.Manufacturer?.Name} {f.Equipment.Cartridge.Name}"),
+                Player = await CountGeneric(_context.Players, e => e.Digitizations, f => $"{f.Equipment!.Player!.Manufacturer?.Name} {f.Equipment.Player.Name}"),
+                VinylState = await CountGeneric(_context.VinylStates, v => v.Digitizations, f => f.Format!.VinylState!.Name),
+                Wire = await CountGeneric(_context.Wires, e => e.Digitizations, f => $"{f.Equipment!.Wire!.Manufacturer?.Name} {f.Equipment.Wire.Name}")
+            };
 
-    //        return statistic;
-    //    }
+            return new Statistic
+            {
+                Name = JsonSerializer.Serialize(data),
+                LastUpdate = DateTime.UtcNow
+            };
+        }
 
-    //    public async Task<List<CounterItem>> CountWire()
-    //    {
-    //        return await _context.Wires.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.WireId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data,
-    //            Count = y.Count()
-    //        }).ToListAsync();
-    //    }
+        private async Task<List<CounterItem>> CountGeneric<TEntity>(
+            IQueryable<TEntity> entities,
+            Func<TEntity, IEnumerable<Digitization>> digitizationsSelector,
+            Func<Digitization, string>? descriptionSelector = null)
+            where TEntity : class
+        {
+            descriptionSelector ??= d =>
+            {
+                var f = d.Format;
+                return f switch
+                {
+                    not null when f.Bitness != null => f.Bitness.Value.ToString(),
+                    _ => d.Id.ToString()
+                };
+            };
 
-    //    public async Task<List<CounterItem>> CountVinylState()
-    //    {
-    //        return await _context.VinylStates.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.VinylStateId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data,
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountPlayer()
-    //    {
-
-    //        return await _context.Players.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.PlayerId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = $"{x.Manufacturer.Data} {x.Data}",
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountCartridge()
-    //    {
-    //        return await _context.Cartridges.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.AmplifierId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = $"{x.Manufacturer.Data} {x.Data}",
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountAmplifier()
-    //    {
-    //        return await _context.Amplifiers.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.AmplifierId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = $"{x.Manufacturer.Data} {x.Data}",
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountAdc()
-    //    {
-    //        return await _context.Adces.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.AdcId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = $"{x.Manufacturer.Data} {x.Data}",
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountDigitalFormat()
-    //    {
-    //        return await _context.DigitalFormats.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.DigitalFormatId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data,
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountSourceFormat()
-    //    {
-    //        return await _context.SourceFormats.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.SourceFormatId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data,
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountSampling()
-    //    {
-    //        return await _context.Samplings.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.SamplingId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data.ToString() + (_dsdFreq.Contains(x.Data) ? " MHz" : " kHz"),
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountBitness()
-    //    {
-    //        return await _context.Bitnesses.GroupJoin(_context.TechnicalInfos, x => x.Id, y => y.BitnessId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data.ToString() + " bit/s",
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountLabels()
-    //    {
-    //        return await _context.Labels.GroupJoin(_context.Albums, x => x.Id, y => y.LabelId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Data,
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountCountries()
-    //    {
-    //        return await _context.Countries.GroupJoin(_context.Albums, x => x.Id, y => y.CountryId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Name,
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountYears()
-    //    {
-    //        return await _context.Years.GroupJoin(_context.Albums, x => x.Id, y => y.YearId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.YearValue.ToString(),
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<List<CounterItem>> CountGenres()
-    //    {
-    //        return await _context.Genres.GroupJoin(_context.Albums, x => x.Id, y => y.GenreId, (x, y) =>
-    //        new CounterItem
-    //        {
-    //            Description = x.Name,
-    //            Count = y.Count()
-    //        }).Where(x => x.Count > 0).ToListAsync();
-    //    }
-
-    //    public async Task<int> CountStorages()
-    //    {
-    //        return await _context.Storages.CountAsync();
-    //    }
-
-    //    public async Task<double?> CountSize()
-    //    {
-    //        return await _context.Albums.SumAsync(x => x.Size);
-    //    }
-
-    //    public async Task<int> CountAlbums()
-    //    {
-    //        return await _context.Albums.CountAsync();
-    //    }
-    //}
+            return await entities
+                .Select(e => new CounterItem
+                {
+                    Description = descriptionSelector(digitizationsSelector(e).FirstOrDefault()!),
+                    Count = digitizationsSelector(e).Count()
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+    }
 }

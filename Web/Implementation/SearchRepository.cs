@@ -11,15 +11,17 @@ namespace Web.Implementation
     {
         private readonly DMADbContext _context;
         private readonly Dictionary<EntityType, Func<string, Task<List<AutocompleteResponse>>>> _searchMap;
+
         public SearchRepository(DMADbContext ctx)
         {
             _context = ctx;
+
             _searchMap = new()
             {
                 { EntityType.Artist, v => SearchStringAsync(_context.Artists, x => x.Name, v) },
                 { EntityType.Genre, v => SearchStringAsync(_context.Genres, x => x.Name, v) },
-                { EntityType.Year, v => SearchNumberAsync(_context.Years, x => x.YearValue, v) },
-                { EntityType.Reissue, v => SearchNumberAsync(_context.Reissues, x => x.YearValue, v) },
+                { EntityType.Year, v => SearchNumberAsync(_context.Years, x => x.Value, v) },
+                { EntityType.Reissue, v => SearchNumberAsync(_context.Reissues, x => x.Value, v) },
 
                 { EntityType.VinylState, v => SearchStringAsync(_context.VinylStates, x => x.Name, v) },
                 { EntityType.DigitalFormat, v => SearchStringAsync(_context.DigitalFormats, x => x.Name, v) },
@@ -33,11 +35,11 @@ namespace Web.Implementation
                 { EntityType.Adc, v => SearchStringAsync(_context.Adces, x => x.Name, v) },
                 { EntityType.Wire, v => SearchStringAsync(_context.Wires, x => x.Name, v) },
 
-                { EntityType.PlayerManufacturer, v => SearchStringAsync(_context.PlayerManufacturers, x => x.Name, v) },
-                { EntityType.CartridgeManufacturer, v => SearchStringAsync(_context.CartridgeManufacturers, x => x.Name, v) },
-                { EntityType.AmplifierManufacturer, v => SearchStringAsync(_context.AmplifierManufacturers, x => x.Name, v) },
-                { EntityType.AdcManufacturer, v => SearchStringAsync(_context.AdcManufacturers, x => x.Name, v) },
-                { EntityType.WireManufacturer, v => SearchStringAsync(_context.WireManufacturers, x => x.Name, v) },
+                { EntityType.PlayerManufacturer, v => SearchManufacturerAsync(EntityType.PlayerManufacturer, v) },
+                { EntityType.CartridgeManufacturer, v => SearchManufacturerAsync(EntityType.CartridgeManufacturer, v) },
+                { EntityType.AmplifierManufacturer, v => SearchManufacturerAsync(EntityType.AmplifierManufacturer, v) },
+                { EntityType.AdcManufacturer, v => SearchManufacturerAsync(EntityType.AdcManufacturer, v) },
+                { EntityType.WireManufacturer, v => SearchManufacturerAsync(EntityType.WireManufacturer, v) },
             };
         }
 
@@ -51,7 +53,10 @@ namespace Web.Implementation
             return new List<AutocompleteResponse>();
         }
 
-        private async Task<List<AutocompleteResponse>> SearchStringAsync<TEntity>(IQueryable<TEntity> query, Expression<Func<TEntity, string>> selector,string value) 
+        private async Task<List<AutocompleteResponse>> SearchStringAsync<TEntity>(
+            IQueryable<TEntity> query,
+            Expression<Func<TEntity, string>> selector,
+            string value)
             where TEntity : class
         {
             var likePattern = $"%{value}%";
@@ -60,11 +65,17 @@ namespace Web.Implementation
             return await query
                 .AsNoTracking()
                 .Where(x => EF.Functions.Like(EF.Property<string>(x, propertyName), likePattern))
-                .Select(x => new AutocompleteResponse { Label = EF.Property<string>(x, propertyName) })
+                .Select(x => new AutocompleteResponse
+                {
+                    Label = EF.Property<string>(x, propertyName)
+                })
                 .ToListAsync();
         }
 
-        private async Task<List<AutocompleteResponse>> SearchNumberAsync<TEntity, TProperty>(IQueryable<TEntity> query, Expression<Func<TEntity, TProperty>> selector,string value)
+        private async Task<List<AutocompleteResponse>> SearchNumberAsync<TEntity, TProperty>(
+            IQueryable<TEntity> query,
+            Expression<Func<TEntity, TProperty>> selector,
+            string value)
             where TEntity : class
         {
             var func = selector.Compile();
@@ -75,6 +86,17 @@ namespace Web.Implementation
                 .Contains(value, StringComparison.OrdinalIgnoreCase) == true)
                 .Select(x => new AutocompleteResponse { Label = func(x)?.ToString() ?? "" })
                 .ToList();
+        }
+
+        private async Task<List<AutocompleteResponse>> SearchManufacturerAsync(EntityType type, string value)
+        {
+            var likePattern = $"%{value}%";
+
+            return await _context.Manufacturer
+                .AsNoTracking()
+                .Where(m => m.Type == type && EF.Functions.Like(m.Name, likePattern))
+                .Select(m => new AutocompleteResponse { Label = m.Name })
+                .ToListAsync();
         }
     }
 }

@@ -15,19 +15,26 @@ namespace Web.SignalRHubs
         private readonly IDigitizationRepository _techInfoRepository;
         private readonly IAlbumRepository _albumRepository;
         private readonly IPostRepository _postRepository;
+        private readonly IEquipmentRepository _equipmentRepository;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
         private const int ITEMS_PER_PAGE = 18;
         private const int POSTS_PER_PAGE = 10;
 
-        public DefaultHub(IImageService coverImageService, IDigitizationRepository techInfoRepository, IAlbumRepository albumRepository, IPostRepository postRepository)
+        public DefaultHub(
+            IImageService coverImageService, 
+            IDigitizationRepository techInfoRepository, 
+            IAlbumRepository albumRepository, 
+            IPostRepository postRepository,
+            IEquipmentRepository equipmentRepository)
         {
             _imgService = coverImageService;
             _techInfoRepository = techInfoRepository;
             _albumRepository = albumRepository;
             _postRepository = postRepository;
+            _equipmentRepository = equipmentRepository;
         }
 
-        private readonly Dictionary<string, EntityType> _categoryEntitityMap = new Dictionary<string, EntityType>()
+        private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
         {
             { "adc", EntityType.Adc },
             { "amplifier", EntityType.Amplifier },
@@ -88,240 +95,87 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", _imgService.GetImageUrl(equipmentId, Enum.Parse<EntityType>(type)));
         }
 
-        //public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
-        //{
-        //    var result = await _albumRepository.Albums.Include(x => x.Artist).Where(x => x.Title == album && x.Artist.Data == artist && x.Id != currentAlbum).ToListAsync();
+        public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
+        {
+            var result = await _albumRepository.FindByTitleAndArtistAsync(album, artist);
 
-        //    if (result?.Count > 0)
-        //    {
-        //        // "100 or 50" is detection level.
-        //        // 100 means that user trying add album to db that alredy exists from same source
-        //        // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
-        //        if (source != null)
-        //        {
-        //            var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
+            if (result is not null)
+            {
+                // "100 or 50" is detection level.
+                // 100 means that user trying add album to db that alredy exists from same source
+                // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
+                /*
+                if (source != null)
+                {
+                    var containsSource = result.Where(x => x.Source == source).Select(x => x.Id).ToArray();
 
-        //            if (containsSource.Length > 0)
-        //            {
-        //                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
-        //            }
-        //            else
-        //            {
-        //                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
-        //            }
-        //        }
-        //        else
-        //        {
-        //            await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
-        //        }
-        //    }
-        //    else
-        //    {
-        //        // if nothing found send 0 for reset warn message (if set)
-        //        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
-        //    }
-        //}
+                    if (containsSource.Length > 0)
+                    {
+                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, containsSource);
+                    }
+                    else
+                    {
+                        await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+                    }
+                }
+                else
+                {
+                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Select(x => x.Id).ToArray());
+                }*/
+            }
+            else
+            {
+                // if nothing found send 0 for reset warn message (if set)
+                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
+            }
+        }
         #endregion
 
-        #region TechInfo workload
-        // TODO: Is it possible to refactor all this methods to single (generic?) or by using expression trees?
+        #region Equipment workload
 
-        /// <summary>
-        /// Get list of adc
-        /// </summary>
-        /// <param name="page">Page number</param>
-        /// <returns></returns>
-        private async Task<List<EquipmentViewModel>> GetAdcItems(int page)
-        {
-            return await _techInfoRepository.Adcs
-                .Skip((page - 1) * ITEMS_PER_PAGE)
-                .Take(ITEMS_PER_PAGE)
-                .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentViewModel()
-                {
-                    Id = x.Id,
-                    ModelName = x.Name,
-                    Manufacturer = x.Manufacturer.Name,
-                    EquipmentType = EntityType.Adc
-                })
-                .ToListAsync();
-        }
-
-        /// <summary>
-        /// Get list of amp
-        /// </summary>
-        /// <param name="page">Page number</param>
-        /// <returns></returns>
-        private async Task<List<EquipmentViewModel>> GetAmplifierItems(int page)
-        {
-            return await _techInfoRepository.Amplifiers
-                .Skip((page - 1) * ITEMS_PER_PAGE)
-                .Take(ITEMS_PER_PAGE)
-                .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentViewModel()
-                {
-                    Id = x.Id,
-                    ModelName = x.Name,
-                    Manufacturer = x.Manufacturer.Name,
-                    EquipmentType = EntityType.Amplifier
-                }).ToListAsync();
-        }
-
-        /// <summary>
-        /// Get list of cartridges
-        /// </summary>
-        /// <param name="page">Page number</param>
-        /// <returns></returns>
-        private async Task<List<EquipmentViewModel>> GetCartridgeItems(int page)
-        {
-            return await _techInfoRepository.Cartridges
-                .Skip((page - 1) * ITEMS_PER_PAGE)
-                .Take(ITEMS_PER_PAGE)
-                .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentViewModel()
-                {
-                    Id = x.Id,
-                    ModelName = x.Name,
-                    Manufacturer = x.Manufacturer.Name,
-                    EquipmentType = EntityType.Cartridge
-                }).ToListAsync();
-        }
-
-        /// <summary>
-        /// Get list of players
-        /// </summary>
-        /// <param name="page">Page number</param>
-        /// <returns></returns>
-        private async Task<List<EquipmentViewModel>> GetPlayerItems(int page)
-        {
-            return await _techInfoRepository.Players
-                .Skip((page - 1) * ITEMS_PER_PAGE)
-                .Take(ITEMS_PER_PAGE)
-                .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentViewModel()
-                {
-                    Id = x.Id,
-                    ModelName = x.Name,
-                    Manufacturer = x.Manufacturer.Name,
-                    EquipmentType = EntityType.Player
-                }).ToListAsync();
-        }
-
-        /// <summary>
-        /// Get list of wires
-        /// </summary>
-        /// <param name="page">Page number</param>
-        /// <returns></returns>
-        private async Task<List<EquipmentViewModel>> GetWireItems(int page)
-        {
-            return await _techInfoRepository.Wires
-                .Skip((page - 1) * ITEMS_PER_PAGE)
-                .Take(ITEMS_PER_PAGE)
-                .Include(x => x.Manufacturer)
-                .Select(x => new EquipmentViewModel()
-                {
-                    Id = x.Id,
-                    ModelName = x.Name,
-                    Manufacturer = x.Manufacturer.Name,
-                    EquipmentType = EntityType.Amplifier
-                }).ToListAsync();
-        }
-
-        /// <summary>
-        /// Get hardware by category
-        /// </summary>
-        /// <param name="connectionId">Connection Id</param>
-        /// <param name="category">Category</param>
-        /// <param name="page">Page number</param>
-        /// <returns></returns>
         public async Task GetHardwareByCategory(string connectionId, string category, int page)
         {
-            var result = new List<EquipmentViewModel>();
-            int itemsCount = 0;
+            if (!_categoryEntityMap.TryGetValue(category, out var entityType))
+                return;
 
-            switch (category)
-            {
-                case "adc":
-                    itemsCount = await _techInfoRepository.Adcs.CountAsync();
-                    result = await GetAdcItems(page);
-                    break;
-                case "amplifier":
-                    itemsCount = await _techInfoRepository.Amplifiers.CountAsync();
-                    result = await GetAmplifierItems(page);
-                    break;
-                case "cartridge":
-                    itemsCount = await _techInfoRepository.Cartridges.CountAsync();
-                    result = await GetCartridgeItems(page);
-                    break;
-                case "player":
-                    itemsCount = await _techInfoRepository.Players.CountAsync();
-                    result = await GetPlayerItems(page);
-                    break;
-                case "wire":
-                    itemsCount = await _techInfoRepository.Wires.CountAsync();
-                    result = await GetWireItems(page);
-                    break;
-            }
+            var pagedResult = await _equipmentRepository.GetListAsync(page, ITEMS_PER_PAGE, entityType);
 
-            int pageCount = itemsCount % ITEMS_PER_PAGE == 0 ? itemsCount / ITEMS_PER_PAGE : itemsCount / ITEMS_PER_PAGE + 1;
+            var result = pagedResult.Items
+                .Select(x => new EquipmentViewModel
+                {
+                    Id = x.Id,
+                    ModelName = x.Name,
+                    Manufacturer = x.Manufacturer?.Name ?? "—",
+                    EquipmentType = entityType
+                })
+                .ToList();
+
+            int pageCount = pagedResult.TotalPages;
 
             await Clients.Client(connectionId).SendAsync("ReceivedItems", result);
             await Clients.Client(connectionId).SendAsync("ReceivedItemsCount", pageCount);
 
             foreach (var item in result)
             {
-                await Clients.Clients(connectionId).SendAsync("ReceivedItemImage", item.Id, _imgService.GetImageUrl(item.Id, _categoryEntitityMap[category]));
+                await Clients.Client(connectionId).SendAsync(
+                    "ReceivedItemImage",
+                    item.Id,
+                    _imgService.GetImageUrl(item.Id, entityType)
+                );
             }
         }
 
-        /// <summary>
-        /// Auto load manufacturer if exists for specific hardware
-        /// </summary>
-        /// <param name="connectionId">Connection Id</param>
-        /// <param name="category">Category</param>
-        /// <param name="value">Value from input</param>
-        /// <returns></returns>
         public async Task GetManufacturer(string connectionId, string category, string value)
         {
-            string result = string.Empty;
-            switch (category)
+            if (!_categoryEntityMap.TryGetValue(category, out var type))
             {
-                case "adc":
-                    var adc_manufacturer = await _techInfoRepository.Adcs.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
-                    if (adc_manufacturer?.Manufacturer != null)
-                    {
-                        result = adc_manufacturer.Manufacturer.Name;
-                    }
-                    break;
-                case "amp":
-                    var amp_manufacturer = await _techInfoRepository.Amplifiers.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
-                    if (amp_manufacturer?.Manufacturer != null)
-                    {
-                        result = amp_manufacturer.Manufacturer.Name;
-                    }
-                    break;
-                case "cartridge":
-                    var cartridge_manufacturer = await _techInfoRepository.Cartridges.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
-                    if (cartridge_manufacturer?.Manufacturer != null)
-                    {
-                        result = cartridge_manufacturer.Manufacturer.Name;
-                    }
-                    break;
-                case "player":
-                    var player_manufacturer = await _techInfoRepository.Players.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
-                    if (player_manufacturer?.Manufacturer != null)
-                    {
-                        result = player_manufacturer.Manufacturer.Name;
-                    }
-                    break;
-                case "wire":
-                    var wire_manufacturer = await _techInfoRepository.Wires.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == value);
-                    if (wire_manufacturer?.Manufacturer != null)
-                    {
-                        result = wire_manufacturer.Manufacturer.Name;
-                    }
-                    break;
+                await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, string.Empty);
+                return;
             }
+
+            var item = await _equipmentRepository.GetManufacturerByNameAsync(value, type);
+            var result = item?.Manufacturer?.Name ?? string.Empty;
+
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 

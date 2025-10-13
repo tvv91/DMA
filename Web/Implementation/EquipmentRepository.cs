@@ -44,6 +44,19 @@ namespace Web.Implementation
             };
         }
 
+        public async Task<IManufacturer?> GetManufacturerByNameAsync(string name, EntityType type)
+        {
+            return type switch
+            {
+                EntityType.Adc => await _context.Set<Adc>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == name),
+                EntityType.Player => await _context.Set<Player>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == name),
+                EntityType.Amplifier => await _context.Set<Amplifier>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == name),
+                EntityType.Cartridge => await _context.Set<Cartridge>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == name),
+                EntityType.Wire => await _context.Set<Wire>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == name),
+                _ => throw new ArgumentOutOfRangeException(nameof(type))
+            };
+        }
+
         public async Task<PagedResult<IManufacturer>> GetListAsync(int page, int pageSize, EntityType type)
         {
             IQueryable<IManufacturer> query = type switch

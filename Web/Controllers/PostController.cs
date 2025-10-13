@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Web.Interfaces;
 using Web.Models;
 using Web.ViewModels;
@@ -8,184 +7,141 @@ namespace Web.Controllers
 {
     public class PostController : Controller
     {
-        //private readonly IPostRepository _postRepository;
-        //public PostController(IPostRepository postRepository)
-        //{
-        //    _postRepository = postRepository;
-        //}
+        private readonly IPostRepository _postRepository;
+        public PostController(IPostRepository postRepository)
+        {
+            _postRepository = postRepository;
+        }
 
-        //public IActionResult Index()
-        //{
-        //    return View();
-        //}
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-        //[HttpGet("post/new")]
-        //public IActionResult New()
-        //{
-        //    return View("CreateUpdate");
-        //}
+        [HttpGet("post/new")]
+        public IActionResult New()
+        {
+            return View("CreateUpdate", new PostViewModel());
+        }
 
-        //[HttpGet("post/{id}")]
-        //public async Task<IActionResult> GetPostById(int id)
-        //{
-        //    var post = await _postRepository.Posts.FirstOrDefaultAsync(x => x.Id == id);
+        [HttpGet("post/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var post = await _postRepository.GetByIdAsync(id);
             
-        //    if (post is null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (post is null)
+                return NotFound();
 
-        //    var postViewModel = new PostViewModel
-        //    {
-        //        Id = post.Id,
-        //        Title = post.Title,
-        //        Description = post.Description,
-        //        Content = post.Content,
-        //        CreatedDate = post.CreatedDate,
-        //        UpdatedTime = post.UpdatedDate
-        //    };
+            var vm = new PostViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Description = post.Description,
+                Content = post.Content,
+                CreatedDate = post.CreatedDate,
+                UpdatedTime = post.UpdatedDate,
+                Category = post.PostCategories.FirstOrDefault()?.Category.Title
+            };
 
-        //    return View("Details", postViewModel);
-        //}
+            return View("Details", vm);
+        }
 
-        //[HttpPost("post/create")]
-        //public async Task<IActionResult> Create(PostViewModel model)
-        //{
-        //    if (model.Category == "Category")
-        //    {
-        //        ModelState.AddModelError("Category", "Please, select some category");
-        //    }
+        [HttpPost("post/create")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(PostViewModel model)
+        {
+            if (string.IsNullOrWhiteSpace(model.Category) || model.Category == "Category")
+                ModelState.AddModelError("Category", "Please select a valid category");
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        var post = await _postRepository.Posts.FirstOrDefaultAsync(x => x.Id == model.Id);
+            if (!ModelState.IsValid)
+                return View("CreateUpdate", model);
 
-        //        if (post is null)
-        //        {
-        //            post = new Post
-        //            {
-        //                Title = model.Title,
-        //                Description = model.Description,
-        //                Content = model.Content,
-        //                CreatedDate = DateTime.Now,
-        //                IsDraft = false,
-        //            };
+            var post = new Post
+            {
+                Title = model.Title,
+                Description = model.Description,
+                Content = model.Content,
+                CreatedDate = DateTime.UtcNow,
+                IsDraft = false
+            };
 
-        //            var category = new Category
-        //            {
-        //                Title = model.Category
-        //            };
+            post.PostCategories.Add(new PostCategory
+            {
+                Category = new Category { Title = model.Category }
+            });
 
-        //            var postCategory = new PostCategory
-        //            {
-        //                Post = post,
-        //                Category = category
-        //            };
-
-        //            await _postRepository.AddPostAsync(postCategory);
-        //        } 
-        //        else
-        //        {
-        //            await _postRepository.Posts.Where(x => x.Id == model.Id).ExecuteUpdateAsync(
-        //                x => x.SetProperty(x => x.Title, model.Title)
-        //                .SetProperty(x => x.Description, model.Description)
-        //                .SetProperty(x => x.Content, model.Content)
-        //                .SetProperty(x => x.IsDraft, false));
-        //        }
-        //        return Redirect("/");
-        //    }
-        //    return View("CreateUpdate", model);
-        //}
-
-        //[HttpDelete("post/delete")]
-        //public async Task<IActionResult> Delete(int id)
-        //{
-        //    if (id <= 0)
-        //        return BadRequest();
-
-        //    try
-        //    {
-        //        if (await _postRepository.Posts.Where(x => x.Id == id).ExecuteDeleteAsync() == 0)
-        //            return NotFound();
-        //    } 
-        //    catch (Exception ex)
-        //    {
-        //        // TODO: Add logging
-        //        return BadRequest("Some error during post removing");
-        //    }
+            await _postRepository.AddAsync(post);
             
-        //    return Ok();
-        //}
+            return RedirectToAction(nameof(GetById), new { id = post.Id });
+        }
 
-        //[HttpGet("post/edit")]
-        //public async Task<IActionResult> Edit(int id)
-        //{
-        //    if (id <= 0)
-        //        return BadRequest();
+        [HttpDelete("post/delete")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (id <= 0)
+                return BadRequest();
 
-        //    var post = await _postRepository.Posts.Include(x => x.PostCategories).ThenInclude(x => x.Category).FirstOrDefaultAsync(x => x.Id == id);
-
-        //    if (post is null)
-        //        return NotFound();
-
-        //    var postdata = new PostViewModel
-        //    {
-        //        Id = post.Id,
-        //        Title = post.Title,
-        //        Description = post.Description,
-        //        Content = post.Content,
-        //        CreatedDate = post.CreatedDate,
-        //        UpdatedTime = post.UpdatedDate,
-        //        Category = post.PostCategories.First().Category.Title
-        //    };
-
-        //    return View("CreateUpdate", postdata);
-        //}
-
-        //[HttpPost("post/update")]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Update(PostViewModel model)
-        //{
-        //    if (model.Id is null)
-        //        return BadRequest();
-
-        //    var post = await _postRepository.Posts.FirstOrDefaultAsync(x => x.Id == model.Id);
+            var success = await _postRepository.DeleteAsync(id);
             
-        //    if (post is null)
-        //        return NotFound();
+            if (!success)
+                return NotFound();
 
-        //    var _postCategory = await _postRepository.PostCategories.Include(x => x.Category).FirstOrDefaultAsync(x => x.Post.Id == model.Id);
-        //    var updatedDate = DateTime.Now;
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet("post/edit")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var post = await _postRepository.GetByIdAsync(id);
             
-        //    // if we change category, we need to remove old relation and add new
-        //    if (_postCategory?.Category.Title != model.Category)
-        //    {
-        //        await _postRepository.PostCategories.Where(x => x.Post.Id == model.Id).ExecuteDeleteAsync();
+            if (post is null)
+                return NotFound();
 
-        //        var _category = await _postRepository.Categories.FirstOrDefaultAsync(x => x.Title == model.Category) ?? new Category { Title = model.Category };
+            var vm = new PostViewModel
+            {
+                Id = post.Id,
+                Title = post.Title,
+                Description = post.Description,
+                Content = post.Content,
+                CreatedDate = post.CreatedDate,
+                UpdatedTime = post.UpdatedDate,
+                Category = post.PostCategories.FirstOrDefault()?.Category?.Title
+            };
 
-        //        var postCategory = new PostCategory
-        //        {
-        //            Post = new Post
-        //            {
-        //                Title = model.Title,
-        //                Description = model.Description,
-        //                Content = model.Content,
-        //                UpdatedDate = updatedDate
-        //            },
-        //            Category = _category
-        //        };
+            return View("CreateUpdate", vm);
+        }
 
-        //        var result = await _postRepository.AddPostAsync(postCategory);
-        //    }
+        [HttpPost("post/update")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(PostViewModel model)
+        {
+            if (model.Id is null)
+                return BadRequest();
 
-        //    await _postRepository.Posts.Where(x => x.Id == model.Id).ExecuteUpdateAsync(x => x
-        //    .SetProperty(x => x.Title, model.Title)
-        //    .SetProperty(x => x.Description, model.Description)
-        //    .SetProperty(x => x.Content, model.Content)
-        //    .SetProperty(x => x.UpdatedDate, updatedDate));
+            var existing = await _postRepository.GetByIdAsync(model.Id.Value);
+            
+            if (existing is null)
+                return NotFound();
 
-        //    return Redirect($"/post/{post.Id}");
-        //}
+            existing.Title = model.Title;
+            existing.Description = model.Description;
+            existing.Content = model.Content;
+            existing.UpdatedDate = DateTime.UtcNow;
+
+            var currentCategory = existing.PostCategories.FirstOrDefault()?.Category?.Title;
+
+            if (model.Category != currentCategory)
+            {
+                existing.PostCategories.Clear();
+                existing.PostCategories.Add(new PostCategory
+                {
+                    Category = new Category { Title = model.Category }
+                });
+            }
+
+            await _postRepository.UpdateAsync(existing);
+            
+            return RedirectToAction(nameof(GetById), new { id = existing.Id });
+        }
     }
 }

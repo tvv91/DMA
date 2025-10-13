@@ -12,7 +12,7 @@ namespace Web.ViewModels
         public string? Manufacturer { get; set; }
         public EntityType EquipmentType { get; set; }
         public ActionType? Action { get; set; }
-        public int EquipmentId { get; set; }
+        //public int EquipmentId { get; set; }
         public string? EquipmentCover { get; set; }
         public string? Description { get; set; }
         public List<SelectListItem> Equipments { get; } = new List<SelectListItem>

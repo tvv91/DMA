@@ -14,14 +14,14 @@ namespace Web.Implementation
 
         public EquipmentRepository(DMADbContext ctx) => _context = ctx;
 
-        public async Task<IManufacturer> AddAsync(IManufacturer entity, EquipmentType type)
+        public async Task<IManufacturer> AddAsync(IManufacturer entity, EntityType type)
         {
             _context.Add(entity);
             await _context.SaveChangesAsync();
             return entity;
         }
 
-        public async Task<bool> DeleteAsync(int id, EquipmentType type)
+        public async Task<bool> DeleteAsync(int id, EntityType type)
         {
             var item = await GetByIdAsync(id, type);
             if (item == null) return false;
@@ -31,35 +31,35 @@ namespace Web.Implementation
             return true;
         }
 
-        public async Task<IManufacturer?> GetByIdAsync(int id, EquipmentType type)
+        public async Task<IManufacturer?> GetByIdAsync(int id, EntityType type)
         {
             return type switch
             {
-                EquipmentType.Adc => await _context.Set<Adc>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
-                EquipmentType.Player => await _context.Set<Player>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
-                EquipmentType.Amplifier => await _context.Set<Amplifier>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
-                EquipmentType.Cartridge => await _context.Set<Cartridge>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
-                EquipmentType.Wire => await _context.Set<Wire>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
+                EntityType.Adc => await _context.Set<Adc>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
+                EntityType.Player => await _context.Set<Player>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
+                EntityType.Amplifier => await _context.Set<Amplifier>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
+                EntityType.Cartridge => await _context.Set<Cartridge>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
+                EntityType.Wire => await _context.Set<Wire>().Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Id == id),
                 _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
         }
 
-        public async Task<PagedResult<IManufacturer>> GetListAsync(int page, int pageSize, EquipmentType type)
+        public async Task<PagedResult<IManufacturer>> GetListAsync(int page, int pageSize, EntityType type)
         {
             IQueryable<IManufacturer> query = type switch
             {
-                EquipmentType.Adc => _context.Set<Adc>().Include(x => x.Manufacturer),
-                EquipmentType.Player => _context.Set<Player>().Include(x => x.Manufacturer),
-                EquipmentType.Amplifier => _context.Set<Amplifier>().Include(x => x.Manufacturer),
-                EquipmentType.Cartridge => _context.Set<Cartridge>().Include(x => x.Manufacturer),
-                EquipmentType.Wire => _context.Set<Wire>().Include(x => x.Manufacturer),
+                EntityType.Adc => _context.Set<Adc>().Include(x => x.Manufacturer),
+                EntityType.Player => _context.Set<Player>().Include(x => x.Manufacturer),
+                EntityType.Amplifier => _context.Set<Amplifier>().Include(x => x.Manufacturer),
+                EntityType.Cartridge => _context.Set<Cartridge>().Include(x => x.Manufacturer),
+                EntityType.Wire => _context.Set<Wire>().Include(x => x.Manufacturer),
                 _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
 
             return await query.ToPagedResultAsync(page, pageSize, x => x.Id);
         }
 
-        public async Task<IManufacturer> UpdateAsync(IManufacturer entity, EquipmentType type)
+        public async Task<IManufacturer> UpdateAsync(IManufacturer entity, EntityType type)
         {
             _context.Update(entity);
             await _context.SaveChangesAsync();

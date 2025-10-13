@@ -6,6 +6,8 @@ namespace Web.Interfaces
     public interface IManufacturer
     {
         int Id { get; set; }
+        public string Name { get; set; }
+        public string? Description { get; set; }
         Manufacturer? Manufacturer { get; set; }
         int? ManufacturerId { get; set; }
     }

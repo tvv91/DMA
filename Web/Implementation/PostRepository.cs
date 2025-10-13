@@ -15,14 +15,19 @@ namespace Web.Implementation
 
         public async Task<Post> AddAsync(Post post)
         {
+            post.CreatedDate = DateTime.UtcNow;
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
             return post;
         }
 
-        public Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            throw new NotImplementedException();
+            var affected = await _context.Posts
+                .Where(a => a.Id == id)
+                .ExecuteDeleteAsync();
+
+            return affected > 0;
         }
 
         public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)
@@ -36,84 +41,39 @@ namespace Web.Implementation
 
         public async Task<Post?> GetByIdAsync(int id)
         {
-            return await _context.Posts
-            .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Posts.Include(p => p.PostCategories).ThenInclude(pc => pc.Category).FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Post> UpdateAsync(Post post)
         {
-            post.UpdatedDate = DateTime.Now;
+            var existing = await _context.Posts
+               .Include(p => p.PostCategories)
+               .FirstOrDefaultAsync(p => p.Id == post.Id);
 
-            await _context.Posts
-                .Where(p => p.Id == post.Id)
-                .ExecuteUpdateAsync(s => s
-                    .SetProperty(p => p.Title, post.Title)
-                    .SetProperty(p => p.Description, post.Description)
-                    .SetProperty(p => p.Content, post.Content)
-                    .SetProperty(p => p.IsDraft, post.IsDraft)
-                    .SetProperty(p => p.CreatedDate, post.CreatedDate)
-                    .SetProperty(p => p.UpdatedDate, post.UpdatedDate)
-                );
+            if (existing == null)
+                throw new KeyNotFoundException($"Post with Id {post.Id} not found.");
 
-            return post;
-        }
+            existing.Title = post.Title;
+            existing.Description = post.Description;
+            existing.Content = post.Content;
+            existing.IsDraft = post.IsDraft;
+            existing.UpdatedDate = DateTime.UtcNow;
 
-
-        /*
-        public async Task<Category> GetOrCreateCategory(string title)
-        {
-            var category = await _context.Categories.FirstOrDefaultAsync(x => x.Title == title);
-            if (category == null)
+            if (post.PostCategories?.Any() == true)
             {
-                category = new Category { Title = title };
-                _context.Categories.Add(category);
-                await _context.SaveChangesAsync();
-            }
-            return category;
-        }
-
-        public async Task<PostCategory> AddPostAsync(PostCategory postCategory)
-        {
-            var result = await _context.PostCategories.AddAsync(postCategory);
-            await _context.SaveChangesAsync();
-            return result.Entity;
-        }
-
-        public async Task UpdatePostCategory(Post post, string categoryTitle)
-        {
-            var postCategory = await _context.PostCategories.Include(x => x.Category).FirstOrDefaultAsync(x => x.Post.Id == post.Id);
-            if (postCategory?.Category.Title != categoryTitle)
-            {
-                if (postCategory != null)
-                    _context.PostCategories.Remove(postCategory);
-
-                var category = await GetOrCreateCategory(categoryTitle);
-                _context.PostCategories.Add(new PostCategory {  Post = post, Category = category });
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task UpdatePostAsync(Post post, string title, string description, string content, string categoryTitle)
-        {
-            post.Title = title;
-            post.Description = description;
-            post.Content = content;
-            post.UpdatedDate = DateTime.UtcNow;
-
-            var postCategory = await _context.PostCategories.Include(x => x.Category).FirstOrDefaultAsync(x => x.Post.Id == post.Id);
-
-            if (postCategory?.Category.Title != categoryTitle)
-            {
-                if (postCategory != null)
-                    _context.PostCategories.Remove(postCategory);
-
-                var category = await GetOrCreateCategory(categoryTitle);
-                _context.PostCategories.Add(new PostCategory { Post = post, Category = category });
+                existing.PostCategories.Clear();
+                foreach (var pc in post.PostCategories)
+                {
+                    existing.PostCategories.Add(new PostCategory
+                    {
+                        CategoryId = pc.CategoryId,
+                        PostId = existing.Id
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();
+            return existing;
         }
-        */
     }
 }

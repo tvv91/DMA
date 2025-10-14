@@ -7,6 +7,6 @@ namespace Web.Models
         public int Id { get; set; }
         [Required]
         public int Value { get; set; }
-        public ICollection<Album> Albums { get; set; } = [];
+        public ICollection<Digitization> Digitizations { get; set; } = [];
     }
 }

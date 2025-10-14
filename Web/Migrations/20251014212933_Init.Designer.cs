@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20251014211305_Init")]
+    [Migration("20251014212933_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -74,16 +74,11 @@ namespace Web.Migrations
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("YearId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ArtistId");
 
                     b.HasIndex("GenreId");
-
-                    b.HasIndex("YearId");
 
                     b.ToTable("Albums");
                 });
@@ -880,10 +875,6 @@ namespace Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.Year", null)
-                        .WithMany("Albums")
-                        .HasForeignKey("YearId");
-
                     b.Navigation("Artist");
 
                     b.Navigation("Genre");
@@ -980,7 +971,7 @@ namespace Web.Migrations
                         .HasForeignKey("WireId");
 
                     b.HasOne("Web.Models.Year", "Year")
-                        .WithMany()
+                        .WithMany("Digitizations")
                         .HasForeignKey("YearId");
 
                     b.Navigation("Album");
@@ -1213,7 +1204,7 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.Year", b =>
                 {
-                    b.Navigation("Albums");
+                    b.Navigation("Digitizations");
                 });
 #pragma warning restore 612, 618
         }

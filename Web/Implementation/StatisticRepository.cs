@@ -44,7 +44,7 @@ namespace Web.Implementation
                 TotalSize = await _context.Albums.SumAsync(a => a.Digitizations.Sum(d => d.Format!.Size) ?? 0),
                 StorageCount = await _context.Storages.CountAsync(),
                 Genre = await CountGeneric(_context.Genres, g => g.Albums.SelectMany(a => a.Digitizations)),
-                Year = await CountGeneric(_context.Years, y => y.Albums.SelectMany(a => a.Digitizations)),
+                //Year = await CountGeneric(_context.Years, y => y.Albums.SelectMany(a => a.Digitizations)),
                 Country = await CountGeneric(_context.Countries, c => c.Digitizations),
                 Label = await CountGeneric(_context.Labels, l => l.Digitizations),
                 Bitness = await CountGeneric(_context.Bitnesses, b => b.Digitizations.Where(d => d.Format != null && d.Format.BitnessId == b.Id), d => $"{d.Format!.Bitness!.Value} bit/s"),

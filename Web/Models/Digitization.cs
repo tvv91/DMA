@@ -9,7 +9,7 @@
         public DateTime? UpdateDate { get; set; }
         public string? Source { get; set; }
         public string? Discogs { get; set; }
-        public bool IsFirstPress { get; set; }
+        public bool? IsFirstPress { get; set; }
         public int? CountryId { get; set; }
         public Country? Country { get; set; }
         public int? LabelId { get; set; }

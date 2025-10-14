@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using Web.Enums;
+using Web.Implementation;
 using Web.Interfaces;
 using Web.Models;
 using Web.Services;
@@ -12,7 +13,7 @@ namespace Web.SignalRHubs
     public class DefaultHub : Hub
     {
         private readonly IImageService _imgService;
-        private readonly IDigitizationRepository _techInfoRepository;
+        private readonly IDigitizationRepository _digitizationRepository;
         private readonly IAlbumRepository _albumRepository;
         private readonly IPostRepository _postRepository;
         private readonly IEquipmentRepository _equipmentRepository;
@@ -22,13 +23,13 @@ namespace Web.SignalRHubs
 
         public DefaultHub(
             IImageService coverImageService, 
-            IDigitizationRepository techInfoRepository, 
+            IDigitizationRepository digitizationRepository, 
             IAlbumRepository albumRepository, 
             IPostRepository postRepository,
             IEquipmentRepository equipmentRepository)
         {
             _imgService = coverImageService;
-            _techInfoRepository = techInfoRepository;
+            _digitizationRepository = digitizationRepository;
             _albumRepository = albumRepository;
             _postRepository = postRepository;
             _equipmentRepository = equipmentRepository;
@@ -179,8 +180,26 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
-        public async Task GetTechnicalInfoIcons(string connectionId, int albumId)
+        public async Task GetTechnicalInfoIcons(string connectionId, int id)
         {
+            /*
+            // Получаем полную оцифровку с форматами и оборудованием
+            var digitization = await _digitizationRepository.GetByIdAsync(id);
+
+            var item = digitization.Items.FirstOrDefault();
+            if (item == null)
+            {
+                await Clients.Client(connectionId)
+                    .SendAsync("ReceivedTechnicalInfo", null, null);
+                return;
+            }
+
+            var format = item.Format;
+            var equipment = item.Equipment;
+
+            await Clients.Client(connectionId)
+                .SendAsync("ReceivedTechnicalInfo", format, equipment);
+            /*
             var tInfo = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);
 
             var mapping = new Dictionary<string, (int? id, EntityType type)>
@@ -208,6 +227,7 @@ namespace Web.SignalRHubs
 
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", kvp.Key, url);
             }
+            */
         }
 
         #endregion
@@ -215,36 +235,20 @@ namespace Web.SignalRHubs
         #region Blog workload
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {
-            var query = _postRepository.PostCategories.AsQueryable();
+            var result = await _postRepository.GetFilteredListAsync(page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts);
 
-            if (!string.IsNullOrWhiteSpace(searchText))
-                query = query.Where(x => x.Post.Title.Contains(searchText) || x.Post.Description.Contains(searchText) || x.Post.Content.Contains(searchText));
+            var response = result.Items.Select(p => new
+            {
+                p.Id,
+                p.Title,
+                p.Description,
+                p.IsDraft,
+                Created = p.CreatedDate.HasValue ? p.CreatedDate.Value.ToShortDateString() : null,
+                Categories = p.PostCategories.Select(pc => pc.Category.Title).ToList()
+            }).ToList();
 
-            if (!string.IsNullOrWhiteSpace(category))
-                query = query.Where(x => x.Category.Title == category);
-
-            if (!string.IsNullOrWhiteSpace(year) && int.TryParse(year, out var yearValue))
-                query = query.Where(x => x.Post.CreatedDate.HasValue && x.Post.CreatedDate.Value.Year == yearValue);
-
-            if (onlyDrafts)
-                query = query.Where(x => x.Post.IsDraft == onlyDrafts);
-
-            int totalItems = await query.CountAsync();
-            int pageCount = totalItems % POSTS_PER_PAGE == 0 ? totalItems / POSTS_PER_PAGE : totalItems / POSTS_PER_PAGE + 1;
-
-            var result = await query
-                .OrderByDescending(x => x.Post.CreatedDate)
-                .Skip((page - 1) * POSTS_PER_PAGE)
-                .Take(POSTS_PER_PAGE)
-                .Select(x => new
-                {
-                    x.Post,
-                    Category = x.Category.Title,
-                    Created = x.Post.CreatedDate.HasValue ? x.Post.CreatedDate.Value.ToShortDateString() : null
-                })
-                .ToListAsync();
-
-            await Clients.Client(connectionId).SendAsync("ReceivedPosts", result, pageCount);
+            await Clients.Client(connectionId)
+                .SendAsync("ReceivedPosts", response, result.TotalPages);
         }
 
         private void UpdatePostFields(Post post, string title, string description, string content, DateTime date, bool isNew = false)
@@ -261,6 +265,7 @@ namespace Web.SignalRHubs
 
         public async Task AutoSavePost(string connectionId, int id, string title, string description, string content, string category)
         {
+            /*
             var now = DateTime.UtcNow;
 
             Post? post;
@@ -285,6 +290,7 @@ namespace Web.SignalRHubs
                 await _postRepository.UpdatePostAsync(post, title, description, content, category);
                 await Clients.Client(connectionId).SendAsync("PostUpdated", now);
             }
+            */
         }
         #endregion
     }

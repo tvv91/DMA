@@ -75,5 +75,43 @@ namespace Web.Implementation
             await _context.SaveChangesAsync();
             return existing;
         }
+
+        public async Task<PagedResult<Post>> GetFilteredListAsync(
+            int page,
+            int pageSize,
+            string? searchText,
+            string? category,
+            string? year,
+            bool onlyDrafts)
+        {
+            var query = _context.Posts.Include(p => p.PostCategories).ThenInclude(pc => pc.Category).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                query = query.Where(p =>
+                    p.Title.Contains(searchText) ||
+                    p.Description.Contains(searchText) ||
+                    p.Content.Contains(searchText));
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(p =>
+                    p.PostCategories.Any(pc => pc.Category.Title == category));
+            }
+
+            if (!string.IsNullOrWhiteSpace(year) && int.TryParse(year, out var yearValue))
+            {
+                query = query.Where(p =>
+                    p.CreatedDate.HasValue && p.CreatedDate.Value.Year == yearValue);
+            }
+
+            if (onlyDrafts)
+            {
+                query = query.Where(p => p.IsDraft);
+            }
+
+            return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
+        }
     }
 }

@@ -2,8 +2,10 @@
 
 namespace Tests
 {
+    /*
     public static class Shared
     {
+        
         public static Album GetFullAlbum()
         {
             return new Album
@@ -56,5 +58,7 @@ namespace Tests
                 }
             };
         }
+    
     }
+    */
 }

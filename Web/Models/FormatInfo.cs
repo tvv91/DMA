@@ -2,6 +2,7 @@
 {
     public class FormatInfo
     {
+        public int Id { get; set; }
         public double? Size { get; set; }
         public int? BitnessId { get; set; }
         public Bitness? Bitness { get; set; }

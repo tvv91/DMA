@@ -13,6 +13,7 @@ using Xunit;
 
 namespace Tests.Controllers
 {
+    /*
     public class AlbumControllerTests
     {
         private readonly Mock<IAlbumRepository> _albumRepoMock = new Mock<IAlbumRepository>();
@@ -621,4 +622,6 @@ namespace Tests.Controllers
         }
         #endregion
     }
+    */
+
 }

@@ -45,7 +45,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Album.Id)">Delete</button>
+                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.AlbumId)">Delete</button>
             </div>
         </div>
     </div>
@@ -54,10 +54,10 @@
 <div class="album-container">
     <div class="album-header">
         <div class="album-title-details">
-            <h1>@Model.Album.Artist.Data &mdash; @Model.Album.Title</h1>
+            <h1>@Model.Artist &mdash; @Model.Title</h1>
         </div>
         <div class="album-actions">
-            <a href="/album/edit/@Model.Album.Id" title="Edit">
+            <a href="/album/edit/@Model.AlbumId" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
             <a data-bs-toggle="modal" data-bs-target="#removeDialogModal" title="Delete">
@@ -68,43 +68,43 @@
     <div class="album-info-cards">
         <div class="info-card">
             <span class="info-label">Year</span>
-            <span class="info-value">@Model.Album?.Year?.YearValue</span>
+            <span class="info-value">HARDCODE_71</span>
         </div>
         <div class="info-card">
             <span class="info-label">Reissue</span>
-            <span class="info-value">@Model.Album?.Reissue?.Data</span>
+            <span class="info-value">HARDCODE_75</span>
         </div>
         <div class="info-card">
             <span class="info-label">Genre</span>
-            <span class="info-value">@Model.Album?.Genre?.Name</span>
+            <span class="info-value">HARDCODE_79</span>
         </div>
         <div class="info-card">
             <span class="info-label">Country</span>
-            <span class="info-value">@Model.Album?.Country?.Data</span>
+            <span class="info-value">HARDCODE_83</span>
         </div>
         <div class="info-card">
             <span class="info-label">Label</span>
-            <span class="info-value">@Model.Album?.Label?.Data</span>
+            <span class="info-value">HARDCODE_87</span>
         </div>
         <div class="info-card">
             <span class="info-label">Size (Gb)</span>
-            <span class="info-value">@Model.Album?.Size</span>
+            <span class="info-value">HARDCODE_91</span>
         </div>
         <div class="info-card">
             <span class="info-label">Source</span>
-            <span class="info-value"><a href="@Model?.Album?.Source">@Model?.Album?.Source</a></span>
+            <span class="info-value"><a href="HARDCODE_95">HARDCODE_95</a></span>
         </div>
         <div class="info-card">
             <span class="info-label">Discogs</span>
-            <span class="info-value"><a href="@Model?.Album?.Discogs">@Model?.Album?.Discogs</a></span>
+            <span class="info-value"><a href="HARDCODE_99">HARDCODE_99</a></span>
         </div>
         <div class="info-card">
             <span class="info-label">Added</span>
-            <span class="info-value">@Model?.Album?.AddedDate</span>
+            <span class="info-value">HARDCODE_103</span>
         </div>
         <div class="info-card">
             <span class="info-label">Storage</span>
-            <span class="info-value">@Model?.Album?.Storage?.Data</span>
+            <span class="info-value">HARDCODE_107</span>
         </div>
     </div>
     <div class="album-main-row">
@@ -124,14 +124,7 @@
                     <img id="vinylstate" class="tech-icon" alt="Vinyl state" style="display:none;" />
                     <i id="vinylstateicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.VinylState?.Data))
-                        {
-                            @Model.Album.TechnicalInfo.VinylState.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_127                        
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Digital format">
@@ -139,14 +132,7 @@
                     <img id="digitalformat" class="tech-icon" alt="Digital format" style="display:none;" />
                     <i id="digitalformaticon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.DigitalFormat?.Data))
-                        {
-                            @Model.Album.TechnicalInfo.DigitalFormat.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_135
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Bitness">
@@ -154,14 +140,7 @@
                     <img id="bitness" class="tech-icon" alt="Bitness" style="display:none;" />
                     <i id="bitnessicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Bitness?.Data.ToString()))
-                        {
-                            @($"{Model.Album.TechnicalInfo.Bitness.Data} bit/s")
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_143
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Sampling">
@@ -169,14 +148,7 @@
                     <img id="sampling" class="tech-icon" alt="Sampling" style="display:none;" />
                     <i id="samplingicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Sampling?.Data.ToString()))
-                        {
-                            @($"{Model.Album.TechnicalInfo.Sampling.Data}{(Model.Album.TechnicalInfo.DigitalFormat.Data.ToLower().Contains("dsd") ? " MHz" : " kHz")}")
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_151
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Source format">
@@ -184,14 +156,7 @@
                     <img id="format" class="tech-icon" alt="Source format" style="display:none;" />
                     <i id="formaticon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.SourceFormat?.Data))
-                        {
-                            @Model.Album.TechnicalInfo.SourceFormat.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_159
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Player">
@@ -199,19 +164,7 @@
                     <img id="player" class="tech-icon" alt="Player" style="display:none;" />
                     <i id="playericon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Player?.Data))
-                        {
-                            @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Player?.Manufacturer?.Data))
-                            {
-                                <b>@Model.Album.TechnicalInfo.Player.Manufacturer.Data</b>
-                                <br />
-                            }
-                            @Model.Album.TechnicalInfo.Player.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_167
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Cartridge">
@@ -219,19 +172,7 @@
                     <img id="cartridge" class="tech-icon" alt="Cartridge" style="display:none;" />
                     <i id="cartridgeicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Cartridge?.Data))
-                        {
-                            @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Cartridge?.Manufacturer?.Data))
-                            {
-                                <b>@Model.Album.TechnicalInfo.Cartridge.Manufacturer.Data</b>
-                                <br />
-                            }
-                            @Model.Album.TechnicalInfo.Cartridge.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_175
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Amplifier">
@@ -239,19 +180,7 @@
                     <img id="amp" class="tech-icon" alt="Amplifier" style="display:none;" />
                     <i id="ampicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Amplifier?.Data))
-                        {
-                            @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Amplifier?.Manufacturer?.Data))
-                            {
-                                <b>@Model.Album.TechnicalInfo.Amplifier.Manufacturer.Data</b>
-                                <br />
-                            }
-                            @Model.Album.TechnicalInfo.Amplifier.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_183
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="ADC">
@@ -259,19 +188,7 @@
                     <img id="adc" class="tech-icon" alt="ADC" style="display:none;" />
                     <i id="adcicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Adc?.Data))
-                        {
-                            @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Adc?.Manufacturer?.Data))
-                            {
-                                <b>@Model.Album.TechnicalInfo.Adc.Manufacturer.Data</b>
-                                <br />
-                            }
-                            @Model.Album.TechnicalInfo.Adc.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_191
                     </div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Wire">
@@ -279,19 +196,7 @@
                     <img id="wire" class="tech-icon" alt="Wires" style="display:none;" />
                     <i id="wireicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
                     <div class="value">
-                        @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Wire?.Data))
-                        {
-                            @if (!string.IsNullOrEmpty(Model?.Album?.TechnicalInfo?.Wire?.Manufacturer?.Data))
-                            {
-                                <b>@Model.Album.TechnicalInfo.Wire.Manufacturer.Data</b>
-                                <br />
-                            }
-                            @Model.Album.TechnicalInfo.Wire.Data
-                        }
-                        else
-                        {
-                            <span style="color:#888;">No data</span>
-                        }
+                        HARDCODE_199
                     </div>
                 </div>
             </div>
@@ -301,8 +206,8 @@
 <script>
     $(document).ready(async () => {
         await start();
-        await getTechnicalInfoIcons(@Model.Album.Id);
-        await getAlbumCover(@Model.Album.Id);
+        await getTechnicalInfoIcons(@Model.AlbumId);
+        await getAlbumCover(@Model.AlbumId);
 
         showToastFromStorage("albumupdated", "toastinfo_updated");
         showToastFromStorage("albumcreated", "toastinfo_created");

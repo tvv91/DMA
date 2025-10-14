@@ -12,7 +12,7 @@
     </div>
 </div>
 
-@if (Model.Albums.Any())
+@if (Model.Albums?.Any() == true)
 {
     <div class="album-page">
         <div class="wrapper">
@@ -30,13 +30,12 @@
                         </div>
                     </a>
                     <div class="album-base-info">
-                        <div class="album-artist">@album.Artist</div>
+                        <div class="album-artist">@album.Artist.Name</div>
                         <div class="album-title">@album.Title</div>
                     </div>
                 </article>
             }
         </div>
-
         <div class="album-pagination">
             <nav aria-label="Page navigation">
                 <ul id="pagination" class="pagination justify-content-center">
@@ -77,7 +76,7 @@ else
 {
     <div class="text-center mt-5">
         <h4>Ooops... This page is empty!</h4>
-        <a href="@Url.Action("Create", "Album")" class="btn btn-primary mt-3">Add First Album</a>
+        <a href="@Url.Action("Create", "Album")" class="btn btn-primary mt-3">Add your first album</a>
     </div>
 }
 

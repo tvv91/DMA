@@ -18,7 +18,7 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<IDigitizationRepository, DigitizationRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
-//builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
+builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IPostCategoryRepository, PostCategoryRepository>();

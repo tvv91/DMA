@@ -22,7 +22,7 @@ namespace Web.Controllers
             _digitizationRepository = digitizationRepository;
         }
 
-        [HttpGet]
+        [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1)
         {
             if (page < 1)

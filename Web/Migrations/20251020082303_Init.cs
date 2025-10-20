@@ -384,7 +384,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "FormatInfo",
+                name: "FormatInfos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -398,36 +398,36 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FormatInfo", x => x.Id);
+                    table.PrimaryKey("PK_FormatInfos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FormatInfo_Bitnesses_BitnessId",
+                        name: "FK_FormatInfos_Bitnesses_BitnessId",
                         column: x => x.BitnessId,
                         principalTable: "Bitnesses",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_FormatInfo_DigitalFormats_DigitalFormatId",
+                        name: "FK_FormatInfos_DigitalFormats_DigitalFormatId",
                         column: x => x.DigitalFormatId,
                         principalTable: "DigitalFormats",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_FormatInfo_Samplings_SamplingId",
+                        name: "FK_FormatInfos_Samplings_SamplingId",
                         column: x => x.SamplingId,
                         principalTable: "Samplings",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_FormatInfo_SourceFormats_SourceFormatId",
+                        name: "FK_FormatInfos_SourceFormats_SourceFormatId",
                         column: x => x.SourceFormatId,
                         principalTable: "SourceFormats",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_FormatInfo_VinylStates_VinylStateId",
+                        name: "FK_FormatInfos_VinylStates_VinylStateId",
                         column: x => x.VinylStateId,
                         principalTable: "VinylStates",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "EquipmentInfo",
+                name: "EquipmentInfos",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -440,29 +440,29 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_EquipmentInfo", x => x.Id);
+                    table.PrimaryKey("PK_EquipmentInfos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_EquipmentInfo_Adces_AdcId",
+                        name: "FK_EquipmentInfos_Adces_AdcId",
                         column: x => x.AdcId,
                         principalTable: "Adces",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_EquipmentInfo_Amplifiers_AmplifierId",
+                        name: "FK_EquipmentInfos_Amplifiers_AmplifierId",
                         column: x => x.AmplifierId,
                         principalTable: "Amplifiers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_EquipmentInfo_Cartridges_CartridgeId",
+                        name: "FK_EquipmentInfos_Cartridges_CartridgeId",
                         column: x => x.CartridgeId,
                         principalTable: "Cartridges",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_EquipmentInfo_Players_PlayerId",
+                        name: "FK_EquipmentInfos_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_EquipmentInfo_Wires_WireId",
+                        name: "FK_EquipmentInfos_Wires_WireId",
                         column: x => x.WireId,
                         principalTable: "Wires",
                         principalColumn: "Id");
@@ -485,28 +485,13 @@ namespace Web.Migrations
                     ReissueId = table.Column<int>(type: "int", nullable: true),
                     YearId = table.Column<int>(type: "int", nullable: true),
                     StorageId = table.Column<int>(type: "int", nullable: true),
-                    FormatId = table.Column<int>(type: "int", nullable: true),
-                    EquipmentId = table.Column<int>(type: "int", nullable: true),
-                    Size = table.Column<double>(type: "float", nullable: true),
-                    AdcId = table.Column<int>(type: "int", nullable: true),
-                    AmplifierId = table.Column<int>(type: "int", nullable: true),
-                    BitnessId = table.Column<int>(type: "int", nullable: true),
-                    CartridgeId = table.Column<int>(type: "int", nullable: true),
-                    DigitalFormatId = table.Column<int>(type: "int", nullable: true),
-                    PlayerId = table.Column<int>(type: "int", nullable: true),
-                    SamplingId = table.Column<int>(type: "int", nullable: true),
-                    SourceFormatId = table.Column<int>(type: "int", nullable: true),
-                    VinylStateId = table.Column<int>(type: "int", nullable: true),
-                    WireId = table.Column<int>(type: "int", nullable: true)
+                    FormatInfoId = table.Column<int>(type: "int", nullable: true),
+                    EquipmentInfoId = table.Column<int>(type: "int", nullable: true),
+                    Size = table.Column<double>(type: "float", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Digitizations", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Digitizations_Adces_AdcId",
-                        column: x => x.AdcId,
-                        principalTable: "Adces",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Digitizations_Albums_AlbumId",
                         column: x => x.AlbumId,
@@ -514,39 +499,19 @@ namespace Web.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Amplifiers_AmplifierId",
-                        column: x => x.AmplifierId,
-                        principalTable: "Amplifiers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Digitizations_Bitnesses_BitnessId",
-                        column: x => x.BitnessId,
-                        principalTable: "Bitnesses",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Digitizations_Cartridges_CartridgeId",
-                        column: x => x.CartridgeId,
-                        principalTable: "Cartridges",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Digitizations_Countries_CountryId",
                         column: x => x.CountryId,
                         principalTable: "Countries",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Digitizations_DigitalFormats_DigitalFormatId",
-                        column: x => x.DigitalFormatId,
-                        principalTable: "DigitalFormats",
+                        name: "FK_Digitizations_EquipmentInfos_EquipmentInfoId",
+                        column: x => x.EquipmentInfoId,
+                        principalTable: "EquipmentInfos",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Digitizations_EquipmentInfo_EquipmentId",
-                        column: x => x.EquipmentId,
-                        principalTable: "EquipmentInfo",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Digitizations_FormatInfo_FormatId",
-                        column: x => x.FormatId,
-                        principalTable: "FormatInfo",
+                        name: "FK_Digitizations_FormatInfos_FormatInfoId",
+                        column: x => x.FormatInfoId,
+                        principalTable: "FormatInfos",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Digitizations_Labels_LabelId",
@@ -554,39 +519,14 @@ namespace Web.Migrations
                         principalTable: "Labels",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Digitizations_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Digitizations_Reissues_ReissueId",
                         column: x => x.ReissueId,
                         principalTable: "Reissues",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Digitizations_Samplings_SamplingId",
-                        column: x => x.SamplingId,
-                        principalTable: "Samplings",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Digitizations_SourceFormats_SourceFormatId",
-                        column: x => x.SourceFormatId,
-                        principalTable: "SourceFormats",
-                        principalColumn: "Id");
-                    table.ForeignKey(
                         name: "FK_Digitizations_Storages_StorageId",
                         column: x => x.StorageId,
                         principalTable: "Storages",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Digitizations_VinylStates_VinylStateId",
-                        column: x => x.VinylStateId,
-                        principalTable: "VinylStates",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Digitizations_Wires_WireId",
-                        column: x => x.WireId,
-                        principalTable: "Wires",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Digitizations_Years_YearId",
@@ -685,29 +625,9 @@ namespace Web.Migrations
                 column: "ManufacturerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_AdcId",
-                table: "Digitizations",
-                column: "AdcId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Digitizations_AlbumId",
                 table: "Digitizations",
                 column: "AlbumId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_AmplifierId",
-                table: "Digitizations",
-                column: "AmplifierId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_BitnessId",
-                table: "Digitizations",
-                column: "BitnessId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_CartridgeId",
-                table: "Digitizations",
-                column: "CartridgeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Digitizations_CountryId",
@@ -715,19 +635,14 @@ namespace Web.Migrations
                 column: "CountryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_DigitalFormatId",
+                name: "IX_Digitizations_EquipmentInfoId",
                 table: "Digitizations",
-                column: "DigitalFormatId");
+                column: "EquipmentInfoId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_EquipmentId",
+                name: "IX_Digitizations_FormatInfoId",
                 table: "Digitizations",
-                column: "EquipmentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_FormatId",
-                table: "Digitizations",
-                column: "FormatId");
+                column: "FormatInfoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Digitizations_LabelId",
@@ -735,24 +650,9 @@ namespace Web.Migrations
                 column: "LabelId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_PlayerId",
-                table: "Digitizations",
-                column: "PlayerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Digitizations_ReissueId",
                 table: "Digitizations",
                 column: "ReissueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_SamplingId",
-                table: "Digitizations",
-                column: "SamplingId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_SourceFormatId",
-                table: "Digitizations",
-                column: "SourceFormatId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Digitizations_StorageId",
@@ -760,68 +660,58 @@ namespace Web.Migrations
                 column: "StorageId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_VinylStateId",
-                table: "Digitizations",
-                column: "VinylStateId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_WireId",
-                table: "Digitizations",
-                column: "WireId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Digitizations_YearId",
                 table: "Digitizations",
                 column: "YearId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EquipmentInfo_AdcId",
-                table: "EquipmentInfo",
+                name: "IX_EquipmentInfos_AdcId",
+                table: "EquipmentInfos",
                 column: "AdcId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EquipmentInfo_AmplifierId",
-                table: "EquipmentInfo",
+                name: "IX_EquipmentInfos_AmplifierId",
+                table: "EquipmentInfos",
                 column: "AmplifierId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EquipmentInfo_CartridgeId",
-                table: "EquipmentInfo",
+                name: "IX_EquipmentInfos_CartridgeId",
+                table: "EquipmentInfos",
                 column: "CartridgeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EquipmentInfo_PlayerId",
-                table: "EquipmentInfo",
+                name: "IX_EquipmentInfos_PlayerId",
+                table: "EquipmentInfos",
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_EquipmentInfo_WireId",
-                table: "EquipmentInfo",
+                name: "IX_EquipmentInfos_WireId",
+                table: "EquipmentInfos",
                 column: "WireId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormatInfo_BitnessId",
-                table: "FormatInfo",
+                name: "IX_FormatInfos_BitnessId",
+                table: "FormatInfos",
                 column: "BitnessId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormatInfo_DigitalFormatId",
-                table: "FormatInfo",
+                name: "IX_FormatInfos_DigitalFormatId",
+                table: "FormatInfos",
                 column: "DigitalFormatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormatInfo_SamplingId",
-                table: "FormatInfo",
+                name: "IX_FormatInfos_SamplingId",
+                table: "FormatInfos",
                 column: "SamplingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormatInfo_SourceFormatId",
-                table: "FormatInfo",
+                name: "IX_FormatInfos_SourceFormatId",
+                table: "FormatInfos",
                 column: "SourceFormatId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormatInfo_VinylStateId",
-                table: "FormatInfo",
+                name: "IX_FormatInfos_VinylStateId",
+                table: "FormatInfos",
                 column: "VinylStateId");
 
             migrationBuilder.CreateIndex(
@@ -864,10 +754,10 @@ namespace Web.Migrations
                 name: "Countries");
 
             migrationBuilder.DropTable(
-                name: "EquipmentInfo");
+                name: "EquipmentInfos");
 
             migrationBuilder.DropTable(
-                name: "FormatInfo");
+                name: "FormatInfos");
 
             migrationBuilder.DropTable(
                 name: "Labels");

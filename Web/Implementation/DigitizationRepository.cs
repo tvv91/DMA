@@ -20,16 +20,16 @@ namespace Web.Implementation
                     .ThenInclude(a => a.Artist)
                 .Include(d => d.Album)
                     .ThenInclude(a => a.Genre)
-                .Include(d => d.Format).ThenInclude(f => f.Bitness)
-                .Include(d => d.Format).ThenInclude(f => f.Sampling)
-                .Include(d => d.Format).ThenInclude(f => f.DigitalFormat)
-                .Include(d => d.Format).ThenInclude(f => f.SourceFormat)
-                .Include(d => d.Format).ThenInclude(f => f.VinylState)
-                .Include(d => d.Equipment).ThenInclude(e => e.Player)
-                .Include(d => d.Equipment).ThenInclude(e => e.Cartridge)
-                .Include(d => d.Equipment).ThenInclude(e => e.Amplifier)
-                .Include(d => d.Equipment).ThenInclude(e => e.Adc)
-                .Include(d => d.Equipment).ThenInclude(e => e.Wire)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.Bitness)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.Sampling)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.DigitalFormat)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.SourceFormat)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.VinylState)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Player)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Cartridge)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Amplifier)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Adc)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Wire)
                 .AsQueryable();
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
@@ -42,16 +42,16 @@ namespace Web.Implementation
                     .ThenInclude(a => a.Artist)
                 .Include(d => d.Album)
                     .ThenInclude(a => a.Genre)
-                .Include(d => d.Format).ThenInclude(f => f.Bitness)
-                .Include(d => d.Format).ThenInclude(f => f.Sampling)
-                .Include(d => d.Format).ThenInclude(f => f.DigitalFormat)
-                .Include(d => d.Format).ThenInclude(f => f.SourceFormat)
-                .Include(d => d.Format).ThenInclude(f => f.VinylState)
-                .Include(d => d.Equipment).ThenInclude(e => e.Player)
-                .Include(d => d.Equipment).ThenInclude(e => e.Cartridge)
-                .Include(d => d.Equipment).ThenInclude(e => e.Amplifier)
-                .Include(d => d.Equipment).ThenInclude(e => e.Adc)
-                .Include(d => d.Equipment).ThenInclude(e => e.Wire)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.Bitness)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.Sampling)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.DigitalFormat)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.SourceFormat)
+                .Include(d => d.FormatInfo).ThenInclude(f => f.VinylState)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Player)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Cartridge)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Amplifier)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Adc)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e.Wire)
                 .FirstOrDefaultAsync(d => d.Id == id);
         }
 
@@ -59,8 +59,8 @@ namespace Web.Implementation
         {
             var query = _context.Digitizations
                 .Where(d => d.AlbumId == albumId)
-                .Include(d => d.Format)
-                .Include(d => d.Equipment)
+                .Include(d => d.FormatInfo)
+                .Include(d => d.EquipmentInfo)
                 .AsQueryable();
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
@@ -76,8 +76,8 @@ namespace Web.Implementation
         public async Task<Digitization> UpdateAsync(Digitization digitization)
         {
             var existing = await _context.Digitizations
-                .Include(d => d.Format)
-                .Include(d => d.Equipment)
+                .Include(d => d.FormatInfo)
+                .Include(d => d.EquipmentInfo)
                 .FirstOrDefaultAsync(d => d.Id == digitization.Id);
 
             if (existing == null)
@@ -94,23 +94,23 @@ namespace Web.Implementation
             existing.StorageId = digitization.StorageId;
             existing.UpdateDate = DateTime.UtcNow;
 
-            if (digitization.Format is not null)
+            if (digitization.FormatInfo is not null)
             {
-                existing.Format.Size = digitization.Format.Size;
-                existing.Format.BitnessId = digitization.Format.BitnessId;
-                existing.Format.SamplingId = digitization.Format.SamplingId;
-                existing.Format.DigitalFormatId = digitization.Format.DigitalFormatId;
-                existing.Format.SourceFormatId = digitization.Format.SourceFormatId;
-                existing.Format.VinylStateId = digitization.Format.VinylStateId;
+                existing.FormatInfo.Size = digitization.FormatInfo.Size;
+                existing.FormatInfo.BitnessId = digitization.FormatInfo.BitnessId;
+                existing.FormatInfo.SamplingId = digitization.FormatInfo.SamplingId;
+                existing.FormatInfo.DigitalFormatId = digitization.FormatInfo.DigitalFormatId;
+                existing.FormatInfo.SourceFormatId = digitization.FormatInfo.SourceFormatId;
+                existing.FormatInfo.VinylStateId = digitization.FormatInfo.VinylStateId;
             }
 
-            if (digitization.Equipment is not null)
+            if (digitization.EquipmentInfo is not null)
             {
-                existing.Equipment.PlayerId = digitization.Equipment.PlayerId;
-                existing.Equipment.CartridgeId = digitization.Equipment.CartridgeId;
-                existing.Equipment.AmplifierId = digitization.Equipment.AmplifierId;
-                existing.Equipment.AdcId = digitization.Equipment.AdcId;
-                existing.Equipment.WireId = digitization.Equipment.WireId;
+                existing.EquipmentInfo.PlayerId = digitization.EquipmentInfo.PlayerId;
+                existing.EquipmentInfo.CartridgeId = digitization.EquipmentInfo.CartridgeId;
+                existing.EquipmentInfo.AmplifierId = digitization.EquipmentInfo.AmplifierId;
+                existing.EquipmentInfo.AdcId = digitization.EquipmentInfo.AdcId;
+                existing.EquipmentInfo.WireId = digitization.EquipmentInfo.WireId;
             }
 
             await _context.SaveChangesAsync();

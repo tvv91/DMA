@@ -276,37 +276,22 @@ namespace Web.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AdcId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("AddedDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("AlbumId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("AmplifierId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("BitnessId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("CartridgeId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("CountryId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("DigitalFormatId")
                         .HasColumnType("int");
 
                     b.Property<string>("Discogs")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EquipmentId")
+                    b.Property<int?>("EquipmentInfoId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("FormatId")
+                    b.Property<int?>("FormatInfoId")
                         .HasColumnType("int");
 
                     b.Property<bool?>("IsFirstPress")
@@ -315,13 +300,7 @@ namespace Web.Migrations
                     b.Property<int?>("LabelId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("PlayerId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("ReissueId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SamplingId")
                         .HasColumnType("int");
 
                     b.Property<double?>("Size")
@@ -330,59 +309,30 @@ namespace Web.Migrations
                     b.Property<string>("Source")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("SourceFormatId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("StorageId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("VinylStateId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("WireId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("YearId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AdcId");
-
                     b.HasIndex("AlbumId");
-
-                    b.HasIndex("AmplifierId");
-
-                    b.HasIndex("BitnessId");
-
-                    b.HasIndex("CartridgeId");
 
                     b.HasIndex("CountryId");
 
-                    b.HasIndex("DigitalFormatId");
+                    b.HasIndex("EquipmentInfoId");
 
-                    b.HasIndex("EquipmentId");
-
-                    b.HasIndex("FormatId");
+                    b.HasIndex("FormatInfoId");
 
                     b.HasIndex("LabelId");
 
-                    b.HasIndex("PlayerId");
-
                     b.HasIndex("ReissueId");
 
-                    b.HasIndex("SamplingId");
-
-                    b.HasIndex("SourceFormatId");
-
                     b.HasIndex("StorageId");
-
-                    b.HasIndex("VinylStateId");
-
-                    b.HasIndex("WireId");
 
                     b.HasIndex("YearId");
 
@@ -424,7 +374,7 @@ namespace Web.Migrations
 
                     b.HasIndex("WireId");
 
-                    b.ToTable("EquipmentInfo");
+                    b.ToTable("EquipmentInfos");
                 });
 
             modelBuilder.Entity("Web.Models.FormatInfo", b =>
@@ -465,7 +415,7 @@ namespace Web.Migrations
 
                     b.HasIndex("VinylStateId");
 
-                    b.ToTable("FormatInfo");
+                    b.ToTable("FormatInfos");
                 });
 
             modelBuilder.Entity("Web.Models.Genre", b =>
@@ -897,75 +847,35 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Web.Models.Digitization", b =>
                 {
-                    b.HasOne("Web.Models.Adc", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("AdcId");
-
                     b.HasOne("Web.Models.Album", "Album")
                         .WithMany("Digitizations")
                         .HasForeignKey("AlbumId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.Amplifier", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("AmplifierId");
-
-                    b.HasOne("Web.Models.Bitness", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("BitnessId");
-
-                    b.HasOne("Web.Models.Cartridge", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("CartridgeId");
-
                     b.HasOne("Web.Models.Country", "Country")
                         .WithMany("Digitizations")
                         .HasForeignKey("CountryId");
 
-                    b.HasOne("Web.Models.DigitalFormat", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("DigitalFormatId");
-
-                    b.HasOne("Web.Models.EquipmentInfo", "Equipment")
+                    b.HasOne("Web.Models.EquipmentInfo", "EquipmentInfo")
                         .WithMany()
-                        .HasForeignKey("EquipmentId");
+                        .HasForeignKey("EquipmentInfoId");
 
-                    b.HasOne("Web.Models.FormatInfo", "Format")
+                    b.HasOne("Web.Models.FormatInfo", "FormatInfo")
                         .WithMany()
-                        .HasForeignKey("FormatId");
+                        .HasForeignKey("FormatInfoId");
 
                     b.HasOne("Web.Models.Label", "Label")
                         .WithMany("Digitizations")
                         .HasForeignKey("LabelId");
 
-                    b.HasOne("Web.Models.Player", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("PlayerId");
-
                     b.HasOne("Web.Models.Reissue", "Reissue")
                         .WithMany("Digitizations")
                         .HasForeignKey("ReissueId");
 
-                    b.HasOne("Web.Models.Sampling", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("SamplingId");
-
-                    b.HasOne("Web.Models.SourceFormat", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("SourceFormatId");
-
                     b.HasOne("Web.Models.Storage", "Storage")
                         .WithMany("Digitizations")
                         .HasForeignKey("StorageId");
-
-                    b.HasOne("Web.Models.VinylState", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("VinylStateId");
-
-                    b.HasOne("Web.Models.Wire", null)
-                        .WithMany("Digitizations")
-                        .HasForeignKey("WireId");
 
                     b.HasOne("Web.Models.Year", "Year")
                         .WithMany("Digitizations")
@@ -975,9 +885,9 @@ namespace Web.Migrations
 
                     b.Navigation("Country");
 
-                    b.Navigation("Equipment");
+                    b.Navigation("EquipmentInfo");
 
-                    b.Navigation("Format");
+                    b.Navigation("FormatInfo");
 
                     b.Navigation("Label");
 
@@ -1091,17 +1001,7 @@ namespace Web.Migrations
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.Adc", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
             modelBuilder.Entity("Web.Models.Album", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
-            modelBuilder.Entity("Web.Models.Amplifier", b =>
                 {
                     b.Navigation("Digitizations");
                 });
@@ -1111,27 +1011,12 @@ namespace Web.Migrations
                     b.Navigation("Albums");
                 });
 
-            modelBuilder.Entity("Web.Models.Bitness", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
-            modelBuilder.Entity("Web.Models.Cartridge", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
             modelBuilder.Entity("Web.Models.Category", b =>
                 {
                     b.Navigation("PostCategories");
                 });
 
             modelBuilder.Entity("Web.Models.Country", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
-            modelBuilder.Entity("Web.Models.DigitalFormat", b =>
                 {
                     b.Navigation("Digitizations");
                 });
@@ -1159,11 +1044,6 @@ namespace Web.Migrations
                     b.Navigation("Wires");
                 });
 
-            modelBuilder.Entity("Web.Models.Player", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
             modelBuilder.Entity("Web.Models.Post", b =>
                 {
                     b.Navigation("PostCategories");
@@ -1174,27 +1054,7 @@ namespace Web.Migrations
                     b.Navigation("Digitizations");
                 });
 
-            modelBuilder.Entity("Web.Models.Sampling", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
-            modelBuilder.Entity("Web.Models.SourceFormat", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
             modelBuilder.Entity("Web.Models.Storage", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
-            modelBuilder.Entity("Web.Models.VinylState", b =>
-                {
-                    b.Navigation("Digitizations");
-                });
-
-            modelBuilder.Entity("Web.Models.Wire", b =>
                 {
                     b.Navigation("Digitizations");
                 });

@@ -81,11 +81,15 @@ namespace Web.Db
             #endregion
 
             #region Year
-            var year = new Year { Value = 2005 };
+            var year1 = new Year { Value = 2005 };
+            var year2 = new Year { Value = 2015 };
+            var year3 = new Year { Value = 2028 };
             #endregion
 
             #region Reissue
-            var reissue = new Reissue { Value = 2020 };
+            var reissue1 = new Reissue { Value = 2010 };
+            var reissue2 = new Reissue { Value = 2020 };
+            var reissue3 = new Reissue { Value = 2025 };
             #endregion
 
             #region Country
@@ -96,7 +100,9 @@ namespace Web.Db
             #endregion
 
             #region Label
-            var label = new Label { Name = "Roadrunner Records" };
+            var label1 = new Label { Name = "Roadrunner Records" };
+            var label2 = new Label { Name = "New Sound Records" };
+            var label3 = new Label { Name = "Analog Sound Inc." };
             #endregion            
 
             #region Storage
@@ -240,12 +246,12 @@ namespace Web.Db
                 Source = "https://somelink.com",
                 Discogs = "https://somelink.com",
                 Size = 2.4,
-                Year = year,
-                Reissue = reissue,
+                Year = year1,
+                Reissue = reissue1,
                 Country = country1,
-                Label = label,
+                Label = label1,
                 Storage = storage,
-                Format = new FormatInfo
+                FormatInfo = new FormatInfo
                 {
                     BitnessId = 2,
                     DigitalFormatId = 1,
@@ -253,7 +259,7 @@ namespace Web.Db
                     SamplingId = 2,
                     VinylStateId = 1,
                 },
-                Equipment = new EquipmentInfo
+                EquipmentInfo = new EquipmentInfo
                 {
                     Adc = adc1,
                     Amplifier = amp1,
@@ -262,20 +268,130 @@ namespace Web.Db
                     Wire = wire1
                 }
             };
+
+            var digitization2 = new Digitization
+            {
+                AddedDate = DateTime.Now,
+                Source = "https://somelink.com",
+                Discogs = "https://somelink.com",
+                Size = 3.5,
+                Year = year2,
+                Reissue = reissue2,
+                Country = country2,
+                Label = label2,
+                Storage = storage,
+                FormatInfo = new FormatInfo
+                {
+                    BitnessId = 1,
+                    DigitalFormatId = 2,
+                    SourceFormatId = 2,
+                    SamplingId = 4,
+                    VinylStateId = 2,
+                },
+                EquipmentInfo = new EquipmentInfo
+                {
+                    Adc = adc2,
+                    Amplifier = amp2,
+                    Cartridge = cartridge2,
+                    Player = player2,
+                    Wire = wire2
+                }
+            };
+
+            var digitization3 = new Digitization
+            {
+                AddedDate = DateTime.Now,
+                Source = "https://somelink.com",
+                Discogs = "https://somelink.com",
+                Size = 4.5,
+                Year = year3,
+                Reissue = reissue3,
+                Country = country3,
+                Label = label3,
+                Storage = storage,
+                FormatInfo = new FormatInfo
+                {
+                    BitnessId = 1,
+                    DigitalFormatId = 4,
+                    SourceFormatId = 3,
+                    SamplingId = 6,
+                    VinylStateId = 3,
+                },
+                EquipmentInfo = new EquipmentInfo
+                {
+                    Adc = adc3,
+                    Amplifier = amp3,
+                    Cartridge = cartridge3,
+                    Player = player3,
+                    Wire = wire3
+                }
+            };
             #endregion
 
             for (int i = 1; i <= 100; i++)
             {
-                var album = new Album
+                if (i == 1)
                 {
-                    Title = $"Album {i}",                    
-                    Artist = artist1,
-                    Genre = genre1,
-                    Digitizations = new List<Digitization> { digitization1 }
-                };
-                albums.Add(album);
+                    albums.Add(new Album
+                    {
+                        Title = $"Album {i}",
+                        Artist = artist1,
+                        Genre = genre1,
+                        Digitizations = new List<Digitization>
+                        {
+                            CreateDigitization(year1, reissue1, country1, label1, storage,
+                                new FormatInfo { BitnessId = 2, DigitalFormatId = 1, SourceFormatId = 1, SamplingId = 2, VinylStateId = 1 },
+                                new EquipmentInfo { Adc = adc1, Amplifier = amp1, Cartridge = cartridge1, Player = player1, Wire = wire1 },
+                                2.4),
+
+                            CreateDigitization(year2, reissue2, country2, label2, storage,
+                                new FormatInfo { BitnessId = 1, DigitalFormatId = 2, SourceFormatId = 2, SamplingId = 4, VinylStateId = 2 },
+                                new EquipmentInfo { Adc = adc2, Amplifier = amp2, Cartridge = cartridge2, Player = player2, Wire = wire2 },
+                                3.5),
+
+                            CreateDigitization(year3, reissue3, country3, label3, storage,
+                                new FormatInfo { BitnessId = 1, DigitalFormatId = 4, SourceFormatId = 3, SamplingId = 6, VinylStateId = 3 },
+                                new EquipmentInfo { Adc = adc3, Amplifier = amp3, Cartridge = cartridge3, Player = player3, Wire = wire3 },
+                                4.5)
+                        }
+                    });
+                }
+                else
+                {
+                    albums.Add(new Album
+                    {
+                        Title = $"Album {i}",
+                        Artist = artist1,
+                        Genre = genre1,
+                        Digitizations = new List<Digitization>
+                        {
+                            CreateDigitization(year1, reissue1, country1, label1, storage,
+                                new FormatInfo { BitnessId = 2, DigitalFormatId = 1, SourceFormatId = 1, SamplingId = 2, VinylStateId = 1 },
+                                new EquipmentInfo { Adc = adc1, Amplifier = amp1, Cartridge = cartridge1, Player = player1, Wire = wire1 },
+                                2.4)
+                        }
+                    });
+                }
             }
             return albums;
+        }
+
+        private Digitization CreateDigitization(Year year, Reissue reissue, Country country, Label label, Storage storage, FormatInfo format, EquipmentInfo equipment, double size)
+        {
+            return new Digitization
+            {
+                AddedDate = DateTime.Now,
+                Source = "https://somelink.com",
+                Discogs = "https://somelink.com",
+                Size = size,
+                Year = year,
+                Reissue = reissue,
+                Country = country,
+                Label = label,
+                Storage = storage,
+                FormatInfo = format,
+                EquipmentInfo = equipment
+            };
         }
     }
 }

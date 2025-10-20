@@ -210,7 +210,7 @@ namespace Web.Controllers
                 Label = !string.IsNullOrEmpty(request.Label) ? new Label { Name = request.Label } : null,
                 Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Data = request.Storage } : null,
 
-                Format = new FormatInfo
+                FormatInfo = new FormatInfo
                 {
                     Size = request.Size,
                     BitnessId = request.Bitness,
@@ -220,7 +220,7 @@ namespace Web.Controllers
                     VinylState = !string.IsNullOrEmpty(request.VinylState) ? new VinylState { Name = request.VinylState } : null
                 },
 
-                Equipment = new EquipmentInfo
+                EquipmentInfo = new EquipmentInfo
                 {
                     Player = !string.IsNullOrEmpty(request.Player) ? new Player { Name = request.Player } : null,
                     Cartridge = !string.IsNullOrEmpty(request.Cartridge) ? new Cartridge { Name = request.Cartridge } : null,

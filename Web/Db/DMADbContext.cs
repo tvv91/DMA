@@ -37,6 +37,8 @@ namespace Web.Db
         public DbSet<SourceFormat> SourceFormats { get; set; }
         public DbSet<VinylState> VinylStates { get; set; }
         public DbSet<Digitization> Digitizations { get; set; }
+        public DbSet<FormatInfo> FormatInfos { get; set; }
+        public DbSet<EquipmentInfo> EquipmentInfos { get; set; }
         #endregion
 
         #region Posts

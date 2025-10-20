@@ -20,8 +20,10 @@
         public Year? Year { get; set; }
         public int? StorageId { get; set; }
         public Storage? Storage { get; set; }
-        public FormatInfo? Format { get; set; }
-        public EquipmentInfo? Equipment { get; set; }
+        public int? FormatInfoId { get; set; }
+        public FormatInfo? FormatInfo { get; set; }
+        public int? EquipmentInfoId { get; set; }
+        public EquipmentInfo? EquipmentInfo{ get; set; }
         public double? Size { get; set; }
     }
 }

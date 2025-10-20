@@ -41,22 +41,22 @@ namespace Web.Implementation
             var data = new StatisticCounters
             {
                 TotalAlbums = await _context.Albums.CountAsync(),
-                TotalSize = await _context.Albums.SumAsync(a => a.Digitizations.Sum(d => d.Format!.Size) ?? 0),
+                TotalSize = await _context.Albums.SumAsync(a => a.Digitizations.Sum(d => d.FormatInfo!.Size) ?? 0),
                 StorageCount = await _context.Storages.CountAsync(),
                 Genre = await CountGeneric(_context.Genres, g => g.Albums.SelectMany(a => a.Digitizations)),
-                //Year = await CountGeneric(_context.Years, y => y.Albums.SelectMany(a => a.Digitizations)),
+                //Year = await CountGeneric(_context.Years, y => y.Al.SelectMany(a => a.Digitizations)),
                 Country = await CountGeneric(_context.Countries, c => c.Digitizations),
                 Label = await CountGeneric(_context.Labels, l => l.Digitizations),
-                Bitness = await CountGeneric(_context.Bitnesses, b => b.Digitizations.Where(d => d.Format != null && d.Format.BitnessId == b.Id), d => $"{d.Format!.Bitness!.Value} bit/s"),
-                Sampling = await CountGeneric(_context.Samplings, s => s.Digitizations.Where(d => d.Format != null && d.Format.SamplingId == s.Id), d => $"{d.Format!.Sampling!.Value}{(_dsdFreq.Contains(d.Format.Sampling!.Value) ? " MHz" : " kHz")}"),
-                SourceFormat = await CountGeneric(_context.SourceFormats, s => s.Digitizations),
-                DigitalFormat = await CountGeneric(_context.DigitalFormats, d => d.Digitizations),
-                Adc = await CountGeneric(_context.Adces, e => e.Digitizations, f => $"{f.Equipment!.Adc!.Manufacturer?.Name} {f.Equipment.Adc.Name}"),
-                Amplifier = await CountGeneric(_context.Amplifiers, e => e.Digitizations, f => $"{f.Equipment!.Amplifier!.Manufacturer?.Name} {f.Equipment.Amplifier.Name}"),
-                Cartridge = await CountGeneric(_context.Cartridges, e => e.Digitizations, f => $"{f.Equipment!.Cartridge!.Manufacturer?.Name} {f.Equipment.Cartridge.Name}"),
-                Player = await CountGeneric(_context.Players, e => e.Digitizations, f => $"{f.Equipment!.Player!.Manufacturer?.Name} {f.Equipment.Player.Name}"),
-                VinylState = await CountGeneric(_context.VinylStates, v => v.Digitizations, f => f.Format!.VinylState!.Name),
-                Wire = await CountGeneric(_context.Wires, e => e.Digitizations, f => $"{f.Equipment!.Wire!.Manufacturer?.Name} {f.Equipment.Wire.Name}")
+                //Bitness = await CountGeneric(_context.Bitnesses, b => b.Digitizations.Where(d => d.FormatInfo != null && d.FormatInfo.BitnessId == b.Id), d => $"{d.FormatInfo!.Bitness!.Value} bit/s"),
+                //Sampling = await CountGeneric(_context.Samplings, s => s.Digitizations.Where(d => d.FormatInfo != null && d.FormatInfo.SamplingId == s.Id), d => $"{d.FormatInfo!.Sampling!.Value}{(_dsdFreq.Contains(d.FormatInfo.Sampling!.Value) ? " MHz" : " kHz")}"),
+                //SourceFormat = await CountGeneric(_context.SourceFormats, s => s.Digitizations),
+                //DigitalFormat = await CountGeneric(_context.DigitalFormats, d => d.Digitizations),
+                //Adc = await CountGeneric(_context.Adces, e => e.Digitizations, f => $"{f.EquipmentInfo!.Adc!.Manufacturer?.Name} {f.EquipmentInfo.Adc.Name}"),
+                //Amplifier = await CountGeneric(_context.Amplifiers, e => e.Digitizations, f => $"{f.EquipmentInfo!.Amplifier!.Manufacturer?.Name} {f.EquipmentInfo.Amplifier.Name}"),
+                //Cartridge = await CountGeneric(_context.Cartridges, e => e.Digitizations, f => $"{f.EquipmentInfo!.Cartridge!.Manufacturer?.Name} {f.EquipmentInfo.Cartridge.Name}"),
+                //Player = await CountGeneric(_context.Players, e => e.Digitizations, f => $"{f.EquipmentInfo!.Player!.Manufacturer?.Name} {f.EquipmentInfo.Player.Name}"),
+                //VinylState = await CountGeneric(_context.VinylStates, v => v.Digitizations, f => f.FormatInfo!.VinylState!.Name),
+                //Wire = await CountGeneric(_context.Wires, e => e.Digitizations, f => $"{f.EquipmentInfo!.Wire!.Manufacturer?.Name} {f.EquipmentInfo.Wire.Name}")
             };
 
             return new Statistic
@@ -74,7 +74,7 @@ namespace Web.Implementation
         {
             descriptionSelector ??= d =>
             {
-                var f = d.Format;
+                var f = d.FormatInfo;
                 return f switch
                 {
                     not null when f.Bitness != null => f.Bitness.Value.ToString(),

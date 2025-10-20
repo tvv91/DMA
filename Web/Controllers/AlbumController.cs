@@ -176,6 +176,8 @@ namespace Web.Controllers
                 Title = album.Title,
                 Artist = album.Artist?.Name ?? string.Empty,
                 Genre = album.Genre?.Name ?? string.Empty,
+                AddedDate = album.AddedDate,
+                UpdateDate = album.UpdateDate,
                 Digitizations = album.Digitizations?
                     .Select(d => new Digitization
                     {

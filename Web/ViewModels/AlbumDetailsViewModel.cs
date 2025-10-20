@@ -10,6 +10,8 @@ namespace Web.ViewModels
         public string Artist { get; set; } = string.Empty;
         public string Genre { get; set; } = string.Empty;
         public string? AlbumCoverUrl { get; set; }
+        public DateTime? AddedDate { get; set; }
+        public DateTime? UpdateDate { get; set; }
         public IEnumerable<Digitization>? Digitizations { get; set; }
         
     }

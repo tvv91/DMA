@@ -18,7 +18,6 @@ namespace Web.Implementation
             var query = _context.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Genre)
-                .Include(a => a.Digitizations)
                 .AsQueryable();
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
@@ -29,7 +28,6 @@ namespace Web.Implementation
             return await _context.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Genre)
-                .Include(a => a.Digitizations)
                 .FirstOrDefaultAsync(a => a.Id == id);
         }
 
@@ -105,7 +103,6 @@ namespace Web.Implementation
             var query = _context.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Genre)
-                .Include(a => a.Digitizations)
                 .Where(a => a.Title.Contains(title));
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Title);

@@ -47,11 +47,13 @@ namespace Web.Controllers
                 return BadRequest();
 
             var album = await _albumRepository.GetByIdAsync(id);
-
+            
             if (album == null)
                 return NotFound();
 
-            return View("Details", MapAlbumToAlbumDetailsVM(album));
+            var digitizations = await _digitizationRepository.GetByAlbumIdAsync(album.Id);
+
+            return View("Details", MapAlbumToAlbumDetailsVM(album, digitizations));
         }
 
         [HttpGet("album/create")]
@@ -168,8 +170,9 @@ namespace Web.Controllers
         }
 
         #region Private methods
-        private AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album)
+        private AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Digitization>? digitizations = null)
         {
+            
             return new AlbumDetailsViewModel
             {
                 AlbumId = album.Id,
@@ -178,23 +181,7 @@ namespace Web.Controllers
                 Genre = album.Genre?.Name ?? string.Empty,
                 AddedDate = album.AddedDate,
                 UpdateDate = album.UpdateDate,
-                Digitizations = album.Digitizations?
-                    .Select(d => new Digitization
-                    {
-                        Id = d.Id,
-                        AlbumId = d.AlbumId,
-                        Source = d.Source,
-                        Discogs = d.Discogs,
-                        IsFirstPress = d.IsFirstPress,
-                        CountryId = d.CountryId,
-                        LabelId = d.LabelId,
-                        ReissueId = d.ReissueId,
-                        YearId = d.YearId,
-                        AddedDate = d.AddedDate,
-                        UpdateDate = d.UpdateDate,
-                        StorageId = d.StorageId
-                    })
-                    .ToList()
+                Digitizations = digitizations
             };
         }
         private Digitization MapVMToDigitization(int albumId, AlbumCreateUpdateViewModel request)

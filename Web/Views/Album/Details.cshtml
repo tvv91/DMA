@@ -177,7 +177,99 @@
                 </div>
             </div>
         </div>    
+    </div>
+    <div class="digitization-table">
+        <div class="table-header">
+            <div class="col col-vinyl">Vinyl state</div>
+            <div class="col col-bitness">Bitness</div>
+            <div class="col col-sampling">Sampling</div>
+            <div class="col col-format">Format</div>
+            <div class="col col-player">Player</div>
+            <div class="col col-cartridge">Cartridge</div>
+            <div class="col col-amplifier">Amplifier</div>
+            <div class="col col-adc">ADC</div>
+            <div class="col col-wire">Wire</div>
+        </div>
+
+        <div class="table-body" id="digitizationTableBody">
+            @if (Model.Digitizations != null && Model.Digitizations.Any())
+            {
+                foreach (var d in Model.Digitizations)
+                {
+                    <div class="table-row">
+                        <div class="col col-vinyl">@d.FormatInfo?.VinylState?.Name</div>
+                        <div class="col col-bitness">@d.FormatInfo?.Bitness?.Value</div>
+                        <div class="col col-sampling">@d.FormatInfo?.Sampling?.Value</div>
+                        <div class="col col-format">@d.FormatInfo?.DigitalFormat?.Name</div>
+                        <div class="col col-player">@d.EquipmentInfo?.Player?.Name</div>
+                        <div class="col col-cartridge">@d.EquipmentInfo?.Cartridge?.Name<br />@d.EquipmentInfo?.Cartridge?.Manufacturer?.Name</div>
+                        <div class="col col-amplifier">@d.EquipmentInfo?.Amplifier?.Name</div>
+                        <div class="col col-adc">@d.EquipmentInfo?.Adc?.Name</div>
+                        <div class="col col-wire">@d.EquipmentInfo?.Wire?.Name</div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="table-row">
+                    <div class="col" style="grid-column: span 10; text-align:center; color:#888;">
+                        No digitizations available
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
+<style>
+    .digitization-table {
+        width: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+        font-size: 0.92rem;
+        background: #fff;
+    }
+
+    .table-header {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr 0.8fr 1fr 1.5fr 1.5fr 1.5fr 1.5fr 1.2fr;
+        background-color: #f7f7f7;
+        font-weight: 600;
+        padding: 10px 16px;
+        border-bottom: 2px solid #ddd;
+    }
+
+    .table-body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .table-row {
+        display: grid;
+        grid-template-columns: 1.3fr 0.7fr 0.8fr 1fr 1.5fr 1.5fr 1.5fr 1.5fr 1.2fr;
+        padding: 10px 16px;
+        border-bottom: 1px solid #eee;
+        background-color: #fff;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(10px);
+        transition: all 0.3s ease;
+    }
+
+        .table-row:hover {
+            background-color: #f2f7ff;
+        }
+
+        .table-row.selected {
+            background-color: #d9ecff;
+            border-left: 3px solid #007bff;
+        }
+
+        .table-row.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+</style>
 <script>
     $(document).ready(async () => {
         await start();
@@ -191,6 +283,15 @@
         if (backIndex && backIndex !== "1") {
             $("#back_button").attr("href", `/album?page=${backIndex}`);
         }
+        $('.table-row').each(function (i) {
+        const $row = $(this);
+        setTimeout(() => $row.addClass('visible'), i * 100);
+    });
+
+    $('.table-row').on('click', function () {
+        $('.table-row').removeClass('selected');
+        $(this).addClass('selected');
+        });
     })
 
     function showToastFromStorage(key, toastId) {

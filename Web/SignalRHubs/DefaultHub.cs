@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
 using Web.Enums;
-using Web.Implementation;
 using Web.Interfaces;
 using Web.Models;
 using Web.Services;
@@ -180,54 +178,49 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
-        public async Task GetTechnicalInfoIcons(string connectionId, int id)
+        public async Task GetTechnicalInfoIcons(string connectionId, int digitizationId)
         {
-            /*
-            // Получаем полную оцифровку с форматами и оборудованием
-            var digitization = await _digitizationRepository.GetByIdAsync(id);
+            var digitization = await _digitizationRepository.GetByIdAsync(digitizationId);
 
-            var item = digitization.Items.FirstOrDefault();
-            if (item == null)
+            if (digitization == null)
             {
-                await Clients.Client(connectionId)
-                    .SendAsync("ReceivedTechnicalInfo", null, null);
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
             }
 
-            var format = item.Format;
-            var equipment = item.Equipment;
+            var formatInfo = digitization.FormatInfo;
+            var equipmentInfo = digitization.EquipmentInfo;
 
-            await Clients.Client(connectionId)
-                .SendAsync("ReceivedTechnicalInfo", format, equipment);
-            /*
-            var tInfo = await _techInfoRepository.TechInfos.FirstOrDefaultAsync(x => x.AlbumId == albumId);
+            if (formatInfo == null && equipmentInfo == null)
+            {
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
+                return;
+            }
 
             var mapping = new Dictionary<string, (int? id, EntityType type)>
             {
-                ["vinylstate"] = (tInfo?.VinylStateId, EntityType.VinylState),
-                ["digitalformat"] = (tInfo?.DigitalFormatId, EntityType.DigitalFormat),
-                ["bitness"] = (tInfo?.BitnessId, EntityType.Bitness),
-                ["sampling"] = (tInfo?.SamplingId, EntityType.Sampling),
-                ["format"] = (tInfo?.SourceFormatId, EntityType.SourceFormat),
-                ["player"] = (tInfo?.PlayerId, EntityType.Player),
-                ["cartridge"] = (tInfo?.CartridgeId, EntityType.Cartridge),
-                ["amp"] = (tInfo?.AmplifierId, EntityType.Amplifier),
-                ["adc"] = (tInfo?.AdcId, EntityType.Adc),
-                ["wire"] = (tInfo?.WireId, EntityType.Wire),
+                ["vinylstate"] = (formatInfo?.VinylStateId, EntityType.VinylState),
+                ["digitalformat"] = (formatInfo?.DigitalFormatId, EntityType.DigitalFormat),
+                ["bitness"] = (formatInfo?.BitnessId, EntityType.Bitness),
+                ["sampling"] = (formatInfo?.SamplingId, EntityType.Sampling),
+                ["format"] = (formatInfo?.SourceFormatId, EntityType.SourceFormat),
+                ["player"] = (equipmentInfo?.PlayerId, EntityType.Player),
+                ["cartridge"] = (equipmentInfo?.CartridgeId, EntityType.Cartridge),
+                ["amp"] = (equipmentInfo?.AmplifierId, EntityType.Amplifier),
+                ["adc"] = (equipmentInfo?.AdcId, EntityType.Adc),
+                ["wire"] = (equipmentInfo?.WireId, EntityType.Wire),
             };
 
             foreach (var kvp in mapping)
             {
+                string category = kvp.Key;
                 string? url = null;
 
                 if (kvp.Value.id.HasValue)
-                {
                     url = _imgService.GetImageUrl(kvp.Value.id.Value, kvp.Value.type);
-                }
 
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", kvp.Key, url);
+                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", category, url);
             }
-            */
         }
 
         #endregion

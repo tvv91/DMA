@@ -75,22 +75,6 @@
                 <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
             </div>
         </div>
-        <div class="info-card">
-            <span class="info-label">Genre</span>
-            <span class="info-value"><b>@Model.Genre</b></span>
-            <span class="info-label">Digitizations</span>
-            <span class="info-value"><b>@Model.Digitizations?.Count()</b></span>
-            @if (Model.AddedDate != null)
-            {
-                <span class="info-label">Added</span>
-                <span class="info-value"><b>@Model.AddedDate</b></span>
-            }
-            @if (Model.UpdateDate != null)
-            {
-                <span class="info-label">Updated</span>
-                <span class="info-value"><b>@Model.UpdateDate</b></span>
-            }
-        </div>
         <div class="album-main-row">
             <div class="album-tech-box">
                 <div class="tech-info-grid">
@@ -178,6 +162,22 @@
             </div>
         </div>    
     </div>
+    <div class="info-card">
+        <span class="info-label">Genre</span>
+        <span class="info-value"><b>@Model.Genre</b></span>
+        <span class="info-label">Digitizations</span>
+        <span class="info-value"><b>@Model.Digitizations?.Count()</b></span>
+        @if (Model.AddedDate != null)
+        {
+            <span class="info-label">Added</span>
+            <span class="info-value"><b>@Model.AddedDate</b></span>
+        }
+        @if (Model.UpdateDate != null)
+        {
+            <span class="info-label">Updated</span>
+            <span class="info-value"><b>@Model.UpdateDate</b></span>
+        }
+    </div>
     <div class="digitization-table">
         <div class="table-header">
             <div class="col col-vinyl">Vinyl state</div>
@@ -220,56 +220,6 @@
         </div>
     </div>
 </div>
-<style>
-    .digitization-table {
-        width: 100%;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-        font-size: 0.92rem;
-        background: #fff;
-    }
-
-    .table-header {
-        display: grid;
-        grid-template-columns: 1.3fr 0.7fr 0.8fr 1fr 1.5fr 1.5fr 1.5fr 1.5fr 1.2fr;
-        background-color: #f7f7f7;
-        font-weight: 600;
-        padding: 10px 16px;
-        border-bottom: 2px solid #ddd;
-    }
-
-    .table-body {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .table-row {
-        display: grid;
-        grid-template-columns: 1.3fr 0.7fr 0.8fr 1fr 1.5fr 1.5fr 1.5fr 1.5fr 1.2fr;
-        padding: 10px 16px;
-        border-bottom: 1px solid #eee;
-        background-color: #fff;
-        cursor: pointer;
-        opacity: 0;
-        transform: translateY(10px);
-        transition: all 0.3s ease;
-    }
-
-        .table-row:hover {
-            background-color: #f2f7ff;
-        }
-
-        .table-row.selected {
-            background-color: #d9ecff;
-            border-left: 3px solid #007bff;
-        }
-
-        .table-row.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-</style>
 <script>
     $(document).ready(async () => {
         await start();

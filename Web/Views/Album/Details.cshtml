@@ -248,14 +248,19 @@
             $("#back_button").attr("href", `/album?page=${backIndex}`);
         }
         $('.table-row').each(function (i) {
-        const $row = $(this);
-        setTimeout(() => $row.addClass('visible'), i * 100);
-    });
-
-    $('.table-row').on('click', function () {
-        $('.table-row').removeClass('selected');
-        $(this).addClass('selected');
+            const $row = $(this);
+            setTimeout(() => $row.addClass('visible'), i * 100);
         });
+
+        $('.table-row').on('click', function () {
+            $('.table-row').removeClass('selected');
+            $(this).addClass('selected');
+            });
+
+        const $firstRow = $('.table-row').first();
+        if ($firstRow.length) {
+            $firstRow.addClass('selected');
+        }
     })
 
     function showToastFromStorage(key, toastId) {

@@ -251,7 +251,6 @@
 }
 
 .album-cover-box {
-    flex: 0 0 300px;
     display: flex;
     align-items: stretch;
 }
@@ -302,7 +301,6 @@
     display: flex;
     align-items: stretch;
     gap: 1.5rem;
-    width: 100%;
 }
 
 .info-card {
@@ -340,6 +338,59 @@
     text-decoration: underline;
 }
 
+.tech-info-empty-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.tech-info-empty {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border: 2px dashed #ccc;
+    border-radius: 20px;
+    padding: 40px 20px;
+    color: #555;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+.tech-info-empty:hover {
+    background: linear-gradient(135deg, #fdfdfd, #f2f4f8);
+    border-color: #999;
+}
+
+.tech-info-empty .empty-icon {
+    font-size: 4rem;
+    color: #aaa;
+    margin-bottom: 15px;
+    opacity: 0.8;
+}
+
+.tech-info-empty .empty-text h3 {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.tech-info-empty .empty-text p {
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.tech-info-empty .btn {
+    border-radius: 30px;
+    padding: 10px 25px;
+    font-weight: 500;
+    margin-top: 15px;
+}
+
 .tech-info-grid {
     flex: 1;
     display: grid;
@@ -368,10 +419,10 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-    .tech-card .value {
-        margin-top: 6px;
-        font-weight: 500;
-    }
+.tech-card .value {
+    margin-top: 6px;
+    font-weight: 500;
+}
 @media (max-width: 992px) {
     .album-info-cards {
         flex-direction: column;

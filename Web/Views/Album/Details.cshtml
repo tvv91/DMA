@@ -1,4 +1,6 @@
 ﻿@model AlbumDetailsViewModel
+@using System.Text.Json
+@using System.Text.Json.Serialization
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toasterror" class="toast toast-body-error" role="alert" aria-live="assertive" aria-atomic="true">
@@ -97,81 +99,61 @@
                     <div id="vinylstatespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="vinylstate" class="tech-icon" alt="Vinyl state" style="display:none;" />
                     <i id="vinylstateicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_127
-                    </div>
+                    <div id="vinylstatevalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Digital format">
                     <div id="digitalformatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="digitalformat" class="tech-icon" alt="Digital format" style="display:none;" />
                     <i id="digitalformaticon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_135
-                    </div>
+                    <div id="digitalformatvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Bitness">
                     <div id="bitnessspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="bitness" class="tech-icon" alt="Bitness" style="display:none;" />
                     <i id="bitnessicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_143
-                    </div>
+                    <div id="bitnesstvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Sampling">
                     <div id="samplingspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="sampling" class="tech-icon" alt="Sampling" style="display:none;" />
                     <i id="samplingicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_151
-                    </div>
+                    <div id="samplingvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Source format">
                     <div id="formatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="format" class="tech-icon" alt="Source format" style="display:none;" />
                     <i id="formaticon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_159
-                    </div>
+                    <div id="formatvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Player">
                     <div id="playerspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="player" class="tech-icon" alt="Player" style="display:none;" />
                     <i id="playericon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_167
-                    </div>
+                    <div id="playervalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Cartridge">
                     <div id="cartridgespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="cartridge" class="tech-icon" alt="Cartridge" style="display:none;" />
                     <i id="cartridgeicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_175
-                    </div>
+                    <div id="cartridgevalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Amplifier">
                     <div id="ampspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="amp" class="tech-icon" alt="Amplifier" style="display:none;" />
                     <i id="ampicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_183
-                    </div>
+                    <div id="ampvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="ADC">
                     <div id="adcspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="adc" class="tech-icon" alt="ADC" style="display:none;" />
                     <i id="adcicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_191
-                    </div>
+                    <div id="adcvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Wire">
                     <div id="wirespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="wire" class="tech-icon" alt="Wires" style="display:none;" />
                     <i id="wireicon" class="fa-regular fa-image fa-6x" style="display:none;"></i>
-                    <div class="value">
-                        HARDCODE_199
-                    </div>
+                    <div id="wirevalue"></div>
                 </div>
             </div>
         }
@@ -235,6 +217,8 @@
     </div>
 </div>
 <script>
+    const digitizations = @Html.Raw(JsonSerializer.Serialize(Model.Digitizations, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }))
+    
     $(document).ready(async () => {
         await start();
         await getAlbumCover(@Model.AlbumId);
@@ -258,18 +242,40 @@
             const id = $(this).data('id');
             if (id) {
                 await getTechnicalInfoIcons(id);
+                setDigitizationValue(id);
             }
         });
 
         const $firstRow = $('.table-row').first();
         if ($firstRow.length) {
             $firstRow.addClass('selected');
-            const firstId = $firstRow.data('id');
-            if (firstId) {
-                await getTechnicalInfoIcons(firstId);
+            const id = $firstRow.data('id');
+            if (id) {
+                await getTechnicalInfoIcons(id);
+                setDigitizationValue(id);
             }
         }
     })
+
+    function setDigitizationValue(id) {
+        const item = digitizations.find(x => x.Id === id);
+        
+        if (!item) {
+            console.warn("Digitization not found for id:", id);
+            return;
+        }
+        
+        $('#vinylstatevalue').text(item.FormatInfo?.VinylState?.Name || "");
+        $('#digitalformatvalue').text(item.FormatInfo?.DigitalFormat?.Name || "");
+        $('#bitnesstvalue').text(item.FormatInfo?.Bitness?.Value || "");
+        $('#samplingvalue').text(item.FormatInfo?.Sampling?.Value || "");
+        $('#formatvalue').text(item.FormatInfo?.SourceFormat?.Name || "");
+        $('#playervalue').html(`<b>${item.EquipmentInfo?.Player?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Player?.Name ?? ''}`);
+        $('#cartridgevalue').html(`<b>${item.EquipmentInfo?.Cartridge?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Cartridge?.Name ?? ''}`);
+        $('#ampvalue').html(`<b>${item.EquipmentInfo?.Amplifier?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Amplifier?.Name ?? ''}`);
+        $('#adcvalue').html(`<b>${item.EquipmentInfo?.Adc?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Adc?.Name ?? ''}`);
+        $('#wirevalue').html(`<b>${item.EquipmentInfo?.Wire?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Wire?.Name ?? ''}`);
+    }
 
     function showToastFromStorage(key, toastId) {
         if (sessionStorage.getItem(key) === "1") {

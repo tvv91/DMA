@@ -438,6 +438,11 @@
     font-weight: 500;
 }
 
+.tech-card i {
+    display: none;
+    color: #999;
+    transition: opacity 0.3s ease;
+}
 @media (max-width: 992px) {
     .album-info-cards {
         flex-direction: column;

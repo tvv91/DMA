@@ -52,19 +52,13 @@ namespace Web.SignalRHubs
         /// <returns></returns>
         public async Task GetAlbumCovers(string connectionId, int[] albums)
         {
-            // show random album cover on view
             Random.Shared.Shuffle(albums);
-            const int chunkSize = 50;
 
-            for (int i = 0; i < albums.Length; i += chunkSize)
+            foreach (var albumId in albums)
             {
-                var chunk = albums
-                    .Skip(i)
-                    .Take(chunkSize)
-                    .Select(albumId => Clients.Client(connectionId)
-                    .SendAsync("ReceivedAlbumCover", albumId, GetCachedAlbumCover(albumId)));
-
-                await Task.WhenAll(chunk);
+                var cover = GetCachedAlbumCover(albumId);
+                await Clients.Client(connectionId).SendAsync("ReceivedAlbumCover", albumId, cover);
+                await Task.Delay(100);
             }
         }
 

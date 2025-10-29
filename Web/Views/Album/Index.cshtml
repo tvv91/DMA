@@ -24,9 +24,7 @@
                             <div id="spinner-@album.Id" class="spinner-overlay">
                                 <div class="spinner-border text-primary" role="status"></div>
                             </div>
-                            <img id="album-img-@album.Id"
-                                 class="album-cover d-none"
-                                 alt="@album.Artist - @album.Title" />
+                            <img id="album-img-@album.Id" class="album-cover d-none" alt="@album.Artist - @album.Title" />
                         </div>
                     </a>
                     <div class="album-base-info">
@@ -39,7 +37,6 @@
         <div class="album-pagination">
             <nav aria-label="Page navigation">
                 <ul id="pagination" class="pagination justify-content-center">
-                    @* Prev button *@
                     @if (Model.CurrentPage > 1)
                     {
                         <li class="page-item">
@@ -58,7 +55,6 @@
                         </li>
                     }
 
-                    @* Next button *@
                     @if (Model.CurrentPage < Model.PageCount)
                     {
                         <li class="page-item">
@@ -118,13 +114,19 @@ else
         const img = $(`#album-img-${albumId}`);
         const spinner = $(`#spinner-${albumId}`);
 
-        img.attr("src", cover)
-            .removeClass("d-none")
-            .on("load", () => spinner.addClass("hidden"))
-            .on("error", () => {
-                img.attr("src", "/img/nocover.png");
-                spinner.addClass("hidden");
-            });
+        img.off("load error")
+           .on("load", () => spinner.addClass("hidden"))
+           .on("error", () => {
+               img.attr("src", "/img/nocover.png");
+               spinner.addClass("hidden");
+           });
+
+        img.attr("src", cover).removeClass("d-none");
+
+        if (img[0].complete) {
+            spinner.addClass("hidden");
+            img.removeClass("d-none");
+        }
     });
 
     function onAlbumLoad(albumId) {

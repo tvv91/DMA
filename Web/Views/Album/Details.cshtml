@@ -201,10 +201,11 @@
             {
                 foreach (var d in Model.Digitizations)
                 {
+                    bool isDsd = d.FormatInfo?.DigitalFormat?.Name?.Contains("dsd", StringComparison.OrdinalIgnoreCase) == true;
                     <div class="table-row" data-id="@d.Id">
                         <div class="col col-vinyl">@d.FormatInfo?.VinylState?.Name</div>
-                        <div class="col col-bitness">@d.FormatInfo?.Bitness?.Value</div>
-                        <div class="col col-sampling">@d.FormatInfo?.Sampling?.Value</div>
+                        <div class="col col-bitness">@d.FormatInfo?.Bitness?.Value&nbspbit/s</div>
+                        <div class="col col-sampling">@d.FormatInfo?.Sampling?.Value&nbsp@((isDsd ? "MHz" : "kHz"))</div>
                         <div class="col col-format">@d.FormatInfo?.DigitalFormat?.Name</div>
                         <div class="col col-player"><b>@d.EquipmentInfo?.Player?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Player?.Name</div>
                         <div class="col col-cartridge"><b>@d.EquipmentInfo?.Cartridge?.Name</b><br />@d.EquipmentInfo?.Cartridge?.Manufacturer?.Name</div>
@@ -250,16 +251,18 @@
 
             const id = $(this).data('id');
             if (id) {
+                resetSpinners();
                 await getTechnicalInfoIcons(id);
                 setDigitizationValue(id);
             }
-        });
+    });
 
-        const $firstRow = $('.table-row').first();
-        if ($firstRow.length) {
-            $firstRow.addClass('selected');
-            const id = $firstRow.data('id');
+    const $firstRow = $('.table-row').first();
+    if ($firstRow.length) {
+        $firstRow.addClass('selected');
+        const id = $firstRow.data('id');
             if (id) {
+                resetSpinners();
                 await getTechnicalInfoIcons(id);
                 setDigitizationValue(id);
             }
@@ -332,6 +335,12 @@
             $icon.hide();
         }
     });
+    
+    function resetSpinners() {
+        $('.tech-info-grid [id$="spinner"]').show();
+        $('.tech-info-grid img.tech-icon').hide();
+        $('.tech-info-grid [id$="icon"]').hide();
+    }
 
     connection.on("ReceivedAlbumCoverDetailed", (cover) => {
         const $cover = $('#cover');

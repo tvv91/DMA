@@ -96,60 +96,70 @@
         {
             <div class="tech-info-grid">
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Vinyl state">
+                    <span>Vinyl state</span>
                     <div id="vinylstatespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="vinylstate" class="tech-icon" alt="Vinyl state" style="display:none;" />
                     <i id="vinylstateicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="vinylstatevalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Digital format">
+                    <span>Digital format</span>
                     <div id="digitalformatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="digitalformat" class="tech-icon" alt="Digital format" style="display:none;" />
                     <i id="digitalformaticon" class="fa-regular fa-image fa-6x"></i>
                     <div id="digitalformatvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Bitness">
+                    <span>Bitness</span>
                     <div id="bitnessspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="bitness" class="tech-icon" alt="Bitness" style="display:none;" />
                     <i id="bitnessicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="bitnesstvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Sampling">
+                    <span>Sampling</span>
                     <div id="samplingspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="sampling" class="tech-icon" alt="Sampling" style="display:none;" />
                     <i id="samplingicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="samplingvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Source format">
+                    <span>Source format</span>
                     <div id="formatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="format" class="tech-icon" alt="Source format" style="display:none;" />
                     <i id="formaticon" class="fa-regular fa-image fa-6x"></i>
                     <div id="formatvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Player">
+                    <span>Player</span>
                     <div id="playerspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="player" class="tech-icon" alt="Player" style="display:none;" />
                     <i id="playericon" class="fa-regular fa-image fa-6x"></i>
                     <div id="playervalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Cartridge">
+                    <span>Cartridge</span>
                     <div id="cartridgespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="cartridge" class="tech-icon" alt="Cartridge" style="display:none;" />
                     <i id="cartridgeicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="cartridgevalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Amplifier">
+                    <span>Amplifier</span>
                     <div id="ampspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="amp" class="tech-icon" alt="Amplifier" style="display:none;" />
                     <i id="ampicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="ampvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="ADC">
+                    <span>Adc</span>
                     <div id="adcspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="adc" class="tech-icon" alt="ADC" style="display:none;" />
                     <i id="adcicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="adcvalue"></div>
                 </div>
                 <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Wire">
+                    <span>Wire</span>
                     <div id="wirespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="wire" class="tech-icon" alt="Wires" style="display:none;" />
                     <i id="wireicon" class="fa-regular fa-image fa-6x"></i>
@@ -186,7 +196,6 @@
             <div class="col col-adc">ADC</div>
             <div class="col col-wire">Wire</div>
         </div>
-
         <div class="table-body" id="digitizationTableBody">
             @if (Model.Digitizations != null && Model.Digitizations.Any())
             {
@@ -197,11 +206,11 @@
                         <div class="col col-bitness">@d.FormatInfo?.Bitness?.Value</div>
                         <div class="col col-sampling">@d.FormatInfo?.Sampling?.Value</div>
                         <div class="col col-format">@d.FormatInfo?.DigitalFormat?.Name</div>
-                        <div class="col col-player">@d.EquipmentInfo?.Player?.Name</div>
-                        <div class="col col-cartridge">@d.EquipmentInfo?.Cartridge?.Name<br />@d.EquipmentInfo?.Cartridge?.Manufacturer?.Name</div>
-                        <div class="col col-amplifier">@d.EquipmentInfo?.Amplifier?.Name</div>
-                        <div class="col col-adc">@d.EquipmentInfo?.Adc?.Name</div>
-                        <div class="col col-wire">@d.EquipmentInfo?.Wire?.Name</div>
+                        <div class="col col-player"><b>@d.EquipmentInfo?.Player?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Player?.Name</div>
+                        <div class="col col-cartridge"><b>@d.EquipmentInfo?.Cartridge?.Name</b><br />@d.EquipmentInfo?.Cartridge?.Manufacturer?.Name</div>
+                        <div class="col col-amplifier"><b>@d.EquipmentInfo?.Amplifier?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Amplifier?.Name</div>
+                        <div class="col col-adc"><b>@d.EquipmentInfo?.Adc?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Adc?.Name</div>
+                        <div class="col col-wire"><b>@d.EquipmentInfo?.Wire?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Wire?.Name</div>
                     </div>
                 }
             }

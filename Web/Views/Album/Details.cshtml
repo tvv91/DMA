@@ -433,19 +433,30 @@
     connection.on("ReceivedTechnicalInfoIcon", (category, cover) => {
         const $spinner = $(`#${category}spinner`);
         const $img = $(`#${category}`);
-        const $icon = $(`#${category}icon`);
+        let $icon = $(`#${category}icon`);
 
         $spinner.hide();
 
         if (cover === null) {
             $img.hide();
-            $icon.replaceWith(`<div id="${category}icon" class="tech-no-data">No data</div>`);
-        } else if (cover.toLowerCase().includes("nocover")) {
+            if (!$icon.length || !$icon.hasClass('tech-no-data')) {
+                $icon.replaceWith(`<div id="${category}icon" class="tech-no-data">No data</div>`);
+                $icon = $(`#${category}icon`);
+            }
+            $icon.show();
+        }
+        else if (cover.toLowerCase().includes("nocover")) {
             $img.hide();
-            $(`#${category}icon`).show();
-        } else {
+            if (!$icon.length || !$icon.is('i')) {
+                $icon.replaceWith(`<i id="${category}icon" class="fa-regular fa-image fa-6x"></i>`);
+                $icon = $(`#${category}icon`);
+            }
+            $icon.show();
+        }
+        else {
             $img.show().attr("src", cover);
-            $(`#${category}icon`).hide();
+            if ($icon.length) 
+                $icon.hide();
         }
     });
     

@@ -191,6 +191,7 @@
             <div class="col col-bitness">Bitness</div>
             <div class="col col-sampling">Sampling</div>
             <div class="col col-format">Format</div>
+            <div class="col col-source">Source</div>
             <div class="col col-player">Player</div>
             <div class="col col-cartridge">Cartridge</div>
             <div class="col col-amplifier">Amplifier</div>
@@ -204,15 +205,125 @@
                 {
                     bool isDsd = d.FormatInfo?.DigitalFormat?.Name?.Contains("dsd", StringComparison.OrdinalIgnoreCase) == true;
                     <div class="table-row" data-id="@d.Id">
-                        <div class="col col-vinyl">@d.FormatInfo?.VinylState?.Name</div>
-                        <div class="col col-bitness">@d.FormatInfo?.Bitness?.Value&nbspbit/s</div>
-                        <div class="col col-sampling">@d.FormatInfo?.Sampling?.Value&nbsp@((isDsd ? "MHz" : "kHz"))</div>
-                        <div class="col col-format">@d.FormatInfo?.DigitalFormat?.Name</div>
-                        <div class="col col-player"><b>@d.EquipmentInfo?.Player?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Player?.Name</div>
-                        <div class="col col-cartridge"><b>@d.EquipmentInfo?.Cartridge?.Name</b><br />@d.EquipmentInfo?.Cartridge?.Manufacturer?.Name</div>
-                        <div class="col col-amplifier"><b>@d.EquipmentInfo?.Amplifier?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Amplifier?.Name</div>
-                        <div class="col col-adc"><b>@d.EquipmentInfo?.Adc?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Adc?.Name</div>
-                        <div class="col col-wire"><b>@d.EquipmentInfo?.Wire?.Manufacturer?.Name</b><br />@d.EquipmentInfo?.Wire?.Name</div>
+                        <div class="col col-vinyl">
+                            @if (!string.IsNullOrWhiteSpace(d.FormatInfo?.VinylState?.Name))
+                            {
+                                @d.FormatInfo.VinylState.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-bitness">
+                            @if (d.FormatInfo?.Bitness?.Value != null)
+                            {
+                                @($"{d.FormatInfo.Bitness.Value} bit/s")
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-sampling">
+                            @if (d.FormatInfo?.Sampling?.Value != null)
+                            {
+                                @($"{d.FormatInfo.Sampling.Value} {(isDsd ? "MHz" : "kHz")}")
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-format">
+                            @if (!string.IsNullOrWhiteSpace(d.FormatInfo?.DigitalFormat?.Name))
+                            {
+                                @d.FormatInfo.DigitalFormat.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-source">
+                            @if (!string.IsNullOrWhiteSpace(d.FormatInfo?.SourceFormat?.Name))
+                            {
+                                @d.FormatInfo.SourceFormat.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-player">
+                            @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Player?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Player?.Manufacturer?.Name))
+                            {
+                                <b>@d.EquipmentInfo.Player.Manufacturer?.Name</b>
+                                <br />
+                                @d.EquipmentInfo.Player.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-cartridge">
+                            @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Cartridge?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Cartridge?.Manufacturer?.Name))
+                            {
+                                <b>@d.EquipmentInfo.Cartridge.Manufacturer?.Name</b>
+                                <br />
+                                @d.EquipmentInfo.Cartridge.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-amplifier">
+                            @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Amplifier?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Amplifier?.Manufacturer?.Name))
+                            {
+                                <b>@d.EquipmentInfo.Amplifier.Manufacturer?.Name</b>
+                                <br />
+                                @d.EquipmentInfo.Amplifier.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-adc">
+                            @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Adc?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Adc?.Manufacturer?.Name))
+                            {
+                                <b>@d.EquipmentInfo.Adc.Manufacturer?.Name</b>
+                                <br />
+                                @d.EquipmentInfo.Adc.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
+
+                        <div class="col col-wire">
+                            @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Wire?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Wire?.Manufacturer?.Name))
+                            {
+                                <b>@d.EquipmentInfo.Wire.Manufacturer?.Name</b>
+                                <br />
+                                @d.EquipmentInfo.Wire.Name
+                            }
+                            else
+                            {
+                                <span class="tech-no-data">No data</span>
+                            }
+                        </div>
                     </div>
                 }
             }

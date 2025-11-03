@@ -1,6 +1,7 @@
 ﻿@model AlbumDetailsViewModel
 @using System.Text.Json
 @using System.Text.Json.Serialization
+@using Microsoft.AspNetCore.Html
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toasterror" class="toast toast-body-error" role="alert" aria-live="assertive" aria-atomic="true">
@@ -271,22 +272,28 @@
 
     function setDigitizationValue(id) {
         const item = digitizations.find(x => x.Id === id);
-        
+
         if (!item) {
             console.warn("Digitization not found for id:", id);
             return;
         }
-        
-        $('#vinylstatevalue').text(item.FormatInfo?.VinylState?.Name || "");
-        $('#digitalformatvalue').text(item.FormatInfo?.DigitalFormat?.Name || "");
-        $('#bitnesstvalue').text(item.FormatInfo?.Bitness?.Value || "");
-        $('#samplingvalue').text(item.FormatInfo?.Sampling?.Value || "");
-        $('#formatvalue').text(item.FormatInfo?.SourceFormat?.Name || "");
-        $('#playervalue').html(`<b>${item.EquipmentInfo?.Player?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Player?.Name ?? ''}`);
-        $('#cartridgevalue').html(`<b>${item.EquipmentInfo?.Cartridge?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Cartridge?.Name ?? ''}`);
-        $('#ampvalue').html(`<b>${item.EquipmentInfo?.Amplifier?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Amplifier?.Name ?? ''}`);
-        $('#adcvalue').html(`<b>${item.EquipmentInfo?.Adc?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Adc?.Name ?? ''}`);
-        $('#wirevalue').html(`<b>${item.EquipmentInfo?.Wire?.Manufacturer?.Name ?? ''}</b><br>${item.EquipmentInfo?.Wire?.Name ?? ''}`);
+
+        const fi = item.FormatInfo ?? {};
+        const ei = item.EquipmentInfo ?? {};
+        const bitness = fi.Bitness?.Value;
+        const sampling = fi.Sampling?.Value;
+        const isDsd = fi.DigitalFormat?.Name?.toLowerCase()?.includes("dsd");
+
+        $('#vinylstatevalue').text(fi.VinylState?.Name || "");
+        $('#digitalformatvalue').text(fi.DigitalFormat?.Name || "");
+        $('#bitnesstvalue').text(bitness ? `${bitness} bit/s` : "");
+        $('#samplingvalue').text(sampling ? `${sampling} ${isDsd ? "MHz" : "kHz"}` : "");
+        $('#formatvalue').text(fi.SourceFormat?.Name || "");
+        $('#playervalue').html(`<b>${ei.Player?.Manufacturer?.Name ?? ''}</b><br>${ei.Player?.Name ?? ''}`);
+        $('#cartridgevalue').html(`<b>${ei.Cartridge?.Manufacturer?.Name ?? ''}</b><br>${ei.Cartridge?.Name ?? ''}`);
+        $('#ampvalue').html(`<b>${ei.Amplifier?.Manufacturer?.Name ?? ''}</b><br>${ei.Amplifier?.Name ?? ''}`);
+        $('#adcvalue').html(`<b>${ei.Adc?.Manufacturer?.Name ?? ''}</b><br>${ei.Adc?.Name ?? ''}`);
+        $('#wirevalue').html(`<b>${ei.Wire?.Manufacturer?.Name ?? ''}</b><br>${ei.Wire?.Name ?? ''}`);
     }
 
     function showToastFromStorage(key, toastId) {
@@ -316,23 +323,18 @@
         const $spinner = $(`#${category}spinner`);
         const $img = $(`#${category}`);
         const $icon = $(`#${category}icon`);
-        const $value = $(`#${category}`).closest(".tech-card").find(".value");
-        const noCover = !cover || cover.toLowerCase().includes("nocover");
-        const hasData = $value.text().trim() !== "No data";
 
         $spinner.hide();
 
-        if (hasData) {
-            if (noCover) {
-                $img.hide();
-                $icon.show();
-            } else {
-                $img.show().attr("src", cover);
-                $icon.hide();
-            }
-        } else {
+        if (cover === null) {
             $img.hide();
-            $icon.hide();
+            $icon.replaceWith(`<div id="${category}icon" class="tech-no-data">No data</div>`);
+        } else if (cover.toLowerCase().includes("nocover")) {
+            $img.hide();
+            $(`#${category}icon`).show();
+        } else {
+            $img.show().attr("src", cover);
+            $(`#${category}icon`).hide();
         }
     });
     

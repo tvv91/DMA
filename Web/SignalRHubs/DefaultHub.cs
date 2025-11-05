@@ -43,7 +43,7 @@ namespace Web.SignalRHubs
         };
 
         #region Albums workload
-        
+
         /// <summary>
         /// Get album covers
         /// </summary>
@@ -171,7 +171,7 @@ namespace Web.SignalRHubs
 
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
-
+        
         public async Task GetTechnicalInfoIcons(string connectionId, int digitizationId)
         {
             var digitization = await _digitizationRepository.GetByIdAsync(digitizationId);

@@ -16,10 +16,13 @@ namespace Web.Implementation
         public async Task<PagedResult<Digitization>> GetListAsync(int page, int pageSize)
         {
             var query = _context.Digitizations
-                .Include(d => d.Album)
-                    .ThenInclude(a => a.Artist)
-                .Include(d => d.Album)
-                    .ThenInclude(a => a.Genre)
+                .Include(d => d.Year)
+                .Include(d => d.Reissue)
+                .Include(d => d.Label)
+                .Include(d => d.Country)
+                .Include(d => d.Storage)
+                .Include(d => d.Album).ThenInclude(a => a.Artist)
+                .Include(d => d.Album).ThenInclude(a => a.Genre)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.Bitness)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.Sampling)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.DigitalFormat)
@@ -40,10 +43,13 @@ namespace Web.Implementation
         public async Task<Digitization?> GetByIdAsync(int id)
         {
             return await _context.Digitizations
-                .Include(d => d.Album)
-                    .ThenInclude(a => a.Artist)
-                .Include(d => d.Album)
-                    .ThenInclude(a => a.Genre)
+                .Include(d => d.Year)
+                .Include(d => d.Reissue)
+                .Include(d => d.Label)
+                .Include(d => d.Country)
+                .Include(d => d.Storage)
+                .Include(d => d.Album).ThenInclude(a => a.Artist)
+                .Include(d => d.Album).ThenInclude(a => a.Genre)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.Bitness)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.Sampling)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.DigitalFormat)
@@ -64,6 +70,11 @@ namespace Web.Implementation
         {
             return await _context.Digitizations
                 .Where(d => d.AlbumId == albumId)
+                .Include(d => d.Year)
+                .Include(d => d.Reissue)
+                .Include(d => d.Label)
+                .Include(d => d.Country)
+                .Include(d => d.Storage)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.Bitness)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.Sampling)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.DigitalFormat)

@@ -170,20 +170,21 @@
         }
     </div>
     <div class="info-card">
-        <span class="info-label">Genre</span>
-        <span class="info-value"><b>@Model.Genre</b></span>
-        <span class="info-label">Digitizations</span>
-        <span class="info-value"><b>@Model.Digitizations?.Count()</b></span>
+        Genre: <b>@Model.Genre</b>
+        &nbsp;|&nbsp;
+        Digitizations: <b>@Model.Digitizations?.Count()</b>
+
         @if (Model.AddedDate != null)
         {
-            <span class="info-label">Added</span>
-            <span class="info-value"><b>@Model.AddedDate</b></span>
+            @:&nbsp;|&nbsp; Added: <b>@Model.AddedDate</b>
         }
+
         @if (Model.UpdateDate != null)
         {
-            <span class="info-label">Updated</span>
-            <span class="info-value"><b>@Model.UpdateDate</b></span>
+            @:&nbsp;|&nbsp; Updated: <b>@Model.UpdateDate</b>
         }
+        <hr />
+        <div id="digitizationinfo"></div>
     </div>
     <div class="digitization-table">
         <div class="table-header">
@@ -215,7 +216,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-bitness">
                             @if (d.FormatInfo?.Bitness?.Value != null)
                             {
@@ -226,7 +226,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-sampling">
                             @if (d.FormatInfo?.Sampling?.Value != null)
                             {
@@ -237,7 +236,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-format">
                             @if (!string.IsNullOrWhiteSpace(d.FormatInfo?.DigitalFormat?.Name))
                             {
@@ -248,7 +246,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-source">
                             @if (!string.IsNullOrWhiteSpace(d.FormatInfo?.SourceFormat?.Name))
                             {
@@ -259,7 +256,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-player">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Player?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Player?.Manufacturer?.Name))
                             {
@@ -272,7 +268,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-cartridge">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Cartridge?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Cartridge?.Manufacturer?.Name))
                             {
@@ -285,7 +280,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-amplifier">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Amplifier?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Amplifier?.Manufacturer?.Name))
                             {
@@ -298,7 +292,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-adc">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Adc?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Adc?.Manufacturer?.Name))
                             {
@@ -311,7 +304,6 @@
                                 <span class="tech-no-data">No data</span>
                             }
                         </div>
-
                         <div class="col col-wire">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Wire?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Wire?.Manufacturer?.Name))
                             {
@@ -405,6 +397,35 @@
         $('#ampvalue').html(`<b>${ei.Amplifier?.Manufacturer?.Name ?? ''}</b><br>${ei.Amplifier?.Name ?? ''}`);
         $('#adcvalue').html(`<b>${ei.Adc?.Manufacturer?.Name ?? ''}</b><br>${ei.Adc?.Name ?? ''}`);
         $('#wirevalue').html(`<b>${ei.Wire?.Manufacturer?.Name ?? ''}</b><br>${ei.Wire?.Name ?? ''}`);
+        $('#digitizationinfo').text(item.Size + " Gb");
+
+        const headers = [];
+        const values = [];
+
+        function addCell(label, value) {
+            if (!value) return;
+            headers.push(`<th>${label}</th>`);
+            values.push(`<td>${value}</td>`);
+        }
+
+        addCell("Year", item.Year?.Value);
+        addCell("Reissue", item.Reissue?.Value);
+        addCell("Size", item.Size ? `${item.Size} GB` : null);
+        addCell("First press", item.IsFirstPress ? "Yes" : null);
+        addCell("Label", item.Label?.Name);
+        addCell("Country", item.Country?.Name);
+        addCell("Storage", item.Storage?.Data);
+        addCell("Source", item.Source ? `<a href="${item.Source}" target="_blank">LINK</a>` : null);
+        addCell("Discogs", item.Discogs ? `<a href="${item.Discogs}" target="_blank">LINK</a>` : null);
+        addCell("Added", item.AddedDate ? new Date(item.AddedDate).toLocaleDateString() : null);
+        addCell("Updated", item.UpdateDate ? new Date(item.UpdateDate).toLocaleDateString() : null);
+
+        $('#digitizationinfo').html(`
+            <table class="digitization-spec">
+                <tr>${headers.join("")}</tr>
+                <tr>${values.join("")}</tr>
+            </table>
+        `);
     }
 
     function showToastFromStorage(key, toastId) {

@@ -11,7 +11,7 @@ using Web.Services;
 using Web.ViewModels;
 using Xunit;
 
-namespace Tests.Controllers
+namespace Tests.Unit.Controllers
 {
     /*
     public class AlbumControllerTests

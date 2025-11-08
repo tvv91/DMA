@@ -1,75 +1,122 @@
 ﻿@model AlbumCreateUpdateViewModel;
 
-<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="album">Back</a>
-<form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
-    <div asp-validation-summary="ModelOnly"></div>
-    <input type="hidden" id="coverid" asp-for="AlbumCover" />
-    <input type="hidden" id="albumid" asp-for="AlbumId" />
-    <input type="hidden" id="action" asp-for="Action" />
-    <div class="new-update-album">
-        <div class="cover-image">
-            <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
-        </div>
-        <div class="album-main-info">
-            <div class="album-form-input">
-                <input id="artist_input" class="input-textbox" asp-for="Artist" autocomplete="on" placeholder="Artist" onchange="checkAlbumIsExists()" />
-                <input id="album" class="input-textbox" asp-for="Title" placeholder="Album" onchange="checkAlbumIsExists()" />
-                <input id="genre_input" class="input-textbox" asp-for="Genre" autocomplete="on" placeholder="Genre" />
-                <input id="year_input" class="input-textbox" asp-for="Year" autocomplete="on" placeholder="Year"/>
-                <input id="reissue_input" class="input-textbox" asp-for="Reissue" placeholder="Reissue" />
-                <input class="input-textbox" asp-for="Country" placeholder="Country"/>
-                <input class="input-textbox" asp-for="Label" placeholder="Label"/>
-                <input id="source" class="input-textbox" asp-for="Source" placeholder="Source" onchange="checkAlbumIsExists()" />
-                <input class="input-textbox" asp-for="Discogs" placeholder="Discogs"/>
-                <input id="sizeinput" class="input-textbox" asp-for="Size" placeholder="Size(Gb)"/>
-                <input class="input-textbox" asp-for="Storage" placeholder="Storage" />
-            </div>
-            <div id="album-alert" class="alert alert-danger alert-dismissible fade" role="alert">
-                <i>&nbsp</i>
-                <strong></strong>
-                <div></div>
-            </div>
-        </div>
-        <div class="tech-info-wrapper">
-            <div class="tech-info-digitization">
-                <h4 style="text-align:center">Digitization</h4>
-                <hr />
-                <div class="album-form-input">
-                    <input id="vinylstate_input" class="input-textbox" asp-for="VinylState" autocomplete="on" placeholder="Vinyl state"/>
-                    <input id="digitalformat_input" class="input-textbox" asp-for="DigitalFormat" placeholder="Digital format" autocomplete="on" onchange="checkValidData()" />
-                    <input id="bitness_input" class="input-textbox" asp-for="Bitness" onchange="checkValidData()" placeholder="Bitness" />
-                    <input id="sampling_input" class="input-textbox" asp-for="Sampling" onchange="checkValidData()" placeholder="Sampling" />
-                    <input id="sourceformat_input" class="input-textbox" asp-for="SourceFormat" placeholder="Source format" />
-                </div>
-                <div id="digitization_warning" class="alert alert-danger alert-dismissible fade" role="alert">
-                    <i id="alert-icon" class="">&nbsp</i>
-                    <strong></strong>
-                    <div></div>
-                </div>
-            </div>
-            <div class="tech-info-hardware">
-                <h4 style="text-align:center">Hardware</h4>
-                <hr />
-                <div class="album-form-input">
-                    <input id="player_input" class="input-textbox" asp-for="Player" placeholder="Player" />
-                    <input id="player_manufacturer_input" class="input-textbox" asp-for="PlayerManufacturer" placeholder="Manufacturer" />
-                    <input id="cartridge_input" class="input-textbox" asp-for="Cartridge" placeholder="Cartridge" />
-                    <input id="cartridge_manufacturer_input" class="input-textbox" asp-for="CartridgeManufacturer" placeholder="Manufacturer" />
-                    <input id="amp_input" class="input-textbox" asp-for="Amplifier" placeholder="Amplifier" />
-                    <input id="amp_manufacturer_input" class="input-textbox" asp-for="AmplifierManufacturer" placeholder="Manufacturer" />
-                    <input id="adc_input" class="input-textbox" asp-for="Adc" placeholder="Adc" />
-                    <input id="adc_manufacturer_input" class="input-textbox" asp-for="AdcManufacturer" placeholder="Manufacturer" />
-                    <input id="wire_input" class="input-textbox" asp-for="Wire" placeholder="Wire" />                    
-                    <input id="wire_manufacturer_input" class="input-textbox" asp-for="WireManufacturer" placeholder="Manufacturer" />
-                </div>
-            </div>
-        </div>
+<a class="btn btn-outline-secondary mt-3" asp-action="Index" asp-controller="Album">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>@(Model.Action == Web.Enums.ActionType.Create ? "Add New Album" : "Edit Album")</h3>
+        
     </div>
-    <button id="submit_button" type="submit" style="float:right;" class="mt-2">
-        <i class="fa-sharp fa-solid fa-check"></i>
-        Save
-    </button>
-</form>
+    <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
+        <input type="hidden" id="coverid" asp-for="AlbumCover" />
+        <input type="hidden" id="albumid" asp-for="AlbumId" />
+        <input type="hidden" id="action" asp-for="Action" />
+        <div class="card shadow-sm border-1 p-3">
+            <div class="row align-items-stretch">
+                <div class="col-auto d-flex">
+                    <div id="mydropzone" class="dropzone"></div>
+                </div>
+                <div class="col d-flex flex-column">
+                    <ul class="nav nav-tabs" id="albumTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
+                                General
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="digitization-tab" data-bs-toggle="tab" data-bs-target="#digitization" type="button" role="tab">
+                                Digitization
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardware" type="button" role="tab">
+                                Hardware
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content border border-top-0 rounded-bottom p-3 bg-light" id="albumTabsContent">
+                        <div class="tab-pane fade show active" id="general" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <input id="artist_input" class="form-control" asp-for="Artist" placeholder="Artist" />
+                                </div>
+                                <div class="col-md-12">
+                                    <input id="album" class="form-control" asp-for="Title" placeholder="Album" />
+                                </div>
+                                <div class="col-md-12">
+                                    <input id="genre_input" class="form-control" asp-for="Genre" placeholder="Genre" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="digitization" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input id="vinylstate_input" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="digitalformat_input" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData()" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="bitness_input" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData()" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="sampling_input" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData()" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="sourceformat_input" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" asp-for="Storage" placeholder="Storage" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="year_input" class="form-control" asp-for="Year" placeholder="Year" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="reissue_input" class="form-control" asp-for="Reissue" placeholder="Reissue" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" asp-for="Country" placeholder="Country" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" asp-for="Label" placeholder="Label" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input id="source" class="form-control" asp-for="Source" placeholder="Source" onchange="checkAlbumIsExists()" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="sizeinput" class="form-control" asp-for="Size" placeholder="Size (GB)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="hardware" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-6"><input id="player_input" class="form-control" asp-for="Player" placeholder="Player" /></div>
+                                <div class="col-md-6"><input id="player_manufacturer_input" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="cartridge_input" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
+                                <div class="col-md-6"><input id="cartridge_manufacturer_input" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="amp_input" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
+                                <div class="col-md-6"><input id="amp_manufacturer_input" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="adc_input" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
+                                <div class="col-md-6"><input id="adc_manufacturer_input" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="wire_input" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
+                                <div class="col-md-6"><input id="wire_manufacturer_input" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-end mt-4">
+                <button id="submit_button" type="submit" class="btn btn-success px-4">
+                    <i class="fa-solid fa-check"></i> Save
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
 <script>
     const alertMessages = {
         0: { type: "success", text: "No duplicates found. The album will be added." },

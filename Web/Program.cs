@@ -45,3 +45,6 @@ app.MapControllerRoute(name: "default", pattern: "{controller=Post}/{action=Inde
 app.MapHub<DefaultHub>("/defaulthub");
 await SeedData.EnsurePopulated(app);
 app.Run();
+
+// For integration tests
+public partial class Program { }

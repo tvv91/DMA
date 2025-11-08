@@ -1,4 +1,7 @@
-﻿.blinker-button {
+﻿/* Views/Album/Create */
+
+
+.blinker-button {
     animation: blinker 1s;
     animation-iteration-count: 3;
 }
@@ -505,29 +508,20 @@
     color: green;
 }
 
-.new-update-album {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto;
-    border: 1px solid;
-    padding: 10px;
-    margin-top: 10px;
-}
-
-.cover-image {
-    grid-column: 1;
-    grid-row: 1;
-    border: 1px dashed;
-    padding: 10px;
-    width: 350px;
-    height: 350px;
-}
-
-.image-place {
+.album-tabs-container {
+    flex: 1;
     display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 0px;
+    flex-direction: column;
+    height: 100%;
+}
+
+.album-tabs-container .tab-content {
+    flex-grow: 1;
+}
+
+.cover-image:hover {
+    border-color: #999;
+    background-color: #f0f0f0;
 }
 
 .album-main-info {
@@ -539,6 +533,8 @@
 }
 
 .tech-info-wrapper {
+    grid-column: 2;
+    grid-row: 2;
     grid-column: span 5;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -565,17 +561,18 @@
     grid-template-columns: 50% 50%;
 }
 
+.album-create-general {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
 .input-textbox {
     margin: 10px 0 0 10px;
 }
 
 .input-validation-error {
     background-color: #fee;
-}
-
-.dropzone .dz-preview .dz-image {
-    width: 300px;
-    height: 300px;
 }
 
 .fa-trash:hover {
@@ -902,6 +899,11 @@
     z-index: 10;
 }
 
+.tab-content {
+    flex: 1 1 auto;
+    position: relative;
+}
+
 /* Dropzone */
 .dz-preview:hover .dz-image img {
     filter: none !important;
@@ -910,6 +912,34 @@
     transition: none !important;
 }
 
+.dropzone {
+    width: 350px;
+    height: 350px;
+    aspect-ratio: 1 / 1;
+    border: 2px dashed #ccc;
+    border-radius: 10px;
+    background-color: #fafafa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    background-color: transparent;
+}
+
+.dropzone .dz-message {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+}
+
 .dropzone .dz-details {
     display: none;
+}
+
+.dropzone .dz-preview .dz-image {
+    width: 300px;
+    height: 300px;
+    border-radius: 0 ;
+
 }

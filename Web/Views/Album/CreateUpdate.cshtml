@@ -109,13 +109,27 @@
                     </div>
                 </div>
             </div>
-            <div class="text-end mt-4">
+            <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
+                <div id="digitization_warning"
+                     class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
+                     role="alert"
+                     style="white-space: nowrap; min-height: 38px;">
+                    <i id="alert-icon" class="me-2"></i>&nbsp
+                    <span></span>
+                </div>
+                <button id="submit_button" class="btn btn-warning px-4">
+                    <i class="fa-solid fa-plus"></i> Add digitization
+                </button>
                 <button id="submit_button" type="submit" class="btn btn-success px-4">
                     <i class="fa-solid fa-check"></i> Save
                 </button>
             </div>
         </div>
     </form>
+    <br />
+    <div class="card shadow-sm border-1 p-3">
+
+    </div>
 </div>
 <script>
     const alertMessages = {
@@ -125,9 +139,9 @@
     };
 
     const levels = {
-        "alert-success": { title: "OK",        icon: "fa-solid fa-circle-check" },
-        "alert-warning": { title: "WARNING",   icon: "fa-solid fa-circle-exclamation" },
-        "alert-danger":  { title: "ATTENTION", icon: "fa-solid fa-triangle-exclamation" }
+        "alert-success": { icon: "fa-solid fa-circle-check" },
+        "alert-warning": { icon: "fa-solid fa-circle-exclamation" },
+        "alert-danger":  { icon: "fa-solid fa-triangle-exclamation" }
     };
 
     const actions = {
@@ -184,14 +198,12 @@
     function showAlert(alertId, alertLevel, message) {
         const $alert = $(`#${alertId}`);
         const $icon = $alert.find("i");
-        const $title = $alert.find("strong");
-        const $body = $alert.find("div");
+        const $body = $alert.find("span");
 
         $alert.removeClass((_, cls) => (cls.match(/alert-\S+/g) || []).join(" "));
         $icon.removeClass();
 
         if (levels[alertLevel]) {
-            $title.text(levels[alertLevel].title);
             $icon.addClass(levels[alertLevel].icon);
         }
 

@@ -1,20 +1,26 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Concurrent;
+using Web.Db;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Models;
+using Web.Request;
 using Web.Services;
 using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
-    public class DefaultHub : Hub
+    public class DefaultHub: Hub
     {
         private readonly IImageService _imgService;
         private readonly IDigitizationRepository _digitizationRepository;
         private readonly IAlbumRepository _albumRepository;
+        private readonly IAlbumService _albumService;
+        private readonly IDigitizationService _digitizationService;
         private readonly IPostRepository _postRepository;
         private readonly IEquipmentRepository _equipmentRepository;
+        private readonly DMADbContext _context;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
         private const int ITEMS_PER_PAGE = 18;
         private const int POSTS_PER_PAGE = 10;
@@ -22,15 +28,21 @@ namespace Web.SignalRHubs
         public DefaultHub(
             IImageService coverImageService, 
             IDigitizationRepository digitizationRepository, 
-            IAlbumRepository albumRepository, 
+            IAlbumRepository albumRepository,
+            IAlbumService albumService,
+            IDigitizationService digitizationService,
             IPostRepository postRepository,
-            IEquipmentRepository equipmentRepository)
+            IEquipmentRepository equipmentRepository,
+            DMADbContext context)
         {
             _imgService = coverImageService;
             _digitizationRepository = digitizationRepository;
             _albumRepository = albumRepository;
+            _albumService = albumService;
+            _digitizationService = digitizationService;
             _postRepository = postRepository;
             _equipmentRepository = equipmentRepository;
+            _context = context;
         }
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
@@ -122,6 +134,572 @@ namespace Web.SignalRHubs
                 await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
             }
         }
+
+        public async Task AddDigitization(string connectionId, CreateUpdateDigitizationRequest request)
+        {
+            try
+            {
+                Album album;
+                
+                // if no album - create one
+                if (request.AlbumId == 0)
+                {
+                    album = await _albumService.CreateOrFindAlbumAsync(request.Album, request.Artist, request.Genre);
+                }
+                else
+                {
+                    album = await _albumRepository.GetByIdAsync(request.AlbumId);
+                    if (album == null)
+                    {
+                        await Clients.Client(connectionId).SendAsync("DigitizationAdded", false, "Album not found", 0);
+                        return;
+                    }
+                }
+
+                var digitization = await MapRequestToDigitizationAsync(album.Id, request);
+                digitization = await _digitizationService.AddAsync(digitization);
+
+                // Get all digitizations for the album
+                var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
+                var digitizationList = digitizations.Select(d => new
+                {
+                    Id = d.Id,
+                    VinylState = d.FormatInfo?.VinylState?.Name,
+                    Bitness = d.FormatInfo?.Bitness?.Value,
+                    Sampling = d.FormatInfo?.Sampling?.Value,
+                    DigitalFormat = d.FormatInfo?.DigitalFormat?.Name,
+                    SourceFormat = d.FormatInfo?.SourceFormat?.Name,
+                    Player = d.EquipmentInfo?.Player?.Name,
+                    PlayerManufacturer = d.EquipmentInfo?.Player?.Manufacturer?.Name,
+                    Cartridge = d.EquipmentInfo?.Cartridge?.Name,
+                    CartridgeManufacturer = d.EquipmentInfo?.Cartridge?.Manufacturer?.Name,
+                    Amplifier = d.EquipmentInfo?.Amplifier?.Name,
+                    AmplifierManufacturer = d.EquipmentInfo?.Amplifier?.Manufacturer?.Name,
+                    Adc = d.EquipmentInfo?.Adc?.Name,
+                    AdcManufacturer = d.EquipmentInfo?.Adc?.Manufacturer?.Name,
+                    Wire = d.EquipmentInfo?.Wire?.Name,
+                    WireManufacturer = d.EquipmentInfo?.Wire?.Manufacturer?.Name,
+                    Source = d.Source,
+                    Year = d.Year?.Value,
+                    Reissue = d.Reissue?.Value,
+                    Country = d.Country?.Name,
+                    Label = d.Label?.Name,
+                    Storage = d.Storage?.Data,
+                    Discogs = d.Discogs,
+                    Size = d.FormatInfo?.Size
+                }).ToList();
+
+                await Clients.Client(connectionId).SendAsync("DigitizationAdded", true, "", album.Id, digitizationList);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Client(connectionId).SendAsync("DigitizationAdded", false, ex.Message, 0);
+            }
+        }
+
+        public async Task UpdateDigitization(string connectionId, CreateUpdateDigitizationRequest request)
+        {
+            try
+            {
+                if (request.DigitizationId == 0)
+                {
+                    await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, "Digitization ID is required");
+                    return;
+                }
+
+                var existing = await _digitizationRepository.GetByIdAsync(request.DigitizationId);
+                if (existing == null)
+                {
+                    await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, "Digitization not found");
+                    return;
+                }
+
+                var digitization = await MapRequestToDigitizationAsync(existing.AlbumId, request);
+                digitization.Id = request.DigitizationId;
+                digitization = await _digitizationService.UpdateAsync(digitization);
+
+                // Get all digitizations for the album
+                var digitizations = await _digitizationService.GetByAlbumIdAsync(existing.AlbumId);
+                var digitizationList = digitizations.Select(d => new
+                {
+                    Id = d.Id,
+                    VinylState = d.FormatInfo?.VinylState?.Name,
+                    Bitness = d.FormatInfo?.Bitness?.Value,
+                    Sampling = d.FormatInfo?.Sampling?.Value,
+                    DigitalFormat = d.FormatInfo?.DigitalFormat?.Name,
+                    SourceFormat = d.FormatInfo?.SourceFormat?.Name,
+                    Player = d.EquipmentInfo?.Player?.Name,
+                    PlayerManufacturer = d.EquipmentInfo?.Player?.Manufacturer?.Name,
+                    Cartridge = d.EquipmentInfo?.Cartridge?.Name,
+                    CartridgeManufacturer = d.EquipmentInfo?.Cartridge?.Manufacturer?.Name,
+                    Amplifier = d.EquipmentInfo?.Amplifier?.Name,
+                    AmplifierManufacturer = d.EquipmentInfo?.Amplifier?.Manufacturer?.Name,
+                    Adc = d.EquipmentInfo?.Adc?.Name,
+                    AdcManufacturer = d.EquipmentInfo?.Adc?.Manufacturer?.Name,
+                    Wire = d.EquipmentInfo?.Wire?.Name,
+                    WireManufacturer = d.EquipmentInfo?.Wire?.Manufacturer?.Name,
+                    Source = d.Source,
+                    Year = d.Year?.Value,
+                    Reissue = d.Reissue?.Value,
+                    Country = d.Country?.Name,
+                    Label = d.Label?.Name,
+                    Storage = d.Storage?.Data,
+                    Discogs = d.Discogs,
+                    Size = d.FormatInfo?.Size
+                }).ToList();
+
+                await Clients.Client(connectionId).SendAsync("DigitizationUpdated", true, "", digitizationList);
+            }
+            catch (Exception ex)
+            {
+                await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, ex.Message);
+            }
+        }
+
+        public async Task RemoveDigitization(string connectionId, int digitizationId)
+        {
+            try
+            {
+                var digitization = await _digitizationRepository.GetByIdAsync(digitizationId);
+                if (digitization == null)
+                {
+                    await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, "Digitization not found");
+                    return;
+                }
+
+                var albumId = digitization.AlbumId;
+                var success = await _digitizationService.DeleteAsync(digitizationId);
+
+                if (success)
+                {
+                    // Get all remaining digitizations for the album
+                    var digitizations = await _digitizationService.GetByAlbumIdAsync(albumId);
+                    var digitizationList = digitizations.Select(d => new
+                    {
+                        Id = d.Id,
+                        VinylState = d.FormatInfo?.VinylState?.Name,
+                        Bitness = d.FormatInfo?.Bitness?.Value,
+                        Sampling = d.FormatInfo?.Sampling?.Value,
+                        DigitalFormat = d.FormatInfo?.DigitalFormat?.Name,
+                        SourceFormat = d.FormatInfo?.SourceFormat?.Name,
+                        Player = d.EquipmentInfo?.Player?.Name,
+                        PlayerManufacturer = d.EquipmentInfo?.Player?.Manufacturer?.Name,
+                        Cartridge = d.EquipmentInfo?.Cartridge?.Name,
+                        CartridgeManufacturer = d.EquipmentInfo?.Cartridge?.Manufacturer?.Name,
+                        Amplifier = d.EquipmentInfo?.Amplifier?.Name,
+                        AmplifierManufacturer = d.EquipmentInfo?.Amplifier?.Manufacturer?.Name,
+                        Adc = d.EquipmentInfo?.Adc?.Name,
+                        AdcManufacturer = d.EquipmentInfo?.Adc?.Manufacturer?.Name,
+                        Wire = d.EquipmentInfo?.Wire?.Name,
+                        WireManufacturer = d.EquipmentInfo?.Wire?.Manufacturer?.Name,
+                        Source = d.Source,
+                        Year = d.Year?.Value,
+                        Reissue = d.Reissue?.Value,
+                        Country = d.Country?.Name,
+                        Label = d.Label?.Name,
+                        Storage = d.Storage?.Data,
+                        Discogs = d.Discogs,
+                        Size = d.FormatInfo?.Size
+                    }).ToList();
+
+                    await Clients.Client(connectionId).SendAsync("DigitizationRemoved", true, "", digitizationList);
+                }
+                else
+                {
+                    await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, "Failed to remove digitization");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, ex.Message);
+            }
+        }
+
+        private async Task<Digitization> MapRequestToDigitizationAsync(int albumId, CreateUpdateDigitizationRequest request)
+        {
+            var digitization = new Digitization
+            {
+                AlbumId = albumId,
+                AddedDate = DateTime.Now,
+                Source = request.Source,
+                Discogs = request.Discogs,
+                IsFirstPress = request.IsFirstPress
+            };
+
+            // Find or create Year
+            if (request.Year.HasValue)
+            {
+                var year = await FindOrCreateYearAsync(request.Year.Value);
+                digitization.YearId = year.Id;
+            }
+
+            // Find or create Reissue
+            if (request.Reissue.HasValue)
+            {
+                var reissue = await FindOrCreateReissueAsync(request.Reissue.Value);
+                digitization.ReissueId = reissue.Id;
+            }
+
+            // Find or create Country
+            if (!string.IsNullOrWhiteSpace(request.Country))
+            {
+                var country = await FindOrCreateCountryAsync(request.Country);
+                digitization.CountryId = country.Id;
+            }
+
+            // Find or create Label
+            if (!string.IsNullOrWhiteSpace(request.Label))
+            {
+                var label = await FindOrCreateLabelAsync(request.Label);
+                digitization.LabelId = label.Id;
+            }
+
+            // Find or create Storage
+            if (!string.IsNullOrWhiteSpace(request.Storage))
+            {
+                var storage = await FindOrCreateStorageAsync(request.Storage);
+                digitization.StorageId = storage.Id;
+            }
+
+            // FormatInfo
+            var formatInfo = new FormatInfo
+            {
+                Size = request.Size
+            };
+
+            // Find or create Bitness
+            if (request.Bitness.HasValue)
+            {
+                var bitness = await FindOrCreateBitnessAsync(request.Bitness.Value);
+                formatInfo.BitnessId = bitness.Id;
+            }
+
+            // Find or create Sampling
+            if (request.Sampling.HasValue)
+            {
+                var sampling = await FindOrCreateSamplingAsync(request.Sampling.Value);
+                formatInfo.SamplingId = sampling.Id;
+            }
+
+            // Find or create DigitalFormat
+            if (!string.IsNullOrWhiteSpace(request.DigitalFormat))
+            {
+                var digitalFormat = await FindOrCreateDigitalFormatAsync(request.DigitalFormat);
+                formatInfo.DigitalFormatId = digitalFormat.Id;
+            }
+
+            // Find or create SourceFormat
+            if (!string.IsNullOrWhiteSpace(request.SourceFormat))
+            {
+                var sourceFormat = await FindOrCreateSourceFormatAsync(request.SourceFormat);
+                formatInfo.SourceFormatId = sourceFormat.Id;
+            }
+
+            // Find or create VinylState
+            if (!string.IsNullOrWhiteSpace(request.VinylState))
+            {
+                var vinylState = await FindOrCreateVinylStateAsync(request.VinylState);
+                formatInfo.VinylStateId = vinylState.Id;
+            }
+
+            digitization.FormatInfo = formatInfo;
+
+            // EquipmentInfo
+            var equipmentInfo = new EquipmentInfo();
+
+            // Find or create Player
+            if (!string.IsNullOrWhiteSpace(request.Player))
+            {
+                var player = await FindOrCreatePlayerAsync(request.Player);
+                equipmentInfo.PlayerId = player.Id;
+            }
+
+            // Find or create Cartridge
+            if (!string.IsNullOrWhiteSpace(request.Cartridge))
+            {
+                var cartridge = await FindOrCreateCartridgeAsync(request.Cartridge);
+                equipmentInfo.CartridgeId = cartridge.Id;
+            }
+
+            // Find or create Amplifier
+            if (!string.IsNullOrWhiteSpace(request.Amplifier))
+            {
+                var amplifier = await FindOrCreateAmplifierAsync(request.Amplifier);
+                equipmentInfo.AmplifierId = amplifier.Id;
+            }
+
+            // Find or create Adc
+            if (!string.IsNullOrWhiteSpace(request.Adc))
+            {
+                var adc = await FindOrCreateAdcAsync(request.Adc);
+                equipmentInfo.AdcId = adc.Id;
+            }
+
+            // Find or create Wire
+            if (!string.IsNullOrWhiteSpace(request.Wire))
+            {
+                var wire = await FindOrCreateWireAsync(request.Wire);
+                equipmentInfo.WireId = wire.Id;
+            }
+
+            digitization.EquipmentInfo = equipmentInfo;
+
+            return digitization;
+        }
+
+        #region Find or Create Helper Methods
+
+        private async Task<Year> FindOrCreateYearAsync(int yearValue)
+        {
+            var year = await _context.Years.FirstOrDefaultAsync(y => y.Value == yearValue);
+            if (year == null)
+            {
+                year = new Year { Value = yearValue };
+                _context.Years.Add(year);
+                await _context.SaveChangesAsync();
+            }
+            return year;
+        }
+
+        private async Task<Reissue> FindOrCreateReissueAsync(int reissueValue)
+        {
+            var reissue = await _context.Reissues.FirstOrDefaultAsync(r => r.Value == reissueValue);
+            if (reissue == null)
+            {
+                reissue = new Reissue { Value = reissueValue };
+                _context.Reissues.Add(reissue);
+                await _context.SaveChangesAsync();
+            }
+            return reissue;
+        }
+
+        private async Task<Country> FindOrCreateCountryAsync(string countryName)
+        {
+            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name.ToLower() == countryName.ToLower());
+            if (country == null)
+            {
+                country = new Country { Name = countryName };
+                _context.Countries.Add(country);
+                await _context.SaveChangesAsync();
+            }
+            return country;
+        }
+
+        private async Task<Label> FindOrCreateLabelAsync(string labelName)
+        {
+            var label = await _context.Labels.FirstOrDefaultAsync(l => l.Name.ToLower() == labelName.ToLower());
+            if (label == null)
+            {
+                label = new Label { Name = labelName };
+                _context.Labels.Add(label);
+                await _context.SaveChangesAsync();
+            }
+            return label;
+        }
+
+        private async Task<Storage> FindOrCreateStorageAsync(string storageData)
+        {
+            var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Data.ToLower() == storageData.ToLower());
+            if (storage == null)
+            {
+                storage = new Storage { Data = storageData };
+                _context.Storages.Add(storage);
+                await _context.SaveChangesAsync();
+            }
+            return storage;
+        }
+
+        private async Task<Bitness> FindOrCreateBitnessAsync(int bitnessValue)
+        {
+            var bitness = await _context.Bitnesses.FirstOrDefaultAsync(b => b.Value == bitnessValue);
+            if (bitness == null)
+            {
+                bitness = new Bitness { Value = bitnessValue };
+                _context.Bitnesses.Add(bitness);
+                await _context.SaveChangesAsync();
+            }
+            return bitness;
+        }
+
+        private async Task<Sampling> FindOrCreateSamplingAsync(double samplingValue)
+        {
+            var sampling = await _context.Samplings.FirstOrDefaultAsync(s => s.Value == samplingValue);
+            if (sampling == null)
+            {
+                sampling = new Sampling { Value = samplingValue };
+                _context.Samplings.Add(sampling);
+                await _context.SaveChangesAsync();
+            }
+            return sampling;
+        }
+
+        private async Task<DigitalFormat> FindOrCreateDigitalFormatAsync(string formatName)
+        {
+            var format = await _context.DigitalFormats.FirstOrDefaultAsync(f => f.Name.ToLower() == formatName.ToLower());
+            if (format == null)
+            {
+                format = new DigitalFormat { Name = formatName };
+                _context.DigitalFormats.Add(format);
+                await _context.SaveChangesAsync();
+            }
+            return format;
+        }
+
+        private async Task<SourceFormat> FindOrCreateSourceFormatAsync(string formatName)
+        {
+            var format = await _context.SourceFormats.FirstOrDefaultAsync(f => f.Name.ToLower() == formatName.ToLower());
+            if (format == null)
+            {
+                format = new SourceFormat { Name = formatName };
+                _context.SourceFormats.Add(format);
+                await _context.SaveChangesAsync();
+            }
+            return format;
+        }
+
+        private async Task<VinylState> FindOrCreateVinylStateAsync(string stateName)
+        {
+            var state = await _context.VinylStates.FirstOrDefaultAsync(v => v.Name.ToLower() == stateName.ToLower());
+            if (state == null)
+            {
+                state = new VinylState { Name = stateName };
+                _context.VinylStates.Add(state);
+                await _context.SaveChangesAsync();
+            }
+            return state;
+        }
+
+        private async Task<Player> FindOrCreatePlayerAsync(string playerName)
+        {
+            var player = await _context.Players
+                .Include(p => p.Manufacturer)
+                .FirstOrDefaultAsync(p => p.Name.ToLower() == playerName.ToLower());
+            
+            if (player == null)
+            {
+                player = new Player { Name = playerName };
+                _context.Players.Add(player);
+                await _context.SaveChangesAsync();
+            }
+            else if (player.ManufacturerId == null)
+            {
+                // Try to find and link manufacturer if it exists
+                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(playerName, EntityType.Player);
+                if (equipmentWithManufacturer?.Manufacturer != null)
+                {
+                    player.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+            return player;
+        }
+
+        private async Task<Cartridge> FindOrCreateCartridgeAsync(string cartridgeName)
+        {
+            var cartridge = await _context.Cartridges
+                .Include(c => c.Manufacturer)
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == cartridgeName.ToLower());
+            
+            if (cartridge == null)
+            {
+                cartridge = new Cartridge { Name = cartridgeName };
+                _context.Cartridges.Add(cartridge);
+                await _context.SaveChangesAsync();
+            }
+            else if (cartridge.ManufacturerId == null)
+            {
+                // Try to find and link manufacturer if it exists
+                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(cartridgeName, EntityType.Cartridge);
+                if (equipmentWithManufacturer?.Manufacturer != null)
+                {
+                    cartridge.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+            return cartridge;
+        }
+
+        private async Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName)
+        {
+            var amplifier = await _context.Amplifiers
+                .Include(a => a.Manufacturer)
+                .FirstOrDefaultAsync(a => a.Name.ToLower() == amplifierName.ToLower());
+            
+            if (amplifier == null)
+            {
+                amplifier = new Amplifier { Name = amplifierName };
+                _context.Amplifiers.Add(amplifier);
+                await _context.SaveChangesAsync();
+            }
+            else if (amplifier.ManufacturerId == null)
+            {
+                // Try to find and link manufacturer if it exists
+                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(amplifierName, EntityType.Amplifier);
+                if (equipmentWithManufacturer?.Manufacturer != null)
+                {
+                    amplifier.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+            return amplifier;
+        }
+
+        private async Task<Adc> FindOrCreateAdcAsync(string adcName)
+        {
+            var adc = await _context.Adces
+                .Include(a => a.Manufacturer)
+                .FirstOrDefaultAsync(a => a.Name.ToLower() == adcName.ToLower());
+            
+            if (adc == null)
+            {
+                adc = new Adc { Name = adcName };
+                _context.Adces.Add(adc);
+                await _context.SaveChangesAsync();
+            }
+            else if (adc.ManufacturerId == null)
+            {
+                // Try to find and link manufacturer if it exists
+                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(adcName, EntityType.Adc);
+                if (equipmentWithManufacturer?.Manufacturer != null)
+                {
+                    adc.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+            return adc;
+        }
+
+        private async Task<Wire> FindOrCreateWireAsync(string wireName)
+        {
+            var wire = await _context.Wires
+                .Include(w => w.Manufacturer)
+                .FirstOrDefaultAsync(w => w.Name.ToLower() == wireName.ToLower());
+            
+            if (wire == null)
+            {
+                wire = new Wire { Name = wireName };
+                _context.Wires.Add(wire);
+                await _context.SaveChangesAsync();
+            }
+            else if (wire.ManufacturerId == null)
+            {
+                // Try to find and link manufacturer if it exists
+                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(wireName, EntityType.Wire);
+                if (equipmentWithManufacturer?.Manufacturer != null)
+                {
+                    wire.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+            return wire;
+        }
+
+        #endregion
         #endregion
 
         #region Equipment workload
@@ -224,18 +802,61 @@ namespace Web.SignalRHubs
         {
             var result = await _postRepository.GetFilteredListAsync(page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts);
 
-            var response = result.Items.Select(p => new
-            {
-                p.Id,
-                p.Title,
-                p.Description,
-                p.IsDraft,
-                Created = p.CreatedDate.HasValue ? p.CreatedDate.Value.ToShortDateString() : null,
-                Categories = p.PostCategories.Select(pc => pc.Category.Title).ToList()
-            }).ToList();
+            var response = result.Items
+                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Title,
+                    p.Description,
+                    p.IsDraft,
+                    Created = p.CreatedDate.HasValue ? p.CreatedDate.Value.ToShortDateString() : null,
+                    Categories = p.PostCategories.Select(pc => pc.Category.Title).ToList()
+                }).ToList();
 
             await Clients.Client(connectionId)
                 .SendAsync("ReceivedPosts", response, result.TotalPages);
+        }
+
+        public async Task GetBlogTree(string connectionId)
+        {
+            var posts = await _postRepository.GetListAsync(1, int.MaxValue);
+            var allPosts = posts.Items.Where(p => !p.IsDraft && p.CreatedDate.HasValue).ToList();
+
+            var tree = allPosts
+                .SelectMany(p => p.PostCategories.Any() 
+                    ? p.PostCategories.Select(pc => new { Post = p, Category = pc.Category })
+                    : new[] { new { Post = p, Category = (Category?)null } })
+                .GroupBy(x => x.Category?.Title ?? "Uncategorized")
+                .Select(catGroup => new
+                {
+                    Category = catGroup.Key,
+                    Posts = catGroup
+                        .Select(x => x.Post)
+                        .Distinct()
+                        .GroupBy(p => p.CreatedDate!.Value.Year)
+                        .OrderByDescending(g => g.Key)
+                        .Select(yearGroup => new
+                        {
+                            Year = yearGroup.Key,
+                            Posts = yearGroup
+                                .OrderByDescending(p => p.CreatedDate)
+                                .Select(p => new
+                                {
+                                    Id = p.Id,
+                                    Title = p.Title,
+                                    Created = p.CreatedDate!.Value.ToShortDateString()
+                                })
+                                .ToList()
+                        })
+                        .ToList()
+                })
+                .Where(cat => cat.Posts.Any())
+                .OrderBy(x => x.Category)
+                .ToList();
+
+            await Clients.Client(connectionId)
+                .SendAsync("ReceivedBlogTree", tree);
         }
 
         private void UpdatePostFields(Post post, string title, string description, string content, DateTime date, bool isNew = false)

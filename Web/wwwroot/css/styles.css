@@ -611,6 +611,25 @@
     color: white;
 }
 
+/* Create / Update Album*/
+.album-create-update-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.album-create-update-no-digitizations {
+    display: flex;
+    justify-content: center;
+}
+
 /* Equipment styles */
 .equipment-box {
     display: grid;
@@ -773,42 +792,7 @@
 }
 
 /* statistic page*/
-.st-last-update {
-    text-align: center;
-}
 
-.st-general-counters {
-    display: grid;
-    grid-template-columns: 33% 33% 33%;
-    grid-template-rows: 50px;
-    text-align:center;
-}
-
-.st-general-labels {
-    display: grid;
-    grid-template-columns: 33% 33% 33%;
-    grid-template-rows: 40px;
-    text-align: center;
-}
-
-.st-block {
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    grid-template-rows: auto;
-    gap: 5px;
-}
-
-.st-block-last {
-    display: grid;
-    grid-template-columns: auto auto auto auto auto;
-    grid-template-rows: auto;
-    gap: 5px;
-}
-
-.st-table, th, td{
-    border: solid;
-    width: 100%;
-}
 
 /* News styles*/
 .blog-container {
@@ -878,6 +862,97 @@
 
 .blog-side-panel-filters {
     margin: 20px;
+}
+
+.blog-tree-view {
+    margin-top: 20px;
+}
+
+.blog-tree {
+    margin-top: 10px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.tree-category {
+    margin-bottom: 10px;
+}
+
+.tree-category-header {
+    cursor: pointer;
+    padding: 5px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    user-select: none;
+    border-radius: 3px;
+}
+
+.tree-category-header:hover {
+    background-color: #e0e0e0;
+}
+
+.tree-year-group {
+    margin-left: 20px;
+    margin-top: 5px;
+    display: none;
+}
+
+.tree-year {
+    margin-bottom: 5px;
+}
+
+.tree-year-header {
+    cursor: pointer;
+    padding: 3px 5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    user-select: none;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.tree-year-header:hover {
+    background-color: #e8e8e8;
+}
+
+.tree-posts {
+    margin-left: 20px;
+    margin-top: 3px;
+    display: none;
+}
+
+.tree-post {
+    padding: 3px 5px;
+    margin-bottom: 3px;
+    font-size: 0.85em;
+}
+
+.tree-post-link {
+    color: #0066cc;
+    text-decoration: none;
+    display: block;
+}
+
+.tree-post-link:hover {
+    text-decoration: underline;
+    color: #004499;
+}
+
+.tree-post-date {
+    display: block;
+    color: #666;
+    font-size: 0.8em;
+    margin-top: 2px;
+}
+
+.tree-icon {
+    width: 14px;
+    text-align: center;
+    font-size: 0.9em;
 }
 
 .post-content {

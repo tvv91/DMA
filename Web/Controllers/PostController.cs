@@ -1,16 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Web.Interfaces;
-using Web.Models;
 using Web.ViewModels;
 
 namespace Web.Controllers
 {
     public class PostController : Controller
     {
-        private readonly IPostRepository _postRepository;
-        public PostController(IPostRepository postRepository)
+        private readonly IPostService _postService;
+        public PostController(IPostService postService)
         {
-            _postRepository = postRepository;
+            _postService = postService;
         }
 
         public IActionResult Index()
@@ -27,23 +26,15 @@ namespace Web.Controllers
         [HttpGet("post/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var post = await _postRepository.GetByIdAsync(id);
-            
-            if (post is null)
-                return NotFound();
-
-            var vm = new PostViewModel
+            try
             {
-                Id = post.Id,
-                Title = post.Title,
-                Description = post.Description,
-                Content = post.Content,
-                CreatedDate = post.CreatedDate,
-                UpdatedTime = post.UpdatedDate,
-                Category = post.PostCategories.FirstOrDefault()?.Category.Title
-            };
-
-            return View("Details", vm);
+                var vm = await _postService.GetPostViewModelAsync(id);
+                return View("Details", vm);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost("post/create")]
@@ -56,21 +47,7 @@ namespace Web.Controllers
             if (!ModelState.IsValid)
                 return View("CreateUpdate", model);
 
-            var post = new Post
-            {
-                Title = model.Title,
-                Description = model.Description,
-                Content = model.Content,
-                CreatedDate = DateTime.UtcNow,
-                IsDraft = false
-            };
-
-            post.PostCategories.Add(new PostCategory
-            {
-                Category = new Category { Title = model.Category }
-            });
-
-            await _postRepository.AddAsync(post);
+            var post = await _postService.CreatePostAsync(model);
             
             return RedirectToAction(nameof(GetById), new { id = post.Id });
         }
@@ -81,7 +58,7 @@ namespace Web.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var success = await _postRepository.DeleteAsync(id);
+            var success = await _postService.DeletePostAsync(id);
             
             if (!success)
                 return NotFound();
@@ -92,23 +69,15 @@ namespace Web.Controllers
         [HttpGet("post/edit")]
         public async Task<IActionResult> Edit(int id)
         {
-            var post = await _postRepository.GetByIdAsync(id);
-            
-            if (post is null)
-                return NotFound();
-
-            var vm = new PostViewModel
+            try
             {
-                Id = post.Id,
-                Title = post.Title,
-                Description = post.Description,
-                Content = post.Content,
-                CreatedDate = post.CreatedDate,
-                UpdatedTime = post.UpdatedDate,
-                Category = post.PostCategories.FirstOrDefault()?.Category?.Title
-            };
-
-            return View("CreateUpdate", vm);
+                var vm = await _postService.GetPostViewModelAsync(id);
+                return View("CreateUpdate", vm);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         [HttpPost("post/update")]
@@ -118,30 +87,15 @@ namespace Web.Controllers
             if (model.Id is null)
                 return BadRequest();
 
-            var existing = await _postRepository.GetByIdAsync(model.Id.Value);
-            
-            if (existing is null)
-                return NotFound();
-
-            existing.Title = model.Title;
-            existing.Description = model.Description;
-            existing.Content = model.Content;
-            existing.UpdatedDate = DateTime.UtcNow;
-
-            var currentCategory = existing.PostCategories.FirstOrDefault()?.Category?.Title;
-
-            if (model.Category != currentCategory)
+            try
             {
-                existing.PostCategories.Clear();
-                existing.PostCategories.Add(new PostCategory
-                {
-                    Category = new Category { Title = model.Category }
-                });
+                var post = await _postService.UpdatePostAsync(model.Id.Value, model);
+                return RedirectToAction(nameof(GetById), new { id = post.Id });
             }
-
-            await _postRepository.UpdateAsync(existing);
-            
-            return RedirectToAction(nameof(GetById), new { id = existing.Id });
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
     }
 }

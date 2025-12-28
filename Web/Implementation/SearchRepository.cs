@@ -28,6 +28,9 @@ namespace Web.Implementation
                 { EntityType.Bitness, v => SearchNumberAsync(_context.Bitnesses, x => x.Value, v) },
                 { EntityType.Sampling, v => SearchNumberAsync(_context.Samplings, x => x.Value, v) },
                 { EntityType.SourceFormat, v => SearchStringAsync(_context.SourceFormats, x => x.Name, v) },
+                { EntityType.Country, v => SearchStringAsync(_context.Countries, x => x.Name, v) },
+                { EntityType.Label, v => SearchStringAsync(_context.Labels, x => x.Name, v) },
+                { EntityType.Storage, v => SearchStringAsync(_context.Storages, x => x.Data, v) },
 
                 { EntityType.Player, v => SearchStringAsync(_context.Players, x => x.Name, v) },
                 { EntityType.Cartridge, v => SearchStringAsync(_context.Cartridges, x => x.Name, v) },
@@ -67,8 +70,10 @@ namespace Web.Implementation
                 .Where(x => EF.Functions.Like(EF.Property<string>(x, propertyName), likePattern))
                 .Select(x => new AutocompleteResponse
                 {
-                    Label = EF.Property<string>(x, propertyName)
+                    Label = EF.Property<string>(x, propertyName),
+                    Value = EF.Property<string>(x, propertyName)
                 })
+                .Distinct()
                 .ToListAsync();
         }
 
@@ -84,7 +89,11 @@ namespace Web.Implementation
             return list
                 .Where(x => func(x)?.ToString()?
                 .Contains(value, StringComparison.OrdinalIgnoreCase) == true)
-                .Select(x => new AutocompleteResponse { Label = func(x)?.ToString() ?? "" })
+                .Select(x => {
+                    var val = func(x)?.ToString() ?? "";
+                    return new AutocompleteResponse { Label = val, Value = val };
+                })
+                .Distinct()
                 .ToList();
         }
 
@@ -95,7 +104,8 @@ namespace Web.Implementation
             return await _context.Manufacturer
                 .AsNoTracking()
                 .Where(m => m.Type == type && EF.Functions.Like(m.Name, likePattern))
-                .Select(m => new AutocompleteResponse { Label = m.Name })
+                .Select(m => new AutocompleteResponse { Label = m.Name, Value = m.Name })
+                .Distinct()
                 .ToListAsync();
         }
     }

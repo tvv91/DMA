@@ -12,12 +12,19 @@ function setCurrentPage(page) {
 }
 
 async function fetchPosts(page = 1, searchText = "", category = "", year = "", onlyDrafts = false) {
+    if (connection.state !== signalR.HubConnectionState.Connected) {
+        console.error("SignalR connection is not established");
+        $("#spinner").addClass("d-none");
+        return;
+    }
+
     $("#spinner").removeClass("d-none");
     try {
         await connection.invoke("GetPosts", connection.connectionId, page, searchText, category, year, onlyDrafts);
     } catch (err) {
         console.error("Error fetching posts:", err);
         $("#spinner").addClass("d-none");
+        $("#post-container").html('<div style="text-align: center"><h4>Error loading posts. Please refresh the page.</h4></div>');
     }
 }
 
@@ -28,14 +35,17 @@ async function loadPosts(resetPage = true, textSearch = false) {
     const onlyDrafts = $("#draftfilter").is(":checked");
 
     let page = getCurrentPage();
-    if (resetPage) setCurrentPage(1);
+    if (resetPage) {
+        setCurrentPage(1);
+        page = 1;
+    }
 
     if ((textSearch && searchText.length >= 3) || year.length === 4 || searchText.length === 0 || !textSearch) {
         await fetchPosts(page, searchText, category, year, onlyDrafts);
     }
 }
 
-function renderPosts(posts, totalItems) {
+function renderPosts(posts, totalPages) {
     const $container = $("#post-container");
     const $pagination = $("#pagination");
 
@@ -44,47 +54,185 @@ function renderPosts(posts, totalItems) {
 
     if (!posts || posts.length === 0) {
         $("#spinner").addClass("d-none");
-        $container.html('<div style="text-align: center"><h4>No posts :(</h4></div>');
+        $container.html('<div style="text-align: center"><h4>No posts found</h4></div>');
         return;
     }
 
     $("#spinner").addClass("d-none");
 
-    posts.forEach(x => {
+    posts.forEach(post => {
+        const categories = post.categories && post.categories.length > 0 
+            ? post.categories.join(", ") 
+            : "Uncategorized";
+        
+        const postClass = post.isDraft ? "post post-draft" : "post post-published";
+        const createdDate = post.created || "Unknown date";
+        
         $container.append(`
-            <div class="${x.post.isDraft ? "post post-draft" : "post post-published"}">
-                <h4><a href="post/${x.post.id}">${x.post.title}</a></h4>
-                <div>${x.post.description}</div>
+            <div class="${postClass}">
+                <h4><a href="/post/${post.id}">${escapeHtml(post.title)}</a></h4>
+                <div>${escapeHtml(post.description || "")}</div>
                 <div class="blog-post-info">
-                    <i>Added: <b>${x.created}</b></i>&nbsp;
-                    <i>Category: <b>${x.category}</b></i>
+                    <i>Added: <b>${createdDate}</b></i>&nbsp;
+                    <i>Category: <b>${categories}</b></i>
                 </div>
             </div>
         `);
     });
 
-    for (let i = 1; i <= totalItems; i++) {
-        $pagination.append(`<li class="page-item"><a id="${i}" class="page-link" href="#">${i}</a></li>`);
+    // Render pagination
+    if (totalPages > 1) {
+        for (let i = 1; i <= totalPages; i++) {
+            $pagination.append(`<li class="page-item"><a id="${i}" class="page-link" href="#">${i}</a></li>`);
+        }
+
+        const currentPage = getCurrentPage();
+        $(`#pagination a[id='${currentPage}']`).parent().addClass("active");
+    }
+}
+
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text ? text.replace(/[&<>"']/g, m => map[m]) : '';
+}
+
+async function fetchBlogTree() {
+    if (connection.state !== signalR.HubConnectionState.Connected) {
+        return;
     }
 
-    const currentPage = getCurrentPage();
-    $(`#pagination a[id='${currentPage}']`).addClass("active");
+    try {
+        await connection.invoke("GetBlogTree", connection.connectionId);
+    } catch (err) {
+        console.error("Error fetching blog tree:", err);
+    }
+}
+
+function renderBlogTree(tree) {
+    const $tree = $("#blog-tree");
+    $tree.empty();
+
+    if (!tree || tree.length === 0) {
+        $tree.html('<div class="text-muted">No posts available</div>');
+        return;
+    }
+
+    tree.forEach(category => {
+        const $category = $('<div class="tree-category"></div>');
+        const $categoryHeader = $(`
+            <div class="tree-category-header">
+                <i class="fa fa-folder tree-icon"></i>
+                <span class="tree-category-name">${escapeHtml(category.category)}</span>
+            </div>
+        `);
+        
+        $categoryHeader.on("click", function() {
+            $(this).parent().find(".tree-year-group").slideToggle();
+            $(this).find(".tree-icon").toggleClass("fa-folder fa-folder-open");
+        });
+
+        $category.append($categoryHeader);
+
+        if (category.posts && category.posts.length > 0) {
+            const $yearGroups = $('<div class="tree-year-group"></div>');
+            
+            category.posts.forEach(yearGroup => {
+                const $year = $('<div class="tree-year"></div>');
+                const $yearHeader = $(`
+                    <div class="tree-year-header">
+                        <i class="fa fa-calendar tree-icon"></i>
+                        <span class="tree-year-name">${yearGroup.year}</span>
+                    </div>
+                `);
+                
+                $yearHeader.on("click", function() {
+                    $(this).parent().find(".tree-posts").slideToggle();
+                    $(this).find(".tree-icon").toggleClass("fa-calendar fa-calendar-check");
+                });
+
+                $year.append($yearHeader);
+
+                if (yearGroup.posts && yearGroup.posts.length > 0) {
+                    const $posts = $('<div class="tree-posts"></div>');
+                    
+                    yearGroup.posts.forEach(post => {
+                        const $post = $(`
+                            <div class="tree-post">
+                                <a href="/post/${post.id}" class="tree-post-link">${escapeHtml(post.title)}</a>
+                                <span class="tree-post-date">${post.created}</span>
+                            </div>
+                        `);
+                        $posts.append($post);
+                    });
+
+                    $year.append($posts);
+                }
+
+                $yearGroups.append($year);
+            });
+
+            $category.append($yearGroups);
+        }
+
+        $tree.append($category);
+    });
 }
 
 function initPostListPage() {
-    loadPosts();
+    // Load posts - connection should already be started by document.ready
+    if (connection.state === signalR.HubConnectionState.Connected) {
+        loadPosts();
+        fetchBlogTree();
+    } else {
+        // Wait a bit for connection to establish, then load posts
+        setTimeout(() => {
+            if (connection.state === signalR.HubConnectionState.Connected) {
+                loadPosts();
+                fetchBlogTree();
+            } else {
+                console.warn("SignalR connection not ready, retrying...");
+                connection.start().then(() => {
+                    loadPosts();
+                    fetchBlogTree();
+                }).catch(err => {
+                    console.error("Error starting SignalR connection:", err);
+                    $("#spinner").addClass("d-none");
+                    $("#post-container").html('<div style="text-align: center"><h4>Error connecting to server. Please refresh the page.</h4></div>');
+                });
+            }
+        }, 100);
+    }
 
     $("#pagination").on("click", "a.page-link", async function (e) {
         e.preventDefault();
-        const selectedPage = Number(this.id);
-        if (selectedPage !== getCurrentPage()) {
+        const selectedPage = Number($(this).attr("id"));
+        const currentPage = getCurrentPage();
+        if (selectedPage !== currentPage) {
             setCurrentPage(selectedPage);
             await loadPosts(false);
         }
     });
 
-    $("#searchfilter").on("input", () => loadPosts(true, true));
-    $("#categoryfilter, #yearfilter, #draftfilter").on("change input", () => loadPosts());
+    $("#searchfilter").on("input", debounce(() => loadPosts(true, true), 500));
+    $("#categoryfilter, #yearfilter, #draftfilter").on("change", () => loadPosts(true));
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }
 
 async function autoSave() {
@@ -192,7 +340,13 @@ $(document).ready(async () => {
 });
 
 
-connection.on("ReceivedPosts", (posts, totalItems) => renderPosts(posts, totalItems));
+connection.on("ReceivedPosts", (posts, totalPages) => {
+    renderPosts(posts, totalPages);
+});
+
+connection.on("ReceivedBlogTree", (tree) => {
+    renderBlogTree(tree);
+});
 
 connection.on("PostUpdated", (updatedDate) => {
     $("#spinnerbutton").attr("hidden", true);

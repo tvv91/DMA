@@ -51,39 +51,10 @@ namespace Web.Implementation
             if (existing == null)
                 throw new KeyNotFoundException($"Album {album.Id} not found");
 
-            // return existed object if nothing to update
-            if (existing.Title == album.Title && (string.IsNullOrWhiteSpace(album?.Genre?.Name) || existing.Genre?.Name == album.Genre.Name) && (string.IsNullOrWhiteSpace(album?.Artist?.Name) || existing.Artist?.Name == album.Artist.Name))
-                return existing;
-
             existing.Title = album.Title;
-            existing.UpdateDate = DateTime.UtcNow;
-
-            if (!string.IsNullOrWhiteSpace(album?.Genre?.Name))
-            {
-                var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Name == album.Genre.Name);
-
-                if (genre is null)
-                {
-                    genre = new Genre { Name = album.Genre.Name };
-                    _context.Genres.Add(genre);
-                }
-
-                existing.GenreId = genre.Id;
-            }
-
-            if (!string.IsNullOrWhiteSpace(album?.Artist?.Name))
-            {
-                var artist = await _context.Artists
-                    .FirstOrDefaultAsync(a => a.Name == album.Artist.Name);
-
-                if (artist is null)
-                {
-                    artist = new Artist { Name = album.Artist.Name };
-                    _context.Artists.Add(artist);
-                }
-
-                existing.ArtistId = artist.Id;
-            }
+            existing.UpdateDate = album.UpdateDate;
+            existing.ArtistId = album.ArtistId;
+            existing.GenreId = album.GenreId;
 
             await _context.SaveChangesAsync();
             return existing;

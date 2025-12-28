@@ -55,11 +55,11 @@ namespace Web.Implementation
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.DigitalFormat)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.SourceFormat)
                 .Include(d => d.FormatInfo).ThenInclude(f => f!.VinylState)
-                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Player)
-                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Cartridge)
-                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Amplifier)
-                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Adc)
-                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Wire)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Player).ThenInclude(p => p!.Manufacturer)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Cartridge).ThenInclude(c => c!.Manufacturer)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Amplifier).ThenInclude(a => a!.Manufacturer)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Adc).ThenInclude(a => a!.Manufacturer)
+                .Include(d => d.EquipmentInfo).ThenInclude(e => e!.Wire).ThenInclude(w => w!.Manufacturer)
                 .AsSplitQuery()
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.Id == id);
@@ -116,10 +116,15 @@ namespace Web.Implementation
             existing.ReissueId = digitization.ReissueId;
             existing.YearId = digitization.YearId;
             existing.StorageId = digitization.StorageId;
-            existing.UpdateDate = DateTime.UtcNow;
+            existing.UpdateDate = digitization.UpdateDate;
 
             if (digitization.FormatInfo is not null)
             {
+                if (existing.FormatInfo == null)
+                {
+                    existing.FormatInfo = new FormatInfo();
+                    _context.FormatInfos.Add(existing.FormatInfo);
+                }
                 existing.FormatInfo.Size = digitization.FormatInfo.Size;
                 existing.FormatInfo.BitnessId = digitization.FormatInfo.BitnessId;
                 existing.FormatInfo.SamplingId = digitization.FormatInfo.SamplingId;
@@ -130,6 +135,11 @@ namespace Web.Implementation
 
             if (digitization.EquipmentInfo is not null)
             {
+                if (existing.EquipmentInfo == null)
+                {
+                    existing.EquipmentInfo = new EquipmentInfo();
+                    _context.EquipmentInfos.Add(existing.EquipmentInfo);
+                }
                 existing.EquipmentInfo.PlayerId = digitization.EquipmentInfo.PlayerId;
                 existing.EquipmentInfo.CartridgeId = digitization.EquipmentInfo.CartridgeId;
                 existing.EquipmentInfo.AmplifierId = digitization.EquipmentInfo.AmplifierId;

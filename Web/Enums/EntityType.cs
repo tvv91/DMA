@@ -21,6 +21,9 @@
         Adc,
         AdcManufacturer,
         Wire,
-        WireManufacturer
+        WireManufacturer,
+        Country,
+        Label,
+        Storage
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Web.Enums;
 using Web.Interfaces;
-using Web.Models;
 using Web.Services;
 using Web.SignalRHubs;
 using Web.ViewModels;
@@ -11,15 +10,15 @@ namespace Web.Controllers
     public class AlbumController : Controller
     {
         private const int ALBUMS_PER_PAGE = 15;
-        private readonly IAlbumRepository _albumRepository;
+        private readonly IAlbumService _albumService;
         private readonly IImageService _imageService;
-        private readonly IDigitizationRepository _digitizationRepository;
+        private readonly IDigitizationService _digitizationService;
 
-        public AlbumController(IAlbumRepository albumRepository, IImageService imageService, IDigitizationRepository digitizationRepository)
+        public AlbumController(IAlbumService albumService, IImageService imageService, IDigitizationService digitizationService)
         {
-            _albumRepository = albumRepository;
+            _albumService = albumService;
             _imageService = imageService;
-            _digitizationRepository = digitizationRepository;
+            _digitizationService = digitizationService;
         }
 
         [HttpGet("album")]
@@ -28,7 +27,7 @@ namespace Web.Controllers
             if (page < 1)
                 return BadRequest("Page number should be positive");
 
-            var result = await _albumRepository.GetIndexListAsync(page, ALBUMS_PER_PAGE);
+            var result = await _albumService.GetIndexListAsync(page, ALBUMS_PER_PAGE);
             
             var vm = new AlbumIndexViewModel
             {
@@ -46,20 +45,24 @@ namespace Web.Controllers
             if (id < 1)
                 return BadRequest();
 
-            var album = await _albumRepository.GetByIdAsync(id);
-            
-            if (album == null)
+            try
+            {
+                var vm = await _albumService.GetAlbumDetailsAsync(id);
+                return View("Details", vm);
+            }
+            catch (KeyNotFoundException)
+            {
                 return NotFound();
-
-            var digitizations = await _digitizationRepository.GetByAlbumIdAsync(album.Id);
-
-            return View("Details", MapAlbumToAlbumDetailsVM(album, digitizations));
+            }
         }
 
         [HttpGet("album/create")]
         public IActionResult Create()
         {
-            return View("CreateUpdate", new AlbumCreateUpdateViewModel());
+            return View("CreateUpdate", new AlbumCreateUpdateViewModel 
+            { 
+                Action = ActionType.Create 
+            });
         }
 
         [HttpGet("album/edit/{id}")]
@@ -68,12 +71,19 @@ namespace Web.Controllers
             if (id < 1)
                 return BadRequest("Invalid album Id");
 
-            var album = await _albumRepository.GetByIdAsync(id);
+            try
+            {
+                var album = await _albumService.GetByIdAsync(id);
+                if (album == null)
+                    return NotFound();
 
-            if (album == null)
+                var vm = await _albumService.MapAlbumToCreateUpdateVMAsync(album);
+                return View("CreateUpdate", vm);
+            }
+            catch (KeyNotFoundException)
+            {
                 return NotFound();
-
-            return View("CreateUpdate", MapAlbumToAlbumDetailsVM(album));
+            }
         }
 
         [HttpPost]
@@ -84,22 +94,7 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumRepository.FindByTitleAndArtistAsync(request.Title, request.Artist);
-
-                if (album is null)
-                {
-                    album = new Album
-                    {
-                        AddedDate = DateTime.Now,
-                        Title = request.Title,
-                        Artist = new Artist { Name = request.Artist },
-                        Genre = new Genre { Name = request.Genre }
-                    };
-                    
-                    album = await _albumRepository.AddAsync(album);
-                }
-
-                await _digitizationRepository.AddAsync(MapVMToDigitization(album.Id, request));
+                var album = await _albumService.CreateOrFindAlbumAsync(request.Title, request.Artist, request.Genre);
 
                 if (request.AlbumCover != null)
                     _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
@@ -124,13 +119,7 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumRepository.UpdateAsync(new Album
-                {
-                    Id = request.AlbumId,
-                    Title = request.Title,
-                    Artist = new Artist { Name = request.Artist },
-                    Genre = new Genre { Name = request.Genre }
-                });
+                var album = await _albumService.UpdateAlbumAsync(request.AlbumId, request.Title, request.Artist, request.Genre);
 
                 if (request.AlbumCover is not null)
                     _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
@@ -154,7 +143,7 @@ namespace Web.Controllers
             if (id < 1)
                 return BadRequest("Invalid album ID");
 
-            if (!await _albumRepository.DeleteAsync(id))
+            if (!await _albumService.DeleteAlbumAsync(id))
                 return NotFound();                
 
             try
@@ -168,57 +157,5 @@ namespace Web.Controllers
             }
             return Ok();
         }
-
-        #region Private methods
-        private AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Digitization>? digitizations = null)
-        {
-            
-            return new AlbumDetailsViewModel
-            {
-                AlbumId = album.Id,
-                Title = album.Title,
-                Artist = album.Artist?.Name ?? string.Empty,
-                Genre = album.Genre?.Name ?? string.Empty,
-                AddedDate = album.AddedDate,
-                UpdateDate = album.UpdateDate,
-                Digitizations = digitizations
-            };
-        }
-        private Digitization MapVMToDigitization(int albumId, AlbumCreateUpdateViewModel request)
-        {
-            return new Digitization
-            {
-                AlbumId = albumId,
-                AddedDate = DateTime.Now,
-                Source = request.Source,
-                Discogs = request.Discogs,
-                IsFirstPress = false,
-                YearId = request.Year,
-                ReissueId = request.Reissue,
-                Country = !string.IsNullOrEmpty(request.Country) ? new Country { Name = request.Country } : null,
-                Label = !string.IsNullOrEmpty(request.Label) ? new Label { Name = request.Label } : null,
-                Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Data = request.Storage } : null,
-
-                FormatInfo = new FormatInfo
-                {
-                    Size = request.Size,
-                    BitnessId = request.Bitness,
-                    Sampling = request.Sampling.HasValue ? new Sampling { Value = request.Sampling.Value } : null,
-                    DigitalFormat = !string.IsNullOrEmpty(request.DigitalFormat) ? new DigitalFormat { Name = request.DigitalFormat } : null,
-                    SourceFormat = !string.IsNullOrEmpty(request.SourceFormat) ? new SourceFormat { Name = request.SourceFormat } : null,
-                    VinylState = !string.IsNullOrEmpty(request.VinylState) ? new VinylState { Name = request.VinylState } : null
-                },
-
-                EquipmentInfo = new EquipmentInfo
-                {
-                    Player = !string.IsNullOrEmpty(request.Player) ? new Player { Name = request.Player } : null,
-                    Cartridge = !string.IsNullOrEmpty(request.Cartridge) ? new Cartridge { Name = request.Cartridge } : null,
-                    Amplifier = !string.IsNullOrEmpty(request.Amplifier) ? new Amplifier { Name = request.Amplifier } : null,
-                    Adc = !string.IsNullOrEmpty(request.Adc) ? new Adc { Name = request.Adc } : null,
-                    Wire = !string.IsNullOrEmpty(request.Wire) ? new Wire { Name = request.Wire } : null
-                }
-            };
-        }
-        #endregion
     }
 }

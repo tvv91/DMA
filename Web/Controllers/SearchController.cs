@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Web.Enums;
 using Web.Interfaces;
+using Web.Response;
 
 namespace Web.Controllers
 {
+    [Route("search")]
     public class SearchController : Controller
     {
         private ISearchRepository _searchRepository;
@@ -14,10 +16,18 @@ namespace Web.Controllers
         }
 
         [HttpGet("{entityType}")]
-        public async Task<IActionResult> Search(EntityType entityType, [FromQuery] string value)
+        public async Task<IActionResult> Search(string entityType, [FromQuery] string value)
         {
-            var results = await _searchRepository.SearchAsync(entityType, value);
-            return Ok(results);
+            if (string.IsNullOrWhiteSpace(value))
+                return Ok(new List<AutocompleteResponse>());
+
+            if (Enum.TryParse<EntityType>(entityType, true, out var entityTypeEnum))
+            {
+                var results = await _searchRepository.SearchAsync(entityTypeEnum, value);
+                return Ok(results);
+            }
+
+            return BadRequest($"Invalid entity type: {entityType}");
         }
     }
 }

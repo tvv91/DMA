@@ -25,7 +25,19 @@ builder.Services.AddScoped<IPostCategoryRepository, PostCategoryRepository>();
 builder.Services.AddScoped<ISearchRepository, SearchRepository>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 
-builder.Services.AddSignalR();
+// Services
+builder.Services.AddScoped<IAlbumService, AlbumService>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IDigitizationService, DigitizationService>();
+builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+}).AddJsonProtocol(options =>
+{
+    options.PayloadSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+});
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

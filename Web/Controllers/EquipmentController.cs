@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Web.Enums;
 using Web.Interfaces;
-using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 
@@ -9,13 +8,12 @@ namespace Web.Controllers
 {
     public class EquipmentController : Controller
     {
-        //private readonly IDigitizationRepository _repository;
-        private readonly IEquipmentRepository _equipmentRepository;
+        private readonly IEquipmentService _equipmentService;
         private readonly IImageService _imageService;
 
-        public EquipmentController(IEquipmentRepository equipmentRepository, IImageService imageService)
+        public EquipmentController(IEquipmentService equipmentService, IImageService imageService)
         {
-            _equipmentRepository = equipmentRepository;
+            _equipmentService = equipmentService;
             _imageService = imageService;
         }
 
@@ -38,7 +36,7 @@ namespace Web.Controllers
 
             try
             {
-                var deleted = await _equipmentRepository.DeleteAsync(id, category);
+                var deleted = await _equipmentService.DeleteEquipmentAsync(id, category);
                 _imageService.RemoveCover(id, category);
                 return deleted ? Ok() : NotFound();
             }
@@ -58,7 +56,7 @@ namespace Web.Controllers
             if (!ModelState.IsValid)
                 return View("CreateUpdate", request);
 
-            var updated = await _equipmentRepository.UpdateAsync(GetEquipmentFromVM(request), request.EquipmentType);
+            var updated = await _equipmentService.UpdateEquipmentAsync(request);
 
             if (request.EquipmentCover is null)
                 _imageService.RemoveCover(updated.Id, request.EquipmentType);
@@ -75,21 +73,14 @@ namespace Web.Controllers
             if (id <= 0)
                 return BadRequest();
             
-            var equipment = await _equipmentRepository.GetByIdAsync(id, category);
+            var equipment = await _equipmentService.GetByIdAsync(id, category);
             
             if (equipment == null)
                 return NotFound();
 
-            var vm = new EquipmentViewModel
-            {
-                Id = equipment.Id,
-                ModelName = equipment.Name,
-                Description = equipment.Description,
-                EquipmentType = category,
-                Action = ActionType.Update,
-                EquipmentCover = _imageService.GetImageUrl(id, category),
-                Manufacturer = equipment.Manufacturer?.Name,
-            };
+            var imageUrl = _imageService.GetImageUrl(id, category);
+            var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
+            vm.Action = ActionType.Update;
 
             return View("CreateUpdate", vm);
         }
@@ -100,20 +91,13 @@ namespace Web.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            var equipment = await _equipmentRepository.GetByIdAsync(id, category);
+            var equipment = await _equipmentService.GetByIdAsync(id, category);
 
             if (equipment == null)
                 return NotFound();
 
-            var vm = new EquipmentViewModel
-            {
-                Id = equipment.Id,
-                ModelName = equipment.Name,
-                Description = equipment.Description,
-                EquipmentType = category,
-                EquipmentCover = _imageService.GetImageUrl(id, category),
-                Manufacturer = equipment.Manufacturer?.Name,
-            };
+            var imageUrl = _imageService.GetImageUrl(id, category);
+            var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
 
             return View("Details", vm);
         }
@@ -131,59 +115,12 @@ namespace Web.Controllers
             if (!ModelState.IsValid || string.IsNullOrWhiteSpace(request.ModelName))
                 return View("CreateUpdate", request);
 
-            var equipment = await _equipmentRepository.AddAsync(GetEquipmentFromVM(request), request.EquipmentType);
+            var equipment = await _equipmentService.CreateEquipmentAsync(request);
 
             if (request.EquipmentCover is not null)
                 _imageService.SaveCover(equipment.Id, request.EquipmentCover, request.EquipmentType);
 
             return RedirectToAction("GetById", new { category = request.EquipmentType, id = equipment.Id });
         }
-
-        #region Private
-        private IManufacturer GetEquipmentFromVM(EquipmentViewModel request)
-        {
-            Manufacturer? CreateManufacturer(string? name, EntityType type) => string.IsNullOrWhiteSpace(name) ? null : new Manufacturer { Name = name, Type = type };
-
-            return request.EquipmentType switch
-            {
-                EntityType.Adc => new Adc
-                {
-                    Id = request.Id,
-                    Name = request.ModelName,
-                    Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Adc)
-                },
-                EntityType.Amplifier => new Amplifier
-                {
-                    Id = request.Id,
-                    Name = request.ModelName,
-                    Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Amplifier)
-                },
-                EntityType.Cartridge => new Cartridge
-                {
-                    Id = request.Id,
-                    Name = request.ModelName,
-                    Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Cartridge)
-                },
-                EntityType.Player => new Player
-                {
-                    Id = request.Id,
-                    Name = request.ModelName,
-                    Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Player)
-                },
-                EntityType.Wire => new Wire
-                {
-                    Id = request.Id,
-                    Name = request.ModelName,
-                    Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Wire)
-                },
-                _ => throw new ArgumentOutOfRangeException(nameof(request.EquipmentType), request.EquipmentType, "Unknown equipment type")
-            };
-        }
-        #endregion
     }
 }

@@ -15,7 +15,6 @@ namespace Web.Implementation
 
         public async Task<Post> AddAsync(Post post)
         {
-            post.CreatedDate = DateTime.UtcNow;
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
             return post;
@@ -34,6 +33,7 @@ namespace Web.Implementation
         {
             var query = _context.Posts
             .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+            .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
             .AsQueryable();
 
             return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
@@ -57,7 +57,7 @@ namespace Web.Implementation
             existing.Description = post.Description;
             existing.Content = post.Content;
             existing.IsDraft = post.IsDraft;
-            existing.UpdatedDate = DateTime.UtcNow;
+            existing.UpdatedDate = post.UpdatedDate;
 
             if (post.PostCategories?.Any() == true)
             {
@@ -110,6 +110,8 @@ namespace Web.Implementation
             {
                 query = query.Where(p => p.IsDraft);
             }
+
+            query = query.OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue);
 
             return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
         }

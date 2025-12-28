@@ -1,5 +1,43 @@
 ﻿@model AlbumCreateUpdateViewModel;
 
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="toast_digitization_added" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">Digitization added successfully</div>
+    </div>
+    <div id="toast_digitization_updated" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">Digitization updated successfully</div>
+    </div>
+    <div id="toast_digitization_removed" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Success</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">Digitization removed successfully</div>
+    </div>
+    <div id="toast_digitization_error" class="toast toast-body-error" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header toast-header-error">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toast_digitization_error_msg" class="toast-body"></div>
+    </div>
+    <div id="toast_digitization_warning" class="toast toast-body-warning" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Warning</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div id="toast_digitization_warning_msg" class="toast-body"></div>
+    </div>
+</div>
+
 <a class="btn btn-outline-secondary mt-3" asp-action="Index" asp-controller="Album">
     <i class="fa-solid fa-arrow-left"></i> Back
 </a>
@@ -42,7 +80,7 @@
                                     <input id="artist_input" class="form-control" asp-for="Artist" placeholder="Artist" />
                                 </div>
                                 <div class="col-md-12">
-                                    <input id="album" class="form-control" asp-for="Title" placeholder="Album" />
+                                    <input id="album_input" class="form-control" asp-for="Title" placeholder="Album" />
                                 </div>
                                 <div class="col-md-12">
                                     <input id="genre_input" class="form-control" asp-for="Genre" placeholder="Genre" />
@@ -117,21 +155,334 @@
                     <i id="alert-icon" class="me-2"></i>&nbsp
                     <span></span>
                 </div>
-                <button id="submit_button" class="btn btn-warning px-4">
-                    <i class="fa-solid fa-plus"></i> Add digitization
+                <button id="add_digitization_btn" class="btn btn-info px-4" onclick="AddDigitization()" type="button" disabled>
+                    <i class="fa-solid fa-plus"></i> Add
                 </button>
-                <button id="submit_button" type="submit" class="btn btn-success px-4">
+                <button id="update_digitization_btn" class="btn btn-warning px-4" onclick="UpdateDigitization()" type="button" disabled>
+                    <i class="fa-regular fa-pen-to-square"></i> Update
+                </button>
+                <button id="remove_digitization_btn" class="btn btn-danger px-4" onclick="ShowRemoveModal()" type="button" disabled>
+                    <i class="fa-solid fa-xmark"></i> Remove
+                </button>
+                <button id="save_album_btn" type="submit" class="btn btn-success px-4">
                     <i class="fa-solid fa-check"></i> Save
                 </button>
             </div>
         </div>
     </form>
     <br />
-    <div class="card shadow-sm border-1 p-3">
-
+    <div class="position-relative shadow-sm border-1 p-3">
+        <div class="album-create-update-overlay" id="loader">
+            <div class="spinner-border" role="status"></div>
+        </div>
+        <div id="digitizations-container">
+            <div class="album-create-update-no-digitizations" id="no-digitizations">No digitizations</div>
+        </div>
+    </div>
+    <!-- Remove Confirmation Modal -->
+    <div class="modal fade" id="removeModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Removal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to remove this digitization? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="RemoveDigitization()">Remove</button>
+                </div>
+            </div>
+        </div>
+    </div>
     </div>
 </div>
 <script>
+    let selectedDigitizationId = 0;
+    let digitizations = [];
+
+    function showToast(toastId, message = null) {
+        const $toastEl = $('#' + toastId);
+        if ($toastEl.length) {
+            if (message) {
+                const $msgEl = $toastEl.find('.toast-body, #' + toastId + '_msg');
+                if ($msgEl.length) {
+                    $msgEl.text(message);
+                }
+            }
+            const toast = new bootstrap.Toast($toastEl[0]);
+            toast.show();
+        }
+    }
+
+    function checkAddButtonState() {
+        const artist = $("#artist_input").val()?.trim();
+        const album = $("#album_input").val()?.trim();
+        const genre = $("#genre_input").val()?.trim();
+        
+        const hasRequiredFields = artist && album && genre;
+        
+        // Check if at least one digitization/hardware field is filled
+        const hasDigitizationField = 
+            $("#vinylstate_input").val()?.trim() ||
+            $("#digitalformat_input").val()?.trim() ||
+            $("#bitness_input").val()?.trim() ||
+            $("#sampling_input").val()?.trim() ||
+            $("#sourceformat_input").val()?.trim() ||
+            $("#year_input").val()?.trim() ||
+            $("#reissue_input").val()?.trim() ||
+            $("#source").val()?.trim() ||
+            $("#sizeinput").val()?.trim() ||
+            $("#player_input").val()?.trim() ||
+            $("#cartridge_input").val()?.trim() ||
+            $("#amp_input").val()?.trim() ||
+            $("#adc_input").val()?.trim() ||
+            $("#wire_input").val()?.trim();
+        
+        $("#add_digitization_btn").prop("disabled", !(hasRequiredFields && hasDigitizationField));
+    }
+
+    function checkUpdateRemoveButtons() {
+        const enabled = selectedDigitizationId > 0;
+        $("#update_digitization_btn").prop("disabled", !enabled);
+        $("#remove_digitization_btn").prop("disabled", !enabled);
+    }
+
+    function clearDigitizationFields() {
+        $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input").val("");
+        $("#year_input, #reissue_input").val("");
+        $("#source, #sizeinput").val("");
+        $("#player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").val("");
+        $("#player_manufacturer_input, #cartridge_manufacturer_input, #amp_manufacturer_input, #adc_manufacturer_input, #wire_manufacturer_input").val("");
+        $("input[placeholder='Country']").val("");
+        $("input[placeholder='Label']").val("");
+        $("input[placeholder='Storage']").val("");
+        $("input[placeholder='Discogs link']").val("");
+        selectedDigitizationId = 0;
+        checkUpdateRemoveButtons();
+    }
+
+    function loadDigitizationToFields(digitization) {
+        selectedDigitizationId = digitization.id || digitization.Id;
+        
+        // Format Info - handle both camelCase and PascalCase
+        $("#vinylstate_input").val(digitization.vinylState || digitization.VinylState || "");
+        $("#digitalformat_input").val(digitization.digitalFormat || digitization.DigitalFormat || "");
+        $("#bitness_input").val(digitization.bitness || digitization.Bitness || "");
+        $("#sampling_input").val(digitization.sampling || digitization.Sampling || "");
+        $("#sourceformat_input").val(digitization.sourceFormat || digitization.SourceFormat || "");
+        $("#sizeinput").val(digitization.size || digitization.Size || "");
+        
+        // Equipment Info - handle both camelCase and PascalCase
+        const playerManufacturer = digitization.playerManufacturer || digitization.PlayerManufacturer || "";
+        const cartridgeManufacturer = digitization.cartridgeManufacturer || digitization.CartridgeManufacturer || "";
+        const amplifierManufacturer = digitization.amplifierManufacturer || digitization.AmplifierManufacturer || "";
+        const adcManufacturer = digitization.adcManufacturer || digitization.AdcManufacturer || "";
+        const wireManufacturer = digitization.wireManufacturer || digitization.WireManufacturer || "";
+        
+        // Set equipment names
+        $("#player_input").val(digitization.player || digitization.Player || "");
+        $("#cartridge_input").val(digitization.cartridge || digitization.Cartridge || "");
+        $("#amp_input").val(digitization.amplifier || digitization.Amplifier || "");
+        $("#adc_input").val(digitization.adc || digitization.Adc || "");
+        $("#wire_input").val(digitization.wire || digitization.Wire || "");
+        
+        // Set manufacturer fields
+        $("#player_manufacturer_input").val(playerManufacturer);
+        $("#cartridge_manufacturer_input").val(cartridgeManufacturer);
+        $("#amp_manufacturer_input").val(amplifierManufacturer);
+        $("#adc_manufacturer_input").val(adcManufacturer);
+        $("#wire_manufacturer_input").val(wireManufacturer);
+        
+        // Other fields - handle both camelCase and PascalCase
+        $("#year_input").val(digitization.year || digitization.Year || "");
+        $("#reissue_input").val(digitization.reissue || digitization.Reissue || "");
+        $("#source").val(digitization.source || digitization.Source || "");
+        
+        // Country, Label, Storage, Discogs
+        $("input[placeholder='Country']").val(digitization.country || digitization.Country || "");
+        $("input[placeholder='Label']").val(digitization.label || digitization.Label || "");
+        $("input[placeholder='Storage']").val(digitization.storage || digitization.Storage || "");
+        $("input[placeholder='Discogs link']").val(digitization.discogs || digitization.Discogs || "");
+        
+        checkUpdateRemoveButtons();
+    }
+
+    function renderDigitizations(digs) {
+        digitizations = digs || [];
+        const $container = $("#digitizations-container");
+        $container.empty();
+        
+        if (!digs || digs.length === 0) {
+            $container.html('<div class="album-create-update-no-digitizations" id="no-digitizations">No digitizations</div>');
+            $("#loader").hide();
+            return;
+        }
+        
+        const $table = $(`
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">VS</th>
+                        <th scope="col">BTS</th>
+                        <th scope="col">SMP</th>
+                        <th scope="col">FMT</th>
+                        <th scope="col">SRC</th>
+                        <th scope="col">PLR</th>
+                        <th scope="col">CRT</th>
+                        <th scope="col">AMP</th>
+                        <th scope="col">ADC</th>
+                        <th scope="col">WIR</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        `);
+        
+        const $tbody = $table.find("tbody");
+        
+        digs.forEach(dig => {
+            const digId = dig.id || dig.Id;
+            const $row = $(`
+                <tr class="digitization-row ${selectedDigitizationId === digId ? 'table-active' : ''}" data-id="${digId}" style="cursor: pointer;">
+                    <td>${dig.vinylState || dig.VinylState || '-'}</td>
+                    <td>${(dig.bitness || dig.Bitness) ? (dig.bitness || dig.Bitness) + 'bit' : '-'}</td>
+                    <td>${dig.sampling || dig.Sampling || '-'}</td>
+                    <td>${dig.digitalFormat || dig.DigitalFormat || '-'}</td>
+                    <td>${dig.source || dig.Source || '-'}</td>
+                    <td>${dig.player || dig.Player || '-'}</td>
+                    <td>${dig.cartridge || dig.Cartridge || '-'}</td>
+                    <td>${dig.amplifier || dig.Amplifier || '-'}</td>
+                    <td>${dig.adc || dig.Adc || '-'}</td>
+                    <td>${dig.wire || dig.Wire || '-'}</td>
+                </tr>
+            `);
+            
+            $row.on("click", function() {
+                $(".digitization-row").removeClass("table-active");
+                $(this).addClass("table-active");
+                const clickedDigId = $(this).data("id");
+                const clickedDig = digitizations.find(d => (d.id === clickedDigId) || (d.Id === clickedDigId));
+                if (clickedDig) {
+                    loadDigitizationToFields(clickedDig);
+                }
+            });
+            
+            $tbody.append($row);
+        });
+        
+        $container.append($table);
+        $("#loader").hide();
+    }
+
+    async function AddDigitization() {
+        const req = {
+            albumId: Number($("#albumid").val()) || 0,
+            digitizationId: 0,
+            artist: $("#artist_input").val()?.trim() || "",
+            album: $("#album_input").val()?.trim() || "",
+            genre: $("#genre_input").val()?.trim() || "",
+            source: $("#source").val()?.trim() || null,
+            discogs: $("input[placeholder='Discogs link']").val()?.trim() || null,
+            isFirstPress: false,
+            country: $("input[placeholder='Country']").val()?.trim() || null,
+            label: $("input[placeholder='Label']").val()?.trim() || null,
+            storage: $("input[placeholder='Storage']").val()?.trim() || null,
+            year: $("#year_input").val() ? Number($("#year_input").val()) : null,
+            reissue: $("#reissue_input").val() ? Number($("#reissue_input").val()) : null,
+            size: $("#sizeinput").val() ? parseFloat($("#sizeinput").val().replace(",", ".")) : null,
+            vinylState: $("#vinylstate_input").val()?.trim() || null,
+            digitalFormat: $("#digitalformat_input").val()?.trim() || null,
+            bitness: $("#bitness_input").val() ? Number($("#bitness_input").val()) : null,
+            sampling: $("#sampling_input").val() ? parseFloat($("#sampling_input").val().replace(",", ".")) : null,
+            sourceFormat: $("#sourceformat_input").val()?.trim() || null,
+            player: $("#player_input").val()?.trim() || null,
+            cartridge: $("#cartridge_input").val()?.trim() || null,
+            amplifier: $("#amp_input").val()?.trim() || null,
+            adc: $("#adc_input").val()?.trim() || null,
+            wire: $("#wire_input").val()?.trim() || null
+        };
+        
+        $("#loader").show();
+        try {
+            await connection.invoke("AddDigitization", connection.connectionId, req);
+        } catch (err) {
+            console.error("Error adding digitization:", err);
+            $("#loader").hide();
+            showToast("toast_digitization_error", "Error adding digitization: " + err.message);
+        }
+    }
+
+    async function UpdateDigitization() {
+        if (selectedDigitizationId === 0) {
+            showToast("toast_digitization_warning", "Please select a digitization to update");
+            return;
+        }
+        
+        const req = {
+            albumId: Number($("#albumid").val()) || 0,
+            digitizationId: selectedDigitizationId,
+            artist: $("#artist_input").val()?.trim() || "",
+            album: $("#album_input").val()?.trim() || "",
+            genre: $("#genre_input").val()?.trim() || "",
+            source: $("#source").val()?.trim() || null,
+            discogs: $("input[placeholder='Discogs link']").val()?.trim() || null,
+            isFirstPress: false,
+            country: $("input[placeholder='Country']").val()?.trim() || null,
+            label: $("input[placeholder='Label']").val()?.trim() || null,
+            storage: $("input[placeholder='Storage']").val()?.trim() || null,
+            year: $("#year_input").val() ? Number($("#year_input").val()) : null,
+            reissue: $("#reissue_input").val() ? Number($("#reissue_input").val()) : null,
+            size: $("#sizeinput").val() ? parseFloat($("#sizeinput").val().replace(",", ".")) : null,
+            vinylState: $("#vinylstate_input").val()?.trim() || null,
+            digitalFormat: $("#digitalformat_input").val()?.trim() || null,
+            bitness: $("#bitness_input").val() ? Number($("#bitness_input").val()) : null,
+            sampling: $("#sampling_input").val() ? parseFloat($("#sampling_input").val().replace(",", ".")) : null,
+            sourceFormat: $("#sourceformat_input").val()?.trim() || null,
+            player: $("#player_input").val()?.trim() || null,
+            cartridge: $("#cartridge_input").val()?.trim() || null,
+            amplifier: $("#amp_input").val()?.trim() || null,
+            adc: $("#adc_input").val()?.trim() || null,
+            wire: $("#wire_input").val()?.trim() || null
+        };
+        
+        $("#loader").show();
+        try {
+            await connection.invoke("UpdateDigitization", connection.connectionId, req);
+        } catch (err) {
+            console.error("Error updating digitization:", err);
+            $("#loader").hide();
+            showToast("toast_digitization_error", "Error updating digitization: " + err.message);
+        }
+    }
+
+    function ShowRemoveModal() {
+        if (selectedDigitizationId === 0) {
+            showToast("toast_digitization_warning", "Please select a digitization to remove");
+            return;
+        }
+        const modal = new bootstrap.Modal(document.getElementById("removeModal"));
+        modal.show();
+    }
+
+    async function RemoveDigitization() {
+        if (selectedDigitizationId === 0) return;
+        
+        $("#loader").show();
+        const modal = bootstrap.Modal.getInstance(document.getElementById("removeModal"));
+        modal.hide();
+        
+        try {
+            await connection.invoke("RemoveDigitization", connection.connectionId, selectedDigitizationId);
+        } catch (err) {
+            console.error("Error removing digitization:", err);
+            $("#loader").hide();
+            showToast("toast_digitization_error", "Error removing digitization: " + err.message);
+        }
+    }
+
     const alertMessages = {
         0: { type: "success", text: "No duplicates found. The album will be added." },
         50: { type: "warning", text: (ids) => `Album(s) [${prepareAlbumLinks(ids)}] already exist with the same source. Please check to make sure this is not a duplicate.` },
@@ -158,40 +509,221 @@
 
     $(document).ready(async () => {
         await start();
+        
+        // Initialize button states
+        checkAddButtonState();
+        checkUpdateRemoveButtons();
+        
+        // Set up field change listeners
+        $("#artist_input, #album_input, #genre_input").on("input", checkAddButtonState);
+        $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input, #year_input, #reissue_input, #source, #sizeinput, #player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").on("input", checkAddButtonState);
+        
+        // Load existing digitizations if any
+        @if (Model.Digitizations?.Any() == true)
+        {
+            <text>
+            const existingDigs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Digitizations.Select(d => new {
+                id = d.Id,
+                vinylState = d.FormatInfo?.VinylState?.Name,
+                bitness = d.FormatInfo?.Bitness?.Value,
+                sampling = d.FormatInfo?.Sampling?.Value,
+                digitalFormat = d.FormatInfo?.DigitalFormat?.Name,
+                sourceFormat = d.FormatInfo?.SourceFormat?.Name,
+                player = d.EquipmentInfo?.Player?.Name,
+                playerManufacturer = d.EquipmentInfo?.Player?.Manufacturer?.Name ?? "",
+                cartridge = d.EquipmentInfo?.Cartridge?.Name,
+                cartridgeManufacturer = d.EquipmentInfo?.Cartridge?.Manufacturer?.Name ?? "",
+                amplifier = d.EquipmentInfo?.Amplifier?.Name,
+                amplifierManufacturer = d.EquipmentInfo?.Amplifier?.Manufacturer?.Name ?? "",
+                adc = d.EquipmentInfo?.Adc?.Name,
+                adcManufacturer = d.EquipmentInfo?.Adc?.Manufacturer?.Name ?? "",
+                wire = d.EquipmentInfo?.Wire?.Name,
+                wireManufacturer = d.EquipmentInfo?.Wire?.Manufacturer?.Name ?? "",
+                source = d.Source,
+                year = d.Year?.Value,
+                reissue = d.Reissue?.Value,
+                country = d.Country?.Name,
+                label = d.Label?.Name,
+                storage = d.Storage?.Data,
+                discogs = d.Discogs,
+                size = d.FormatInfo?.Size
+            }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
+            renderDigitizations(existingDigs);
+            $("#loader").hide();
+            </text>
+        }
+        else
+        {
+            <text>
+            $("#loader").hide();
+            </text>
+        }
     });
 
     connection.onclose(async () => {
         await start();
     });
 
+    // Map field IDs to EntityType enum values
+    const fieldEntityMap = {
+        "artist_input": "Artist",
+        "genre_input": "Genre",
+        "vinylstate_input": "VinylState",
+        "digitalformat_input": "DigitalFormat",
+        "bitness_input": "Bitness",
+        "sampling_input": "Sampling",
+        "sourceformat_input": "SourceFormat",
+        "year_input": "Year",
+        "reissue_input": "Reissue",
+        "player_input": "Player",
+        "cartridge_input": "Cartridge",
+        "amp_input": "Amplifier",
+        "adc_input": "Adc",
+        "wire_input": "Wire"
+    };
+
+    // Map equipment fields to their manufacturer entity types
+    const equipmentManufacturerMap = {
+        "player_input": "PlayerManufacturer",
+        "cartridge_input": "CartridgeManufacturer",
+        "amp_input": "AmplifierManufacturer",
+        "adc_input": "AdcManufacturer",
+        "wire_input": "WireManufacturer"
+    };
+
     $(() => {
-        const getEntityName = (id) => id.replace("_input", "");
+        // Setup autocomplete for fields with _input suffix
         $("input[id$='_input']").each(function () {
             const $input = $(this);
-            const entity = getEntityName(this.id);
+            const fieldId = this.id;
+            const entityType = fieldEntityMap[fieldId];
 
-            $input.autocomplete({
-                source: (request, response) => {
-                    $.getJSON(`/search/${entity}`, { value: request.term }, response);
-                },
-                delay: 300,
-                minLength: 2,
-                messages: {
-                    noResults: '',
-                    results: () => {}
-                },
-                select: function (event, ui) {
-                    getManufacturer(entity, ui.item.value);
+            if (entityType) {
+                $input.autocomplete({
+                    source: (request, response) => {
+                        if (request.term.length < 2) {
+                            response([]);
+                            return;
+                        }
+                        $.getJSON(`/search/${entityType}`, { value: request.term })
+                            .done(function(data) {
+                                // Transform response to jQuery UI format
+                                const items = data.map(item => ({
+                                    label: item.label || item.value,
+                                    value: item.value || item.label
+                                }));
+                                response(items);
+                            })
+                            .fail(function() {
+                                response([]);
+                            });
+                    },
+                    delay: 300,
+                    minLength: 2,
+                    messages: {
+                        noResults: '',
+                        results: () => {}
+                    },
+                    select: function (event, ui) {
+                        // Auto-fill manufacturer for equipment fields
+                        const manufacturerType = equipmentManufacturerMap[fieldId];
+                        if (manufacturerType) {
+                            getManufacturer(manufacturerType, ui.item.value);
+                        }
+                    }
+                });
+            }
+        });
+
+        // Setup autocomplete for Country field
+        $("input[placeholder='Country']").autocomplete({
+            source: (request, response) => {
+                if (request.term.length < 2) {
+                    response([]);
+                    return;
                 }
-            });
+                $.getJSON(`/search/Country`, { value: request.term })
+                    .done(function(data) {
+                        const items = data.map(item => ({
+                            label: item.label || item.value,
+                            value: item.value || item.label
+                        }));
+                        response(items);
+                    })
+                    .fail(function() {
+                        response([]);
+                    });
+            },
+            delay: 300,
+            minLength: 2
+        });
+
+        // Setup autocomplete for Label field
+        $("input[placeholder='Label']").autocomplete({
+            source: (request, response) => {
+                if (request.term.length < 2) {
+                    response([]);
+                    return;
+                }
+                $.getJSON(`/search/Label`, { value: request.term })
+                    .done(function(data) {
+                        const items = data.map(item => ({
+                            label: item.label || item.value,
+                            value: item.value || item.label
+                        }));
+                        response(items);
+                    })
+                    .fail(function() {
+                        response([]);
+                    });
+            },
+            delay: 300,
+            minLength: 2
+        });
+
+        // Setup autocomplete for Storage field
+        $("input[placeholder='Storage']").autocomplete({
+            source: (request, response) => {
+                if (request.term.length < 2) {
+                    response([]);
+                    return;
+                }
+                $.getJSON(`/search/Storage`, { value: request.term })
+                    .done(function(data) {
+                        const items = data.map(item => ({
+                            label: item.label || item.value,
+                            value: item.value || item.label
+                        }));
+                        response(items);
+                    })
+                    .fail(function() {
+                        response([]);
+                    });
+            },
+            delay: 300,
+            minLength: 2
         });
     });
 
-    async function getManufacturer(category, value) {
+    async function getManufacturer(manufacturerType, equipmentValue) {
+        if (!manufacturerType || !equipmentValue) return;
+        
         try {
-            await connection.invoke("GetManufacturer", connection.connectionId, category, value);
+            // Convert manufacturer type to equipment category for SignalR
+            const categoryMap = {
+                "PlayerManufacturer": "player",
+                "CartridgeManufacturer": "cartridge",
+                "AmplifierManufacturer": "amplifier",
+                "AdcManufacturer": "adc",
+                "WireManufacturer": "wire"
+            };
+            
+            const category = categoryMap[manufacturerType];
+            if (category) {
+                await connection.invoke("GetManufacturer", connection.connectionId, category, equipmentValue);
+            }
         } catch (err) {
-            console.log("Error sending request to GetManufacturer");
+            console.error("Error getting manufacturer:", err);
         }
     }
 
@@ -256,7 +788,7 @@
         try {
             await connection.invoke("CheckAlbum", connection.connectionId, albumId, artist, album, source);
         } catch (err) {
-            console.log("Error sending request to GetManufacturer");
+            // Error handling
         }
     }
 
@@ -269,7 +801,19 @@
     }
 
     connection.on("ReceivedManufacturer", (category, result) => {
-         $(`input[id$='${category}_manufacturer_input']`).val(result);
+        // Map SignalR category to field ID
+        const categoryFieldMap = {
+            "player": "player",
+            "cartridge": "cartridge",
+            "amplifier": "amp",
+            "adc": "adc",
+            "wire": "wire"
+        };
+        
+        const fieldPrefix = categoryFieldMap[category.toLowerCase()];
+        if (fieldPrefix) {
+            $(`#${fieldPrefix}_manufacturer_input`).val(result || "");
+        }
     });
 
     connection.on("AlbumIsExist", (factor, albumIds) => {
@@ -278,6 +822,42 @@
             return;
         const text = typeof message.text === "function" ? message.text(albumIds) : message.text;
         showAlert("album-alert", `alert-${message.type}`, text);
+    });
+
+    connection.on("DigitizationAdded", (success, message, albumId, digitizations) => {
+        $("#loader").hide();
+        if (success) {
+            if (albumId > 0 && $("#albumid").val() == "0") {
+                $("#albumid").val(albumId);
+            }
+            renderDigitizations(digitizations);
+            clearDigitizationFields();
+            showToast("toast_digitization_added");
+        } else {
+            showToast("toast_digitization_error", "Error: " + message);
+        }
+    });
+
+    connection.on("DigitizationUpdated", (success, message, digitizations) => {
+        $("#loader").hide();
+        if (success) {
+            renderDigitizations(digitizations);
+            clearDigitizationFields();
+            showToast("toast_digitization_updated");
+        } else {
+            showToast("toast_digitization_error", "Error: " + message);
+        }
+    });
+
+    connection.on("DigitizationRemoved", (success, message, digitizations) => {
+        $("#loader").hide();
+        if (success) {
+            renderDigitizations(digitizations);
+            clearDigitizationFields();
+            showToast("toast_digitization_removed");
+        } else {
+            showToast("toast_digitization_error", "Error: " + message);
+        }
     });
 
     Dropzone.autoDiscover = false;

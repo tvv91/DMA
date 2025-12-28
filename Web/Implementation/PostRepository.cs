@@ -32,48 +32,27 @@ namespace Web.Implementation
         public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)
         {
             var query = _context.Posts
-            .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-            .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
-            .AsQueryable();
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+                .AsNoTracking()
+                .AsQueryable();
 
             return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
         }
 
         public async Task<Post?> GetByIdAsync(int id)
         {
-            return await _context.Posts.Include(p => p.PostCategories).ThenInclude(pc => pc.Category).FirstOrDefaultAsync(p => p.Id == id);
+            return await _context.Posts
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<Post> UpdateAsync(Post post)
         {
-            var existing = await _context.Posts
-               .Include(p => p.PostCategories)
-               .FirstOrDefaultAsync(p => p.Id == post.Id);
-
-            if (existing == null)
-                throw new KeyNotFoundException($"Post with Id {post.Id} not found.");
-
-            existing.Title = post.Title;
-            existing.Description = post.Description;
-            existing.Content = post.Content;
-            existing.IsDraft = post.IsDraft;
-            existing.UpdatedDate = post.UpdatedDate;
-
-            if (post.PostCategories?.Any() == true)
-            {
-                existing.PostCategories.Clear();
-                foreach (var pc in post.PostCategories)
-                {
-                    existing.PostCategories.Add(new PostCategory
-                    {
-                        CategoryId = pc.CategoryId,
-                        PostId = existing.Id
-                    });
-                }
-            }
-
+            // Repository only saves changes - all business logic moved to service
             await _context.SaveChangesAsync();
-            return existing;
+            return post;
         }
 
         public async Task<PagedResult<Post>> GetFilteredListAsync(
@@ -84,7 +63,10 @@ namespace Web.Implementation
             string? year,
             bool onlyDrafts)
         {
-            var query = _context.Posts.Include(p => p.PostCategories).ThenInclude(pc => pc.Category).AsQueryable();
+            var query = _context.Posts
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .AsNoTracking()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchText))
             {

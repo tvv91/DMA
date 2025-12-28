@@ -1,20 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Web.Db;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Response;
 
-namespace Web.Implementation
+namespace Web.Services
 {
-    public class SearchRepository : ISearchRepository
+    public class SearchService : ISearchService
     {
         private readonly DMADbContext _context;
         private readonly Dictionary<EntityType, Func<string, Task<List<AutocompleteResponse>>>> _searchMap;
 
-        public SearchRepository(DMADbContext ctx)
+        public SearchService(DMADbContext context)
         {
-            _context = ctx;
+            _context = context;
 
             _searchMap = new()
             {
@@ -110,3 +110,4 @@ namespace Web.Implementation
         }
     }
 }
+

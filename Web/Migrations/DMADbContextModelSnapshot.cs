@@ -17,7 +17,7 @@ namespace Web.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -66,7 +66,7 @@ namespace Web.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -76,6 +76,8 @@ namespace Web.Migrations
                     b.HasIndex("ArtistId");
 
                     b.HasIndex("GenreId");
+
+                    b.HasIndex("Title");
 
                     b.ToTable("Albums");
                 });
@@ -521,12 +523,18 @@ namespace Web.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("UpdatedDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedDate");
+
+                    b.HasIndex("IsDraft");
+
+                    b.HasIndex("Title");
 
                     b.ToTable("Posts");
                 });
@@ -855,31 +863,38 @@ namespace Web.Migrations
 
                     b.HasOne("Web.Models.Country", "Country")
                         .WithMany("Digitizations")
-                        .HasForeignKey("CountryId");
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.EquipmentInfo", "EquipmentInfo")
                         .WithMany()
-                        .HasForeignKey("EquipmentInfoId");
+                        .HasForeignKey("EquipmentInfoId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Web.Models.FormatInfo", "FormatInfo")
                         .WithMany()
-                        .HasForeignKey("FormatInfoId");
+                        .HasForeignKey("FormatInfoId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Web.Models.Label", "Label")
                         .WithMany("Digitizations")
-                        .HasForeignKey("LabelId");
+                        .HasForeignKey("LabelId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Reissue", "Reissue")
                         .WithMany("Digitizations")
-                        .HasForeignKey("ReissueId");
+                        .HasForeignKey("ReissueId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Storage", "Storage")
                         .WithMany("Digitizations")
-                        .HasForeignKey("StorageId");
+                        .HasForeignKey("StorageId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Year", "Year")
                         .WithMany("Digitizations")
-                        .HasForeignKey("YearId");
+                        .HasForeignKey("YearId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Album");
 
@@ -902,23 +917,28 @@ namespace Web.Migrations
                 {
                     b.HasOne("Web.Models.Adc", "Adc")
                         .WithMany()
-                        .HasForeignKey("AdcId");
+                        .HasForeignKey("AdcId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Amplifier", "Amplifier")
                         .WithMany()
-                        .HasForeignKey("AmplifierId");
+                        .HasForeignKey("AmplifierId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Cartridge", "Cartridge")
                         .WithMany()
-                        .HasForeignKey("CartridgeId");
+                        .HasForeignKey("CartridgeId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Player", "Player")
                         .WithMany()
-                        .HasForeignKey("PlayerId");
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Wire", "Wire")
                         .WithMany()
-                        .HasForeignKey("WireId");
+                        .HasForeignKey("WireId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Adc");
 
@@ -935,23 +955,28 @@ namespace Web.Migrations
                 {
                     b.HasOne("Web.Models.Bitness", "Bitness")
                         .WithMany()
-                        .HasForeignKey("BitnessId");
+                        .HasForeignKey("BitnessId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.DigitalFormat", "DigitalFormat")
                         .WithMany()
-                        .HasForeignKey("DigitalFormatId");
+                        .HasForeignKey("DigitalFormatId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.Sampling", "Sampling")
                         .WithMany()
-                        .HasForeignKey("SamplingId");
+                        .HasForeignKey("SamplingId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.SourceFormat", "SourceFormat")
                         .WithMany()
-                        .HasForeignKey("SourceFormatId");
+                        .HasForeignKey("SourceFormatId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Web.Models.VinylState", "VinylState")
                         .WithMany()
-                        .HasForeignKey("VinylStateId");
+                        .HasForeignKey("VinylStateId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Bitness");
 
@@ -978,7 +1003,7 @@ namespace Web.Migrations
                     b.HasOne("Web.Models.Category", "Category")
                         .WithMany("PostCategories")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Web.Models.Post", "Post")

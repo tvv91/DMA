@@ -20,9 +20,6 @@ builder.Services.AddScoped<IDigitizationRepository, DigitizationRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IPostCategoryRepository, PostCategoryRepository>();
-builder.Services.AddScoped<ISearchRepository, SearchRepository>();
 builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 
 // Services
@@ -30,6 +27,7 @@ builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IDigitizationService, DigitizationService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
 
 builder.Services.AddSignalR(options =>
 {

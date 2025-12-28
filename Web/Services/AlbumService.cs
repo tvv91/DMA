@@ -63,11 +63,20 @@ namespace Web.Services
 
         public async Task<Album> UpdateAlbumAsync(int albumId, string title, string? artist, string? genre)
         {
-            var existing = await _albumRepository.GetByIdAsync(albumId);
+            // Business logic: Validate album ID
+            if (albumId <= 0)
+                throw new InvalidDataException("AlbumId is invalid");
+
+            // Business logic: Load existing album with tracking for updates
+            var existing = await _context.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Genre)
+                .FirstOrDefaultAsync(a => a.Id == albumId);
+            
             if (existing == null)
                 throw new KeyNotFoundException($"Album {albumId} not found");
 
-            // Check if nothing changed
+            // Business logic: Check if nothing changed
             if (existing.Title == title &&
                 (string.IsNullOrWhiteSpace(genre) || existing.Genre?.Name == genre) &&
                 (string.IsNullOrWhiteSpace(artist) || existing.Artist?.Name == artist))
@@ -75,6 +84,7 @@ namespace Web.Services
                 return existing;
             }
 
+            // Business logic: Update properties
             existing.Title = title;
             existing.UpdateDate = DateTime.UtcNow;
 
@@ -90,6 +100,7 @@ namespace Web.Services
                 existing.ArtistId = artistEntity.Id;
             }
 
+            // Repository only saves changes
             return await _albumRepository.UpdateAsync(existing);
         }
 

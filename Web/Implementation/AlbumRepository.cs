@@ -40,24 +40,8 @@ namespace Web.Implementation
 
         public async Task<Album> UpdateAsync(Album album)
         {
-            if (album.Id <= 0)
-                throw new InvalidDataException("AlbumId is invalid");
-
-            var existing = await _context.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Genre)
-                .FirstOrDefaultAsync(a => a.Id == album.Id);
-
-            if (existing == null)
-                throw new KeyNotFoundException($"Album {album.Id} not found");
-
-            existing.Title = album.Title;
-            existing.UpdateDate = album.UpdateDate;
-            existing.ArtistId = album.ArtistId;
-            existing.GenreId = album.GenreId;
-
             await _context.SaveChangesAsync();
-            return existing;
+            return album;
         }
 
         public async Task<bool> DeleteAsync(int id)
@@ -74,7 +58,8 @@ namespace Web.Implementation
             var query = _context.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Genre)
-                .Where(a => a.Title.Contains(title));
+                .Where(a => a.Title.Contains(title))
+                .AsNoTracking();
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Title);
         }
@@ -83,6 +68,7 @@ namespace Web.Implementation
         {
             var query = _context.Albums
                 .Include(a => a.Artist)
+                .AsNoTracking()
                 .AsQueryable();
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
@@ -93,7 +79,8 @@ namespace Web.Implementation
             return await _context.Albums
                 .Include(a => a.Artist)
                 .Include(a => a.Genre)
-                .FirstOrDefaultAsync(a =>a.Title.ToLower() == title.ToLower() && a.Artist.Name.ToLower() == artist.ToLower());
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a => a.Title.ToLower() == title.ToLower() && a.Artist.Name.ToLower() == artist.ToLower());
         }
     }
 }

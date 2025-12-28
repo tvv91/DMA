@@ -8,11 +8,11 @@ namespace Web.Controllers
     [Route("search")]
     public class SearchController : Controller
     {
-        private ISearchRepository _searchRepository;
+        private readonly ISearchService _searchService;
 
-        public SearchController(ISearchRepository searchRepository)
+        public SearchController(ISearchService searchService)
         {
-            _searchRepository = searchRepository;
+            _searchService = searchService;
         }
 
         [HttpGet("{entityType}")]
@@ -23,7 +23,7 @@ namespace Web.Controllers
 
             if (Enum.TryParse<EntityType>(entityType, true, out var entityTypeEnum))
             {
-                var results = await _searchRepository.SearchAsync(entityTypeEnum, value);
+                var results = await _searchService.SearchAsync(entityTypeEnum, value);
                 return Ok(results);
             }
 

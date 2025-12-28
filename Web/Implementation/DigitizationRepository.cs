@@ -99,64 +99,13 @@ namespace Web.Implementation
 
         public async Task<Digitization> UpdateAsync(Digitization digitization)
         {
-            var existing = await _context.Digitizations
-                .Include(d => d.FormatInfo)
-                .Include(d => d.EquipmentInfo)
-                .FirstOrDefaultAsync(d => d.Id == digitization.Id);
-
-            if (existing == null)
-                throw new KeyNotFoundException($"Digitization {digitization.Id} not found");
-
-            existing.AlbumId = digitization.AlbumId;
-            existing.Source = digitization.Source;
-            existing.Discogs = digitization.Discogs;
-            existing.IsFirstPress = digitization.IsFirstPress;
-            existing.CountryId = digitization.CountryId;
-            existing.LabelId = digitization.LabelId;
-            existing.ReissueId = digitization.ReissueId;
-            existing.YearId = digitization.YearId;
-            existing.StorageId = digitization.StorageId;
-            existing.UpdateDate = digitization.UpdateDate;
-
-            if (digitization.FormatInfo is not null)
-            {
-                if (existing.FormatInfo == null)
-                {
-                    existing.FormatInfo = new FormatInfo();
-                    _context.FormatInfos.Add(existing.FormatInfo);
-                }
-                existing.FormatInfo.Size = digitization.FormatInfo.Size;
-                existing.FormatInfo.BitnessId = digitization.FormatInfo.BitnessId;
-                existing.FormatInfo.SamplingId = digitization.FormatInfo.SamplingId;
-                existing.FormatInfo.DigitalFormatId = digitization.FormatInfo.DigitalFormatId;
-                existing.FormatInfo.SourceFormatId = digitization.FormatInfo.SourceFormatId;
-                existing.FormatInfo.VinylStateId = digitization.FormatInfo.VinylStateId;
-            }
-
-            if (digitization.EquipmentInfo is not null)
-            {
-                if (existing.EquipmentInfo == null)
-                {
-                    existing.EquipmentInfo = new EquipmentInfo();
-                    _context.EquipmentInfos.Add(existing.EquipmentInfo);
-                }
-                existing.EquipmentInfo.PlayerId = digitization.EquipmentInfo.PlayerId;
-                existing.EquipmentInfo.CartridgeId = digitization.EquipmentInfo.CartridgeId;
-                existing.EquipmentInfo.AmplifierId = digitization.EquipmentInfo.AmplifierId;
-                existing.EquipmentInfo.AdcId = digitization.EquipmentInfo.AdcId;
-                existing.EquipmentInfo.WireId = digitization.EquipmentInfo.WireId;
-            }
-
             await _context.SaveChangesAsync();
-            return existing;
+            return digitization;
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var affected = await _context.Digitizations
-                .Where(d => d.Id == id)
-                .ExecuteDeleteAsync();
-
+            var affected = await _context.Digitizations.Where(d => d.Id == id).ExecuteDeleteAsync();
             return affected > 0;
         }        
     }

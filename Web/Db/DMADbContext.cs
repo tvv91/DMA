@@ -89,15 +89,208 @@ namespace Web.Db
             modelBuilder.Entity<VinylState>().HasData(new VinylState { Id = 4, Name = "Very Good" });
             modelBuilder.Entity<VinylState>().HasData(new VinylState { Id = 5, Name = "Good" });
             modelBuilder.Entity<VinylState>().HasData(new VinylState { Id = 6, Name = "Unknown" });
-            // indexes
-            modelBuilder.Entity<Digitization>().HasIndex(d => d.AlbumId);
 
-            // cascade delete
+            // Performance indexes
+            // Album indexes
+            modelBuilder.Entity<Album>()
+                .HasIndex(a => a.Title);
+            modelBuilder.Entity<Album>()
+                .HasIndex(a => a.ArtistId);
+            modelBuilder.Entity<Album>()
+                .HasIndex(a => a.GenreId);
+
+            // Digitization indexes
+            modelBuilder.Entity<Digitization>()
+                .HasIndex(d => d.AlbumId);
+            modelBuilder.Entity<Digitization>()
+                .HasIndex(d => d.CountryId);
+            modelBuilder.Entity<Digitization>()
+                .HasIndex(d => d.LabelId);
+            modelBuilder.Entity<Digitization>()
+                .HasIndex(d => d.YearId);
+            modelBuilder.Entity<Digitization>()
+                .HasIndex(d => d.StorageId);
+
+            // FormatInfo indexes
+            modelBuilder.Entity<FormatInfo>()
+                .HasIndex(f => f.BitnessId);
+            modelBuilder.Entity<FormatInfo>()
+                .HasIndex(f => f.SamplingId);
+            modelBuilder.Entity<FormatInfo>()
+                .HasIndex(f => f.DigitalFormatId);
+            modelBuilder.Entity<FormatInfo>()
+                .HasIndex(f => f.SourceFormatId);
+            modelBuilder.Entity<FormatInfo>()
+                .HasIndex(f => f.VinylStateId);
+
+            // EquipmentInfo indexes
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasIndex(e => e.PlayerId);
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasIndex(e => e.CartridgeId);
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasIndex(e => e.AmplifierId);
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasIndex(e => e.AdcId);
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasIndex(e => e.WireId);
+
+            // Post indexes
+            modelBuilder.Entity<Post>()
+                .HasIndex(p => p.CreatedDate);
+            modelBuilder.Entity<Post>()
+                .HasIndex(p => p.IsDraft);
+            modelBuilder.Entity<Post>()
+                .HasIndex(p => p.Title);
+
+            // PostCategory indexes
+            modelBuilder.Entity<PostCategory>()
+                .HasIndex(pc => pc.PostId);
+            modelBuilder.Entity<PostCategory>()
+                .HasIndex(pc => pc.CategoryId);
+
+            // Equipment indexes for manufacturer lookups
+            modelBuilder.Entity<Player>()
+                .HasIndex(p => p.ManufacturerId);
+            modelBuilder.Entity<Cartridge>()
+                .HasIndex(c => c.ManufacturerId);
+            modelBuilder.Entity<Amplifier>()
+                .HasIndex(a => a.ManufacturerId);
+            modelBuilder.Entity<Adc>()
+                .HasIndex(a => a.ManufacturerId);
+            modelBuilder.Entity<Wire>()
+                .HasIndex(w => w.ManufacturerId);
+
+            // Cascade delete configuration
+            // Album -> Digitizations: Cascade delete (when album is deleted, delete all digitizations)
             modelBuilder.Entity<Digitization>()
                 .HasOne(d => d.Album)
                 .WithMany(a => a.Digitizations)
                 .HasForeignKey(d => d.AlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Digitization -> FormatInfo: Cascade delete (FormatInfo is owned by Digitization)
+            // But FormatInfo's referenced entities (Bitness, Sampling, etc.) should remain
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.FormatInfo)
+                .WithMany()
+                .HasForeignKey(d => d.FormatInfoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Digitization -> EquipmentInfo: Cascade delete (EquipmentInfo is owned by Digitization)
+            // But EquipmentInfo's referenced entities (Player, Cartridge, etc.) should remain
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.EquipmentInfo)
+                .WithMany()
+                .HasForeignKey(d => d.EquipmentInfoId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Digitization -> Related entities: No cascade delete (Country, Label, Year, Reissue, Storage should remain)
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.Country)
+                .WithMany(c => c.Digitizations)
+                .HasForeignKey(d => d.CountryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.Label)
+                .WithMany(l => l.Digitizations)
+                .HasForeignKey(d => d.LabelId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.Year)
+                .WithMany(y => y.Digitizations)
+                .HasForeignKey(d => d.YearId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.Reissue)
+                .WithMany(r => r.Digitizations)
+                .HasForeignKey(d => d.ReissueId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Digitization>()
+                .HasOne(d => d.Storage)
+                .WithMany(s => s.Digitizations)
+                .HasForeignKey(d => d.StorageId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // FormatInfo -> Related entities: No cascade delete
+            modelBuilder.Entity<FormatInfo>()
+                .HasOne(f => f.Bitness)
+                .WithMany()
+                .HasForeignKey(f => f.BitnessId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<FormatInfo>()
+                .HasOne(f => f.Sampling)
+                .WithMany()
+                .HasForeignKey(f => f.SamplingId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<FormatInfo>()
+                .HasOne(f => f.DigitalFormat)
+                .WithMany()
+                .HasForeignKey(f => f.DigitalFormatId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<FormatInfo>()
+                .HasOne(f => f.SourceFormat)
+                .WithMany()
+                .HasForeignKey(f => f.SourceFormatId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<FormatInfo>()
+                .HasOne(f => f.VinylState)
+                .WithMany()
+                .HasForeignKey(f => f.VinylStateId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // EquipmentInfo -> Related entities: No cascade delete
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasOne(e => e.Player)
+                .WithMany()
+                .HasForeignKey(e => e.PlayerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasOne(e => e.Cartridge)
+                .WithMany()
+                .HasForeignKey(e => e.CartridgeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasOne(e => e.Amplifier)
+                .WithMany()
+                .HasForeignKey(e => e.AmplifierId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasOne(e => e.Adc)
+                .WithMany()
+                .HasForeignKey(e => e.AdcId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<EquipmentInfo>()
+                .HasOne(e => e.Wire)
+                .WithMany()
+                .HasForeignKey(e => e.WireId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Post -> PostCategories: Cascade delete
+            modelBuilder.Entity<PostCategory>()
+                .HasOne(pc => pc.Post)
+                .WithMany(p => p.PostCategories)
+                .HasForeignKey(pc => pc.PostId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // PostCategory -> Category: No cascade delete (Category should remain)
+            modelBuilder.Entity<PostCategory>()
+                .HasOne(pc => pc.Category)
+                .WithMany(c => c.PostCategories)
+                .HasForeignKey(pc => pc.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

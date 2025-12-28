@@ -56,15 +56,21 @@ namespace Web.Services
 
         public async Task<Post> UpdatePostAsync(int postId, PostViewModel model)
         {
-            var existing = await _postRepository.GetByIdAsync(postId);
+            // Business logic: Load existing post with tracking for updates
+            var existing = await _context.Posts
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+            
             if (existing == null)
                 throw new KeyNotFoundException($"Post with Id {postId} not found.");
 
+            // Business logic: Update properties
             existing.Title = model.Title;
             existing.Description = model.Description;
             existing.Content = model.Content;
             existing.UpdatedDate = DateTime.UtcNow;
 
+            // Business logic: Update category if changed
             var currentCategory = existing.PostCategories.FirstOrDefault()?.Category?.Title;
 
             if (model.Category != currentCategory && !string.IsNullOrWhiteSpace(model.Category))
@@ -77,6 +83,7 @@ namespace Web.Services
                 });
             }
 
+            // Repository only saves changes
             return await _postRepository.UpdateAsync(existing);
         }
 

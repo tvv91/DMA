@@ -4,53 +4,74 @@
     var action = Model.Action;
 }
 
-<a class="btn btn-secondary mt-3" asp-action="index" asp-controller="equipment">Back</a>
+<a class="btn btn-outline-secondary mt-3" asp-action="index" asp-controller="equipment">
+    <i class="fa-solid fa-arrow-left"></i> Back
+</a>
 
-<form asp-action="@action" method="post" onsubmit="onSubmit()">
-    <div asp-validation-summary="ModelOnly"></div>
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>@(Model.Action == Web.Enums.ActionType.Create ? "Add New Equipment" : "Edit Equipment")</h3>
+    </div>
+    
+    <form asp-action="@action" method="post" onsubmit="onSubmit()">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-    <input type="hidden" id="coverid" asp-for="EquipmentCover" />
-    <input type="hidden" id="action" asp-for="Action" />
-    <input type="hidden" id="entitytype" asp-for="EquipmentType" />
+        <input type="hidden" id="coverid" asp-for="EquipmentCover" />
+        <input type="hidden" id="action" asp-for="Action" />
+        <input type="hidden" id="entitytype" asp-for="EquipmentType" />
 
-    <div class="new-update-equipment">
-        <div class="cover-image">
-            <div class="image-place justifiy-element-size dropzone" id="mydropzone"></div>
-        </div>
-        <div class="equipment-info-temp">
-            <div class="equipment-form-input">
-                <div class="equipment-select">
-                    <label for="equipmentType">Type</label>
-                    <select id="equipmentType" class="form-select"
-                            asp-for="EquipmentType"
-                            asp-items="Model.Equipments"
-                            onchange="onChange(this)">
-                    </select>
+        <div class="card shadow-sm border-1 p-3">
+            <div class="row align-items-stretch">
+                <div class="col-auto d-flex">
+                    <div id="mydropzone" class="dropzone"></div>
                 </div>
+                <div class="col d-flex flex-column">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <label for="equipmentType" class="form-label">Type</label>
+                                <select id="equipmentType" class="form-select"
+                                        asp-for="EquipmentType"
+                                        asp-items="Model.Equipments"
+                                        onchange="onChange(this)">
+                                </select>
+                            </div>
 
-                <label for="artist_input">Model</label>
-                <input id="artist_input" class="input-textbox"
-                       asp-for="ModelName"
-                       autocomplete="on"
-                       placeholder="Model" />
+                            <div class="col-md-12">
+                                <label for="model_input" class="form-label">Model</label>
+                                <input id="model_input" class="form-control"
+                                       asp-for="ModelName"
+                                       autocomplete="on"
+                                       placeholder="Model" />
+                            </div>
 
-                <label for="album">Manufacturer</label>
-                <input id="album" class="input-textbox"
-                       asp-for="Manufacturer"
-                       placeholder="Manufacturer" />
+                            <div class="col-md-12">
+                                <label for="manufacturer_input" class="form-label">Manufacturer</label>
+                                <input id="manufacturer_input" class="form-control"
+                                       asp-for="Manufacturer"
+                                       placeholder="Manufacturer" />
+                            </div>
 
-                <label for="description">Description</label>
-                <textarea id="description" class="equipment-textarea"
-                          asp-for="Description"
-                          placeholder="Description"></textarea>
+                            <div class="col-md-12">
+                                <label for="description" class="form-label">Description</label>
+                                <textarea id="description" class="form-control"
+                                          asp-for="Description"
+                                          rows="6"
+                                          placeholder="Description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-    <button id="submit_button" type="submit" class="btn btn-primary mt-2 float-end">
-        <i class="fa-sharp fa-solid fa-check"></i>
-        Save
-    </button>
-</form>
+        
+        <div class="mt-3 d-flex justify-content-end">
+            <button id="submit_button" type="submit" class="btn btn-primary">
+                <i class="fa-sharp fa-solid fa-check"></i> Save
+            </button>
+        </div>
+    </form>
+</div>
 <script>
     const selectors = {
                 dropzone: "#mydropzone",
@@ -92,7 +113,7 @@
                 thumbnailHeight: 300,
                 resizeWidth: 300,
                 resizeHeight: 300,
-                dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
+                dictDefaultMessage: "<b>Upload equipment image</b><br><i>Images > 300x300 pixels will be resized</i>",
                 acceptedFiles: ".jpeg,.png,.jpg",
                     success: (file, data) => {
                         $("#coverid").val(data.filename);

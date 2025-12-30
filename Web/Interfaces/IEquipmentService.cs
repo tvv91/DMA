@@ -10,7 +10,8 @@ namespace Web.Interfaces
         Task<IManufacturer> UpdateEquipmentAsync(EquipmentViewModel request);
         Task<bool> DeleteEquipmentAsync(int id, EntityType type);
         EquipmentViewModel MapEquipmentToViewModel(IManufacturer equipment, EntityType type, string? imageUrl = null);
-        IManufacturer MapViewModelToEquipment(EquipmentViewModel request);
+        Task<IManufacturer> MapViewModelToEquipmentAsync(EquipmentViewModel request);
     }
 }
+
 

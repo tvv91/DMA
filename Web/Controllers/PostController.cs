@@ -49,6 +49,9 @@ namespace Web.Controllers
 
             var post = await _postService.CreatePostAsync(model);
             
+            // Set flag to reset pagination to page 1 when returning to list
+            TempData["PostCreated"] = true;
+            
             return RedirectToAction(nameof(GetById), new { id = post.Id });
         }
 
@@ -90,6 +93,10 @@ namespace Web.Controllers
             try
             {
                 var post = await _postService.UpdatePostAsync(model.Id.Value, model);
+                
+                // Set flag to reset pagination to page 1 when returning to list
+                TempData["PostUpdated"] = true;
+                
                 return RedirectToAction(nameof(GetById), new { id = post.Id });
             }
             catch (KeyNotFoundException)

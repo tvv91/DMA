@@ -114,18 +114,33 @@ else
         const img = $(`#album-img-${albumId}`);
         const spinner = $(`#spinner-${albumId}`);
 
+        // Check if elements exist (defensive check)
+        if (img.length === 0 || spinner.length === 0) {
+            return;
+        }
+
+        // Attach event handlers before setting src to handle cached images
         img.off("load error")
-           .on("load", () => spinner.addClass("hidden"))
+           .on("load", () => {
+               spinner.addClass("hidden");
+               img.removeClass("d-none");
+           })
            .on("error", () => {
                img.attr("src", "/img/nocover.png");
                spinner.addClass("hidden");
+               img.removeClass("d-none");
            });
 
-        img.attr("src", cover).removeClass("d-none");
+        // Set src after handlers are attached
+        img.attr("src", cover);
 
-        if (img[0].complete) {
+        // Check if image is already loaded (cached images)
+        if (img[0].complete && img[0].naturalHeight !== 0) {
             spinner.addClass("hidden");
             img.removeClass("d-none");
+        } else if (img[0].complete && img[0].naturalHeight === 0) {
+            // Image failed to load
+            img.trigger("error");
         }
     });
 

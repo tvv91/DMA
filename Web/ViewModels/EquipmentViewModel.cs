@@ -17,11 +17,11 @@ namespace Web.ViewModels
         public string? Description { get; set; }
         public List<SelectListItem> Equipments { get; } = new List<SelectListItem>
         {
-            new SelectListItem { Text = EntityType.Adc.ToString() },
-            new SelectListItem { Text = EntityType.Amplifier.ToString() },
-            new SelectListItem { Text = EntityType.Cartridge.ToString() },
-            new SelectListItem { Text = EntityType.Player.ToString() },
-            new SelectListItem { Text = EntityType.Wire.ToString() },
+            new SelectListItem { Text = EntityType.Adc.ToString(), Value = EntityType.Adc.ToString() },
+            new SelectListItem { Text = EntityType.Amplifier.ToString(), Value = EntityType.Amplifier.ToString() },
+            new SelectListItem { Text = EntityType.Cartridge.ToString(), Value = EntityType.Cartridge.ToString() },
+            new SelectListItem { Text = EntityType.Player.ToString(), Value = EntityType.Player.ToString() },
+            new SelectListItem { Text = EntityType.Wire.ToString(), Value = EntityType.Wire.ToString() },
         };
     }
 }

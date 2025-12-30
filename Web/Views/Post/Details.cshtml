@@ -2,6 +2,18 @@
 @Html.AntiForgeryToken()
 
 <body data-page="view-post">
+    @if (TempData["PostCreated"] != null)
+    {
+        <script>
+            sessionStorage.setItem("post_created", "1");
+        </script>
+    }
+    @if (TempData["PostUpdated"] != null)
+    {
+        <script>
+            sessionStorage.setItem("post_updated", "1");
+        </script>
+    }
     <div class="mt-2 position-relative">
         <a class="btn btn-secondary" asp-action="index" asp-controller="post">Back</a>
         <span class="position-absolute end-0">

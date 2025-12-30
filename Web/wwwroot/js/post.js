@@ -185,6 +185,13 @@ function renderBlogTree(tree) {
 }
 
 function initPostListPage() {
+    // Reset to page 1 if coming from post creation/update
+    if (sessionStorage.getItem("post_created") === "1" || sessionStorage.getItem("post_updated") === "1") {
+        setCurrentPage(1);
+        sessionStorage.removeItem("post_created");
+        sessionStorage.removeItem("post_updated");
+    }
+    
     // Load posts - connection should already be started by document.ready
     if (connection.state === signalR.HubConnectionState.Connected) {
         loadPosts();

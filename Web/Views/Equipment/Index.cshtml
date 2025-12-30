@@ -188,11 +188,32 @@
         const spinner = $(`#spinner-${id}`);
         const img = $(`#img-${id}`);
 
+        // Check if elements exist (defensive check)
+        if (spinner.length === 0 || img.length === 0) {
+            return;
+        }
+
         if (src && !src.includes("nocover")) {
-            img.attr("src", src).on("load", () => {
+            // Attach event handlers before setting src to handle cached images
+            img.off("load error"); // Remove any existing handlers
+            
+            img.on("load", () => {
                 spinner.hide();
                 img.fadeIn(500);
+            }).on("error", () => {
+                // If image fails to load, show placeholder
+                spinner.hide();
+                img.replaceWith(`<i class="fa-regular fa-image fa-5x" style="color:black"></i>`);
             });
+            
+            // Set src after handlers are attached
+            img.attr("src", src);
+            
+            // Check if image is already loaded (cached images)
+            if (img[0].complete && img[0].naturalHeight !== 0) {
+                spinner.hide();
+                img.fadeIn(500);
+            }
         } else {
             spinner.hide();
             img.replaceWith(`<i class="fa-regular fa-image fa-5x" style="color:black"></i>`);

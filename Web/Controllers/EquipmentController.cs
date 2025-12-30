@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Services;
@@ -47,7 +48,7 @@ namespace Web.Controllers
             }
         }
 
-        [HttpPost("update")]
+        [HttpPost("[controller]/update")]
         public async Task<IActionResult> Update(EquipmentViewModel request)
         {
             if (request.Id <= 0 || request.Action != ActionType.Update)
@@ -63,11 +64,11 @@ namespace Web.Controllers
             else
                 _imageService.SaveCover(updated.Id, request.EquipmentCover, request.EquipmentType);
 
-            return RedirectToAction("GetById", "Equipment", new { category = request.EquipmentType, id = updated.Id });
+            return Redirect($"/equipment/{request.EquipmentType}/{updated.Id}");
         }
 
 
-        [HttpGet("{category}/{id}/edit")]
+        [HttpGet("equipment/{category}/{id}/edit", Order = 1)]
         public async Task<IActionResult> Edit(EntityType category, int id)
         {
             if (id <= 0)
@@ -85,7 +86,7 @@ namespace Web.Controllers
             return View("CreateUpdate", vm);
         }
 
-        [HttpGet("[controller]/{category}/{id}")]
+        [HttpGet("equipment/{category}/{id}", Order = 2)]
         public async Task<IActionResult> GetById(EntityType category, int id)
         {
             if (id <= 0)
@@ -106,7 +107,7 @@ namespace Web.Controllers
         [HttpGet("equipment/create")]
         public IActionResult Create()
         {
-            return View("CreateUpdate", new EquipmentViewModel { Action = ActionType.Create, /*EquipmentType = EntityType.Adc*/ });
+            return View("CreateUpdate", new EquipmentViewModel { Action = ActionType.Create, EquipmentType = EntityType.Adc });
         }
 
         [HttpPost]
@@ -115,12 +116,20 @@ namespace Web.Controllers
             if (!ModelState.IsValid || string.IsNullOrWhiteSpace(request.ModelName))
                 return View("CreateUpdate", request);
 
+            // Validate that EquipmentType is a valid equipment type
+            var validEquipmentTypes = new[] { EntityType.Adc, EntityType.Amplifier, EntityType.Cartridge, EntityType.Player, EntityType.Wire };
+            if (!validEquipmentTypes.Contains(request.EquipmentType))
+            {
+                ModelState.AddModelError(nameof(request.EquipmentType), "Invalid equipment type selected.");
+                return View("CreateUpdate", request);
+            }
+
             var equipment = await _equipmentService.CreateEquipmentAsync(request);
 
             if (request.EquipmentCover is not null)
                 _imageService.SaveCover(equipment.Id, request.EquipmentCover, request.EquipmentType);
 
-            return RedirectToAction("GetById", new { category = request.EquipmentType, id = equipment.Id });
+            return Redirect($"/equipment/{request.EquipmentType}/{equipment.Id}");
         }
     }
 }

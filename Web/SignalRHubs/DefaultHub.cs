@@ -19,6 +19,7 @@ namespace Web.SignalRHubs
         private readonly IAlbumService _albumService;
         private readonly IDigitizationService _digitizationService;
         private readonly IPostRepository _postRepository;
+        private readonly IPostService _postService;
         private readonly IEquipmentRepository _equipmentRepository;
         private readonly DMADbContext _context;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
@@ -32,6 +33,7 @@ namespace Web.SignalRHubs
             IAlbumService albumService,
             IDigitizationService digitizationService,
             IPostRepository postRepository,
+            IPostService postService,
             IEquipmentRepository equipmentRepository,
             DMADbContext context)
         {
@@ -41,6 +43,7 @@ namespace Web.SignalRHubs
             _albumService = albumService;
             _digitizationService = digitizationService;
             _postRepository = postRepository;
+            _postService = postService;
             _equipmentRepository = equipmentRepository;
             _context = context;
         }
@@ -873,32 +876,49 @@ namespace Web.SignalRHubs
 
         public async Task AutoSavePost(string connectionId, int id, string title, string description, string content, string category)
         {
-            /*
             var now = DateTime.UtcNow;
-
-            Post? post;
             bool isNew = id == 0;
 
-            if (isNew)
+            try
             {
-                post = new Post { IsDraft = true };
-                UpdatePostFields(post, title, description, content, now, isNew: true);
-                var categoryEntity = await _postRepository.GetOrCreateCategory(category);
-                var postCategory = new PostCategory { Post = post, Category = categoryEntity };
-                await _postRepository.AddPostAsync(postCategory);
-                await Clients.Client(connectionId).SendAsync("PostCreated", post.Id, now);
-            }
-            else
-            {
-                post = await _postRepository.Posts.FirstOrDefaultAsync(x => x.Id == id);
-               
-                if (post == null) 
-                    return;
+                if (isNew)
+                {
+                    // Create new draft post
+                    var model = new PostViewModel
+                    {
+                        Title = title,
+                        Description = description,
+                        Content = content,
+                        Category = category
+                    };
 
-                await _postRepository.UpdatePostAsync(post, title, description, content, category);
-                await Clients.Client(connectionId).SendAsync("PostUpdated", now);
+                    var post = await _postService.CreateDraftPostAsync(model);
+                    await Clients.Client(connectionId).SendAsync("PostCreated", post.Id, now);
+                }
+                else
+                {
+                    // Update existing post
+                    var model = new PostViewModel
+                    {
+                        Title = title,
+                        Description = description,
+                        Content = content,
+                        Category = category
+                    };
+
+                    await _postService.UpdatePostAsync(id, model);
+                    await Clients.Client(connectionId).SendAsync("PostUpdated", now);
+                }
             }
-            */
+            catch (KeyNotFoundException)
+            {
+                // Post not found, ignore silently for autosave
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't throw to avoid breaking autosave
+                // TODO: Add proper logging
+            }
         }
         #endregion
     }

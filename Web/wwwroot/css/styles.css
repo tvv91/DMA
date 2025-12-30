@@ -713,6 +713,12 @@
     margin: 10px 0 0 10px;
 }
 
+/* Modern Equipment Create/Update styles - using Bootstrap card layout */
+#mydropzone {
+    min-width: 300px;
+    min-height: 300px;
+}
+
 /* Equipment details */
 .equipment-detail-containter {
     display: flex;

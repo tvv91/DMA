@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Web.Db;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Models;
@@ -8,10 +10,12 @@ namespace Web.Services
     public class EquipmentService : IEquipmentService
     {
         private readonly IEquipmentRepository _equipmentRepository;
+        private readonly DMADbContext _context;
 
-        public EquipmentService(IEquipmentRepository equipmentRepository)
+        public EquipmentService(IEquipmentRepository equipmentRepository, DMADbContext context)
         {
             _equipmentRepository = equipmentRepository;
+            _context = context;
         }
 
         public async Task<IManufacturer?> GetByIdAsync(int id, EntityType type)
@@ -21,13 +25,13 @@ namespace Web.Services
 
         public async Task<IManufacturer> CreateEquipmentAsync(EquipmentViewModel request)
         {
-            var equipment = MapViewModelToEquipment(request);
+            var equipment = await MapViewModelToEquipmentAsync(request);
             return await _equipmentRepository.AddAsync(equipment, request.EquipmentType);
         }
 
         public async Task<IManufacturer> UpdateEquipmentAsync(EquipmentViewModel request)
         {
-            var equipment = MapViewModelToEquipment(request);
+            var equipment = await MapViewModelToEquipmentAsync(request);
             return await _equipmentRepository.UpdateAsync(equipment, request.EquipmentType);
         }
 
@@ -49,10 +53,9 @@ namespace Web.Services
             };
         }
 
-        public IManufacturer MapViewModelToEquipment(EquipmentViewModel request)
+        public async Task<IManufacturer> MapViewModelToEquipmentAsync(EquipmentViewModel request)
         {
-            Manufacturer? CreateManufacturer(string? name, EntityType type) => 
-                string.IsNullOrWhiteSpace(name) ? null : new Manufacturer { Name = name, Type = type };
+            var manufacturer = await FindOrCreateManufacturerAsync(request.Manufacturer, GetManufacturerType(request.EquipmentType));
 
             return request.EquipmentType switch
             {
@@ -61,39 +64,93 @@ namespace Web.Services
                     Id = request.Id,
                     Name = request.ModelName,
                     Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Adc)
+                    Manufacturer = manufacturer
                 },
                 EntityType.Amplifier => new Amplifier
                 {
                     Id = request.Id,
                     Name = request.ModelName,
                     Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Amplifier)
+                    Manufacturer = manufacturer
                 },
                 EntityType.Cartridge => new Cartridge
                 {
                     Id = request.Id,
                     Name = request.ModelName,
                     Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Cartridge)
+                    Manufacturer = manufacturer
                 },
                 EntityType.Player => new Player
                 {
                     Id = request.Id,
                     Name = request.ModelName,
                     Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Player)
+                    Manufacturer = manufacturer
                 },
                 EntityType.Wire => new Wire
                 {
                     Id = request.Id,
                     Name = request.ModelName,
                     Description = request.Description,
-                    Manufacturer = CreateManufacturer(request.Manufacturer, EntityType.Wire)
+                    Manufacturer = manufacturer
                 },
                 _ => throw new ArgumentOutOfRangeException(nameof(request.EquipmentType), request.EquipmentType, "Unknown equipment type")
             };
         }
+
+        private static EntityType GetManufacturerType(EntityType equipmentType)
+        {
+            return equipmentType switch
+            {
+                EntityType.Adc => EntityType.AdcManufacturer,
+                EntityType.Amplifier => EntityType.AmplifierManufacturer,
+                EntityType.Cartridge => EntityType.CartridgeManufacturer,
+                EntityType.Player => EntityType.PlayerManufacturer,
+                EntityType.Wire => EntityType.WireManufacturer,
+                _ => throw new ArgumentOutOfRangeException(nameof(equipmentType), equipmentType, "Unknown equipment type")
+            };
+        }
+
+        private async Task<Manufacturer?> FindOrCreateManufacturerAsync(string? name, EntityType manufacturerType)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return null;
+
+            // First, try to find existing manufacturer by name and type (case-insensitive)
+            var existingManufacturer = await _context.Manufacturer
+                .FirstOrDefaultAsync(m => m.Name.ToLower() == name.ToLower() && m.Type == manufacturerType);
+
+            if (existingManufacturer != null)
+                return existingManufacturer;
+
+            // If not found by name and type, try to find by name only (to reuse existing manufacturers)
+            var existingByName = await _context.Manufacturer
+                .FirstOrDefaultAsync(m => m.Name.ToLower() == name.ToLower());
+
+            if (existingByName != null)
+            {
+                // Update the type if it's different (to gradually fix data inconsistencies)
+                if (existingByName.Type != manufacturerType)
+                {
+                    existingByName.Type = manufacturerType;
+                    await _context.SaveChangesAsync();
+                }
+                return existingByName;
+            }
+
+            // If not found at all, create a new one
+            var newManufacturer = new Manufacturer
+            {
+                Name = name.Trim(),
+                Type = manufacturerType
+            };
+
+            _context.Manufacturer.Add(newManufacturer);
+            await _context.SaveChangesAsync();
+
+            return newManufacturer;
+        }
     }
 }
+
 

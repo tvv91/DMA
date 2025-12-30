@@ -54,6 +54,29 @@ namespace Web.Services
             return await _postRepository.AddAsync(post);
         }
 
+        public async Task<Post> CreateDraftPostAsync(PostViewModel model)
+        {
+            var post = new Post
+            {
+                Title = model.Title,
+                Description = model.Description,
+                Content = model.Content,
+                CreatedDate = DateTime.UtcNow,
+                IsDraft = true
+            };
+
+            if (!string.IsNullOrWhiteSpace(model.Category) && model.Category != "Category")
+            {
+                var category = await FindOrCreateCategoryAsync(model.Category);
+                post.PostCategories.Add(new PostCategory
+                {
+                    Category = category
+                });
+            }
+
+            return await _postRepository.AddAsync(post);
+        }
+
         public async Task<Post> UpdatePostAsync(int postId, PostViewModel model)
         {
             // Business logic: Load existing post with tracking for updates
@@ -72,11 +95,13 @@ namespace Web.Services
 
             // Business logic: Update category if changed
             var currentCategory = existing.PostCategories.FirstOrDefault()?.Category?.Title;
+            var newCategory = model.Category?.Trim();
 
-            if (model.Category != currentCategory && !string.IsNullOrWhiteSpace(model.Category))
+            // Only update category if it's different and not empty/placeholder
+            if (newCategory != currentCategory && !string.IsNullOrWhiteSpace(newCategory) && newCategory != "Category")
             {
                 existing.PostCategories.Clear();
-                var category = await FindOrCreateCategoryAsync(model.Category);
+                var category = await FindOrCreateCategoryAsync(newCategory);
                 existing.PostCategories.Add(new PostCategory
                 {
                     Category = category

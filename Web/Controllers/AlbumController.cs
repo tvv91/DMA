@@ -9,7 +9,8 @@ namespace Web.Controllers
 {
     public class AlbumController : Controller
     {
-        private const int ALBUMS_PER_PAGE = 15;
+        private const int DEFAULT_ALBUMS_PER_PAGE = 15;
+        private const int MAX_ALBUMS_PER_PAGE = 30;
         private readonly IAlbumService _albumService;
         private readonly IImageService _imageService;
         private readonly IDigitizationService _digitizationService;
@@ -22,18 +23,25 @@ namespace Web.Controllers
         }
 
         [HttpGet("album")]
-        public async Task<IActionResult> Index(int page = 1)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 0)
         {
             if (page < 1)
                 return BadRequest("Page number should be positive");
 
-            var result = await _albumService.GetIndexListAsync(page, ALBUMS_PER_PAGE);
+            // Use default if pageSize is 0 or invalid, otherwise clamp to max
+            if (pageSize <= 0)
+                pageSize = DEFAULT_ALBUMS_PER_PAGE;
+            else if (pageSize > MAX_ALBUMS_PER_PAGE)
+                pageSize = MAX_ALBUMS_PER_PAGE;
+
+            var result = await _albumService.GetIndexListAsync(page, pageSize);
             
             var vm = new AlbumIndexViewModel
             {
                 CurrentPage = page,
                 PageCount = result.TotalPages,
-                Albums = result.Items
+                Albums = result.Items,
+                PageSize = pageSize
             };
 
             return View("Index", vm);

@@ -40,7 +40,7 @@
                     @if (Model.CurrentPage > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage - 1 })" aria-label="Previous">
+                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage - 1, pageSize = Model.PageSize })" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
@@ -51,14 +51,14 @@
                         var isActive = i == Model.CurrentPage ? "active" : "";
                         var ariaCurrent = i == Model.CurrentPage ? "aria-current=\"page\"" : "";
                         <li class="page-item @isActive">
-                            <a data-page="@i" class="page-link" href="@Url.Action("Index", "Album", new { page = i })" @Html.Raw(ariaCurrent)>@i</a>
+                            <a data-page="@i" class="page-link" href="@Url.Action("Index", "Album", new { page = i, pageSize = Model.PageSize })" @Html.Raw(ariaCurrent)>@i</a>
                         </li>
                     }
 
                     @if (Model.CurrentPage < Model.PageCount)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage + 1 })" aria-label="Next">
+                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage + 1, pageSize = Model.PageSize })" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -79,8 +79,62 @@ else
 <script>
     let albumIds = new Set(@Json.Serialize(Model.Albums.Select(a => a.Id)));
     let currentPage = @Json.Serialize(Model.CurrentPage);
+    let currentPageSize = @Json.Serialize(Model.PageSize);
+
+    // Determine optimal page size based on screen width
+    function getOptimalPageSize() {
+        const screenWidth = window.innerWidth;
+        // For larger screens (>= 1400px), use 18 items, otherwise use 15
+        // You can adjust these breakpoints as needed
+        if (screenWidth >= 1400) {
+            return 18;
+        } else if (screenWidth >= 1200) {
+            return 15;
+        } else if (screenWidth >= 992) {
+            return 12;
+        } else if (screenWidth >= 768) {
+            return 9;
+        } else {
+            return 6;
+        }
+    }
 
     $(document).ready(async () => {
+        // Check if we need to adjust page size based on screen width
+        const optimalPageSize = getOptimalPageSize();
+        const storedPageSize = localStorage.getItem('albumPageSize');
+        
+        // Use stored preference if available, otherwise use optimal
+        const targetPageSize = storedPageSize ? parseInt(storedPageSize) : optimalPageSize;
+        
+        // If current page size doesn't match target, redirect with correct page size
+        if (currentPageSize !== targetPageSize) {
+            localStorage.setItem('albumPageSize', targetPageSize.toString());
+            // Redirect to same page with correct page size
+            const baseUrl = '@Url.Action("Index", "Album", new { page = Model.CurrentPage })';
+            const separator = baseUrl.includes('?') ? '&' : '?';
+            window.location.href = baseUrl + separator + 'pageSize=' + targetPageSize;
+            return;
+        }
+
+        // Store page size preference
+        localStorage.setItem('albumPageSize', currentPageSize.toString());
+
+        // Handle window resize to adjust page size if needed
+        let resizeTimer;
+        $(window).on('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                const newOptimalPageSize = getOptimalPageSize();
+                if (newOptimalPageSize !== currentPageSize) {
+                    localStorage.setItem('albumPageSize', newOptimalPageSize.toString());
+                    const baseUrl = '@Url.Action("Index", "Album", new { page = Model.CurrentPage })';
+                    const separator = baseUrl.includes('?') ? '&' : '?';
+                    window.location.href = baseUrl + separator + 'pageSize=' + newOptimalPageSize;
+                }
+            }, 500); // Debounce resize events
+        });
+
         if (@Json.Serialize(Model.Albums.Count()) === 0) {
             $("#add-button").attr("class", "fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton blinker-button");
         }

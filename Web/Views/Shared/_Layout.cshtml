@@ -10,7 +10,26 @@
         <link rel="stylesheet" href="/lib/font-awesome/css/all.css" />
         <link rel="stylesheet" href="/lib/jqueryui/themes/base/jquery-ui.min.css" />
         <link rel="stylesheet" href="/lib/dropzone//dropzone.min.css" />
-        <link rel="stylesheet" href="/css/styles.css" />
+        <link rel="stylesheet" href="/css/shared.css" />
+        @{
+            var path = Context.Request.Path.Value?.ToLower() ?? "";
+            if (path.Contains("/album"))
+            {
+                <link rel="stylesheet" href="/css/album.css" />
+            }
+            else if (path.Contains("/equipment"))
+            {
+                <link rel="stylesheet" href="/css/equipment.css" />
+            }
+            else if (path.Contains("/post") || path == "/")
+            {
+                <link rel="stylesheet" href="/css/post.css" />
+            }
+            else if (path.Contains("/statistic"))
+            {
+                <link rel="stylesheet" href="/css/statistic.css" />
+            }
+        }
         <script src="/lib/jquery/jquery.min.js"></script>
         <script src="/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="/lib/jqueryui/jquery-ui.js"></script>

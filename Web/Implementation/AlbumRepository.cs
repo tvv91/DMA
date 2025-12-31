@@ -64,12 +64,43 @@ namespace Web.Implementation
             return await query.ToPagedResultAsync(page, pageSize, a => a.Title);
         }
 
-        public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize)
+        public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {
             var query = _context.Albums
                 .Include(a => a.Artist)
+                .Include(a => a.Genre)
                 .AsNoTracking()
                 .AsQueryable();
+
+            // Apply filters
+            if (!string.IsNullOrWhiteSpace(artistName))
+            {
+                query = query.Where(a => a.Artist != null && a.Artist.Name.Contains(artistName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(genreName))
+            {
+                query = query.Where(a => a.Genre != null && a.Genre.Name.Contains(genreName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(albumTitle))
+            {
+                query = query.Where(a => a.Title.Contains(albumTitle));
+            }
+
+            if (!string.IsNullOrWhiteSpace(yearValue))
+            {
+                // Try to parse year value and filter albums that have digitizations with this year
+                if (int.TryParse(yearValue, out int yearInt))
+                {
+                    query = query.Where(a => _context.Digitizations.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value == yearInt));
+                }
+                else
+                {
+                    // If not a number, search by year value as string
+                    query = query.Where(a => _context.Digitizations.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value.ToString().Contains(yearValue)));
+                }
+            }
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
         }

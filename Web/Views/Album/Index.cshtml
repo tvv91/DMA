@@ -1,5 +1,31 @@
 ﻿@model AlbumIndexViewModel
 
+<!-- Filters Section -->
+<div class="album-filters mb-4">
+    <div class="container">
+        <form method="get" action="@Url.Action("Index", "Album")" id="albumFilterForm" class="row g-3 align-items-end">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="pageSize" value="@Model.PageSize" />
+            
+            <div class="col-md-3">
+                <input type="text" class="form-control filter-input" id="albumTitle" name="albumTitle" value="@Model.AlbumTitle" placeholder="Search album title...">
+            </div>
+            
+            <div class="col-md-3">
+                <input type="text" class="form-control filter-input" id="artistName" name="artistName" value="@Model.ArtistName" placeholder="Search artist...">
+            </div>
+            
+            <div class="col-md-3">
+                <input type="text" class="form-control filter-input" id="genreName" name="genreName" value="@Model.GenreName" placeholder="Search genre...">
+            </div>
+            
+            <div class="col-md-3">
+                <input type="text" class="form-control filter-input" id="yearValue" name="yearValue" value="@Model.YearValue" placeholder="Search year...">
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_deleted" class="toast toast-body-deleted" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
@@ -40,7 +66,7 @@
                     @if (Model.CurrentPage > 1)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage - 1, pageSize = Model.PageSize })" aria-label="Previous">
+                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage - 1, pageSize = Model.PageSize, artistName = Model.ArtistName, genreName = Model.GenreName, yearValue = Model.YearValue, albumTitle = Model.AlbumTitle })" aria-label="Previous">
                                 <span aria-hidden="true">&laquo;</span>
                             </a>
                         </li>
@@ -51,14 +77,14 @@
                         var isActive = i == Model.CurrentPage ? "active" : "";
                         var ariaCurrent = i == Model.CurrentPage ? "aria-current=\"page\"" : "";
                         <li class="page-item @isActive">
-                            <a data-page="@i" class="page-link" href="@Url.Action("Index", "Album", new { page = i, pageSize = Model.PageSize })" @Html.Raw(ariaCurrent)>@i</a>
+                            <a data-page="@i" class="page-link" href="@Url.Action("Index", "Album", new { page = i, pageSize = Model.PageSize, artistName = Model.ArtistName, genreName = Model.GenreName, yearValue = Model.YearValue, albumTitle = Model.AlbumTitle })" @Html.Raw(ariaCurrent)>@i</a>
                         </li>
                     }
 
                     @if (Model.CurrentPage < Model.PageCount)
                     {
                         <li class="page-item">
-                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage + 1, pageSize = Model.PageSize })" aria-label="Next">
+                            <a class="page-link" href="@Url.Action("Index", "Album", new { page = Model.CurrentPage + 1, pageSize = Model.PageSize, artistName = Model.ArtistName, genreName = Model.GenreName, yearValue = Model.YearValue, albumTitle = Model.AlbumTitle })" aria-label="Next">
                                 <span aria-hidden="true">&raquo;</span>
                             </a>
                         </li>
@@ -68,11 +94,17 @@
         </div>
     </div>
 }
-else
+else if (!Model.HasAnyAlbumsInDb)
 {
     <div class="text-center mt-5">
         <h4>Ooops... This page is empty!</h4>
         <a href="@Url.Action("Create", "Album")" class="btn btn-primary mt-3">Add your first album</a>
+    </div>
+}
+else
+{
+    <div class="text-center mt-5">
+        <h4>Ooops... This page is empty!</h4>
     </div>
 }
 
@@ -99,7 +131,47 @@ else
         }
     }
 
+    // Auto-filter functionality with debouncing
+    let filterTimer;
+    let focusedInputId = null;
+    
+    function debounceFilter(inputElement) {
+        // Store which input has focus
+        if (inputElement && document.activeElement === inputElement) {
+            focusedInputId = inputElement.id;
+            sessionStorage.setItem('albumFilterHadFocus', inputElement.id);
+        }
+        
+        clearTimeout(filterTimer);
+        filterTimer = setTimeout(function() {
+            // Reset to page 1 when filtering
+            $('input[name="page"]').val(1);
+            $('#albumFilterForm').submit();
+        }, 500); // Wait 500ms after user stops typing
+    }
+
     $(document).ready(async () => {
+        // Set up auto-filter on input change
+        $('.filter-input').on('input', function() {
+            debounceFilter(this);
+        });
+        
+        // Restore focus to the input that had focus before page reload
+        const urlParams = new URLSearchParams(window.location.search);
+        const hadFocus = sessionStorage.getItem('albumFilterHadFocus');
+        if (hadFocus) {
+            sessionStorage.removeItem('albumFilterHadFocus');
+            setTimeout(function() {
+                const input = document.getElementById(hadFocus);
+                if (input) {
+                    input.focus();
+                    // Move cursor to end of input
+                    const length = input.value.length;
+                    input.setSelectionRange(length, length);
+                }
+            }, 100);
+        }
+
         // Check if we need to adjust page size based on screen width
         const optimalPageSize = getOptimalPageSize();
         const storedPageSize = localStorage.getItem('albumPageSize');
@@ -110,8 +182,8 @@ else
         // If current page size doesn't match target, redirect with correct page size
         if (currentPageSize !== targetPageSize) {
             localStorage.setItem('albumPageSize', targetPageSize.toString());
-            // Redirect to same page with correct page size
-            const baseUrl = '@Url.Action("Index", "Album", new { page = Model.CurrentPage })';
+            // Redirect to same page with correct page size, preserving filters
+            const baseUrl = '@Url.Action("Index", "Album", new { page = Model.CurrentPage, artistName = Model.ArtistName, genreName = Model.GenreName, yearValue = Model.YearValue, albumTitle = Model.AlbumTitle })';
             const separator = baseUrl.includes('?') ? '&' : '?';
             window.location.href = baseUrl + separator + 'pageSize=' + targetPageSize;
             return;
@@ -128,14 +200,15 @@ else
                 const newOptimalPageSize = getOptimalPageSize();
                 if (newOptimalPageSize !== currentPageSize) {
                     localStorage.setItem('albumPageSize', newOptimalPageSize.toString());
-                    const baseUrl = '@Url.Action("Index", "Album", new { page = Model.CurrentPage })';
+                    const baseUrl = '@Url.Action("Index", "Album", new { page = Model.CurrentPage, artistName = Model.ArtistName, genreName = Model.GenreName, yearValue = Model.YearValue, albumTitle = Model.AlbumTitle })';
                     const separator = baseUrl.includes('?') ? '&' : '?';
                     window.location.href = baseUrl + separator + 'pageSize=' + newOptimalPageSize;
                 }
             }, 500); // Debounce resize events
         });
 
-        if (@Json.Serialize(Model.Albums.Count()) === 0) {
+        // Only blink add-button if there are no albums in the database at all (not just filtered out)
+        if (@Json.Serialize(!Model.HasAnyAlbumsInDb)) {
             $("#add-button").attr("class", "fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton blinker-button");
         }
 

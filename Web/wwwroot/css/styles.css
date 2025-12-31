@@ -12,6 +12,18 @@
     }
 }
 /* Views/Album/Index */
+.album-filters {
+    background-color: #f8f9fa;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.album-filters .form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
 .wrapper {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

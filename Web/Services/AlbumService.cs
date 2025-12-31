@@ -21,9 +21,9 @@ namespace Web.Services
             _context = context;
         }
 
-        public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize)
+        public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {
-            return await _albumRepository.GetIndexListAsync(page, pageSize);
+            return await _albumRepository.GetIndexListAsync(page, pageSize, artistName, genreName, yearValue, albumTitle);
         }
 
         public async Task<Album?> GetByIdAsync(int id)

@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using Web.Db;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Services;
@@ -14,16 +17,18 @@ namespace Web.Controllers
         private readonly IAlbumService _albumService;
         private readonly IImageService _imageService;
         private readonly IDigitizationService _digitizationService;
+        private readonly DMADbContext _context;
 
-        public AlbumController(IAlbumService albumService, IImageService imageService, IDigitizationService digitizationService)
+        public AlbumController(IAlbumService albumService, IImageService imageService, IDigitizationService digitizationService, DMADbContext context)
         {
             _albumService = albumService;
             _imageService = imageService;
             _digitizationService = digitizationService;
+            _context = context;
         }
 
         [HttpGet("album")]
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 0)
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {
             if (page < 1)
                 return BadRequest("Page number should be positive");
@@ -34,14 +39,22 @@ namespace Web.Controllers
             else if (pageSize > MAX_ALBUMS_PER_PAGE)
                 pageSize = MAX_ALBUMS_PER_PAGE;
 
-            var result = await _albumService.GetIndexListAsync(page, pageSize);
-            
+            var result = await _albumService.GetIndexListAsync(page, pageSize, artistName, genreName, yearValue, albumTitle);
+
+            // Check if there are any albums in the database at all (unfiltered)
+            var hasAnyAlbumsInDb = await _context.Albums.AnyAsync();
+
             var vm = new AlbumIndexViewModel
             {
                 CurrentPage = page,
                 PageCount = result.TotalPages,
                 Albums = result.Items,
-                PageSize = pageSize
+                PageSize = pageSize,
+                HasAnyAlbumsInDb = hasAnyAlbumsInDb,
+                ArtistName = artistName,
+                GenreName = genreName,
+                YearValue = yearValue,
+                AlbumTitle = albumTitle
             };
 
             return View("Index", vm);

@@ -6,7 +6,7 @@ namespace Web.Interfaces
 {
     public interface IAlbumService
     {
-        Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize);
+        Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null);
         Task<Album?> GetByIdAsync(int id);
         Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id);
         Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre);

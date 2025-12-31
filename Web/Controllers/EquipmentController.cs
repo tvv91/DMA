@@ -51,20 +51,31 @@ namespace Web.Controllers
         [HttpPost("[controller]/update")]
         public async Task<IActionResult> Update(EquipmentViewModel request)
         {
-            if (request.Id <= 0 || request.Action != ActionType.Update)
-                return BadRequest();
+            if (request.Id <= 0)
+                return BadRequest("Invalid equipment ID");
+
+            if (request.Action != ActionType.Update)
+                return BadRequest("Invalid action type");
 
             if (!ModelState.IsValid)
                 return View("CreateUpdate", request);
 
-            var updated = await _equipmentService.UpdateEquipmentAsync(request);
+            try
+            {
+                var updated = await _equipmentService.UpdateEquipmentAsync(request);
 
-            if (request.EquipmentCover is null)
-                _imageService.RemoveCover(updated.Id, request.EquipmentType);
-            else
-                _imageService.SaveCover(updated.Id, request.EquipmentCover, request.EquipmentType);
+                if (request.EquipmentCover is null)
+                    _imageService.RemoveCover(updated.Id, request.EquipmentType);
+                else
+                    _imageService.SaveCover(updated.Id, request.EquipmentCover, request.EquipmentType);
 
-            return Redirect($"/equipment/{request.EquipmentType}/{updated.Id}");
+                return Redirect($"/equipment/{request.EquipmentType}/{updated.Id}");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", $"Failed to update equipment: {ex.Message}");
+                return View("CreateUpdate", request);
+            }
         }
 
 

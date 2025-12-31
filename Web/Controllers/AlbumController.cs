@@ -118,7 +118,7 @@ namespace Web.Controllers
                 var album = await _albumService.CreateOrFindAlbumAsync(request.Title, request.Artist, request.Genre);
 
                 if (request.AlbumCover != null)
-                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
+                    await _imageService.SaveCoverAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
 
                 return RedirectToAction("GetById", "Album", new { id = album.Id });
             }
@@ -148,12 +148,12 @@ namespace Web.Controllers
                 // - If AlbumCover is null/empty, remove the cover (user removed it)
                 if (string.IsNullOrWhiteSpace(request.AlbumCover))
                 {
-                    _imageService.RemoveCover(album.Id, EntityType.AlbumCover);
+                    await _imageService.RemoveCoverAsync(album.Id, EntityType.AlbumCover);
                 }
                 else if (request.AlbumCover != album.Id.ToString())
                 {
                     // It's a new temp filename, save it
-                    _imageService.SaveCover(album.Id, request.AlbumCover, EntityType.AlbumCover);
+                    await _imageService.SaveCoverAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
                 }
                 // If AlbumCover equals album ID, image hasn't changed - do nothing
 
@@ -179,7 +179,7 @@ namespace Web.Controllers
 
             try
             {
-                _imageService.RemoveCover(id, EntityType.AlbumCover);
+                await _imageService.RemoveCoverAsync(id, EntityType.AlbumCover);
             }
             catch (Exception ex)
             {

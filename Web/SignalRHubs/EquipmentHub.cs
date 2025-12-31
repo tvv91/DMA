@@ -51,10 +51,11 @@ namespace Web.SignalRHubs
 
             foreach (var item in result)
             {
+                var imageUrl = await _imgService.GetImageUrlAsync(item.Id, entityType);
                 await Clients.Client(connectionId).SendAsync(
                     "ReceivedItemImage",
                     item.Id,
-                    _imgService.GetImageUrl(item.Id, entityType)
+                    imageUrl
                 );
             }
         }
@@ -75,7 +76,8 @@ namespace Web.SignalRHubs
 
         public async Task GetEquipmentImage(string connectionId, int equipmentId, string type)
         {
-            await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", _imgService.GetImageUrl(equipmentId, Enum.Parse<EntityType>(type)));
+            var imageUrl = await _imgService.GetImageUrlAsync(equipmentId, Enum.Parse<EntityType>(type));
+            await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", imageUrl);
         }
     }
 }

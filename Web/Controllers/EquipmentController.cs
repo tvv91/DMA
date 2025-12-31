@@ -38,7 +38,7 @@ namespace Web.Controllers
             try
             {
                 var deleted = await _equipmentService.DeleteEquipmentAsync(id, category);
-                _imageService.RemoveCover(id, category);
+                await _imageService.RemoveCoverAsync(id, category);
                 return deleted ? Ok() : NotFound();
             }
             catch (Exception ex)
@@ -65,9 +65,9 @@ namespace Web.Controllers
                 var updated = await _equipmentService.UpdateEquipmentAsync(request);
 
                 if (request.EquipmentCover is null)
-                    _imageService.RemoveCover(updated.Id, request.EquipmentType);
+                    await _imageService.RemoveCoverAsync(updated.Id, request.EquipmentType);
                 else
-                    _imageService.SaveCover(updated.Id, request.EquipmentCover, request.EquipmentType);
+                    await _imageService.SaveCoverAsync(updated.Id, request.EquipmentCover, request.EquipmentType);
 
                 return Redirect($"/equipment/{request.EquipmentType}/{updated.Id}");
             }
@@ -90,7 +90,7 @@ namespace Web.Controllers
             if (equipment == null)
                 return NotFound();
 
-            var imageUrl = _imageService.GetImageUrl(id, category);
+            var imageUrl = await _imageService.GetImageUrlAsync(id, category);
             var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
             vm.Action = ActionType.Update;
 
@@ -108,7 +108,7 @@ namespace Web.Controllers
             if (equipment == null)
                 return NotFound();
 
-            var imageUrl = _imageService.GetImageUrl(id, category);
+            var imageUrl = await _imageService.GetImageUrlAsync(id, category);
             var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
 
             return View("Details", vm);
@@ -138,7 +138,7 @@ namespace Web.Controllers
             var equipment = await _equipmentService.CreateEquipmentAsync(request);
 
             if (request.EquipmentCover is not null)
-                _imageService.SaveCover(equipment.Id, request.EquipmentCover, request.EquipmentType);
+                await _imageService.SaveCoverAsync(equipment.Id, request.EquipmentCover, request.EquipmentType);
 
             return Redirect($"/equipment/{request.EquipmentType}/{equipment.Id}");
         }

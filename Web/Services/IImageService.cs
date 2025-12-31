@@ -4,8 +4,8 @@ namespace Web.Services
 {
     public interface IImageService
     {
-        string GetImageUrl(int id, EntityType entity);
-        void SaveCover(int id, string filename, EntityType entity);
-        void RemoveCover(int id, EntityType entity);
+        Task<string> GetImageUrlAsync(int id, EntityType entity);
+        Task SaveCoverAsync(int id, string filename, EntityType entity);
+        Task RemoveCoverAsync(int id, EntityType entity);
     }
 }

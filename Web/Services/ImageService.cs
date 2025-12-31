@@ -30,7 +30,7 @@ namespace Web.Services
             _logger = logger;
         }
 
-        public string GetImageUrl(int id, EntityType entity)
+        public async Task<string> GetImageUrlAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return NO_COVER;
@@ -38,10 +38,10 @@ namespace Web.Services
             var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
             var fullPath = Path.Combine(STORAGE, relativePath);
 
-            return File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}";
+            return await Task.FromResult(File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}");
         }
 
-        public void RemoveCover(int id, EntityType entity)
+        public async Task RemoveCoverAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return;
@@ -52,7 +52,7 @@ namespace Web.Services
             {
                 if (File.Exists(fullPath))
                 {
-                    File.Delete(fullPath);
+                    await Task.Run(() => File.Delete(fullPath));
                 }
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace Web.Services
             }
         }
 
-        public void SaveCover(int id, string filename, EntityType entity)
+        public async Task SaveCoverAsync(int id, string filename, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return;
@@ -76,16 +76,15 @@ namespace Web.Services
                         Directory.CreateDirectory(targetDir);
 
                     var destFile = Path.Combine(targetDir, $"{id}{info.Ext}");
-                    File.Move(tempFile, destFile, true);
-
+                    await Task.Run(() => File.Move(tempFile, destFile, true));
 
                     if (File.Exists(tempFile))
-                        File.Delete(tempFile);
+                        await Task.Run(() => File.Delete(tempFile));
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during cover removing {Entity}:{Id}", entity, id);
+                _logger.LogError(ex, "Error during cover saving {Entity}:{Id}", entity, id);
             }
         }
     }

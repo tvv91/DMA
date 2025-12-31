@@ -55,15 +55,20 @@ namespace Web.SignalRHubs
 
             foreach (var albumId in albums)
             {
-                var cover = GetCachedAlbumCover(albumId);
+                var cover = await GetCachedAlbumCoverAsync(albumId);
                 await Clients.Client(connectionId).SendAsync("ReceivedAlbumCover", albumId, cover);
                 await Task.Delay(100);
             }
         }
 
-        private string GetCachedAlbumCover(int albumId)
+        private async Task<string> GetCachedAlbumCoverAsync(int albumId)
         {
-            return _coverCache.GetOrAdd(albumId, id => _imgService.GetImageUrl(id, EntityType.AlbumCover));
+            if (_coverCache.TryGetValue(albumId, out var cachedCover))
+                return cachedCover;
+
+            var cover = await _imgService.GetImageUrlAsync(albumId, EntityType.AlbumCover);
+            _coverCache.TryAdd(albumId, cover);
+            return cover;
         }
 
         public static void InvalidateAlbumCache(int albumId)
@@ -76,7 +81,8 @@ namespace Web.SignalRHubs
         /// </summary>
         public async Task GetAlbumCover(string connectionId, int albumId)
         {
-            await Clients.Client(connectionId).SendAsync("ReceivedAlbumCoverDetailed", _imgService.GetImageUrl(albumId, EntityType.AlbumCover));
+            var imageUrl = await _imgService.GetImageUrlAsync(albumId, EntityType.AlbumCover);
+            await Clients.Client(connectionId).SendAsync("ReceivedAlbumCoverDetailed", imageUrl);
         }
 
         public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
@@ -252,7 +258,7 @@ namespace Web.SignalRHubs
                 string? url = null;
 
                 if (kvp.Value.id.HasValue)
-                    url = _imgService.GetImageUrl(kvp.Value.id.Value, kvp.Value.type);
+                    url = await _imgService.GetImageUrlAsync(kvp.Value.id.Value, kvp.Value.type);
 
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", category, url);
             }

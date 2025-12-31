@@ -98,14 +98,14 @@
 
       async function getEquipmentImage(id) {
         try {
-          await connection.invoke("GetEquipmentImage", connection.connectionId, id, "@Model.EquipmentType");
+          await equipmentConnection.invoke("GetEquipmentImage", equipmentConnection.connectionId, id, "@Model.EquipmentType");
         } catch (err) {
           console.error("Error sending request to GetEquipmentImage:", err);
         }
       }
 
 
-    connection.on("ReceivedEquipmentImageDetailed", (result) => {
+    equipmentConnection.on("ReceivedEquipmentImageDetailed", (result) => {
         updateCover(result);
     });
 

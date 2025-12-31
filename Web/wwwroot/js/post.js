@@ -12,7 +12,7 @@ function setCurrentPage(page) {
 }
 
 async function fetchPosts(page = 1, searchText = "", category = "", year = "", onlyDrafts = false) {
-    if (connection.state !== signalR.HubConnectionState.Connected) {
+    if (postConnection.state !== signalR.HubConnectionState.Connected) {
         console.error("SignalR connection is not established");
         $("#spinner").addClass("d-none");
         return;
@@ -20,7 +20,7 @@ async function fetchPosts(page = 1, searchText = "", category = "", year = "", o
 
     $("#spinner").removeClass("d-none");
     try {
-        await connection.invoke("GetPosts", connection.connectionId, page, searchText, category, year, onlyDrafts);
+        await postConnection.invoke("GetPosts", postConnection.connectionId, page, searchText, category, year, onlyDrafts);
     } catch (err) {
         console.error("Error fetching posts:", err);
         $("#spinner").addClass("d-none");
@@ -103,12 +103,12 @@ function escapeHtml(text) {
 }
 
 async function fetchBlogTree() {
-    if (connection.state !== signalR.HubConnectionState.Connected) {
+    if (postConnection.state !== signalR.HubConnectionState.Connected) {
         return;
     }
 
     try {
-        await connection.invoke("GetBlogTree", connection.connectionId);
+        await postConnection.invoke("GetBlogTree", postConnection.connectionId);
     } catch (err) {
         console.error("Error fetching blog tree:", err);
     }
@@ -193,18 +193,18 @@ function initPostListPage() {
     }
     
     // Load posts - connection should already be started by document.ready
-    if (connection.state === signalR.HubConnectionState.Connected) {
+    if (postConnection.state === signalR.HubConnectionState.Connected) {
         loadPosts();
         fetchBlogTree();
     } else {
         // Wait a bit for connection to establish, then load posts
         setTimeout(() => {
-            if (connection.state === signalR.HubConnectionState.Connected) {
+            if (postConnection.state === signalR.HubConnectionState.Connected) {
                 loadPosts();
                 fetchBlogTree();
             } else {
                 console.warn("SignalR connection not ready, retrying...");
-                connection.start().then(() => {
+                postConnection.start().then(() => {
                     loadPosts();
                     fetchBlogTree();
                 }).catch(err => {
@@ -250,7 +250,7 @@ async function autoSave() {
     $("#savebutton").prop("disabled", true);
 
     try {
-        await connection.invoke("AutoSavePost", connection.connectionId, postId || 0,
+        await postConnection.invoke("AutoSavePost", postConnection.connectionId, postId || 0,
             $("#title").val().trim(),
             $("#description").val().trim(),
             $("#content").val().trim(),
@@ -347,25 +347,25 @@ $(document).ready(async () => {
 });
 
 
-connection.on("ReceivedPosts", (posts, totalPages) => {
+postConnection.on("ReceivedPosts", (posts, totalPages) => {
     renderPosts(posts, totalPages);
 });
 
-connection.on("ReceivedBlogTree", (tree) => {
+postConnection.on("ReceivedBlogTree", (tree) => {
     renderBlogTree(tree);
 });
 
-connection.on("PostUpdated", (updatedDate) => {
+postConnection.on("PostUpdated", (updatedDate) => {
     $("#spinnerbutton").attr("hidden", true);
     $("#savebutton").prop("disabled", false);
     $("#updatedAt").text(formatDate(updatedDate));
 });
 
-connection.on("PostCreated", (newPostId, createdDate) => {
+postConnection.on("PostCreated", (newPostId, createdDate) => {
     postId = newPostId;
     $("#spinnerbutton").attr("hidden", true);
     $("#savebutton").prop("disabled", false);
     $("#updatedAt").text(formatDate(createdDate));
 });
 
-connection.onclose(async () => { await start(); });
+postConnection.onclose(async () => { await start(); });

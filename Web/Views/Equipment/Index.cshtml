@@ -123,7 +123,7 @@
             }
         });
 
-        connection.onclose(async () => {
+        equipmentConnection.onclose(async () => {
             console.log("Connection lost, retrying...");
             await start();
         });
@@ -148,13 +148,13 @@
 
     async function getHardwareByCategory(category, page) {
         try {
-            await connection.invoke("GetHardwareByCategory", connection.connectionId, category, page);
+            await equipmentConnection.invoke("GetHardwareByCategory", equipmentConnection.connectionId, category, page);
         } catch (err) {
             console.error("Error sending request to GetHardwareByCategory", err);
         }
     }
 
-    connection.on("ReceivedItems", (items) => {
+    equipmentConnection.on("ReceivedItems", (items) => {
         const container = $("#items-container").empty();
 
         if (!items || items.length === 0) {
@@ -184,7 +184,7 @@
         });
     });
 
-    connection.on("ReceivedItemImage", (id, src) => {
+    equipmentConnection.on("ReceivedItemImage", (id, src) => {
         const spinner = $(`#spinner-${id}`);
         const img = $(`#img-${id}`);
 
@@ -220,7 +220,7 @@
         }
     });
 
-    connection.on("ReceivedItemsCount", (count) => {
+    equipmentConnection.on("ReceivedItemsCount", (count) => {
         const pagination = $("#pagination").empty();
         if (count > 0) {
             for (let c = 1; c <= count; c++) {

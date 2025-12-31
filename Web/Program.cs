@@ -28,6 +28,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IDigitizationService, DigitizationService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<EntityFindOrCreateService>();
 
 builder.Services.AddSignalR(options =>
 {
@@ -51,8 +52,9 @@ else
     app.UseStatusCodePages();
 app.UseStaticFiles();
 app.MapControllerRoute(name: "default", pattern: "{controller=Post}/{action=Index}");
-// TODO: Separate hubs
-app.MapHub<DefaultHub>("/defaulthub");
+app.MapHub<AlbumHub>("/albumhub");
+app.MapHub<EquipmentHub>("/equipmenthub");
+app.MapHub<PostHub>("/posthub");
 await SeedData.EnsurePopulated(app);
 app.Run();
 

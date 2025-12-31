@@ -157,7 +157,7 @@ namespace Web.Controllers
                 }
                 // If AlbumCover equals album ID, image hasn't changed - do nothing
 
-                DefaultHub.InvalidateAlbumCache(album.Id);
+                AlbumHub.InvalidateAlbumCache(album.Id);
 
                 return RedirectToAction("GetById", "Album", new { id = request.AlbumId });
             }

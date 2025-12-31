@@ -1,186 +1,417 @@
 ﻿@model StatisticViewModel;
 @using static System.Math;
-<div>
-    <div class="st-last-update">
-        Statistic updated once per day. Last update: <b>@Model.LastUpdate</b>
-    </div>
-    <h4>General information</h4>
-    <hr />
-    <div class="st-general-counters">
-        <h1>@Model.TotalAlbums</h1>
-        <h1>@Math.Truncate(@Model.TotalSize) Gb</h1>
-        <h1>@Model.StorageCount</h1>
-    </div>
-    <div class="st-general-labels">
-        <h5>Total albums</h5>
-        <h5>Total size</h5>
-        <h5>Storages</h5>
-    </div>
-    <hr />
-    <div class="st-block">
-        <div>
-            <h4>Genres</h4>
-            <table class="st-table">
-                @foreach (var genre in Model.Genre)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div>
-            <h4>Years</h4>
-            <table class="st-table">
-                @foreach (var year in Model.Year)
-                {
-                    <tr>
-                        <td>@year.Description</td>
-                        <td>@year.Count</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div>
-            <h4>Country</h4>
-            <table class="st-table">
-                @foreach (var country in Model.Country)
-                {
-                    <tr>
-                        <td>@country.Description</td>
-                        <td>@country.Count</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div>
-            <h4>Labels</h4>
-            <table class="st-table">
-                @foreach (var genre in Model.Label)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
+
+<div class="statistics-page">
+    <div class="statistics-header">
+        <h2 class="statistics-title">Statistics</h2>
+        <div class="statistics-update-info">
+            <i class="fa-solid fa-clock"></i>
+            <span>Updated once per day. Last update: <strong>@Model.LastUpdate.ToString("yyyy-MM-dd HH:mm")</strong></span>
         </div>
     </div>
-    <hr />
-    <div class="st-block">
-        <div>
-            <h4>Bitness</h4>
-            <table class="st-table">
-                @foreach (var genre in Model.Bitness)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
+
+    <!-- General Statistics Cards -->
+    <div class="statistics-overview">
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fa-solid fa-compact-disc"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-value">@Model.TotalAlbums</div>
+                <div class="stat-card-label">Total Albums</div>
+            </div>
         </div>
-        <div>
-            <h4>Sampling</h4>
-            <table class="st-table">
-                @foreach (var item in Model.Sampling)
-                {
-                    <tr>
-                        <td>@item.Description</td>
-                        <td>@item.Count</td>
-                    </tr>
-                }
-                
-            </table>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fa-solid fa-database"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-value">@Math.Truncate(@Model.TotalSize) GB</div>
+                <div class="stat-card-label">Total Size</div>
+            </div>
         </div>
-        <div>
-            <h4>Digital Format</h4>
-            <table class="st-table">
-                @foreach (var country in Model.DigitalFormat)
-                {
-                    <tr>
-                        <td>@country.Description</td>
-                        <td>@country.Count</td>
-                    </tr>
-                }
-            </table>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fa-solid fa-hard-drive"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-value">@Model.StorageCount</div>
+                <div class="stat-card-label">Storages</div>
+            </div>
         </div>
-        <div>
-            <h4>SourceFormat</h4>
-            <table class="st-table">
-                @foreach (var genre in Model.SourceFormat)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fa-solid fa-music"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-value">@Model.TotalDigitizations</div>
+                <div class="stat-card-label">Digitizations</div>
+            </div>
         </div>
-    </div>
-    <hr />
-    <div class="st-block-last">
-        <div>
-            <h4>Adc</h4>
-            <table class="st-table">
-                @foreach (var genre in Model.Adc)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fa-solid fa-user-music"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-value">@Model.TotalArtists</div>
+                <div class="stat-card-label">Artists</div>
+            </div>
         </div>
-        <div>
-            <h4>Amplifier</h4>
-            <table class="st-table">
-                @foreach (var year in Model.Amplifier)
-                {
-                    <tr>
-                        <td>@year.Description</td>
-                        <td>@year.Count</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div>
-            <h4>Cartridge</h4>
-            <table class="st-table">
-                @foreach (var country in Model.Cartridge)
-                {
-                    <tr>
-                        <td>@country.Description</td>
-                        <td>@country.Count</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div>
-            <h4>Player</h4>
-            <table class="st-table">
-                @foreach (var genre in Model.Player)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
-        </div>
-        <div>
-            <h4>Vinyl</h4>
-            <table class="st-table">
-                @foreach (var genre in Model?.VinylState)
-                {
-                    <tr>
-                        <td>@genre.Description</td>
-                        <td>@genre.Count</td>
-                    </tr>
-                }
-            </table>
+        <div class="stat-card">
+            <div class="stat-card-icon">
+                <i class="fa-solid fa-microchip"></i>
+            </div>
+            <div class="stat-card-content">
+                <div class="stat-card-value">@Model.TotalEquipment</div>
+                <div class="stat-card-label">Equipment</div>
+            </div>
         </div>
     </div>
-    <hr />
+    <!-- Detailed Statistics Sections -->
+    <div class="statistics-sections">
+        <!-- Music Information Section -->
+        <section class="statistics-section">
+            <h3 class="section-title">
+                <i class="fa-solid fa-music"></i>
+                Music Information
+            </h3>
+            <div class="statistics-grid">
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Genres</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Genre != null && Model.Genre.Any())
+                            {
+                                @foreach (var genre in Model.Genre)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@genre.Description</td>
+                                        <td class="statistics-item-count">@genre.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Artists</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Artist != null && Model.Artist.Any())
+                            {
+                                @foreach (var artist in Model.Artist)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@artist.Description</td>
+                                        <td class="statistics-item-count">@artist.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Years</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Year != null && Model.Year.Any())
+                            {
+                                @foreach (var year in Model.Year)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@year.Description</td>
+                                        <td class="statistics-item-count">@year.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Countries</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Country != null && Model.Country.Any())
+                            {
+                                @foreach (var country in Model.Country)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@country.Description</td>
+                                        <td class="statistics-item-count">@country.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Labels</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Label != null && Model.Label.Any())
+                            {
+                                @foreach (var label in Model.Label)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@label.Description</td>
+                                        <td class="statistics-item-count">@label.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Format Information Section -->
+        <section class="statistics-section">
+            <h3 class="section-title">
+                <i class="fa-solid fa-file-audio"></i>
+                Format Information
+            </h3>
+            <div class="statistics-grid">
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Bitness</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Bitness != null && Model.Bitness.Any())
+                            {
+                                @foreach (var bitness in Model.Bitness)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@bitness.Description</td>
+                                        <td class="statistics-item-count">@bitness.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Sampling</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Sampling != null && Model.Sampling.Any())
+                            {
+                                @foreach (var item in Model.Sampling)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@item.Description</td>
+                                        <td class="statistics-item-count">@item.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Digital Format</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.DigitalFormat != null && Model.DigitalFormat.Any())
+                            {
+                                @foreach (var format in Model.DigitalFormat)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@format.Description</td>
+                                        <td class="statistics-item-count">@format.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Source Format</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.SourceFormat != null && Model.SourceFormat.Any())
+                            {
+                                @foreach (var source in Model.SourceFormat)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@source.Description</td>
+                                        <td class="statistics-item-count">@source.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Vinyl State</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.VinylState != null && Model.VinylState.Any())
+                            {
+                                @foreach (var vinyl in Model.VinylState)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@vinyl.Description</td>
+                                        <td class="statistics-item-count">@vinyl.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Equipment Section -->
+        <section class="statistics-section">
+            <h3 class="section-title">
+                <i class="fa-solid fa-sliders"></i>
+                Equipment
+            </h3>
+            <div class="statistics-grid">
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">ADC</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Adc != null && Model.Adc.Any())
+                            {
+                                @foreach (var adc in Model.Adc)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@adc.Description</td>
+                                        <td class="statistics-item-count">@adc.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Amplifier</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Amplifier != null && Model.Amplifier.Any())
+                            {
+                                @foreach (var amp in Model.Amplifier)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@amp.Description</td>
+                                        <td class="statistics-item-count">@amp.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Cartridge</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Cartridge != null && Model.Cartridge.Any())
+                            {
+                                @foreach (var cart in Model.Cartridge)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@cart.Description</td>
+                                        <td class="statistics-item-count">@cart.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Player</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Player != null && Model.Player.Any())
+                            {
+                                @foreach (var player in Model.Player)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@player.Description</td>
+                                        <td class="statistics-item-count">@player.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+                <div class="statistics-card">
+                    <h4 class="statistics-card-title">Wire</h4>
+                    <div class="statistics-table-wrapper">
+                        <table class="statistics-table">
+                            @if (Model.Wire != null && Model.Wire.Any())
+                            {
+                                @foreach (var wire in Model.Wire)
+                                {
+                                    <tr>
+                                        <td class="statistics-item-name">@wire.Description</td>
+                                        <td class="statistics-item-count">@wire.Count</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr><td colspan="2" class="statistics-empty">No data available</td></tr>
+                            }
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using System.Threading;
 using Web.Db;
 using Web.Interfaces;
 using Web.Models;
@@ -10,6 +11,9 @@ namespace Web.Implementation
     {
         private readonly DMADbContext _context;
         private static readonly double[] _dsdFreq = { 2.8, 5.6, 11.2, 22.5 };
+        private static readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
+        private static DateTime? _lastRefreshAttempt = null;
+        private static readonly TimeSpan _refreshCooldown = TimeSpan.FromMinutes(5);
 
         public StatisticRepository(DMADbContext context) => _context = context;
 
@@ -19,18 +23,52 @@ namespace Web.Implementation
 
             if (stat == null)
             {
-                stat = await RefreshStatistic();
-                await _context.Statistics.AddAsync(stat);
-                await _context.SaveChangesAsync();
+                await _refreshLock.WaitAsync();
+                try
+                {
+                    // Double-check after acquiring lock
+                    stat = await _context.Statistics.FirstOrDefaultAsync();
+                    if (stat == null)
+                    {
+                        stat = await RefreshStatistic();
+                        await _context.Statistics.AddAsync(stat);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                finally
+                {
+                    _refreshLock.Release();
+                }
                 return stat;
             }
 
-            if (DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1))
+            // Check if refresh is needed (older than 1 day)
+            var needsRefresh = DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1);
+            
+            // Also check if we recently attempted a refresh (to prevent multiple concurrent refreshes)
+            var canRefresh = _lastRefreshAttempt == null || 
+                            DateTime.UtcNow - _lastRefreshAttempt.Value > _refreshCooldown;
+
+            if (needsRefresh && canRefresh)
             {
-                var refreshed = await RefreshStatistic();
-                stat.Name = refreshed.Name;
-                stat.LastUpdate = refreshed.LastUpdate;
-                await _context.SaveChangesAsync();
+                await _refreshLock.WaitAsync();
+                try
+                {
+                    // Double-check after acquiring lock
+                    stat = await _context.Statistics.FirstOrDefaultAsync();
+                    if (stat != null && DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1))
+                    {
+                        _lastRefreshAttempt = DateTime.UtcNow;
+                        var refreshed = await RefreshStatistic();
+                        stat.Name = refreshed.Name;
+                        stat.LastUpdate = refreshed.LastUpdate;
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                finally
+                {
+                    _refreshLock.Release();
+                }
             }
 
             return stat;
@@ -38,25 +76,35 @@ namespace Web.Implementation
 
         private async Task<Statistic> RefreshStatistic()
         {
+            var totalEquipment = await _context.Adces.CountAsync() +
+                                 await _context.Amplifiers.CountAsync() +
+                                 await _context.Cartridges.CountAsync() +
+                                 await _context.Players.CountAsync() +
+                                 await _context.Wires.CountAsync();
+
             var data = new StatisticCounters
             {
                 TotalAlbums = await _context.Albums.CountAsync(),
-                TotalSize = await _context.Albums.SumAsync(a => a.Digitizations.Sum(d => d.FormatInfo!.Size) ?? 0),
+                TotalSize = await _context.Digitizations.Where(d => d.FormatInfo != null && d.FormatInfo.Size != null).SumAsync(d => d.FormatInfo!.Size ?? 0),
                 StorageCount = await _context.Storages.CountAsync(),
-                Genre = await CountGeneric(_context.Genres, g => g.Albums.SelectMany(a => a.Digitizations)),
-                //Year = await CountGeneric(_context.Years, y => y.Al.SelectMany(a => a.Digitizations)),
-                Country = await CountGeneric(_context.Countries, c => c.Digitizations),
-                Label = await CountGeneric(_context.Labels, l => l.Digitizations),
-                //Bitness = await CountGeneric(_context.Bitnesses, b => b.Digitizations.Where(d => d.FormatInfo != null && d.FormatInfo.BitnessId == b.Id), d => $"{d.FormatInfo!.Bitness!.Value} bit/s"),
-                //Sampling = await CountGeneric(_context.Samplings, s => s.Digitizations.Where(d => d.FormatInfo != null && d.FormatInfo.SamplingId == s.Id), d => $"{d.FormatInfo!.Sampling!.Value}{(_dsdFreq.Contains(d.FormatInfo.Sampling!.Value) ? " MHz" : " kHz")}"),
-                //SourceFormat = await CountGeneric(_context.SourceFormats, s => s.Digitizations),
-                //DigitalFormat = await CountGeneric(_context.DigitalFormats, d => d.Digitizations),
-                //Adc = await CountGeneric(_context.Adces, e => e.Digitizations, f => $"{f.EquipmentInfo!.Adc!.Manufacturer?.Name} {f.EquipmentInfo.Adc.Name}"),
-                //Amplifier = await CountGeneric(_context.Amplifiers, e => e.Digitizations, f => $"{f.EquipmentInfo!.Amplifier!.Manufacturer?.Name} {f.EquipmentInfo.Amplifier.Name}"),
-                //Cartridge = await CountGeneric(_context.Cartridges, e => e.Digitizations, f => $"{f.EquipmentInfo!.Cartridge!.Manufacturer?.Name} {f.EquipmentInfo.Cartridge.Name}"),
-                //Player = await CountGeneric(_context.Players, e => e.Digitizations, f => $"{f.EquipmentInfo!.Player!.Manufacturer?.Name} {f.EquipmentInfo.Player.Name}"),
-                //VinylState = await CountGeneric(_context.VinylStates, v => v.Digitizations, f => f.FormatInfo!.VinylState!.Name),
-                //Wire = await CountGeneric(_context.Wires, e => e.Digitizations, f => $"{f.EquipmentInfo!.Wire!.Manufacturer?.Name} {f.EquipmentInfo.Wire.Name}")
+                TotalDigitizations = await _context.Digitizations.CountAsync(),
+                TotalArtists = await _context.Artists.CountAsync(),
+                TotalEquipment = totalEquipment,
+                Genre = await CountGenresAsync(),
+                Artist = await CountArtistsAsync(),
+                Year = await CountYearsAsync(),
+                Country = await CountCountriesAsync(),
+                Label = await CountLabelsAsync(),
+                Bitness = await CountBitnessAsync(),
+                Sampling = await CountSamplingAsync(),
+                SourceFormat = await CountSourceFormatsAsync(),
+                DigitalFormat = await CountDigitalFormatsAsync(),
+                Adc = await CountAdcAsync(),
+                Amplifier = await CountAmplifiersAsync(),
+                Cartridge = await CountCartridgesAsync(),
+                Player = await CountPlayersAsync(),
+                VinylState = await CountVinylStatesAsync(),
+                Wire = await CountWiresAsync()
             };
 
             return new Statistic
@@ -66,27 +114,195 @@ namespace Web.Implementation
             };
         }
 
-        private async Task<List<CounterItem>> CountGeneric<TEntity>(
-            IQueryable<TEntity> entities,
-            Func<TEntity, IEnumerable<Digitization>> digitizationsSelector,
-            Func<Digitization, string>? descriptionSelector = null)
-            where TEntity : class
+        private async Task<List<CounterItem>> CountGenresAsync()
         {
-            descriptionSelector ??= d =>
-            {
-                var f = d.FormatInfo;
-                return f switch
+            return await _context.Genres
+                .Select(g => new CounterItem
                 {
-                    not null when f.Bitness != null => f.Bitness.Value.ToString(),
-                    _ => d.Id.ToString()
-                };
-            };
+                    Description = g.Name,
+                    Count = g.Albums.Count
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
 
-            return await entities
-                .Select(e => new CounterItem
+        private async Task<List<CounterItem>> CountArtistsAsync()
+        {
+            return await _context.Artists
+                .Select(a => new CounterItem
                 {
-                    Description = descriptionSelector(digitizationsSelector(e).FirstOrDefault()!),
-                    Count = digitizationsSelector(e).Count()
+                    Description = a.Name,
+                    Count = a.Albums.Count
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountYearsAsync()
+        {
+            return await _context.Years
+                .Where(y => y.Digitizations.Any())
+                .OrderByDescending(y => y.Value)
+                .Select(y => new CounterItem
+                {
+                    Description = y.Value.ToString(),
+                    Count = y.Digitizations.Count
+                })
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountCountriesAsync()
+        {
+            return await _context.Countries
+                .Select(c => new CounterItem
+                {
+                    Description = c.Name,
+                    Count = c.Digitizations.Count
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountLabelsAsync()
+        {
+            return await _context.Labels
+                .Select(l => new CounterItem
+                {
+                    Description = l.Name,
+                    Count = l.Digitizations.Count
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountBitnessAsync()
+        {
+            return await _context.Bitnesses
+                .Select(b => new CounterItem
+                {
+                    Description = $"{b.Value} bit",
+                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.BitnessId == b.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountSamplingAsync()
+        {
+            return await _context.Samplings
+                .Select(s => new CounterItem
+                {
+                    Description = $"{s.Value}{(_dsdFreq.Contains(s.Value) ? " MHz" : " kHz")}",
+                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.SamplingId == s.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountSourceFormatsAsync()
+        {
+            return await _context.SourceFormats
+                .Select(s => new CounterItem
+                {
+                    Description = s.Name,
+                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.SourceFormatId == s.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountDigitalFormatsAsync()
+        {
+            return await _context.DigitalFormats
+                .Select(d => new CounterItem
+                {
+                    Description = d.Name,
+                    Count = _context.Digitizations.Count(dig => dig.FormatInfo != null && dig.FormatInfo.DigitalFormatId == d.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountVinylStatesAsync()
+        {
+            return await _context.VinylStates
+                .Select(v => new CounterItem
+                {
+                    Description = v.Name,
+                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.VinylStateId == v.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountAdcAsync()
+        {
+            return await _context.Adces
+                .Select(a => new CounterItem
+                {
+                    Description = a.Manufacturer != null ? $"{a.Manufacturer.Name} {a.Name}" : a.Name,
+                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.AdcId == a.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountAmplifiersAsync()
+        {
+            return await _context.Amplifiers
+                .Select(a => new CounterItem
+                {
+                    Description = a.Manufacturer != null ? $"{a.Manufacturer.Name} {a.Name}" : a.Name,
+                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.AmplifierId == a.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountCartridgesAsync()
+        {
+            return await _context.Cartridges
+                .Select(c => new CounterItem
+                {
+                    Description = c.Manufacturer != null ? $"{c.Manufacturer.Name} {c.Name}" : c.Name,
+                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.CartridgeId == c.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountPlayersAsync()
+        {
+            return await _context.Players
+                .Select(p => new CounterItem
+                {
+                    Description = p.Manufacturer != null ? $"{p.Manufacturer.Name} {p.Name}" : p.Name,
+                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.PlayerId == p.Id)
+                })
+                .Where(x => x.Count > 0)
+                .OrderByDescending(x => x.Count)
+                .ToListAsync();
+        }
+
+        private async Task<List<CounterItem>> CountWiresAsync()
+        {
+            return await _context.Wires
+                .Select(w => new CounterItem
+                {
+                    Description = w.Manufacturer != null ? $"{w.Manufacturer.Name} {w.Name}" : w.Name,
+                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.WireId == w.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)

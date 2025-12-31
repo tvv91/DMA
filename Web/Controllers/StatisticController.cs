@@ -14,6 +14,7 @@ namespace Web.Controllers
             _statisticRepository = statisticRepository;
         }
 
+        [HttpGet("statistic")]
         public async Task<IActionResult> Index()
         {
             var result = await _statisticRepository.Process();

@@ -413,35 +413,35 @@ namespace Web.SignalRHubs
             // Find or create Player
             if (!string.IsNullOrWhiteSpace(request.Player))
             {
-                var player = await FindOrCreatePlayerAsync(request.Player);
+                var player = await FindOrCreatePlayerAsync(request.Player, request.PlayerManufacturer);
                 equipmentInfo.PlayerId = player.Id;
             }
 
             // Find or create Cartridge
             if (!string.IsNullOrWhiteSpace(request.Cartridge))
             {
-                var cartridge = await FindOrCreateCartridgeAsync(request.Cartridge);
+                var cartridge = await FindOrCreateCartridgeAsync(request.Cartridge, request.CartridgeManufacturer);
                 equipmentInfo.CartridgeId = cartridge.Id;
             }
 
             // Find or create Amplifier
             if (!string.IsNullOrWhiteSpace(request.Amplifier))
             {
-                var amplifier = await FindOrCreateAmplifierAsync(request.Amplifier);
+                var amplifier = await FindOrCreateAmplifierAsync(request.Amplifier, request.AmplifierManufacturer);
                 equipmentInfo.AmplifierId = amplifier.Id;
             }
 
             // Find or create Adc
             if (!string.IsNullOrWhiteSpace(request.Adc))
             {
-                var adc = await FindOrCreateAdcAsync(request.Adc);
+                var adc = await FindOrCreateAdcAsync(request.Adc, request.AdcManufacturer);
                 equipmentInfo.AdcId = adc.Id;
             }
 
             // Find or create Wire
             if (!string.IsNullOrWhiteSpace(request.Wire))
             {
-                var wire = await FindOrCreateWireAsync(request.Wire);
+                var wire = await FindOrCreateWireAsync(request.Wire, request.WireManufacturer);
                 equipmentInfo.WireId = wire.Id;
             }
 
@@ -572,7 +572,7 @@ namespace Web.SignalRHubs
             return state;
         }
 
-        private async Task<Player> FindOrCreatePlayerAsync(string playerName)
+        private async Task<Player> FindOrCreatePlayerAsync(string playerName, string? manufacturerName = null)
         {
             var player = await _context.Players
                 .Include(p => p.Manufacturer)
@@ -581,24 +581,35 @@ namespace Web.SignalRHubs
             if (player == null)
             {
                 player = new Player { Name = playerName };
+                
+                // Find or create manufacturer if provided
+                if (!string.IsNullOrWhiteSpace(manufacturerName))
+                {
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.PlayerManufacturer);
+                    player.ManufacturerId = manufacturer?.Id;
+                }
+                
                 _context.Players.Add(player);
                 await _context.SaveChangesAsync();
             }
-            else if (player.ManufacturerId == null)
+            else
             {
-                // Try to find and link manufacturer if it exists
-                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(playerName, EntityType.Player);
-                if (equipmentWithManufacturer?.Manufacturer != null)
+                // Update manufacturer if provided and not already set
+                if (!string.IsNullOrWhiteSpace(manufacturerName) && player.ManufacturerId == null)
                 {
-                    player.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
-                    await _context.SaveChangesAsync();
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.PlayerManufacturer);
+                    if (manufacturer != null)
+                    {
+                        player.ManufacturerId = manufacturer.Id;
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
             
             return player;
         }
 
-        private async Task<Cartridge> FindOrCreateCartridgeAsync(string cartridgeName)
+        private async Task<Cartridge> FindOrCreateCartridgeAsync(string cartridgeName, string? manufacturerName = null)
         {
             var cartridge = await _context.Cartridges
                 .Include(c => c.Manufacturer)
@@ -607,24 +618,35 @@ namespace Web.SignalRHubs
             if (cartridge == null)
             {
                 cartridge = new Cartridge { Name = cartridgeName };
+                
+                // Find or create manufacturer if provided
+                if (!string.IsNullOrWhiteSpace(manufacturerName))
+                {
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.CartridgeManufacturer);
+                    cartridge.ManufacturerId = manufacturer?.Id;
+                }
+                
                 _context.Cartridges.Add(cartridge);
                 await _context.SaveChangesAsync();
             }
-            else if (cartridge.ManufacturerId == null)
+            else
             {
-                // Try to find and link manufacturer if it exists
-                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(cartridgeName, EntityType.Cartridge);
-                if (equipmentWithManufacturer?.Manufacturer != null)
+                // Update manufacturer if provided and not already set
+                if (!string.IsNullOrWhiteSpace(manufacturerName) && cartridge.ManufacturerId == null)
                 {
-                    cartridge.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
-                    await _context.SaveChangesAsync();
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.CartridgeManufacturer);
+                    if (manufacturer != null)
+                    {
+                        cartridge.ManufacturerId = manufacturer.Id;
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
             
             return cartridge;
         }
 
-        private async Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName)
+        private async Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName, string? manufacturerName = null)
         {
             var amplifier = await _context.Amplifiers
                 .Include(a => a.Manufacturer)
@@ -633,24 +655,35 @@ namespace Web.SignalRHubs
             if (amplifier == null)
             {
                 amplifier = new Amplifier { Name = amplifierName };
+                
+                // Find or create manufacturer if provided
+                if (!string.IsNullOrWhiteSpace(manufacturerName))
+                {
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.AmplifierManufacturer);
+                    amplifier.ManufacturerId = manufacturer?.Id;
+                }
+                
                 _context.Amplifiers.Add(amplifier);
                 await _context.SaveChangesAsync();
             }
-            else if (amplifier.ManufacturerId == null)
+            else
             {
-                // Try to find and link manufacturer if it exists
-                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(amplifierName, EntityType.Amplifier);
-                if (equipmentWithManufacturer?.Manufacturer != null)
+                // Update manufacturer if provided and not already set
+                if (!string.IsNullOrWhiteSpace(manufacturerName) && amplifier.ManufacturerId == null)
                 {
-                    amplifier.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
-                    await _context.SaveChangesAsync();
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.AmplifierManufacturer);
+                    if (manufacturer != null)
+                    {
+                        amplifier.ManufacturerId = manufacturer.Id;
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
             
             return amplifier;
         }
 
-        private async Task<Adc> FindOrCreateAdcAsync(string adcName)
+        private async Task<Adc> FindOrCreateAdcAsync(string adcName, string? manufacturerName = null)
         {
             var adc = await _context.Adces
                 .Include(a => a.Manufacturer)
@@ -659,24 +692,35 @@ namespace Web.SignalRHubs
             if (adc == null)
             {
                 adc = new Adc { Name = adcName };
+                
+                // Find or create manufacturer if provided
+                if (!string.IsNullOrWhiteSpace(manufacturerName))
+                {
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.AdcManufacturer);
+                    adc.ManufacturerId = manufacturer?.Id;
+                }
+                
                 _context.Adces.Add(adc);
                 await _context.SaveChangesAsync();
             }
-            else if (adc.ManufacturerId == null)
+            else
             {
-                // Try to find and link manufacturer if it exists
-                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(adcName, EntityType.Adc);
-                if (equipmentWithManufacturer?.Manufacturer != null)
+                // Update manufacturer if provided and not already set
+                if (!string.IsNullOrWhiteSpace(manufacturerName) && adc.ManufacturerId == null)
                 {
-                    adc.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
-                    await _context.SaveChangesAsync();
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.AdcManufacturer);
+                    if (manufacturer != null)
+                    {
+                        adc.ManufacturerId = manufacturer.Id;
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
             
             return adc;
         }
 
-        private async Task<Wire> FindOrCreateWireAsync(string wireName)
+        private async Task<Wire> FindOrCreateWireAsync(string wireName, string? manufacturerName = null)
         {
             var wire = await _context.Wires
                 .Include(w => w.Manufacturer)
@@ -685,21 +729,72 @@ namespace Web.SignalRHubs
             if (wire == null)
             {
                 wire = new Wire { Name = wireName };
+                
+                // Find or create manufacturer if provided
+                if (!string.IsNullOrWhiteSpace(manufacturerName))
+                {
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.WireManufacturer);
+                    wire.ManufacturerId = manufacturer?.Id;
+                }
+                
                 _context.Wires.Add(wire);
                 await _context.SaveChangesAsync();
             }
-            else if (wire.ManufacturerId == null)
+            else
             {
-                // Try to find and link manufacturer if it exists
-                var equipmentWithManufacturer = await _equipmentRepository.GetManufacturerByNameAsync(wireName, EntityType.Wire);
-                if (equipmentWithManufacturer?.Manufacturer != null)
+                // Update manufacturer if provided and not already set
+                if (!string.IsNullOrWhiteSpace(manufacturerName) && wire.ManufacturerId == null)
                 {
-                    wire.ManufacturerId = equipmentWithManufacturer.Manufacturer.Id;
-                    await _context.SaveChangesAsync();
+                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.WireManufacturer);
+                    if (manufacturer != null)
+                    {
+                        wire.ManufacturerId = manufacturer.Id;
+                        await _context.SaveChangesAsync();
+                    }
                 }
             }
             
             return wire;
+        }
+
+        private async Task<Manufacturer?> FindOrCreateManufacturerAsync(string manufacturerName, EntityType manufacturerType)
+        {
+            if (string.IsNullOrWhiteSpace(manufacturerName))
+                return null;
+
+            // First, try to find existing manufacturer by name and type (case-insensitive)
+            var existingManufacturer = await _context.Manufacturer
+                .FirstOrDefaultAsync(m => m.Name.ToLower() == manufacturerName.ToLower() && m.Type == manufacturerType);
+
+            if (existingManufacturer != null)
+                return existingManufacturer;
+
+            // If not found by name and type, try to find by name only (to reuse existing manufacturers)
+            var existingByName = await _context.Manufacturer
+                .FirstOrDefaultAsync(m => m.Name.ToLower() == manufacturerName.ToLower());
+
+            if (existingByName != null)
+            {
+                // Update the type if it's different (to gradually fix data inconsistencies)
+                if (existingByName.Type != manufacturerType)
+                {
+                    existingByName.Type = manufacturerType;
+                    await _context.SaveChangesAsync();
+                }
+                return existingByName;
+            }
+
+            // If not found at all, create a new one
+            var newManufacturer = new Manufacturer
+            {
+                Name = manufacturerName.Trim(),
+                Type = manufacturerType
+            };
+
+            _context.Manufacturer.Add(newManufacturer);
+            await _context.SaveChangesAsync();
+
+            return newManufacturer;
         }
 
         #endregion

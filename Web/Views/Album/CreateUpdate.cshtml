@@ -888,9 +888,17 @@
             },
             init: function() {
                 const coverId = $("#coverid").val();
+                const albumId = $("#albumid").val();
                 if (coverId !== "" && !coverId.includes("nocover")) {
                     let myDropzone = this;
-                    let coverUrl = window.location.href.includes("edit") ? coverId : `/temp/${coverId}`;
+                    let coverUrl;
+                    if (window.location.href.includes("edit") && albumId) {
+                        // When editing, construct the proper image URL
+                        coverUrl = `/covers/album/${albumId}.jpg`;
+                    } else {
+                        // When creating, use temp path
+                        coverUrl = `/temp/${coverId}`;
+                    }
                     myDropzone.displayExistingFile({}, coverUrl);
                 }
             },

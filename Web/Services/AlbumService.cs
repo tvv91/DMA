@@ -169,6 +169,7 @@ namespace Web.Services
                 Title = album.Title,
                 Artist = album.Artist?.Name ?? string.Empty,
                 Genre = album.Genre?.Name ?? string.Empty,
+                AlbumCover = album.Id.ToString(), // Set album ID so dropzone can display existing image
                 Action = ActionType.Update,
                 Digitizations = digitizations.ToList()
             };

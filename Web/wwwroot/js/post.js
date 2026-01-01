@@ -24,7 +24,13 @@ async function fetchPosts(page = 1, searchText = "", category = "", year = "", o
     } catch (err) {
         console.error("Error fetching posts:", err);
         $("#spinner").addClass("d-none");
-        $("#post-container").html('<div style="text-align: center"><h4>Error loading posts. Please refresh the page.</h4></div>');
+        $("#post-container").html(`
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 4rem; margin-bottom: 16px;">⚠️</div>
+                <h4 style="color: #dc3545; font-weight: 500; margin-bottom: 8px;">Error loading posts</h4>
+                <p style="color: #6c757d; font-size: 0.9rem;">Please refresh the page to try again</p>
+            </div>
+        `);
     }
 }
 
@@ -54,7 +60,13 @@ function renderPosts(posts, totalPages) {
 
     if (!posts || posts.length === 0) {
         $("#spinner").addClass("d-none");
-        $container.html('<div style="text-align: center"><h4>No posts found</h4></div>');
+        $container.html(`
+            <div style="text-align: center; padding: 60px 20px;">
+                <div style="font-size: 4rem; margin-bottom: 16px;">📝</div>
+                <h4 style="color: #6c757d; font-weight: 500; margin-bottom: 8px;">No posts found</h4>
+                <p style="color: #adb5bd; font-size: 0.9rem;">Try adjusting your filters or search terms</p>
+            </div>
+        `);
         return;
     }
 
@@ -62,19 +74,42 @@ function renderPosts(posts, totalPages) {
 
     posts.forEach(post => {
         const categories = post.categories && post.categories.length > 0 
-            ? post.categories.join(", ") 
-            : "Uncategorized";
+            ? post.categories 
+            : ["Uncategorized"];
         
         const postClass = post.isDraft ? "post post-draft" : "post post-published";
         const createdDate = post.created || "Unknown date";
+        
+        // Format date nicely
+        let formattedDate = createdDate;
+        try {
+            const date = new Date(createdDate);
+            if (!isNaN(date.getTime())) {
+                formattedDate = date.toLocaleDateString('en-US', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+            }
+        } catch (e) {
+            // Keep original date if parsing fails
+        }
+        
+        const categoryBadges = categories.map(cat => 
+            `<span class="post-category-badge">${escapeHtml(cat)}</span>`
+        ).join('');
         
         $container.append(`
             <div class="${postClass}">
                 <h4><a href="/post/${post.id}">${escapeHtml(post.title)}</a></h4>
                 <div>${escapeHtml(post.description || "")}</div>
                 <div class="blog-post-info">
-                    <i>Added: <b>${createdDate}</b></i>&nbsp;
-                    <i>Category: <b>${categories}</b></i>
+                    <span class="post-date-icon">
+                        <span>${escapeHtml(formattedDate)}</span>
+                    </span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        ${categoryBadges}
+                    </div>
                 </div>
             </div>
         `);
@@ -210,7 +245,13 @@ function initPostListPage() {
                 }).catch(err => {
                     console.error("Error starting SignalR connection:", err);
                     $("#spinner").addClass("d-none");
-                    $("#post-container").html('<div style="text-align: center"><h4>Error connecting to server. Please refresh the page.</h4></div>');
+                    $("#post-container").html(`
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <div style="font-size: 4rem; margin-bottom: 16px;">🔌</div>
+                            <h4 style="color: #dc3545; font-weight: 500; margin-bottom: 8px;">Connection Error</h4>
+                            <p style="color: #6c757d; font-size: 0.9rem;">Unable to connect to server. Please refresh the page.</p>
+                        </div>
+                    `);
                 });
             }
         }, 100);

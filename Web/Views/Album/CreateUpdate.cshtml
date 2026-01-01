@@ -197,7 +197,6 @@
             </div>
         </div>
     </div>
-    </div>
 </div>
 <script>
     let selectedDigitizationId = 0;
@@ -786,11 +785,11 @@
 
     function checkAlbumIsExists() {
         let artist = $("#artist_input").val();
-        let album = $("#album").val();
+        let album = $("#album_input").val();
 
         if (artist !== '' && album !== '') {
             let source = $("#source").val();
-            checkAlbum(@Model.AlbumId, album, artist, source);
+            checkAlbum(album, artist, source);
         }
     }
 

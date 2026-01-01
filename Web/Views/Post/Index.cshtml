@@ -2,35 +2,44 @@
     <div class="blog-container">
         <div class="blog-post position-relative">
             <div id="spinner" class="post-spinner-overlay d-none">
-                <div class="spinner-border" role="status"></div>
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
             </div>
-            <div id="post-container" class="blog-post"></div>
+            <div id="post-container"></div>
         </div>
         <div class="blog-side-panel">
             <div class="blog-side-panel-filters">
-                <input id="searchfilter" class="form-control" type="search" placeholder="Search in blogs">
-                <label class="mt-2">Filter blogs:</label>
-                <div class="d-flex gap-2">
+                <div style="margin-bottom: 20px;">
+                    <label for="searchfilter" style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057; font-size: 0.9rem;">
+                        🔍 Search Posts
+                    </label>
+                    <input id="searchfilter" class="form-control" type="search" placeholder="Search posts by title or description...">
+                </div>
+                <label for="categoryfilter" class="mt-2">Filter by Category:</label>
+                <div class="d-flex gap-2" style="margin-bottom: 16px 0;">
                     <select id="categoryfilter" class="custom-select flex-fill">
-                        <option selected value="">Category</option>
+                        <option selected value="">All Categories</option>
                         <option value="Developing">Developing</option>
                         <option value="Releases">Releases</option>
                         <option value="Other">Other</option>
                     </select>
-                    <input id="yearfilter" class="form-control" placeholder="Year">
+                    <input id="yearfilter" class="form-control" placeholder="Year" style="max-width: 100px;">
                 </div>
                 <label>
-                    <input id="draftfilter" type="checkbox"> Only drafts
+                    <input id="draftfilter" type="checkbox"> Show only drafts
                 </label>
                 <hr />
                 <div class="blog-tree-view">
-                    <label class="mt-2 mb-2"><strong>Blog Archive</strong></label>
+                    <label class="mt-2 mb-2" style="font-weight: 600; color: #495057; font-size: 1rem;">
+                        📚 Blog Archive
+                    </label>
                     <div id="blog-tree" class="blog-tree"></div>
                 </div>
             </div>
         </div>
-        <div>
-            <nav>
+        <div style="grid-column: 1 / -1;">
+            <nav aria-label="Posts pagination">
                 <ul id="pagination" class="pagination justify-content-center"></ul>
             </nav>
         </div>

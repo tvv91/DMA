@@ -91,10 +91,27 @@ namespace Web.SignalRHubs
 
             if (result is not null)
             {
-                // "100 or 50" is detection level.
-                // 100 means that user trying add album to db that alredy exists from same source
-                // 50 means that album already exists but with different properties (another release, digitized hardware, etc.)
-                // Currently disabled - see commented code in original DefaultHub
+                // Get all digitizations for this album
+                var digitizations = await _digitizationRepository.GetByAlbumIdAsync(result.Id);
+                
+                // Check if any digitization has the same source
+                var matchingDigitizations = digitizations
+                    .Where(d => !string.IsNullOrWhiteSpace(d.Source) && 
+                                !string.IsNullOrWhiteSpace(source) && 
+                                d.Source.Equals(source, StringComparison.OrdinalIgnoreCase))
+                    .Select(d => d.Id)
+                    .ToArray();
+
+                if (matchingDigitizations.Length > 0)
+                {
+                    // Detection level 100: Album exists with same source
+                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, matchingDigitizations);
+                }
+                else
+                {
+                    // Detection level 50: Album exists but with different source/properties
+                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Id);
+                }
             }
             else
             {

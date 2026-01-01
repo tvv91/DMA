@@ -10,7 +10,7 @@ namespace Web.SignalRHubs
     {
         private readonly IPostRepository _postRepository;
         private readonly IPostService _postService;
-        private const int POSTS_PER_PAGE = 10;
+        private const int POSTS_PER_PAGE = 5;
 
         public PostHub(IPostRepository postRepository, IPostService postService)
         {
@@ -23,7 +23,6 @@ namespace Web.SignalRHubs
             var result = await _postRepository.GetFilteredListAsync(page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts);
 
             var response = result.Items
-                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
                 .Select(p => new
                 {
                     p.Id,

@@ -33,11 +33,19 @@ namespace Web.Implementation
         {
             var query = _context.Posts
                 .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
                 .AsNoTracking()
                 .AsQueryable();
 
-            return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
+            var totalItems = await query.CountAsync();
+            
+            var items = await query
+                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+                .ThenByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Post>(items, totalItems, page, pageSize);
         }
 
         public async Task<Post?> GetByIdAsync(int id)
@@ -93,9 +101,16 @@ namespace Web.Implementation
                 query = query.Where(p => p.IsDraft);
             }
 
-            query = query.OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue);
+            var totalItems = await query.CountAsync();
+            
+            var items = await query
+                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+                .ThenByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
-            return await query.ToPagedResultAsync(page, pageSize, p => p.Id);
+            return new PagedResult<Post>(items, totalItems, page, pageSize);
         }
     }
 }

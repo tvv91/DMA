@@ -22,11 +22,15 @@ namespace Web.Implementation
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var affected = await _context.Posts
-                .Where(a => a.Id == id)
-                .ExecuteDeleteAsync();
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+            {
+                return false;
+            }
 
-            return affected > 0;
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)

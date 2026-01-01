@@ -46,11 +46,15 @@ namespace Web.Implementation
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var affected = await _context.Albums
-                .Where(a => a.Id == id)
-                .ExecuteDeleteAsync();
+            var album = await _context.Albums.FindAsync(id);
+            if (album == null)
+            {
+                return false;
+            }
 
-            return affected > 0;
+            _context.Albums.Remove(album);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<PagedResult<Album>> SearchByTitleAsync(string title, int page, int pageSize)

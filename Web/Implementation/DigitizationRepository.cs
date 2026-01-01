@@ -105,8 +105,15 @@ namespace Web.Implementation
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var affected = await _context.Digitizations.Where(d => d.Id == id).ExecuteDeleteAsync();
-            return affected > 0;
+            var digitization = await _context.Digitizations.FindAsync(id);
+            if (digitization == null)
+            {
+                return false;
+            }
+
+            _context.Digitizations.Remove(digitization);
+            await _context.SaveChangesAsync();
+            return true;
         }        
     }
 }

@@ -898,7 +898,9 @@
                         // When creating, use temp path
                         coverUrl = `/temp/${coverId}`;
                     }
-                    myDropzone.displayExistingFile({}, coverUrl);
+                    // Use a mock file object with a name to avoid "undefined" display
+                    const mockFile = { name: "cover.jpg", size: 0, type: "image/jpeg" };
+                    myDropzone.displayExistingFile(mockFile, coverUrl);
                 }
             },
             removedfile: function(file) {

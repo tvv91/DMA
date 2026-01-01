@@ -12,12 +12,14 @@ namespace Web.Services
     {
         private readonly IAlbumRepository _albumRepository;
         private readonly IDigitizationService _digitizationService;
+        private readonly IImageService _imageService;
         private readonly DMADbContext _context;
 
-        public AlbumService(IAlbumRepository albumRepository, IDigitizationService digitizationService, DMADbContext context)
+        public AlbumService(IAlbumRepository albumRepository, IDigitizationService digitizationService, IImageService imageService, DMADbContext context)
         {
             _albumRepository = albumRepository;
             _digitizationService = digitizationService;
+            _imageService = imageService;
             _context = context;
         }
 
@@ -163,13 +165,17 @@ namespace Web.Services
         {
             var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
             
+            // Check if cover exists - only set AlbumCover if cover actually exists
+            var coverUrl = await _imageService.GetImageUrlAsync(album.Id, EntityType.AlbumCover);
+            var albumCover = coverUrl.Contains("nocover") ? null : album.Id.ToString();
+            
             return new AlbumCreateUpdateViewModel
             {
                 AlbumId = album.Id,
                 Title = album.Title,
                 Artist = album.Artist?.Name ?? string.Empty,
                 Genre = album.Genre?.Name ?? string.Empty,
-                AlbumCover = album.Id.ToString(), // Set album ID so dropzone can display existing image
+                AlbumCover = albumCover, // Set album ID only if cover exists, otherwise null
                 Action = ActionType.Update,
                 Digitizations = digitizations.ToList()
             };

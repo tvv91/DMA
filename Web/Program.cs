@@ -10,10 +10,19 @@ builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<DMADbContext>(opts =>
 {
-    opts.UseSqlServer(builder.Configuration["ConnectionStrings:DbConnectionDev"], sqlServerOptionsAction =>
+    var connectionString = builder.Configuration["ConnectionStrings:DbConnectionDev"];
+    // Use InMemory database for testing (when connection string is empty or null)
+    if (string.IsNullOrWhiteSpace(connectionString))
     {
-        sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-    });
+        opts.UseInMemoryDatabase("TestDb_Integration");
+    }
+    else
+    {
+        opts.UseSqlServer(connectionString, sqlServerOptionsAction =>
+        {
+            sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
+        });
+    }
 });
 builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
 builder.Services.AddScoped<IDigitizationRepository, DigitizationRepository>();
@@ -55,8 +64,14 @@ app.MapControllerRoute(name: "default", pattern: "{controller=Post}/{action=Inde
 app.MapHub<AlbumHub>("/albumhub");
 app.MapHub<EquipmentHub>("/equipmenthub");
 app.MapHub<PostHub>("/posthub");
-await SeedData.EnsurePopulated(app);
+
+// Skip seed data in testing environment or when connection string is empty (InMemory)
+var connectionString = builder.Configuration["ConnectionStrings:DbConnectionDev"];
+if (!string.IsNullOrWhiteSpace(connectionString) && 
+    !app.Environment.EnvironmentName.Equals("Testing", StringComparison.OrdinalIgnoreCase))
+{
+    await SeedData.EnsurePopulated(app);
+}
+
 app.Run();
 
-// For integration tests
-public partial class Program { }

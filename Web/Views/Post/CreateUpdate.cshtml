@@ -1,67 +1,125 @@
 ﻿@model PostViewModel
 
 <body data-page="new-post">
-    <form method="post" asp-action="create">
+    <form method="post" asp-action="@(Model.Id > 0 ? "update" : "create")">
         <input id="Id" asp-for="Id" type="hidden" />
-        <div class="post-container">
-            <div asp-validation-summary="ModelOnly"></div>
-            <div class="post-buttons mt-2 mb-2">
-                <label id="updatedAt"></label>
-
-                <button id="previewButton"
-                        class="btn btn-outline-dark"
-                        type="button"
-                        data-bs-toggle="modal"
-                        data-bs-target="#previewModal">
-                    Preview
-                </button>
-
-                <button id="savebutton"
-                        class="btn btn-outline-info"
-                        type="button"
-                        disabled>
-                    <span id="spinnerbutton"
-                          class="spinner-border spinner-border-sm"
-                          role="status"
-                          aria-hidden="true"
-                          hidden></span>
-                    Save (Draft)
-                </button>
-
-                <button id="publishbutton"
-                        class="btn btn-outline-success"
-                        type="submit">
-                    Publish
-                </button>
+        <div class="post-editor-container">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            
+            <div class="post-editor-header">
+                <div class="post-editor-back">
+                    @if (Model.Id > 0)
+                    {
+                        <a class="btn btn-back" asp-action="GetById" asp-controller="post" asp-route-id="@Model.Id">
+                            <i class="fa fa-arrow-left"></i> Back to Post
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-back" asp-action="index" asp-controller="post">
+                            <i class="fa fa-arrow-left"></i> Back to Posts
+                        </a>
+                    }
+                </div>
+                <div class="post-editor-status">
+                    <span id="updatedAt" class="editor-status-text"></span>
+                </div>
+                <div class="post-editor-actions">
+                    <button id="previewButton"
+                            class="btn btn-preview"
+                            type="button"
+                            data-bs-toggle="modal"
+                            data-bs-target="#previewModal">
+                        <i class="fa fa-eye"></i> Preview
+                    </button>
+                    <button id="savebutton"
+                            class="btn btn-save-draft"
+                            type="button"
+                            disabled>
+                        <span id="spinnerbutton"
+                              class="spinner-border spinner-border-sm"
+                              role="status"
+                              aria-hidden="true"
+                              hidden></span>
+                        <i class="fa fa-save"></i> <span id="saveButtonText">@(Model.Id == null || Model.IsDraft ? "Save (Draft)" : "Save")</span>
+                    </button>
+                    @if (Model.Id == null || Model.IsDraft)
+                    {
+                        <button id="publishbutton"
+                                class="btn btn-publish"
+                                type="submit">
+                            <i class="fa fa-paper-plane"></i> Publish
+                        </button>
+                    }
+                </div>
             </div>
 
-            <div class="input-group mb-2">
-                <input id="title"
-                       type="text"
-                       class="form-control me-1"
-                       placeholder="Title"
-                       asp-for="Title">
+            <div class="post-editor-form">
+                <div class="post-editor-fields">
+                    <input id="title"
+                           type="text"
+                           class="form-control post-title-input"
+                           placeholder="Enter post title..."
+                           asp-for="Title">
 
-                <input id="description"
-                       type="text"
-                       class="form-control ms-1"
-                       placeholder="Description"
-                       asp-for="Description">
+                    <input id="description"
+                           type="text"
+                           class="form-control post-description-input"
+                           placeholder="Enter a brief description..."
+                           asp-for="Description">
 
-                <select id="category"
-                        class="custom-select ms-1"
-                        asp-for="Category">
-                    <option selected>Category</option>
-                    <option value="Developing">Developing</option>
-                    <option value="Releases">Releases</option>
-                    <option value="Other">Other</option>
-                </select>
+                    <select id="category"
+                            class="form-select post-category-select"
+                            asp-for="Category">
+                        <option selected value="">Select Category</option>
+                        <option value="Developing">Developing</option>
+                        <option value="Releases">Releases</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="rich-text-editor-wrapper">
+                    <div class="rich-text-toolbar">
+                        <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
+                            <i class="fa fa-bold"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
+                            <i class="fa fa-italic"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
+                            <i class="fa fa-underline"></i>
+                        </button>
+                        <div class="toolbar-separator"></div>
+                        <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="h2" title="Heading">
+                            <i class="fa fa-heading"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="h3" title="Subheading">
+                            <i class="fa fa-heading" style="font-size: 0.8em;"></i>
+                        </button>
+                        <div class="toolbar-separator"></div>
+                        <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
+                            <i class="fa fa-list-ul"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
+                            <i class="fa fa-list-ol"></i>
+                        </button>
+                        <div class="toolbar-separator"></div>
+                        <button type="button" class="toolbar-btn" data-command="createLink" title="Insert Link">
+                            <i class="fa fa-link"></i>
+                        </button>
+                        <button type="button" class="toolbar-btn" data-command="removeFormat" title="Remove Formatting">
+                            <i class="fa fa-remove-format"></i>
+                        </button>
+                    </div>
+                    <div id="content-editor" 
+                         class="rich-text-editor" 
+                         contenteditable="true"
+                         data-placeholder="Start writing your post content here..."></div>
+                    <textarea id="content"
+                              class="d-none"
+                              asp-for="Content"></textarea>
+                </div>
             </div>
-
-            <textarea id="content"
-                      class="form-control"
-                      rows="25"
-                      asp-for="Content"></textarea>
         </div>
     </form>
 
@@ -72,12 +130,17 @@
          aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
-                <div class="modal-body"></div>
+                <div class="modal-header">
+                    <h5 class="modal-title">Post Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body post-preview-content"></div>
             </div>
         </div>
     </div>
 
     @section Scripts {
         <script src="~/js/post.js"></script>
+        <script src="~/js/rich-text-editor.js"></script>
     }
 </body>

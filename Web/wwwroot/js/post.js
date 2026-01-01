@@ -290,11 +290,14 @@ async function autoSave() {
     $("#spinnerbutton").removeAttr("hidden");
     $("#savebutton").prop("disabled", true);
 
+    // Get content from rich text editor if available, otherwise from textarea
+    const content = $("#content-editor").html() || $("#content").val();
+    
     try {
         await postConnection.invoke("AutoSavePost", postConnection.connectionId, postId || 0,
             $("#title").val().trim(),
             $("#description").val().trim(),
-            $("#content").val().trim(),
+            content.trim(),
             $("#category").val()
         );
     } catch (err) {
@@ -305,10 +308,10 @@ async function autoSave() {
 function onChange() {
     const title = $("#title").val()?.trim();
     const description = $("#description").val()?.trim();
-    const content = $("#content").val()?.trim();
+    const content = $("#content-editor").html()?.trim() || $("#content").val()?.trim();
     const category = $("#category").val();
 
-    if (title && description && content && category && category !== "Category") {
+    if (title && description && content && category && category !== "Category" && category !== "") {
         $("#savebutton").prop("disabled", false);
         isChanged = true;
     } else {
@@ -319,8 +322,9 @@ function onChange() {
 
 function setupPreview() {
     $("#previewButton").on("click", () => {
-        const safeHtml = DOMPurify.sanitize($("#content").val());
-        $(".modal-body").html(safeHtml);
+        const editorContent = $("#content-editor").html() || $("#content").val();
+        const safeHtml = DOMPurify.sanitize(editorContent);
+        $(".post-preview-content").html(safeHtml);
     });
 }
 
@@ -330,7 +334,10 @@ function initPostEditorPage() {
     $(window).on("beforeunload", () => clearInterval(autoSaveInterval));
 
     setupPreview();
-    $("#title, #description, #content, #category").on("input change", onChange);
+    $("#title, #description, #category").on("input change", onChange);
+    $("#content-editor").on("input paste keyup", onChange);
+    // Also listen to the hidden textarea in case it's updated
+    $("#content").on("input change", onChange);
 }
 
 

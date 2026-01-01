@@ -14,31 +14,46 @@
             sessionStorage.setItem("post_updated", "1");
         </script>
     }
-    <div class="mt-2 position-relative">
-        <a class="btn btn-secondary" asp-action="index" asp-controller="post">Back</a>
-        <span class="position-absolute end-0">
-            <a class="btn btn-outline-warning" asp-action="edit" asp-controller="post" asp-route-id="@Model.Id">Edit</a>
-            <a class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#removemodal">Remove</a>
-        </span>
+    <div class="post-details-container">
+        <div class="post-details-header">
+            <a class="btn btn-back" asp-action="index" asp-controller="post">
+                <i class="fa fa-arrow-left"></i> Back to Posts
+            </a>
+            <div class="post-details-actions">
+                <a class="btn btn-edit" asp-action="edit" asp-controller="post" asp-route-id="@Model.Id">
+                    <i class="fa fa-edit"></i> Edit
+                </a>
+                <button class="btn btn-remove" data-bs-toggle="modal" data-bs-target="#removemodal">
+                    <i class="fa fa-trash"></i> Remove
+                </button>
+            </div>
+        </div>
+        
+        <article class="post-details-article">
+            <header class="post-details-title-section">
+                <h1 class="post-details-title">@Model.Title</h1>
+                <p class="post-details-description">@Model.Description</p>
+                <div class="post-details-meta">
+                    <span class="post-meta-item">
+                        <i class="fa fa-calendar"></i>
+                        <span>Created: <strong>@Model.CreatedDate</strong></span>
+                    </span>
+                    @if (Model.UpdatedTime != null)
+                    {
+                        <span class="post-meta-item">
+                            <i class="fa fa-clock"></i>
+                            <span>Updated: <strong>@Model.UpdatedTime</strong></span>
+                        </span>
+                    }
+                </div>
+            </header>
+            
+            <div class="post-details-content">
+                @Html.Raw(Model.Content)
+            </div>
+        </article>
     </div>
-    <div>
-        <div id="post-header">
-            <h1><b>@Model.Title</b></h1>
-            <h4><i>@Model.Description</i></h4>
-        </div>
-        <hr />
-        <div id="post-content" class="post-content">
-            @Html.Raw(Model.Content)
-        </div>
-        <hr />
-        <div id="post-footer">
-            <i>Created: <b>@Model.CreatedDate</b></i>&nbsp;
-            @if (Model.UpdatedTime != null)
-            {
-                <i>Updated: <b>@Model.UpdatedTime</b></i>
-            }
-        </div>
-    </div>
+    
     <div class="modal fade" id="removemodal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">

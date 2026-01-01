@@ -11,5 +11,6 @@ namespace Web.ViewModels
         public string Category { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedTime { get; set; }
+        public bool IsDraft { get; set; }
     }
 }

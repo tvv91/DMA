@@ -127,7 +127,8 @@ namespace Web.Services
                 Content = post.Content,
                 CreatedDate = post.CreatedDate,
                 UpdatedTime = post.UpdatedDate,
-                Category = post.PostCategories.FirstOrDefault()?.Category?.Title
+                Category = post.PostCategories.FirstOrDefault()?.Category?.Title,
+                IsDraft = post.IsDraft
             };
         }
 

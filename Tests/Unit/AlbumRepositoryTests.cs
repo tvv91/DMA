@@ -323,7 +323,7 @@ namespace Tests.Unit
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _repository.FindByTitleAndArtistAsync("Test Album", "Test Artist");
+            var result = await _repository.FindByAlbumAndArtistAsync("Test Album", "Test Artist");
 
             // Assert
             Assert.NotNull(result);
@@ -334,7 +334,7 @@ namespace Tests.Unit
         public async Task FindByTitleAndArtistAsync_ReturnsNull_WhenNotFound()
         {
             // Act
-            var result = await _repository.FindByTitleAndArtistAsync("Non-existent", "Artist");
+            var result = await _repository.FindByAlbumAndArtistAsync("Non-existent", "Artist");
 
             // Assert
             Assert.Null(result);
@@ -361,7 +361,7 @@ namespace Tests.Unit
             await _context.SaveChangesAsync();
 
             // Act
-            var result = await _repository.FindByTitleAndArtistAsync("test album", "test artist");
+            var result = await _repository.FindByAlbumAndArtistAsync("test album", "test artist");
 
             // Assert
             Assert.NotNull(result);

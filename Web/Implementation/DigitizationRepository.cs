@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Web.Common;
 using Web.Db;
 using Web.Extentions;
@@ -114,6 +114,23 @@ namespace Web.Implementation
             _context.Digitizations.Remove(digitization);
             await _context.SaveChangesAsync();
             return true;
-        }        
+        }
+
+        public async Task<bool> ExistsByAlbumIdAsync(int albumId)
+        {
+            return await _context.Digitizations.AnyAsync(d => d.AlbumId == albumId);
+        }
+
+        public async Task<bool> ExistsByAlbumIdAndSourceAsync(int albumId, string source)
+        {
+            if (string.IsNullOrWhiteSpace(source))
+                return false;
+
+            return await _context.Digitizations
+                .AnyAsync(d =>
+                    d.AlbumId == albumId &&
+                    d.Source != null &&
+                    d.Source.Equals(source));
+        }
     }
 }

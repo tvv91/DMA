@@ -1,4 +1,4 @@
-﻿@model AlbumCreateUpdateViewModel;
+@model AlbumCreateUpdateViewModel;
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_digitization_added" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
@@ -22,29 +22,13 @@
         </div>
         <div class="toast-body">Digitization removed successfully</div>
     </div>
-    <div id="toast_digitization_error" class="toast toast-body-error" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header toast-header-error">
-            <strong class="me-auto">Error</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div id="toast_digitization_error_msg" class="toast-body"></div>
-    </div>
-    <div id="toast_digitization_warning" class="toast toast-body-warning" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Warning</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div id="toast_digitization_warning_msg" class="toast-body"></div>
-    </div>
 </div>
-
 <a class="btn btn-outline-secondary mt-3" asp-action="Index" asp-controller="Album">
     <i class="fa-solid fa-arrow-left"></i> Back
 </a>
 <div class="container py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3>@(Model.Action == Web.Enums.ActionType.Create ? "Add New Album" : "Edit Album")</h3>
-        
     </div>
     <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
         <input type="hidden" id="coverid" asp-for="AlbumCover" />
@@ -56,18 +40,18 @@
                     <div id="mydropzone" class="dropzone"></div>
                 </div>
                 <div class="col d-flex flex-column">
-                    <ul class="nav nav-tabs" id="albumTabs" role="tablist">
+                    <ul class="nav nav-tabs" id="mainAlbumTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
                                 General
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item digitization-dependent-tab d-none" role="presentation">
                             <button class="nav-link" id="digitization-tab" data-bs-toggle="tab" data-bs-target="#digitization" type="button" role="tab">
                                 Digitization
                             </button>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item digitization-dependent-tab d-none" role="presentation">
                             <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardware" type="button" role="tab">
                                 Hardware
                             </button>
@@ -77,10 +61,10 @@
                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <input id="artist_input" class="form-control" asp-for="Artist" placeholder="Artist" />
+                                    <input id="artist_input" class="form-control" asp-for="Artist" placeholder="Artist" oninput=checkAlbumIsExists(false) />
                                 </div>
                                 <div class="col-md-12">
-                                    <input id="album_input" class="form-control" asp-for="Title" placeholder="Album" />
+                                    <input id="album_input" class="form-control" asp-for="Title" placeholder="Album" oninput=checkAlbumIsExists(false) />
                                 </div>
                                 <div class="col-md-12">
                                     <input id="genre_input" class="form-control" asp-for="Genre" placeholder="Genre" />
@@ -114,19 +98,19 @@
                                     <input id="reissue_input" class="form-control" asp-for="Reissue" placeholder="Reissue" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control" asp-for="Country" placeholder="Country" />
+                                    <input id="country_input" class="form-control" asp-for="Country" placeholder="Country" />
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" asp-for="Label" placeholder="Label" />
                                 </div>
                                 <div class="col-md-8">
-                                    <input id="source" class="form-control" asp-for="Source" placeholder="Source" onchange="checkAlbumIsExists()" />
+                                    <input id="source_input" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(false)" />
                                 </div>
                                 <div class="col-md-8">
                                     <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sizeinput" class="form-control" asp-for="Size" placeholder="Size (GB)" />
+                                    <input id="size_input" class="form-control" asp-for="Size" placeholder="Size (GB)" />
                                 </div>
                             </div>
                         </div>
@@ -148,14 +132,13 @@
                 </div>
             </div>
             <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
-                <div id="digitization_warning"
-                     class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
+                <div id="digitization_warning" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
                      role="alert"
                      style="white-space: nowrap; min-height: 38px;">
                     <i id="alert-icon" class="me-2"></i>&nbsp
                     <span></span>
                 </div>
-                <button id="add_digitization_btn" class="btn btn-info px-4" onclick="AddDigitization()" type="button" disabled>
+                <button id="add_digitization_btn" class="btn btn-info px-4" onclick="ShowAddModal()" type="button" disabled>
                     <i class="fa-solid fa-plus"></i> Add
                 </button>
                 <button id="update_digitization_btn" class="btn btn-warning px-4" onclick="UpdateDigitization()" type="button" disabled>
@@ -171,6 +154,7 @@
         </div>
     </form>
     <br />
+    </div>
     <div class="position-relative shadow-sm border-1 p-3">
         <div class="album-create-update-overlay" id="loader">
             <div class="spinner-border" role="status"></div>
@@ -179,7 +163,6 @@
             <div class="album-create-update-no-digitizations" id="no-digitizations">No digitizations</div>
         </div>
     </div>
-    <!-- Remove Confirmation Modal -->
     <div class="modal fade" id="removeModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -197,10 +180,107 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="addDigitizationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add new digitization</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="card shadow-sm border-1 p-3">
+            <div class="row align-items-stretch">
+                <div class="col d-flex flex-column">
+                    <ul class="nav nav-tabs" id="albumTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="digitization-tab" data-bs-toggle="tab" data-bs-target="#digitizationModal" type="button" role="tab">
+                                Digitization
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardwareModal" type="button" role="tab">
+                                Hardware
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content border border-top-0 rounded-bottom p-3 bg-light" id="albumTabsContentModal">
+                        <div class="tab-pane fade show active" id="digitizationModal" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <input id="vinylstate_input_modal" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="digitalformat_input_modal" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData(true)" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="bitness_input_modal" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData(true)" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="sampling_input_modal" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData(true)" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="sourceformat_input_modal" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" asp-for="Storage" placeholder="Storage" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="year_input_modal" class="form-control" asp-for="Year" placeholder="Year" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="reissue_input_modal" class="form-control" asp-for="Reissue" placeholder="Reissue" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" asp-for="Country" placeholder="Country" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input class="form-control" asp-for="Label" placeholder="Label" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input id="source_input_modal" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(true)" />
+                                </div>
+                                <div class="col-md-8">
+                                    <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
+                                </div>
+                                <div class="col-md-4">
+                                    <input id="size_input_modal" class="form-control" asp-for="Size" placeholder="Size (GB)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="hardwareModal" role="tabpanel">
+                            <div class="row g-3">
+                                <div class="col-md-6"><input id="player_input" class="form-control" asp-for="Player" placeholder="Player" /></div>
+                                <div class="col-md-6"><input id="player_manufacturer_input" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="cartridge_input" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
+                                <div class="col-md-6"><input id="cartridge_manufacturer_input" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="amp_input" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
+                                <div class="col-md-6"><input id="amp_manufacturer_input" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="adc_input" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
+                                <div class="col-md-6"><input id="adc_manufacturer_input" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="wire_input" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
+                                <div class="col-md-6"><input id="wire_manufacturer_input" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+                <div class="modal-footer">
+                    <div id="digitization_warning_modal" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1" role="alert" style="white-space: nowrap; min-height: 38px;">
+                        <i id="alert-icon-modal" class="me-2"></i>&nbsp
+                        <span></span>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="AddDigitization()">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     let selectedDigitizationId = 0;
     let digitizations = [];
+    let currentAlbumCheckContext = "main";
 
     function showToast(toastId, message = null) {
         const $toastEl = $('#' + toastId);
@@ -220,27 +300,8 @@
         const artist = $("#artist_input").val()?.trim();
         const album = $("#album_input").val()?.trim();
         const genre = $("#genre_input").val()?.trim();
-        
         const hasRequiredFields = artist && album && genre;
-        
-        // Check if at least one digitization/hardware field is filled
-        const hasDigitizationField = 
-            $("#vinylstate_input").val()?.trim() ||
-            $("#digitalformat_input").val()?.trim() ||
-            $("#bitness_input").val()?.trim() ||
-            $("#sampling_input").val()?.trim() ||
-            $("#sourceformat_input").val()?.trim() ||
-            $("#year_input").val()?.trim() ||
-            $("#reissue_input").val()?.trim() ||
-            $("#source").val()?.trim() ||
-            $("#sizeinput").val()?.trim() ||
-            $("#player_input").val()?.trim() ||
-            $("#cartridge_input").val()?.trim() ||
-            $("#amp_input").val()?.trim() ||
-            $("#adc_input").val()?.trim() ||
-            $("#wire_input").val()?.trim();
-        
-        $("#add_digitization_btn").prop("disabled", !(hasRequiredFields && hasDigitizationField));
+        $("#add_digitization_btn").prop("disabled", !hasRequiredFields);
     }
 
     function checkUpdateRemoveButtons() {
@@ -249,10 +310,24 @@
         $("#remove_digitization_btn").prop("disabled", !enabled);
     }
 
+    function updateDigitizationHardwareTabsVisibility() {
+        const show = selectedDigitizationId > 0;
+        const $dependentTabs = $("#mainAlbumTabs .digitization-dependent-tab");
+        if (show) {
+            $dependentTabs.removeClass("d-none");
+        } else {
+            $dependentTabs.addClass("d-none");
+            const generalTabEl = document.getElementById("general-tab");
+            if (generalTabEl) {
+                bootstrap.Tab.getOrCreateInstance(generalTabEl).show();
+            }
+        }
+    }
+
     function clearDigitizationFields() {
         $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input").val("");
         $("#year_input, #reissue_input").val("");
-        $("#source, #sizeinput").val("");
+        $("#source, #size_input").val("");
         $("#player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").val("");
         $("#player_manufacturer_input, #cartridge_manufacturer_input, #amp_manufacturer_input, #adc_manufacturer_input, #wire_manufacturer_input").val("");
         $("input[placeholder='Country']").val("");
@@ -261,18 +336,18 @@
         $("input[placeholder='Discogs link']").val("");
         selectedDigitizationId = 0;
         checkUpdateRemoveButtons();
+        updateDigitizationHardwareTabsVisibility();
     }
 
     function loadDigitizationToFields(digitization) {
         selectedDigitizationId = digitization.id || digitization.Id;
-        
-        // Format Info - handle both camelCase and PascalCase
+        // Format Info - handle both camelCase and PascalCase (use ?? so 0 is shown)
         $("#vinylstate_input").val(digitization.vinylState || digitization.VinylState || "");
         $("#digitalformat_input").val(digitization.digitalFormat || digitization.DigitalFormat || "");
-        $("#bitness_input").val(digitization.bitness || digitization.Bitness || "");
-        $("#sampling_input").val(digitization.sampling || digitization.Sampling || "");
+        $("#bitness_input").val(digitization.bitness != null ? digitization.bitness : (digitization.Bitness != null ? digitization.Bitness : ""));
+        $("#sampling_input").val(digitization.sampling != null ? digitization.sampling : (digitization.Sampling != null ? digitization.Sampling : ""));
         $("#sourceformat_input").val(digitization.sourceFormat || digitization.SourceFormat || "");
-        $("#sizeinput").val(digitization.size || digitization.Size || "");
+        $("#size_input").val(digitization.size != null ? digitization.size : (digitization.Size != null ? digitization.Size : ""));
         
         // Equipment Info - handle both camelCase and PascalCase
         const playerManufacturer = digitization.playerManufacturer || digitization.PlayerManufacturer || "";
@@ -298,15 +373,16 @@
         // Other fields - handle both camelCase and PascalCase
         $("#year_input").val(digitization.year || digitization.Year || "");
         $("#reissue_input").val(digitization.reissue || digitization.Reissue || "");
-        $("#source").val(digitization.source || digitization.Source || "");
         
         // Country, Label, Storage, Discogs
         $("input[placeholder='Country']").val(digitization.country || digitization.Country || "");
         $("input[placeholder='Label']").val(digitization.label || digitization.Label || "");
         $("input[placeholder='Storage']").val(digitization.storage || digitization.Storage || "");
         $("input[placeholder='Discogs link']").val(digitization.discogs || digitization.Discogs || "");
-        
+        $("#source_input").val(digitization.source || digitization.Source || "");
+
         checkUpdateRemoveButtons();
+        updateDigitizationHardwareTabsVisibility();
     }
 
     function renderDigitizations(digs) {
@@ -316,6 +392,9 @@
         
         if (!digs || digs.length === 0) {
             $container.html('<div class="album-create-update-no-digitizations" id="no-digitizations">No digitizations</div>');
+            selectedDigitizationId = 0;
+            checkUpdateRemoveButtons();
+            updateDigitizationHardwareTabsVisibility();
             $("#loader").hide();
             return;
         }
@@ -391,7 +470,7 @@
             storage: $("input[placeholder='Storage']").val()?.trim() || null,
             year: $("#year_input").val() ? Number($("#year_input").val()) : null,
             reissue: $("#reissue_input").val() ? Number($("#reissue_input").val()) : null,
-            size: $("#sizeinput").val() ? parseFloat($("#sizeinput").val().replace(",", ".")) : null,
+            size: $("#size_input").val() ? parseFloat($("#size_input").val().replace(",", ".")) : null,
             vinylState: $("#vinylstate_input").val()?.trim() || null,
             digitalFormat: $("#digitalformat_input").val()?.trim() || null,
             bitness: $("#bitness_input").val() ? Number($("#bitness_input").val()) : null,
@@ -439,7 +518,7 @@
             storage: $("input[placeholder='Storage']").val()?.trim() || null,
             year: $("#year_input").val() ? Number($("#year_input").val()) : null,
             reissue: $("#reissue_input").val() ? Number($("#reissue_input").val()) : null,
-            size: $("#sizeinput").val() ? parseFloat($("#sizeinput").val().replace(",", ".")) : null,
+            size: $("#size_input").val() ? parseFloat($("#size_input").val().replace(",", ".")) : null,
             vinylState: $("#vinylstate_input").val()?.trim() || null,
             digitalFormat: $("#digitalformat_input").val()?.trim() || null,
             bitness: $("#bitness_input").val() ? Number($("#bitness_input").val()) : null,
@@ -467,6 +546,11 @@
         }
     }
 
+    function ShowAddModal() {
+        const modal = new bootstrap.Modal(document.getElementById("addDigitizationModal"));
+        modal.show();
+    }
+
     function ShowRemoveModal() {
         if (selectedDigitizationId === 0) {
             showToast("toast_digitization_warning", "Please select a digitization to remove");
@@ -492,10 +576,29 @@
         }
     }
 
+    function prepareAlbumLink(id) {
+        return id 
+            ? `<a href="/album/${id}" target="_blank" class="alert-link">Album</a>`
+            : "";
+    }
+
     const alertMessages = {
-        0: { type: "success", text: "No duplicates found. The album will be added." },
-        50: { type: "warning", text: (ids) => `Album(s) [${prepareAlbumLinks(ids)}] already exist with the same source. Please check to make sure this is not a duplicate.` },
-        100: { type: "danger", text: (ids) => `These album(s) [${prepareAlbumLinks(ids)}] already exist with this source. Please double-check to avoid duplicates.` }
+        0: { 
+            type: "success", 
+            text: "No duplicates found." 
+        },
+        1: { 
+            type: "danger", 
+            text: (id) => `${prepareAlbumLink(id)} already exists.`  
+        },
+        50: { 
+            type: "warning", 
+            text: "Digitization already exists. Please check to make sure this is not a duplicate."
+        },
+        100: { 
+            type: "danger", 
+            text: "Digitization already exists with that source."
+        }
     };
 
     const levels = {
@@ -510,10 +613,10 @@
     };
 
     const dsdFormats = {
-            dsd64:  "2.8",
-            dsd128: "5.6",
-            dsd256: "11.2",
-            dsd512: "22.5"
+        dsd64:  "2.8",
+        dsd128: "5.6",
+        dsd256: "11.2",
+        dsd512: "22.5"
     };
 
     $(document).ready(async () => {
@@ -522,10 +625,11 @@
         // Initialize button states
         checkAddButtonState();
         checkUpdateRemoveButtons();
+        updateDigitizationHardwareTabsVisibility();
         
         // Set up field change listeners
         $("#artist_input, #album_input, #genre_input").on("input", checkAddButtonState);
-        $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input, #year_input, #reissue_input, #source, #sizeinput, #player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").on("input", checkAddButtonState);
+        $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input, #year_input, #reissue_input, #source, #size_input, #player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").on("input", checkAddButtonState);
         
         // Load existing digitizations if any
         @if (Model.Digitizations?.Any() == true)
@@ -555,7 +659,7 @@
                 label = d.Label?.Name,
                 storage = d.Storage?.Data,
                 discogs = d.Discogs,
-                size = d.FormatInfo?.Size
+                size = d.Size
             }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
             renderDigitizations(existingDigs);
             $("#loader").hide();
@@ -588,7 +692,10 @@
         "cartridge_input": "Cartridge",
         "amp_input": "Amplifier",
         "adc_input": "Adc",
-        "wire_input": "Wire"
+        "wire_input": "Wire",
+        "country_input": "Country",
+        "label_input": "Label",
+        "storage_input": "Storage"
     };
 
     // Map equipment fields to their manufacturer entity types
@@ -601,8 +708,7 @@
     };
 
     $(() => {
-        // Setup autocomplete for fields with _input suffix
-        $("input[id$='_input']").each(function () {
+        $("input:is([id$='_input'], [id$='_input_modal'])").each(function () {
             const $input = $(this);
             const fieldId = this.id;
             const entityType = fieldEntityMap[fieldId];
@@ -642,76 +748,7 @@
                     }
                 });
             }
-        });
-
-        // Setup autocomplete for Country field
-        $("input[placeholder='Country']").autocomplete({
-            source: (request, response) => {
-                if (request.term.length < 2) {
-                    response([]);
-                    return;
-                }
-                $.getJSON(`/search/Country`, { value: request.term })
-                    .done(function(data) {
-                        const items = data.map(item => ({
-                            label: item.label || item.value,
-                            value: item.value || item.label
-                        }));
-                        response(items);
-                    })
-                    .fail(function() {
-                        response([]);
-                    });
-            },
-            delay: 300,
-            minLength: 2
-        });
-
-        // Setup autocomplete for Label field
-        $("input[placeholder='Label']").autocomplete({
-            source: (request, response) => {
-                if (request.term.length < 2) {
-                    response([]);
-                    return;
-                }
-                $.getJSON(`/search/Label`, { value: request.term })
-                    .done(function(data) {
-                        const items = data.map(item => ({
-                            label: item.label || item.value,
-                            value: item.value || item.label
-                        }));
-                        response(items);
-                    })
-                    .fail(function() {
-                        response([]);
-                    });
-            },
-            delay: 300,
-            minLength: 2
-        });
-
-        // Setup autocomplete for Storage field
-        $("input[placeholder='Storage']").autocomplete({
-            source: (request, response) => {
-                if (request.term.length < 2) {
-                    response([]);
-                    return;
-                }
-                $.getJSON(`/search/Storage`, { value: request.term })
-                    .done(function(data) {
-                        const items = data.map(item => ({
-                            label: item.label || item.value,
-                            value: item.value || item.label
-                        }));
-                        response(items);
-                    })
-                    .fail(function() {
-                        response([]);
-                    });
-            },
-            delay: 300,
-            minLength: 2
-        });
+        });        
     });
 
     async function getManufacturer(manufacturerType, equipmentValue) {
@@ -753,7 +790,7 @@
     }
 
     function onSubmit() {
-        const $input = $("#sizeinput");
+        const $input = $("#size_input");
         const action = "@Model.Action";
         let value = $input.val();
 
@@ -764,53 +801,52 @@
         }
     }
 
-    function checkValidData() {
-        const codec = $("#digitalformat_input").val().toLowerCase();
-        const bitness = $("#bitness_input").val();
-        let sampling = $("#sampling_input").val().replace(",", ".");
+    // check validation for DSD formats
+    function checkValidData(isNew = false) {
+        const suffix = isNew ? "_modal" : "";
+        const codec = $(`#digitalformat_input${suffix}`).val()?.toLowerCase();
+        const bitness = $(`#bitness_input${suffix}`).val();
+        let sampling = $(`#sampling_input${suffix}`).val()?.replace(",", ".");
 
         if (!codec || !bitness || !sampling)
             return;
 
+        const alertId = `digitization_warning${suffix}`;
+
         if (dsdFormats[codec]) {
-            if (bitness !== "1") {
-                showAlert("digitization_warning", "alert-warning", "DSD is 1 bit/s format");
-            } else if (sampling !== dsdFormats[codec]) {
-                showAlert("digitization_warning", "alert-warning", `${codec.toUpperCase()} sampling is ${dsdFormats[codec]} (MHz)`);
-            } else {
-                $("#digitization_warning").removeClass("show");
-            }
+        if (bitness !== "1") {
+            showAlert(alertId, "alert-warning", "DSD is 1 bit/s format");
+        }
+        else if (sampling !== dsdFormats[codec]) {
+            showAlert(alertId, "alert-warning", `${codec.toUpperCase()} sampling is ${dsdFormats[codec]} (MHz)`);
+        }
+        else {
+            $(`#${alertId}`).removeClass("show");
         }
     }
+    }
 
-    function checkAlbumIsExists() {
-        let artist = $("#artist_input").val();
+    function checkAlbumIsExists(isNew = false) {
+        currentAlbumCheckContext = isNew ? "modal" : "main";
+        let albumId = Number($("#albumid").val());
         let album = $("#album_input").val();
-
-        if (artist !== '' && album !== '') {
-            let source = $("#source").val();
-            checkAlbum(album, artist, source);
+        let artist = $("#artist_input").val();
+        let source = $(`#source_input${isNew ? "_modal" : ""}`).val();
+        if (albumId && album && artist) {
+            checkAlbum(albumId, album, artist, source);
         }
     }
 
-    async function checkAlbum(albumId, artist, album, source) {
+    async function checkAlbum(albumId, album, artist, source) {
         try {
-            await connection.invoke("CheckAlbum", connection.connectionId, albumId, artist, album, source);
+            await connection.invoke("CheckAlbum", connection.connectionId, albumId, album, artist, source);
         } catch (err) {
-            // Error handling
+            console.error("Error checking album:", err);
         }
-    }
-
-    function prepareAlbumLinks(albumIds) {
-        let markup = '';
-        if (albumIds.length > 0) {
-            albumIds.forEach(id => markup += `&nbsp<a href="/album/${id}" target="_blank">${id}</a>&nbsp`)
-        }
-        return markup;
     }
 
     connection.on("ReceivedManufacturer", (category, result) => {
-        // Map SignalR category to field ID
+        
         const categoryFieldMap = {
             "player": "player",
             "cartridge": "cartridge",
@@ -825,12 +861,19 @@
         }
     });
 
-    connection.on("AlbumIsExist", (factor, albumIds) => {
+    connection.on("AlbumIsExist", (factor, albumId) => {
         const message = alertMessages[factor];
-        if (!message)
-            return;
-        const text = typeof message.text === "function" ? message.text(albumIds) : message.text;
-        showAlert("album-alert", `alert-${message.type}`, text);
+        if (!message) return;
+
+        const text = typeof message.text === "function"
+            ? message.text(albumId)
+            : message.text;
+
+        const alertId = currentAlbumCheckContext === "modal"
+            ? "digitization_warning_modal"
+            : "digitization_warning";
+
+        showAlert(alertId, `alert-${message.type}`, text);
     });
 
     connection.on("DigitizationAdded", (success, message, albumId, digitizations) => {

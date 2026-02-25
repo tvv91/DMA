@@ -8,15 +8,22 @@ using Web.Services;
 
 namespace Web.SignalRHubs
 {
-    public class AlbumHub : Hub
+    public class AlbumHub(
+        IImageService imageService,
+        IDigitizationRepository digitizationRepository,
+        IAlbumRepository albumRepository,
+        IAlbumService albumService,
+        IDigitizationService digitizationService,
+        IEquipmentRepository equipmentRepository,
+        EntityFindOrCreateService entityService) : Hub
     {
-        private readonly IImageService _imgService;
-        private readonly IDigitizationRepository _digitizationRepository;
-        private readonly IAlbumRepository _albumRepository;
-        private readonly IAlbumService _albumService;
-        private readonly IDigitizationService _digitizationService;
-        private readonly IEquipmentRepository _equipmentRepository;
-        private readonly EntityFindOrCreateService _entityService;
+        private readonly IImageService _imgService = imageService;
+        private readonly IDigitizationRepository _digitizationRepository = digitizationRepository;
+        private readonly IAlbumRepository _albumRepository = albumRepository;
+        private readonly IAlbumService _albumService = albumService;
+        private readonly IDigitizationService _digitizationService = digitizationService;
+        private readonly IEquipmentRepository _equipmentRepository = equipmentRepository;
+        private readonly EntityFindOrCreateService _entityService = entityService;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
@@ -27,24 +34,6 @@ namespace Web.SignalRHubs
             { "player", EntityType.Player },
             { "wire", EntityType.Wire },
         };
-
-        public AlbumHub(
-            IImageService imageService,
-            IDigitizationRepository digitizationRepository,
-            IAlbumRepository albumRepository,
-            IAlbumService albumService,
-            IDigitizationService digitizationService,
-            IEquipmentRepository equipmentRepository,
-            EntityFindOrCreateService entityService)
-        {
-            _imgService = imageService;
-            _digitizationRepository = digitizationRepository;
-            _albumRepository = albumRepository;
-            _albumService = albumService;
-            _digitizationService = digitizationService;
-            _equipmentRepository = equipmentRepository;
-            _entityService = entityService;
-        }
 
         /// <summary>
         /// Get album covers
@@ -85,39 +74,33 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedAlbumCoverDetailed", imageUrl);
         }
 
-        public async Task CheckAlbum(string connectionId, int currentAlbum, string album, string artist, string source)
+        public async Task CheckAlbum(string connectionId, int albumId, string album, string artist, string source)
         {
-            var result = await _albumRepository.FindByTitleAndArtistAsync(album, artist);
+            var result = await _albumRepository.FindByAlbumAndArtistAsync(album, artist);
 
-            if (result is not null)
+            if (result is null)
             {
-                // Get all digitizations for this album
-                var digitizations = await _digitizationRepository.GetByAlbumIdAsync(result.Id);
-                
-                // Check if any digitization has the same source
-                var matchingDigitizations = digitizations
-                    .Where(d => !string.IsNullOrWhiteSpace(d.Source) && 
-                                !string.IsNullOrWhiteSpace(source) && 
-                                d.Source.Equals(source, StringComparison.OrdinalIgnoreCase))
-                    .Select(d => d.Id)
-                    .ToArray();
-
-                if (matchingDigitizations.Length > 0)
-                {
-                    // Detection level 100: Album exists with same source
-                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, matchingDigitizations);
-                }
-                else
-                {
-                    // Detection level 50: Album exists but with different source/properties
-                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 50, result.Id);
-                }
+                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
+                return;
             }
-            else
+
+            if (result.Id != albumId)
             {
-                // if nothing found send 0 for reset warn message (if set)
+                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 1, result.Id);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(source))
+            {
+                var sourceExists = await _digitizationRepository.ExistsByAlbumIdAndSourceAsync(result.Id, source);
+                if (sourceExists)
+                {
+                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, result.Id);
+                    return;
+                }
                 await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
             }
+
         }
 
         public async Task AddDigitization(string connectionId, CreateUpdateDigitizationRequest request)
@@ -289,7 +272,8 @@ namespace Web.SignalRHubs
                 AddedDate = DateTime.Now,
                 Source = request.Source,
                 Discogs = request.Discogs,
-                IsFirstPress = request.IsFirstPress
+                IsFirstPress = request.IsFirstPress,
+                Size = request.Size
             };
 
             // Find or create Year
@@ -328,10 +312,7 @@ namespace Web.SignalRHubs
             }
 
             // FormatInfo
-            var formatInfo = new FormatInfo
-            {
-                Size = request.Size
-            };
+            var formatInfo = new FormatInfo();
 
             // Find or create Bitness
             if (request.Bitness.HasValue)
@@ -440,7 +421,7 @@ namespace Web.SignalRHubs
                 Label = d.Label?.Name,
                 Storage = d.Storage?.Data,
                 Discogs = d.Discogs,
-                Size = d.FormatInfo?.Size
+                Size = d.Size
             }).ToList<object>();
         }
     }

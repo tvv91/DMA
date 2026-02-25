@@ -396,9 +396,6 @@ namespace Web.Migrations
                     b.Property<int?>("SamplingId")
                         .HasColumnType("int");
 
-                    b.Property<double?>("Size")
-                        .HasColumnType("float");
-
                     b.Property<int?>("SourceFormatId")
                         .HasColumnType("int");
 

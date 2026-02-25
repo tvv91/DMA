@@ -389,7 +389,6 @@ namespace Web.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Size = table.Column<double>(type: "float", nullable: true),
                     BitnessId = table.Column<int>(type: "int", nullable: true),
                     SamplingId = table.Column<int>(type: "int", nullable: true),
                     DigitalFormatId = table.Column<int>(type: "int", nullable: true),

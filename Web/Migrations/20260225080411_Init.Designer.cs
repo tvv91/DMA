@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(DMADbContext))]
-    [Migration("20251228213420_Init")]
+    [Migration("20260225080411_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -398,9 +398,6 @@ namespace Web.Migrations
 
                     b.Property<int?>("SamplingId")
                         .HasColumnType("int");
-
-                    b.Property<double?>("Size")
-                        .HasColumnType("float");
 
                     b.Property<int?>("SourceFormatId")
                         .HasColumnType("int");

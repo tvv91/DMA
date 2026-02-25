@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using System.Threading;
 using Web.Db;
@@ -85,7 +85,7 @@ namespace Web.Implementation
             var data = new StatisticCounters
             {
                 TotalAlbums = await _context.Albums.CountAsync(),
-                TotalSize = await _context.Digitizations.Where(d => d.FormatInfo != null && d.FormatInfo.Size != null).SumAsync(d => d.FormatInfo!.Size ?? 0),
+                TotalSize = await _context.Digitizations.Where(d => d.Size != null).SumAsync(d => d.Size ?? 0),
                 StorageCount = await _context.Storages.CountAsync(),
                 TotalDigitizations = await _context.Digitizations.CountAsync(),
                 TotalArtists = await _context.Artists.CountAsync(),

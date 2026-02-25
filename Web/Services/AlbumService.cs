@@ -45,7 +45,7 @@ namespace Web.Services
 
         public async Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre)
         {
-            var album = await _albumRepository.FindByTitleAndArtistAsync(title, artist);
+            var album = await _albumRepository.FindByAlbumAndArtistAsync(title, artist);
 
             if (album is null)
             {
@@ -128,7 +128,6 @@ namespace Web.Services
 
                 FormatInfo = new FormatInfo
                 {
-                    Size = request.Size,
                     BitnessId = request.Bitness,
                     Sampling = request.Sampling.HasValue ? new Sampling { Value = request.Sampling.Value } : null,
                     DigitalFormat = !string.IsNullOrEmpty(request.DigitalFormat) ? new DigitalFormat { Name = request.DigitalFormat } : null,

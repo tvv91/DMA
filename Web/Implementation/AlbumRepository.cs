@@ -109,13 +109,12 @@ namespace Web.Implementation
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
         }
 
-        public async Task<Album?> FindByTitleAndArtistAsync(string title, string artist)
+        public async Task<Album?> FindByAlbumAndArtistAsync(string album, string artist)
         {
             return await _context.Albums
                 .Include(a => a.Artist)
-                .Include(a => a.Genre)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(a => a.Title.ToLower() == title.ToLower() && a.Artist.Name.ToLower() == artist.ToLower());
+                .FirstOrDefaultAsync(a => a.Title.ToLower() == album.ToLower() && a.Artist.Name.ToLower() == artist.ToLower());
         }
     }
 }

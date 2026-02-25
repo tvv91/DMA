@@ -90,7 +90,7 @@ namespace Tests.Unit
         {
             // Arrange
             var existingAlbum = Helpers.TestDataBuilder.CreateAlbum(1, "Existing Album");
-            _mockAlbumRepository.Setup(r => r.FindByTitleAndArtistAsync("Existing Album", "Artist"))
+            _mockAlbumRepository.Setup(r => r.FindByAlbumAndArtistAsync("Existing Album", "Artist"))
                 .ReturnsAsync(existingAlbum);
 
             // Act
@@ -99,14 +99,14 @@ namespace Tests.Unit
             // Assert
             Assert.NotNull(result);
             Assert.Equal(existingAlbum.Id, result.Id);
-            _mockAlbumRepository.Verify(r => r.FindByTitleAndArtistAsync("Existing Album", "Artist"), Times.Once);
+            _mockAlbumRepository.Verify(r => r.FindByAlbumAndArtistAsync("Existing Album", "Artist"), Times.Once);
         }
 
         [Fact]
         public async Task CreateOrFindAlbumAsync_CreatesNewAlbum_WhenNotFound()
         {
             // Arrange
-            _mockAlbumRepository.Setup(r => r.FindByTitleAndArtistAsync("New Album", "New Artist"))
+            _mockAlbumRepository.Setup(r => r.FindByAlbumAndArtistAsync("New Album", "New Artist"))
                 .ReturnsAsync((Album?)null);
 
             var newAlbum = Helpers.TestDataBuilder.CreateAlbum(1, "New Album", "New Artist", "New Genre");
@@ -118,7 +118,7 @@ namespace Tests.Unit
 
             // Assert
             Assert.NotNull(result);
-            _mockAlbumRepository.Verify(r => r.FindByTitleAndArtistAsync("New Album", "New Artist"), Times.Once);
+            _mockAlbumRepository.Verify(r => r.FindByAlbumAndArtistAsync("New Album", "New Artist"), Times.Once);
             _mockAlbumRepository.Verify(r => r.AddAsync(It.IsAny<Album>()), Times.Once);
         }
 

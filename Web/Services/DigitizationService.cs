@@ -66,12 +66,12 @@ namespace Web.Services
             existing.ReissueId = digitization.ReissueId;
             existing.YearId = digitization.YearId;
             existing.StorageId = digitization.StorageId;
+            existing.Size = digitization.Size;
             existing.UpdateDate = digitization.UpdateDate;
 
             // Business logic: Update FormatInfo - FormatInfo should already exist (created above if needed)
             if (digitization.FormatInfo is not null && existing.FormatInfo is not null)
             {
-                existing.FormatInfo.Size = digitization.FormatInfo.Size;
                 existing.FormatInfo.BitnessId = digitization.FormatInfo.BitnessId;
                 existing.FormatInfo.SamplingId = digitization.FormatInfo.SamplingId;
                 existing.FormatInfo.DigitalFormatId = digitization.FormatInfo.DigitalFormatId;

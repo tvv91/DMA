@@ -278,24 +278,66 @@
     </div>
 </div>
 <script>
+    // --- State ---
     let selectedDigitizationId = 0;
     let digitizations = [];
     let currentAlbumCheckContext = "main";
 
+    // --- Constants / config ---
+    const alertMessages = {
+        0: { type: "success", text: "No duplicates found." },
+        1: { type: "danger", text: (id) => `${prepareAlbumLink(id)} already exists.` },
+        50: { type: "warning", text: "Digitization already exists. Please check to make sure this is not a duplicate." },
+        100: { type: "danger", text: "Digitization already exists with that source." }
+    };
+    const levels = {
+        "alert-success": { icon: "fa-solid fa-circle-check" },
+        "alert-warning": { icon: "fa-solid fa-circle-exclamation" },
+        "alert-danger": { icon: "fa-solid fa-triangle-exclamation" }
+    };
+    const actions = { "Create": "albumcreated", "Update": "albumupdated" };
+    const dsdFormats = { dsd64: "2.8", dsd128: "5.6", dsd256: "11.2", dsd512: "22.5" };
+    const fieldEntityMap = {
+        "artist_input": "Artist", "genre_input": "Genre", "vinylstate_input": "VinylState",
+        "digitalformat_input": "DigitalFormat", "bitness_input": "Bitness", "sampling_input": "Sampling",
+        "sourceformat_input": "SourceFormat", "year_input": "Year", "reissue_input": "Reissue",
+        "player_input": "Player", "cartridge_input": "Cartridge", "amp_input": "Amplifier",
+        "adc_input": "Adc", "wire_input": "Wire", "country_input": "Country",
+        "label_input": "Label", "storage_input": "Storage"
+    };
+    const equipmentManufacturerMap = {
+        "player_input": "PlayerManufacturer", "cartridge_input": "CartridgeManufacturer",
+        "amp_input": "AmplifierManufacturer", "adc_input": "AdcManufacturer", "wire_input": "WireManufacturer"
+    };
+
+    // --- Utilities ---
     function showToast(toastId, message = null) {
         const $toastEl = $('#' + toastId);
         if ($toastEl.length) {
             if (message) {
                 const $msgEl = $toastEl.find('.toast-body, #' + toastId + '_msg');
-                if ($msgEl.length) {
-                    $msgEl.text(message);
-                }
+                if ($msgEl.length) $msgEl.text(message);
             }
-            const toast = new bootstrap.Toast($toastEl[0]);
-            toast.show();
+            new bootstrap.Toast($toastEl[0]).show();
         }
     }
 
+    function prepareAlbumLink(id) {
+        return id ? `<a href="/album/${id}" target="_blank" class="alert-link">Album</a>` : "";
+    }
+
+    function showAlert(alertId, alertLevel, message) {
+        const $alert = $(`#${alertId}`);
+        const $icon = $alert.find("i");
+        const $body = $alert.find("span");
+        $alert.removeClass((_, cls) => (cls.match(/alert-\S+/g) || []).join(" "));
+        $icon.removeClass();
+        if (levels[alertLevel]) $icon.addClass(levels[alertLevel].icon);
+        $body.empty().append(message);
+        $alert.addClass(`${alertLevel} show`).alert();
+    }
+
+    // --- UI state & button visibility ---
     function checkAddButtonState() {
         const artist = $("#artist_input").val()?.trim();
         const album = $("#album_input").val()?.trim();
@@ -324,6 +366,7 @@
         }
     }
 
+    // --- Digitization: form & CRUD ---
     function clearDigitizationFields() {
         $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input").val("");
         $("#year_input, #reissue_input").val("");
@@ -576,49 +619,153 @@
         }
     }
 
-    function prepareAlbumLink(id) {
-        return id 
-            ? `<a href="/album/${id}" target="_blank" class="alert-link">Album</a>`
-            : "";
+    // --- Validation ---
+    function checkValidData(isNew = false) {
+        const suffix = isNew ? "_modal" : "";
+        const codec = $(`#digitalformat_input${suffix}`).val()?.toLowerCase();
+        const bitness = $(`#bitness_input${suffix}`).val();
+        let sampling = $(`#sampling_input${suffix}`).val()?.replace(",", ".");
+        if (!codec || !bitness || !sampling) return;
+        const alertId = `digitization_warning${suffix}`;
+        if (dsdFormats[codec]) {
+            if (bitness !== "1") {
+                showAlert(alertId, "alert-warning", "DSD is 1 bit/s format");
+            } else if (sampling !== dsdFormats[codec]) {
+                showAlert(alertId, "alert-warning", `${codec.toUpperCase()} sampling is ${dsdFormats[codec]} (MHz)`);
+            } else {
+                $(`#${alertId}`).removeClass("show");
+            }
+        }
     }
 
-    const alertMessages = {
-        0: { 
-            type: "success", 
-            text: "No duplicates found." 
-        },
-        1: { 
-            type: "danger", 
-            text: (id) => `${prepareAlbumLink(id)} already exists.`  
-        },
-        50: { 
-            type: "warning", 
-            text: "Digitization already exists. Please check to make sure this is not a duplicate."
-        },
-        100: { 
-            type: "danger", 
-            text: "Digitization already exists with that source."
+    function checkAlbumIsExists(isNew = false) {
+        currentAlbumCheckContext = isNew ? "modal" : "main";
+        let albumId = Number($("#albumid").val());
+        let album = $("#album_input").val();
+        let artist = $("#artist_input").val();
+        let source = $(`#source_input${isNew ? "_modal" : ""}`).val();
+        if (albumId && album && artist) checkAlbum(albumId, album, artist, source);
+    }
+
+    async function checkAlbum(albumId, album, artist, source) {
+        try {
+            await connection.invoke("CheckAlbum", connection.connectionId, albumId, album, artist, source);
+        } catch (err) {
+            console.error("Error checking album:", err);
         }
-    };
+    }
 
-    const levels = {
-        "alert-success": { icon: "fa-solid fa-circle-check" },
-        "alert-warning": { icon: "fa-solid fa-circle-exclamation" },
-        "alert-danger":  { icon: "fa-solid fa-triangle-exclamation" }
-    };
+    function onSubmit() {
+        const $input = $("#size_input");
+        const action = "@Model.Action";
+        let value = $input.val();
+        $input.val(value.replace(/\./g, ","));
+        if (actions[action]) sessionStorage.setItem(actions[action], "1");
+    }
 
-    const actions = {
-        "Create": "albumcreated",
-        "Update": "albumupdated"
-    };
+    // --- Autocomplete & manufacturer ---
+    async function getManufacturer(manufacturerType, equipmentValue) {
+        if (!manufacturerType || !equipmentValue) return;
+        try {
+            const categoryMap = {
+                "PlayerManufacturer": "player", "CartridgeManufacturer": "cartridge",
+                "AmplifierManufacturer": "amplifier", "AdcManufacturer": "adc", "WireManufacturer": "wire"
+            };
+            const category = categoryMap[manufacturerType];
+            if (category) {
+                await connection.invoke("GetManufacturer", connection.connectionId, category, equipmentValue);
+            }
+        } catch (err) {
+            console.error("Error getting manufacturer:", err);
+        }
+    }
 
-    const dsdFormats = {
-        dsd64:  "2.8",
-        dsd128: "5.6",
-        dsd256: "11.2",
-        dsd512: "22.5"
-    };
+    // --- SignalR handlers ---
+    connection.on("ReceivedManufacturer", (category, result) => {
+        const categoryFieldMap = { "player": "player", "cartridge": "cartridge", "amplifier": "amp", "adc": "adc", "wire": "wire" };
+        const fieldPrefix = categoryFieldMap[category.toLowerCase()];
+        if (fieldPrefix) $(`#${fieldPrefix}_manufacturer_input`).val(result || "");
+    });
 
+    connection.on("AlbumIsExist", (factor, albumId) => {
+        const message = alertMessages[factor];
+        if (!message) return;
+        const text = typeof message.text === "function" ? message.text(albumId) : message.text;
+        const alertId = currentAlbumCheckContext === "modal" ? "digitization_warning_modal" : "digitization_warning";
+        showAlert(alertId, `alert-${message.type}`, text);
+    });
+
+    connection.on("DigitizationAdded", (success, message, albumId, digitizations) => {
+        $("#loader").hide();
+        if (success) {
+            if (albumId > 0 && $("#albumid").val() == "0") $("#albumid").val(albumId);
+            renderDigitizations(digitizations);
+            clearDigitizationFields();
+            showToast("toast_digitization_added");
+        } else {
+            showToast("toast_digitization_error", "Error: " + message);
+        }
+    });
+
+    connection.on("DigitizationUpdated", (success, message, digitizations) => {
+        $("#loader").hide();
+        if (success) {
+            renderDigitizations(digitizations);
+            clearDigitizationFields();
+            showToast("toast_digitization_updated");
+        } else {
+            showToast("toast_digitization_error", "Error: " + message);
+        }
+    });
+
+    connection.on("DigitizationRemoved", (success, message, digitizations) => {
+        $("#loader").hide();
+        if (success) {
+            renderDigitizations(digitizations);
+            clearDigitizationFields();
+            showToast("toast_digitization_removed");
+        } else {
+            showToast("toast_digitization_error", "Error: " + message);
+        }
+    });
+
+    connection.onclose(async () => { await start(); });
+
+    // --- Dropzone ---
+    Dropzone.autoDiscover = false;
+    let myDropzone = new Dropzone("div#mydropzone", {
+        url: "/uploadimage",
+        addRemoveLinks: true,
+        thumbnailWidth: 300,
+        thumbnailHeight: 300,
+        resizeWidth: 300,
+        resizeHeight: 300,
+        dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
+        acceptedFiles: ".jpeg,.png,.jpg",
+        success: (file, data) => {
+            $("#coverid").val(data.filename);
+            $(file.previewElement).addClass("dz-success text-success");
+        },
+        init: function () {
+            const coverId = $("#coverid").val();
+            const albumId = $("#albumid").val();
+            if (coverId !== "" && !coverId.includes("nocover")) {
+            let myDropzone = this;
+            let coverUrl = window.location.href.includes("edit") && albumId
+                ? `/covers/album/${albumId}.jpg`
+                : `/temp/${coverId}`;
+            const mockFile = { name: "cover.jpg", size: 0, type: "image/jpeg" };
+            myDropzone.displayExistingFile(mockFile, coverUrl);
+            }
+        },
+        removedfile: function (file) {
+            $("#coverid").val("");
+            if (file.previewElement?.parentNode) file.previewElement.parentNode.removeChild(file.previewElement);
+            return this._updateMaxFilesReachedClass();
+        }
+    });
+
+    // --- Init: document ready ---
     $(document).ready(async () => {
         await start();
         
@@ -673,285 +820,31 @@
         }
     });
 
-    connection.onclose(async () => {
-        await start();
-    });
-
-    // Map field IDs to EntityType enum values
-    const fieldEntityMap = {
-        "artist_input": "Artist",
-        "genre_input": "Genre",
-        "vinylstate_input": "VinylState",
-        "digitalformat_input": "DigitalFormat",
-        "bitness_input": "Bitness",
-        "sampling_input": "Sampling",
-        "sourceformat_input": "SourceFormat",
-        "year_input": "Year",
-        "reissue_input": "Reissue",
-        "player_input": "Player",
-        "cartridge_input": "Cartridge",
-        "amp_input": "Amplifier",
-        "adc_input": "Adc",
-        "wire_input": "Wire",
-        "country_input": "Country",
-        "label_input": "Label",
-        "storage_input": "Storage"
-    };
-
-    // Map equipment fields to their manufacturer entity types
-    const equipmentManufacturerMap = {
-        "player_input": "PlayerManufacturer",
-        "cartridge_input": "CartridgeManufacturer",
-        "amp_input": "AmplifierManufacturer",
-        "adc_input": "AdcManufacturer",
-        "wire_input": "WireManufacturer"
-    };
-
+    // --- Autocomplete init (DOM ready) ---
     $(() => {
         $("input:is([id$='_input'], [id$='_input_modal'])").each(function () {
             const $input = $(this);
             const fieldId = this.id;
             const entityType = fieldEntityMap[fieldId];
-
             if (entityType) {
                 $input.autocomplete({
                     source: (request, response) => {
-                        if (request.term.length < 2) {
-                            response([]);
-                            return;
-                        }
+                        if (request.term.length < 2) { response([]); return; }
                         $.getJSON(`/search/${entityType}`, { value: request.term })
-                            .done(function(data) {
-                                // Transform response to jQuery UI format
-                                const items = data.map(item => ({
-                                    label: item.label || item.value,
-                                    value: item.value || item.label
-                                }));
-                                response(items);
+                            .done(function (data) {
+                                response(data.map(item => ({ label: item.label || item.value, value: item.value || item.label })));
                             })
-                            .fail(function() {
-                                response([]);
-                            });
+                            .fail(() => response([]));
                     },
                     delay: 300,
                     minLength: 2,
-                    messages: {
-                        noResults: '',
-                        results: () => {}
-                    },
+                    messages: { noResults: '', results: () => {} },
                     select: function (event, ui) {
-                        // Auto-fill manufacturer for equipment fields
                         const manufacturerType = equipmentManufacturerMap[fieldId];
-                        if (manufacturerType) {
-                            getManufacturer(manufacturerType, ui.item.value);
-                        }
+                        if (manufacturerType) getManufacturer(manufacturerType, ui.item.value);
                     }
                 });
             }
-        });        
-    });
-
-    async function getManufacturer(manufacturerType, equipmentValue) {
-        if (!manufacturerType || !equipmentValue) return;
-        
-        try {
-            // Convert manufacturer type to equipment category for SignalR
-            const categoryMap = {
-                "PlayerManufacturer": "player",
-                "CartridgeManufacturer": "cartridge",
-                "AmplifierManufacturer": "amplifier",
-                "AdcManufacturer": "adc",
-                "WireManufacturer": "wire"
-            };
-            
-            const category = categoryMap[manufacturerType];
-            if (category) {
-                await connection.invoke("GetManufacturer", connection.connectionId, category, equipmentValue);
-            }
-        } catch (err) {
-            console.error("Error getting manufacturer:", err);
-        }
-    }
-
-    function showAlert(alertId, alertLevel, message) {
-        const $alert = $(`#${alertId}`);
-        const $icon = $alert.find("i");
-        const $body = $alert.find("span");
-
-        $alert.removeClass((_, cls) => (cls.match(/alert-\S+/g) || []).join(" "));
-        $icon.removeClass();
-
-        if (levels[alertLevel]) {
-            $icon.addClass(levels[alertLevel].icon);
-        }
-
-        $body.empty().append(message);
-        $alert.addClass(`${alertLevel} show`).alert();
-    }
-
-    function onSubmit() {
-        const $input = $("#size_input");
-        const action = "@Model.Action";
-        let value = $input.val();
-
-        $input.val(value.replace(/\./g, ","));
-
-        if (actions[action]) {
-            sessionStorage.setItem(actions[action], "1");
-        }
-    }
-
-    // check validation for DSD formats
-    function checkValidData(isNew = false) {
-        const suffix = isNew ? "_modal" : "";
-        const codec = $(`#digitalformat_input${suffix}`).val()?.toLowerCase();
-        const bitness = $(`#bitness_input${suffix}`).val();
-        let sampling = $(`#sampling_input${suffix}`).val()?.replace(",", ".");
-
-        if (!codec || !bitness || !sampling)
-            return;
-
-        const alertId = `digitization_warning${suffix}`;
-
-        if (dsdFormats[codec]) {
-        if (bitness !== "1") {
-            showAlert(alertId, "alert-warning", "DSD is 1 bit/s format");
-        }
-        else if (sampling !== dsdFormats[codec]) {
-            showAlert(alertId, "alert-warning", `${codec.toUpperCase()} sampling is ${dsdFormats[codec]} (MHz)`);
-        }
-        else {
-            $(`#${alertId}`).removeClass("show");
-        }
-    }
-    }
-
-    function checkAlbumIsExists(isNew = false) {
-        currentAlbumCheckContext = isNew ? "modal" : "main";
-        let albumId = Number($("#albumid").val());
-        let album = $("#album_input").val();
-        let artist = $("#artist_input").val();
-        let source = $(`#source_input${isNew ? "_modal" : ""}`).val();
-        if (albumId && album && artist) {
-            checkAlbum(albumId, album, artist, source);
-        }
-    }
-
-    async function checkAlbum(albumId, album, artist, source) {
-        try {
-            await connection.invoke("CheckAlbum", connection.connectionId, albumId, album, artist, source);
-        } catch (err) {
-            console.error("Error checking album:", err);
-        }
-    }
-
-    connection.on("ReceivedManufacturer", (category, result) => {
-        
-        const categoryFieldMap = {
-            "player": "player",
-            "cartridge": "cartridge",
-            "amplifier": "amp",
-            "adc": "adc",
-            "wire": "wire"
-        };
-        
-        const fieldPrefix = categoryFieldMap[category.toLowerCase()];
-        if (fieldPrefix) {
-            $(`#${fieldPrefix}_manufacturer_input`).val(result || "");
-        }
-    });
-
-    connection.on("AlbumIsExist", (factor, albumId) => {
-        const message = alertMessages[factor];
-        if (!message) return;
-
-        const text = typeof message.text === "function"
-            ? message.text(albumId)
-            : message.text;
-
-        const alertId = currentAlbumCheckContext === "modal"
-            ? "digitization_warning_modal"
-            : "digitization_warning";
-
-        showAlert(alertId, `alert-${message.type}`, text);
-    });
-
-    connection.on("DigitizationAdded", (success, message, albumId, digitizations) => {
-        $("#loader").hide();
-        if (success) {
-            if (albumId > 0 && $("#albumid").val() == "0") {
-                $("#albumid").val(albumId);
-            }
-            renderDigitizations(digitizations);
-            clearDigitizationFields();
-            showToast("toast_digitization_added");
-        } else {
-            showToast("toast_digitization_error", "Error: " + message);
-        }
-    });
-
-    connection.on("DigitizationUpdated", (success, message, digitizations) => {
-        $("#loader").hide();
-        if (success) {
-            renderDigitizations(digitizations);
-            clearDigitizationFields();
-            showToast("toast_digitization_updated");
-        } else {
-            showToast("toast_digitization_error", "Error: " + message);
-        }
-    });
-
-    connection.on("DigitizationRemoved", (success, message, digitizations) => {
-        $("#loader").hide();
-        if (success) {
-            renderDigitizations(digitizations);
-            clearDigitizationFields();
-            showToast("toast_digitization_removed");
-        } else {
-            showToast("toast_digitization_error", "Error: " + message);
-        }
-    });
-
-    Dropzone.autoDiscover = false;
-    let myDropzone = new Dropzone("div#mydropzone",
-    {
-        url: "/uploadimage",
-        addRemoveLinks: true,
-        thumbnailWidth: 300,
-        thumbnailHeight: 300,
-        resizeWidth: 300,
-        resizeHeight: 300,
-        dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
-        acceptedFiles: ".jpeg,.png,.jpg",
-            success: (file, data) => {
-                $("#coverid").val(data.filename);
-                let preview = $(file.previewElement);
-                preview.addClass("dz-success text-success");
-            },
-            init: function() {
-                const coverId = $("#coverid").val();
-                const albumId = $("#albumid").val();
-                if (coverId !== "" && !coverId.includes("nocover")) {
-                    let myDropzone = this;
-                    let coverUrl;
-                    if (window.location.href.includes("edit") && albumId) {
-                        // When editing, construct the proper image URL
-                        coverUrl = `/covers/album/${albumId}.jpg`;
-                    } else {
-                        // When creating, use temp path
-                        coverUrl = `/temp/${coverId}`;
-                    }
-                    // Use a mock file object with a name to avoid "undefined" display
-                    const mockFile = { name: "cover.jpg", size: 0, type: "image/jpeg" };
-                    myDropzone.displayExistingFile(mockFile, coverUrl);
-                }
-            },
-            removedfile: function(file) {
-                $("#coverid").val("");
-                if (file.previewElement != null && file.previewElement.parentNode != null) {
-                    file.previewElement.parentNode.removeChild(file.previewElement);
-                }
-                return this._updateMaxFilesReachedClass();
-            }
+        });
     });
 </script>

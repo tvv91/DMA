@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Web.Enums;
 using Web.Interfaces;
@@ -9,13 +9,17 @@ namespace Web.Controllers
 {
     public class EquipmentController : Controller
     {
+        private const int DefaultAlbumsPerPage = 15;
+        private const int MaxAlbumsPerPage = 30;
         private readonly IEquipmentService _equipmentService;
         private readonly IImageService _imageService;
+        private readonly IAlbumService _albumService;
 
-        public EquipmentController(IEquipmentService equipmentService, IImageService imageService)
+        public EquipmentController(IEquipmentService equipmentService, IImageService imageService, IAlbumService albumService)
         {
             _equipmentService = equipmentService;
             _imageService = imageService;
+            _albumService = albumService;
         }
 
         public IActionResult Index()
@@ -98,7 +102,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("equipment/{category}/{id}", Order = 2)]
-        public async Task<IActionResult> GetById(EntityType category, int id)
+        public async Task<IActionResult> GetById(EntityType category, int id, int page = 1, int pageSize = 0)
         {
             if (id <= 0)
                 return BadRequest();
@@ -110,6 +114,15 @@ namespace Web.Controllers
 
             var imageUrl = await _imageService.GetImageUrlAsync(id, category);
             var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
+
+            if (page < 1) page = 1;
+            if (pageSize <= 0)
+                pageSize = DefaultAlbumsPerPage;
+            else if (pageSize > MaxAlbumsPerPage)
+                pageSize = MaxAlbumsPerPage;
+
+            var albumsResult = await _albumService.GetAlbumsByEquipmentAsync(category, id, page, pageSize);
+            vm.AlbumsUsedIn = albumsResult;
 
             return View("Details", vm);
         }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Common;
 using Web.Db;
+using Web.Enums;
 using Web.Implementation;
 using Web.Models;
 using Xunit;
@@ -155,6 +156,49 @@ namespace Tests.Unit
             // Assert
             Assert.NotNull(result);
             Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task GetByAlbumIdAsync_IncludesEquipmentInfoWithPlayer()
+        {
+            // Arrange: digitization with EquipmentInfo -> Player (for album details equipment links)
+            var artist = Helpers.TestDataBuilder.CreateArtist();
+            var genre = Helpers.TestDataBuilder.CreateGenre();
+            _context.Artists.Add(artist);
+            _context.Genres.Add(genre);
+            await _context.SaveChangesAsync();
+
+            var album = new Album { Title = "Test Album", ArtistId = artist.Id, GenreId = genre.Id, AddedDate = DateTime.UtcNow };
+            _context.Albums.Add(album);
+            await _context.SaveChangesAsync();
+
+            var mfr = new Manufacturer { Name = "Player Mfr", Type = EntityType.PlayerManufacturer };
+            _context.Manufacturer.Add(mfr);
+            await _context.SaveChangesAsync();
+
+            var player = new Player { Name = "Test Player", ManufacturerId = mfr.Id };
+            _context.Players.Add(player);
+            await _context.SaveChangesAsync();
+
+            var equipmentInfo = new EquipmentInfo { PlayerId = player.Id };
+            _context.EquipmentInfos.Add(equipmentInfo);
+            await _context.SaveChangesAsync();
+
+            var digitization = new Digitization { AlbumId = album.Id, EquipmentInfoId = equipmentInfo.Id, AddedDate = DateTime.UtcNow };
+            _context.Digitizations.Add(digitization);
+            await _context.SaveChangesAsync();
+
+            // Act
+            var result = (await _repository.GetByAlbumIdAsync(album.Id)).ToList();
+
+            // Assert
+            Assert.Single(result);
+            Assert.NotNull(result[0].EquipmentInfo);
+            Assert.NotNull(result[0].EquipmentInfo.Player);
+            Assert.Equal(player.Id, result[0].EquipmentInfo.Player.Id);
+            Assert.Equal("Test Player", result[0].EquipmentInfo.Player.Name);
+            Assert.NotNull(result[0].EquipmentInfo.Player.Manufacturer);
+            Assert.Equal("Player Mfr", result[0].EquipmentInfo.Player.Manufacturer.Name);
         }
 
         [Fact]

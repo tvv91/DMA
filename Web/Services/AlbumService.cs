@@ -28,6 +28,11 @@ namespace Web.Services
             return await _albumRepository.GetIndexListAsync(page, pageSize, artistName, genreName, yearValue, albumTitle);
         }
 
+        public async Task<PagedResult<Album>> GetAlbumsByEquipmentAsync(EntityType equipmentType, int equipmentId, int page, int pageSize)
+        {
+            return await _albumRepository.GetAlbumsByEquipmentAsync(equipmentType, equipmentId, page, pageSize);
+        }
+
         public async Task<Album?> GetByIdAsync(int id)
         {
             return await _albumRepository.GetByIdAsync(id);

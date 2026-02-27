@@ -1,4 +1,5 @@
-﻿using Web.Common;
+using Web.Common;
+using Web.Enums;
 using Web.Models;
 using Web.ViewModels;
 
@@ -7,6 +8,7 @@ namespace Web.Interfaces
     public interface IAlbumService
     {
         Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null);
+        Task<PagedResult<Album>> GetAlbumsByEquipmentAsync(EntityType equipmentType, int equipmentId, int page, int pageSize);
         Task<Album?> GetByIdAsync(int id);
         Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id);
         Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre);

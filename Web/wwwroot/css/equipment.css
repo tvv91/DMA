@@ -140,3 +140,21 @@
     font-size: 1.1rem;
 }
 
+/* Albums section heading on equipment details */
+.equipment-albums-heading {
+    text-align: center;
+    margin: 0 0 1.25rem 0;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Albums grid on equipment details (reuse album card styles from album.css) */
+.equipment-albums-section .album-page {
+    min-height: auto;
+}
+

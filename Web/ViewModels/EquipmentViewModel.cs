@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Web.Common;
 using Web.Enums;
+using Web.Models;
 
 namespace Web.ViewModels
 {
@@ -15,6 +17,8 @@ namespace Web.ViewModels
         //public int EquipmentId { get; set; }
         public string? EquipmentCover { get; set; }
         public string? Description { get; set; }
+        /// <summary>Albums that contain a digitization using this equipment (when viewing details).</summary>
+        public PagedResult<Album>? AlbumsUsedIn { get; set; }
         public List<SelectListItem> Equipments { get; } = new List<SelectListItem>
         {
             new SelectListItem { Text = EntityType.Adc.ToString(), Value = EntityType.Adc.ToString() },

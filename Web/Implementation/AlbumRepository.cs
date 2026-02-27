@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Web.Common;
 using Web.Db;
+using Web.Enums;
 using Web.Extentions;
 using Web.Interfaces;
 using Web.Models;
@@ -107,6 +108,44 @@ namespace Web.Implementation
             }
 
             return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
+        }
+
+        public async Task<PagedResult<Album>> GetAlbumsByEquipmentAsync(EntityType equipmentType, int equipmentId, int page, int pageSize)
+        {
+            IQueryable<int> eqInfoIdsQuery = equipmentType switch
+            {
+                EntityType.Player => _context.EquipmentInfos.Where(e => e.PlayerId == equipmentId).Select(e => e.Id),
+                EntityType.Cartridge => _context.EquipmentInfos.Where(e => e.CartridgeId == equipmentId).Select(e => e.Id),
+                EntityType.Amplifier => _context.EquipmentInfos.Where(e => e.AmplifierId == equipmentId).Select(e => e.Id),
+                EntityType.Adc => _context.EquipmentInfos.Where(e => e.AdcId == equipmentId).Select(e => e.Id),
+                EntityType.Wire => _context.EquipmentInfos.Where(e => e.WireId == equipmentId).Select(e => e.Id),
+                _ => _context.EquipmentInfos.Where(e => false).Select(e => e.Id)
+            };
+
+            var albumIdsQuery = _context.Digitizations
+                .Where(d => d.EquipmentInfoId != null && eqInfoIdsQuery.Contains(d.EquipmentInfoId!.Value))
+                .Select(d => d.AlbumId)
+                .Distinct()
+                .OrderBy(id => id);
+
+            var totalCount = await albumIdsQuery.CountAsync();
+            var pagedAlbumIds = await albumIdsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (pagedAlbumIds.Count == 0)
+                return new PagedResult<Album>(new List<Album>(), totalCount, page, pageSize);
+
+            var albums = await _context.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Genre)
+                .Where(a => pagedAlbumIds.Contains(a.Id))
+                .AsNoTracking()
+                .ToListAsync();
+
+            var ordered = pagedAlbumIds.Select(id => albums.First(a => a.Id == id)).ToList();
+            return new PagedResult<Album>(ordered, totalCount, page, pageSize);
         }
 
         public async Task<Album?> FindByAlbumAndArtistAsync(string album, string artist)

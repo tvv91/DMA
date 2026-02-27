@@ -1,6 +1,7 @@
 using Moq;
 using Web.Common;
 using Web.Db;
+using Web.Enums;
 using Web.Interfaces;
 using Web.Models;
 using Web.Services;
@@ -224,6 +225,42 @@ namespace Tests.Unit
             Assert.Equal("Test Genre", result.Genre);
             Assert.NotNull(result.Digitizations);
             Assert.Single(result.Digitizations);
+        }
+
+        [Fact]
+        public async Task GetAlbumsByEquipmentAsync_DelegatesToRepository_AndReturnsResult()
+        {
+            // Arrange
+            var album = Helpers.TestDataBuilder.CreateAlbum(1, "Test Album", "Test Artist", "Test Genre");
+            var paged = new PagedResult<Album>(new List<Album> { album }, 1, 1, 10);
+            _mockAlbumRepository
+                .Setup(r => r.GetAlbumsByEquipmentAsync(EntityType.Player, 1, 1, 10))
+                .ReturnsAsync(paged);
+
+            // Act
+            var result = await _service.GetAlbumsByEquipmentAsync(EntityType.Player, 1, 1, 10);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(1, result.TotalItems);
+            Assert.Single(result.Items);
+            Assert.Equal(1, result.Items[0].Id);
+            _mockAlbumRepository.Verify(r => r.GetAlbumsByEquipmentAsync(EntityType.Player, 1, 1, 10), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetAlbumsByEquipmentAsync_ReturnsEmpty_WhenRepositoryReturnsEmpty()
+        {
+            var empty = new PagedResult<Album>(new List<Album>(), 0, 1, 10);
+            _mockAlbumRepository
+                .Setup(r => r.GetAlbumsByEquipmentAsync(EntityType.Amplifier, 99, 1, 5))
+                .ReturnsAsync(empty);
+
+            var result = await _service.GetAlbumsByEquipmentAsync(EntityType.Amplifier, 99, 1, 5);
+
+            Assert.NotNull(result);
+            Assert.Equal(0, result.TotalItems);
+            Assert.Empty(result.Items);
         }
     }
 }

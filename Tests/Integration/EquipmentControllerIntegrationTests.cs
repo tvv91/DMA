@@ -196,6 +196,119 @@ namespace Tests.Integration
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
+        /// <summary>
+        /// Creates a Player equipment and an album that has a digitization using this player. Returns (playerId, albumId).
+        /// </summary>
+        private async Task<(int playerId, int albumId)> CreatePlayerAndAlbumUsingItAsync(string manufacturerName = "Parasound", string modelName = "JC 2 BP Black")
+        {
+            var options = new DbContextOptionsBuilder<DMADbContext>()
+                .UseInMemoryDatabase("TestDb_Integration")
+                .Options;
+            using var testContext = new DMADbContext(options);
+
+            var artist = await testContext.Artists.FirstOrDefaultAsync(a => a.Name == "Albums Section Artist");
+            if (artist == null)
+            {
+                artist = TestDataBuilder.CreateArtist(0, "Albums Section Artist");
+                testContext.Artists.Add(artist);
+                await testContext.SaveChangesAsync();
+            }
+            var genre = await testContext.Genres.FirstOrDefaultAsync(g => g.Name == "Albums Section Genre");
+            if (genre == null)
+            {
+                genre = TestDataBuilder.CreateGenre(0, "Albums Section Genre");
+                testContext.Genres.Add(genre);
+                await testContext.SaveChangesAsync();
+            }
+
+            var mfr = await testContext.Manufacturer.FirstOrDefaultAsync(m => m.Name == manufacturerName && m.Type == EntityType.PlayerManufacturer);
+            if (mfr == null)
+            {
+                mfr = new Manufacturer { Name = manufacturerName, Type = EntityType.PlayerManufacturer };
+                testContext.Manufacturer.Add(mfr);
+                await testContext.SaveChangesAsync();
+            }
+
+            var player = new Player { Name = modelName, ManufacturerId = mfr.Id };
+            testContext.Players.Add(player);
+            await testContext.SaveChangesAsync();
+
+            var album = new Album { Title = "Album Using Player", ArtistId = artist.Id, GenreId = genre.Id, AddedDate = DateTime.UtcNow };
+            testContext.Albums.Add(album);
+            await testContext.SaveChangesAsync();
+
+            var equipmentInfo = new EquipmentInfo { PlayerId = player.Id };
+            testContext.EquipmentInfos.Add(equipmentInfo);
+            await testContext.SaveChangesAsync();
+
+            testContext.Digitizations.Add(new Digitization { AlbumId = album.Id, EquipmentInfoId = equipmentInfo.Id, AddedDate = DateTime.UtcNow });
+            await testContext.SaveChangesAsync();
+
+            return (player.Id, album.Id);
+        }
+
+        [Fact]
+        public async Task GetById_DetailsPage_ContainsAlbumsSection_WhenEquipmentUsedInDigitizations()
+        {
+            var (playerId, _) = await CreatePlayerAndAlbumUsingItAsync();
+
+            var response = await _client.GetAsync($"/equipment/{EntityType.Player}/{playerId}");
+            var html = await response.Content.ReadAsStringAsync();
+
+            response.EnsureSuccessStatusCode();
+            Assert.Contains("album(s) that were digitized using", html);
+            Assert.Contains("equipment-albums-section", html);
+        }
+
+        [Fact]
+        public async Task GetById_DetailsPage_AcceptsPageAndPageSize()
+        {
+            var (playerId, _) = await CreatePlayerAndAlbumUsingItAsync();
+
+            var response = await _client.GetAsync($"/equipment/{EntityType.Player}/{playerId}?page=1&pageSize=5");
+
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GetById_DetailsPage_ContainsAlbumLinksWithTargetBlank()
+        {
+            var (playerId, albumId) = await CreatePlayerAndAlbumUsingItAsync();
+
+            var response = await _client.GetAsync($"/equipment/{EntityType.Player}/{playerId}");
+            var html = await response.Content.ReadAsStringAsync();
+
+            response.EnsureSuccessStatusCode();
+            Assert.Contains($"href=\"/album/{albumId}\"", html);
+            Assert.Contains("target=\"_blank\"", html);
+        }
+
+        [Fact]
+        public async Task GetById_DetailsPage_ShowsEquipmentNameInHeading()
+        {
+            var (playerId, _) = await CreatePlayerAndAlbumUsingItAsync("Parasound", "JC 2 BP Black");
+
+            var response = await _client.GetAsync($"/equipment/{EntityType.Player}/{playerId}");
+            var html = await response.Content.ReadAsStringAsync();
+
+            response.EnsureSuccessStatusCode();
+            Assert.Contains("Parasound JC 2 BP Black", html);
+        }
+
+        [Fact]
+        public async Task GetById_DetailsPage_ContainsAlbumCardGrid()
+        {
+            var (playerId, _) = await CreatePlayerAndAlbumUsingItAsync();
+
+            var response = await _client.GetAsync($"/equipment/{EntityType.Player}/{playerId}");
+            var html = await response.Content.ReadAsStringAsync();
+
+            response.EnsureSuccessStatusCode();
+            Assert.Contains("album-card", html);
+            Assert.Contains("wrapper", html);
+        }
+
         public void Dispose()
         {
             _client.Dispose();

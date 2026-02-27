@@ -98,9 +98,9 @@ namespace Web.SignalRHubs
                     await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, result.Id);
                     return;
                 }
-                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
             }
 
+            await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
         }
 
         public async Task AddDigitization(string connectionId, CreateUpdateDigitizationRequest request)

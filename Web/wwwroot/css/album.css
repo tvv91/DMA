@@ -509,6 +509,11 @@
     background-color: #f0f0f0;
 }
 
+/* Autocomplete in Add digitization modal - keep dropdown above modal content */
+#addDigitizationModal .ui-autocomplete {
+    z-index: 1060;
+}
+
 /* Responsive */
 @media (max-width: 992px) {
     .album-info-cards {

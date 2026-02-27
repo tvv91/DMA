@@ -1,4 +1,4 @@
-﻿@model AlbumDetailsViewModel
+@model AlbumDetailsViewModel
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using Microsoft.AspNetCore.Html
@@ -259,9 +259,17 @@
                         <div class="col col-player">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Player?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Player?.Manufacturer?.Name))
                             {
-                                <b>@d.EquipmentInfo.Player.Manufacturer?.Name</b>
-                                <br />
-                                @d.EquipmentInfo.Player.Name
+                                var player = d.EquipmentInfo!.Player!;
+                                if (player.Id > 0)
+                                {
+                                    <a href="/equipment/Player/@player.Id" target="_blank" rel="noopener noreferrer">
+                                        <b>@player.Manufacturer?.Name</b><br />@player.Name
+                                    </a>
+                                }
+                                else
+                                {
+                                    <b>@player.Manufacturer?.Name</b><br />@player.Name
+                                }
                             }
                             else
                             {
@@ -271,9 +279,17 @@
                         <div class="col col-cartridge">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Cartridge?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Cartridge?.Manufacturer?.Name))
                             {
-                                <b>@d.EquipmentInfo.Cartridge.Manufacturer?.Name</b>
-                                <br />
-                                @d.EquipmentInfo.Cartridge.Name
+                                var cartridge = d.EquipmentInfo!.Cartridge!;
+                                if (cartridge.Id > 0)
+                                {
+                                    <a href="/equipment/Cartridge/@cartridge.Id" target="_blank" rel="noopener noreferrer">
+                                        <b>@cartridge.Manufacturer?.Name</b><br />@cartridge.Name
+                                    </a>
+                                }
+                                else
+                                {
+                                    <b>@cartridge.Manufacturer?.Name</b><br />@cartridge.Name
+                                }
                             }
                             else
                             {
@@ -283,9 +299,17 @@
                         <div class="col col-amplifier">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Amplifier?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Amplifier?.Manufacturer?.Name))
                             {
-                                <b>@d.EquipmentInfo.Amplifier.Manufacturer?.Name</b>
-                                <br />
-                                @d.EquipmentInfo.Amplifier.Name
+                                var amplifier = d.EquipmentInfo!.Amplifier!;
+                                if (amplifier.Id > 0)
+                                {
+                                    <a href="/equipment/Amplifier/@amplifier.Id" target="_blank" rel="noopener noreferrer">
+                                        <b>@amplifier.Manufacturer?.Name</b><br />@amplifier.Name
+                                    </a>
+                                }
+                                else
+                                {
+                                    <b>@amplifier.Manufacturer?.Name</b><br />@amplifier.Name
+                                }
                             }
                             else
                             {
@@ -295,9 +319,17 @@
                         <div class="col col-adc">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Adc?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Adc?.Manufacturer?.Name))
                             {
-                                <b>@d.EquipmentInfo.Adc.Manufacturer?.Name</b>
-                                <br />
-                                @d.EquipmentInfo.Adc.Name
+                                var adc = d.EquipmentInfo!.Adc!;
+                                if (adc.Id > 0)
+                                {
+                                    <a href="/equipment/Adc/@adc.Id" target="_blank" rel="noopener noreferrer">
+                                        <b>@adc.Manufacturer?.Name</b><br />@adc.Name
+                                    </a>
+                                }
+                                else
+                                {
+                                    <b>@adc.Manufacturer?.Name</b><br />@adc.Name
+                                }
                             }
                             else
                             {
@@ -307,9 +339,17 @@
                         <div class="col col-wire">
                             @if (!string.IsNullOrWhiteSpace(d.EquipmentInfo?.Wire?.Name) || !string.IsNullOrWhiteSpace(d.EquipmentInfo?.Wire?.Manufacturer?.Name))
                             {
-                                <b>@d.EquipmentInfo.Wire.Manufacturer?.Name</b>
-                                <br />
-                                @d.EquipmentInfo.Wire.Name
+                                var wire = d.EquipmentInfo!.Wire!;
+                                if (wire.Id > 0)
+                                {
+                                    <a href="/equipment/Wire/@wire.Id" target="_blank" rel="noopener noreferrer">
+                                        <b>@wire.Manufacturer?.Name</b><br />@wire.Name
+                                    </a>
+                                }
+                                else
+                                {
+                                    <b>@wire.Manufacturer?.Name</b><br />@wire.Name
+                                }
                             }
                             else
                             {

@@ -1,21 +1,21 @@
 @model AlbumCreateUpdateViewModel;
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="toast_digitization_added" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-digitization-added" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Success</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">Digitization added successfully</div>
     </div>
-    <div id="toast_digitization_updated" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-digitization-updated" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Success</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">Digitization updated successfully</div>
     </div>
-    <div id="toast_digitization_removed" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-digitization-removed" class="toast toast-body-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Success</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -31,8 +31,8 @@
         <h3>@(Model.Action == Web.Enums.ActionType.Create ? "Add New Album" : "Edit Album")</h3>
     </div>
     <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
-        <input type="hidden" id="coverid" asp-for="AlbumCover" />
-        <input type="hidden" id="albumid" asp-for="AlbumId" />
+        <input type="hidden" id="cover-id" asp-for="AlbumCover" />
+        <input type="hidden" id="album-id" asp-for="AlbumId" />
         <input type="hidden" id="action" asp-for="Action" />
         <div class="card shadow-sm border-1 p-3">
             <div class="row align-items-stretch">
@@ -61,94 +61,94 @@
                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <input id="artist_input" class="form-control" asp-for="Artist" placeholder="Artist" oninput=checkAlbumIsExists(false) />
+                                    <input id="artist-input" class="form-control" asp-for="Artist" placeholder="Artist" oninput=checkAlbumIsExists(false) />
                                 </div>
                                 <div class="col-md-12">
-                                    <input id="album_input" class="form-control" asp-for="Title" placeholder="Album" oninput=checkAlbumIsExists(false) />
+                                    <input id="album-input" class="form-control" asp-for="Title" placeholder="Album" oninput=checkAlbumIsExists(false) />
                                 </div>
                                 <div class="col-md-12">
-                                    <input id="genre_input" class="form-control" asp-for="Genre" placeholder="Genre" />
+                                    <input id="genre-input" class="form-control" asp-for="Genre" placeholder="Genre" />
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="digitization" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <input id="vinylstate_input" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
+                                    <input id="vinylstate-input" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="digitalformat_input" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData()" />
+                                    <input id="digitalformat-input" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData()" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="bitness_input" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData()" />
+                                    <input id="bitness-input" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData()" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sampling_input" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData()" />
+                                    <input id="sampling-input" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData()" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sourceformat_input" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
+                                    <input id="sourceformat-input" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" asp-for="Storage" placeholder="Storage" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="year_input" class="form-control" asp-for="Year" placeholder="Year" />
+                                    <input id="year-input" class="form-control" asp-for="Year" placeholder="Year" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="reissue_input" class="form-control" asp-for="Reissue" placeholder="Reissue" />
+                                    <input id="reissue-input" class="form-control" asp-for="Reissue" placeholder="Reissue" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="country_input" class="form-control" asp-for="Country" placeholder="Country" />
+                                    <input id="country-input" class="form-control" asp-for="Country" placeholder="Country" />
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" asp-for="Label" placeholder="Label" />
                                 </div>
                                 <div class="col-md-8">
-                                    <input id="source_input" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(false)" />
+                                    <input id="source-input" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(false)" />
                                 </div>
                                 <div class="col-md-8">
                                     <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="size_input" class="form-control" asp-for="Size" placeholder="Size (GB)" />
+                                    <input id="size-input" class="form-control" asp-for="Size" placeholder="Size (GB)" />
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="hardware" role="tabpanel">
                             <div class="row g-3">
-                                <div class="col-md-6"><input id="player_input" class="form-control" asp-for="Player" placeholder="Player" /></div>
-                                <div class="col-md-6"><input id="player_manufacturer_input" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="cartridge_input" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
-                                <div class="col-md-6"><input id="cartridge_manufacturer_input" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="amp_input" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
-                                <div class="col-md-6"><input id="amp_manufacturer_input" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="adc_input" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
-                                <div class="col-md-6"><input id="adc_manufacturer_input" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="wire_input" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
-                                <div class="col-md-6"><input id="wire_manufacturer_input" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="player-input" class="form-control" asp-for="Player" placeholder="Player" /></div>
+                                <div class="col-md-6"><input id="player-manufacturer-input" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="cartridge-input" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
+                                <div class="col-md-6"><input id="cartridge-manufacturer-input" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="amp-input" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
+                                <div class="col-md-6"><input id="amp-manufacturer-input" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="adc-input" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
+                                <div class="col-md-6"><input id="adc-manufacturer-input" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="wire-input" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
+                                <div class="col-md-6"><input id="wire-manufacturer-input" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
-                <div id="digitization_warning" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
+                <div id="digitization-warning" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
                      role="alert"
                      style="white-space: nowrap; min-height: 38px;">
-                    <span id="album_check_spinner" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
+                    <span id="album-check-spinner" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
                     <i id="alert-icon" class="me-2"></i>&nbsp
                     <span class="alert-message"></span>
                 </div>
-                <button id="add_digitization_btn" class="btn btn-info px-4" onclick="ShowAddModal()" type="button" disabled>
+                <button id="add-digitization-btn" class="btn btn-info px-4" onclick="ShowAddModal()" type="button" disabled>
                     <i class="fa-solid fa-plus"></i> Add
                 </button>
-                <button id="update_digitization_btn" class="btn btn-warning px-4" onclick="UpdateDigitization()" type="button" disabled>
+                <button id="update-digitization-btn" class="btn btn-warning px-4" onclick="UpdateDigitization()" type="button" disabled>
                     <i class="fa-regular fa-pen-to-square"></i> Update
                 </button>
-                <button id="remove_digitization_btn" class="btn btn-danger px-4" onclick="ShowRemoveModal()" type="button" disabled>
+                <button id="remove-digitization-btn" class="btn btn-danger px-4" onclick="ShowRemoveModal()" type="button" disabled>
                     <i class="fa-solid fa-xmark"></i> Remove
                 </button>
-                <button id="save_album_btn" type="submit" class="btn btn-success px-4">
+                <button id="save-album-btn" type="submit" class="btn btn-success px-4">
                     <i class="fa-solid fa-check"></i> Save
                 </button>
             </div>
@@ -208,58 +208,58 @@
                         <div class="tab-pane fade show active" id="digitizationModal" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <input id="vinylstate_input_modal" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
+                                    <input id="vinylstate-input-modal" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="digitalformat_input_modal" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData(true)" />
+                                    <input id="digitalformat-input-modal" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData(true)" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="bitness_input_modal" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData(true)" />
+                                    <input id="bitness-input-modal" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData(true)" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sampling_input_modal" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData(true)" />
+                                    <input id="sampling-input-modal" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData(true)" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sourceformat_input_modal" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
+                                    <input id="sourceformat-input-modal" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" asp-for="Storage" placeholder="Storage" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="year_input_modal" class="form-control" asp-for="Year" placeholder="Year" />
+                                    <input id="year-input-modal" class="form-control" asp-for="Year" placeholder="Year" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="reissue_input_modal" class="form-control" asp-for="Reissue" placeholder="Reissue" />
+                                    <input id="reissue-input-modal" class="form-control" asp-for="Reissue" placeholder="Reissue" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="country_input_modal" class="form-control" asp-for="Country" placeholder="Country" />
+                                    <input id="country-input-modal" class="form-control" asp-for="Country" placeholder="Country" />
                                 </div>
                                 <div class="col-md-4">
                                     <input class="form-control" asp-for="Label" placeholder="Label" />
                                 </div>
                                 <div class="col-md-8">
-                                    <input id="source_input_modal" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(true)" />
+                                    <input id="source-input-modal" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(true)" />
                                 </div>
                                 <div class="col-md-8">
                                     <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="size_input_modal" class="form-control" asp-for="Size" placeholder="Size (GB)" />
+                                    <input id="size-input-modal" class="form-control" asp-for="Size" placeholder="Size (GB)" />
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="hardwareModal" role="tabpanel">
                             <div class="row g-3">
-                                <div class="col-md-6"><input id="player_input_modal" class="form-control" asp-for="Player" placeholder="Player" /></div>
-                                <div class="col-md-6"><input id="player_manufacturer_input_modal" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="cartridge_input_modal" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
-                                <div class="col-md-6"><input id="cartridge_manufacturer_input_modal" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="amp_input_modal" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
-                                <div class="col-md-6"><input id="amp_manufacturer_input_modal" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="adc_input_modal" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
-                                <div class="col-md-6"><input id="adc_manufacturer_input_modal" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="wire_input_modal" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
-                                <div class="col-md-6"><input id="wire_manufacturer_input_modal" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="player-input-modal" class="form-control" asp-for="Player" placeholder="Player" /></div>
+                                <div class="col-md-6"><input id="player-manufacturer-input-modal" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="cartridge-input-modal" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
+                                <div class="col-md-6"><input id="cartridge-manufacturer-input-modal" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="amp-input-modal" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
+                                <div class="col-md-6"><input id="amp-manufacturer-input-modal" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="adc-input-modal" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
+                                <div class="col-md-6"><input id="adc-manufacturer-input-modal" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
+                                <div class="col-md-6"><input id="wire-input-modal" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
+                                <div class="col-md-6"><input id="wire-manufacturer-input-modal" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
                             </div>
                         </div>
                     </div>
@@ -267,8 +267,8 @@
             </div>
             </div>
                 <div class="modal-footer">
-                    <div id="digitization_warning_modal" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1" role="alert" style="white-space: nowrap; min-height: 38px;">
-                        <span id="album_check_spinner_modal" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
+                    <div id="digitization-warning-modal" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1" role="alert" style="white-space: nowrap; min-height: 38px;">
+                        <span id="album-check-spinner-modal" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
                         <i id="alert-icon-modal" class="me-2"></i>&nbsp
                         <span class="alert-message"></span>
                     </div>
@@ -300,16 +300,16 @@
     const actions = { "Create": "albumcreated", "Update": "albumupdated" };
     const dsdFormats = { dsd64: "2.8", dsd128: "5.6", dsd256: "11.2", dsd512: "22.5" };
     const fieldEntityMap = {
-        "artist_input": "Artist", "genre_input": "Genre", "vinylstate_input": "VinylState",
-        "digitalformat_input": "DigitalFormat", "bitness_input": "Bitness", "sampling_input": "Sampling",
-        "sourceformat_input": "SourceFormat", "year_input": "Year", "reissue_input": "Reissue",
-        "player_input": "Player", "cartridge_input": "Cartridge", "amp_input": "Amplifier",
-        "adc_input": "Adc", "wire_input": "Wire", "country_input": "Country",
-        "label_input": "Label", "storage_input": "Storage"
+        "artist-input": "Artist", "genre-input": "Genre", "vinylstate-input": "VinylState",
+        "digitalformat-input": "DigitalFormat", "bitness-input": "Bitness", "sampling-input": "Sampling",
+        "sourceformat-input": "SourceFormat", "year-input": "Year", "reissue-input": "Reissue",
+        "player-input": "Player", "cartridge-input": "Cartridge", "amp-input": "Amplifier",
+        "adc-input": "Adc", "wire-input": "Wire", "country-input": "Country",
+        "label-input": "Label", "storage-input": "Storage"
     };
     const equipmentManufacturerMap = {
-        "player_input": "PlayerManufacturer", "cartridge_input": "CartridgeManufacturer",
-        "amp_input": "AmplifierManufacturer", "adc_input": "AdcManufacturer", "wire_input": "WireManufacturer"
+        "player-input": "PlayerManufacturer", "cartridge-input": "CartridgeManufacturer",
+        "amp-input": "AmplifierManufacturer", "adc-input": "AdcManufacturer", "wire-input": "WireManufacturer"
     };
 
     // --- Utilities ---
@@ -353,17 +353,17 @@
 
     // --- UI state & button visibility ---
     function checkAddButtonState() {
-        const artist = $("#artist_input").val()?.trim();
-        const album = $("#album_input").val()?.trim();
-        const genre = $("#genre_input").val()?.trim();
+        const artist = $("#artist-input").val()?.trim();
+        const album = $("#album-input").val()?.trim();
+        const genre = $("#genre-input").val()?.trim();
         const hasRequiredFields = artist && album && genre;
-        $("#add_digitization_btn").prop("disabled", !hasRequiredFields);
+        $("#add-digitization-btn").prop("disabled", !hasRequiredFields);
     }
 
     function checkUpdateRemoveButtons() {
         const enabled = selectedDigitizationId > 0;
-        $("#update_digitization_btn").prop("disabled", !enabled);
-        $("#remove_digitization_btn").prop("disabled", !enabled);
+        $("#update-digitization-btn").prop("disabled", !enabled);
+        $("#remove-digitization-btn").prop("disabled", !enabled);
     }
 
     function updateDigitizationHardwareTabsVisibility() {
@@ -382,11 +382,11 @@
 
     // --- Digitization: form & CRUD ---
     function clearDigitizationFields() {
-        $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input").val("");
-        $("#year_input, #reissue_input").val("");
-        $("#source, #size_input").val("");
-        $("#player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").val("");
-        $("#player_manufacturer_input, #cartridge_manufacturer_input, #amp_manufacturer_input, #adc_manufacturer_input, #wire_manufacturer_input").val("");
+        $("#vinylstate-input, #digitalformat-input, #bitness-input, #sampling-input, #sourceformat-input").val("");
+        $("#year-input, #reissue-input").val("");
+        $("#source-input, #size-input").val("");
+        $("#player-input, #cartridge-input, #amp-input, #adc-input, #wire-input").val("");
+        $("#player-manufacturer-input, #cartridge-manufacturer-input, #amp-manufacturer-input, #adc-manufacturer-input, #wire-manufacturer-input").val("");
         $("input[placeholder='Country']").val("");
         $("input[placeholder='Label']").val("");
         $("input[placeholder='Storage']").val("");
@@ -399,12 +399,12 @@
     function loadDigitizationToFields(digitization) {
         selectedDigitizationId = digitization.id || digitization.Id;
         // Format Info - handle both camelCase and PascalCase (use ?? so 0 is shown)
-        $("#vinylstate_input").val(digitization.vinylState || digitization.VinylState || "");
-        $("#digitalformat_input").val(digitization.digitalFormat || digitization.DigitalFormat || "");
-        $("#bitness_input").val(digitization.bitness != null ? digitization.bitness : (digitization.Bitness != null ? digitization.Bitness : ""));
-        $("#sampling_input").val(digitization.sampling != null ? digitization.sampling : (digitization.Sampling != null ? digitization.Sampling : ""));
-        $("#sourceformat_input").val(digitization.sourceFormat || digitization.SourceFormat || "");
-        $("#size_input").val(digitization.size != null ? digitization.size : (digitization.Size != null ? digitization.Size : ""));
+        $("#vinylstate-input").val(digitization.vinylState || digitization.VinylState || "");
+        $("#digitalformat-input").val(digitization.digitalFormat || digitization.DigitalFormat || "");
+        $("#bitness-input").val(digitization.bitness != null ? digitization.bitness : (digitization.Bitness != null ? digitization.Bitness : ""));
+        $("#sampling-input").val(digitization.sampling != null ? digitization.sampling : (digitization.Sampling != null ? digitization.Sampling : ""));
+        $("#sourceformat-input").val(digitization.sourceFormat || digitization.SourceFormat || "");
+        $("#size-input").val(digitization.size != null ? digitization.size : (digitization.Size != null ? digitization.Size : ""));
         
         // Equipment Info - handle both camelCase and PascalCase
         const playerManufacturer = digitization.playerManufacturer || digitization.PlayerManufacturer || "";
@@ -414,29 +414,29 @@
         const wireManufacturer = digitization.wireManufacturer || digitization.WireManufacturer || "";
         
         // Set equipment names
-        $("#player_input").val(digitization.player || digitization.Player || "");
-        $("#cartridge_input").val(digitization.cartridge || digitization.Cartridge || "");
-        $("#amp_input").val(digitization.amplifier || digitization.Amplifier || "");
-        $("#adc_input").val(digitization.adc || digitization.Adc || "");
-        $("#wire_input").val(digitization.wire || digitization.Wire || "");
+        $("#player-input").val(digitization.player || digitization.Player || "");
+        $("#cartridge-input").val(digitization.cartridge || digitization.Cartridge || "");
+        $("#amp-input").val(digitization.amplifier || digitization.Amplifier || "");
+        $("#adc-input").val(digitization.adc || digitization.Adc || "");
+        $("#wire-input").val(digitization.wire || digitization.Wire || "");
         
         // Set manufacturer fields
-        $("#player_manufacturer_input").val(playerManufacturer);
-        $("#cartridge_manufacturer_input").val(cartridgeManufacturer);
-        $("#amp_manufacturer_input").val(amplifierManufacturer);
-        $("#adc_manufacturer_input").val(adcManufacturer);
-        $("#wire_manufacturer_input").val(wireManufacturer);
+        $("#player-manufacturer-input").val(playerManufacturer);
+        $("#cartridge-manufacturer-input").val(cartridgeManufacturer);
+        $("#amp-manufacturer-input").val(amplifierManufacturer);
+        $("#adc-manufacturer-input").val(adcManufacturer);
+        $("#wire-manufacturer-input").val(wireManufacturer);
         
         // Other fields - handle both camelCase and PascalCase
-        $("#year_input").val(digitization.year || digitization.Year || "");
-        $("#reissue_input").val(digitization.reissue || digitization.Reissue || "");
+        $("#year-input").val(digitization.year || digitization.Year || "");
+        $("#reissue-input").val(digitization.reissue || digitization.Reissue || "");
         
         // Country, Label, Storage, Discogs
         $("input[placeholder='Country']").val(digitization.country || digitization.Country || "");
         $("input[placeholder='Label']").val(digitization.label || digitization.Label || "");
         $("input[placeholder='Storage']").val(digitization.storage || digitization.Storage || "");
         $("input[placeholder='Discogs link']").val(digitization.discogs || digitization.Discogs || "");
-        $("#source_input").val(digitization.source || digitization.Source || "");
+        $("#source-input").val(digitization.source || digitization.Source || "");
 
         checkUpdateRemoveButtons();
         updateDigitizationHardwareTabsVisibility();
@@ -515,35 +515,35 @@
     async function AddDigitization() {
         const $modal = $("#addDigitizationModal");
         const req = {
-            albumId: Number($("#albumid").val()) || 0,
+            albumId: Number($("#album-id").val()) || 0,
             digitizationId: 0,
-            artist: $("#artist_input").val()?.trim() || "",
-            album: $("#album_input").val()?.trim() || "",
-            genre: $("#genre_input").val()?.trim() || "",
-            source: $modal.find("#source_input_modal").val()?.trim() || null,
+            artist: $("#artist-input").val()?.trim() || "",
+            album: $("#album-input").val()?.trim() || "",
+            genre: $("#genre-input").val()?.trim() || "",
+            source: $modal.find("#source-input-modal").val()?.trim() || null,
             discogs: $modal.find("input[placeholder='Discogs link']").val()?.trim() || null,
             isFirstPress: false,
-            country: $modal.find("#country_input_modal").val()?.trim() || null,
+            country: $modal.find("#country-input-modal").val()?.trim() || null,
             label: $modal.find("input[placeholder='Label']").val()?.trim() || null,
             storage: $modal.find("input[placeholder='Storage']").val()?.trim() || null,
-            year: $modal.find("#year_input_modal").val() ? Number($modal.find("#year_input_modal").val()) : null,
-            reissue: $modal.find("#reissue_input_modal").val() ? Number($modal.find("#reissue_input_modal").val()) : null,
-            size: $modal.find("#size_input_modal").val() ? parseFloat($modal.find("#size_input_modal").val().replace(",", ".")) : null,
-            vinylState: $modal.find("#vinylstate_input_modal").val()?.trim() || null,
-            digitalFormat: $modal.find("#digitalformat_input_modal").val()?.trim() || null,
-            bitness: $modal.find("#bitness_input_modal").val() ? Number($modal.find("#bitness_input_modal").val()) : null,
-            sampling: $modal.find("#sampling_input_modal").val() ? parseFloat($modal.find("#sampling_input_modal").val().replace(",", ".")) : null,
-            sourceFormat: $modal.find("#sourceformat_input_modal").val()?.trim() || null,
-            player: $modal.find("#player_input_modal").val()?.trim() || null,
-            playerManufacturer: $modal.find("#player_manufacturer_input_modal").val()?.trim() || null,
-            cartridge: $modal.find("#cartridge_input_modal").val()?.trim() || null,
-            cartridgeManufacturer: $modal.find("#cartridge_manufacturer_input_modal").val()?.trim() || null,
-            amplifier: $modal.find("#amp_input_modal").val()?.trim() || null,
-            amplifierManufacturer: $modal.find("#amp_manufacturer_input_modal").val()?.trim() || null,
-            adc: $modal.find("#adc_input_modal").val()?.trim() || null,
-            adcManufacturer: $modal.find("#adc_manufacturer_input_modal").val()?.trim() || null,
-            wire: $modal.find("#wire_input_modal").val()?.trim() || null,
-            wireManufacturer: $modal.find("#wire_manufacturer_input_modal").val()?.trim() || null
+            year: $modal.find("#year-input-modal").val() ? Number($modal.find("#year-input-modal").val()) : null,
+            reissue: $modal.find("#reissue-input-modal").val() ? Number($modal.find("#reissue-input-modal").val()) : null,
+            size: $modal.find("#size-input-modal").val() ? parseFloat($modal.find("#size-input-modal").val().replace(",", ".")) : null,
+            vinylState: $modal.find("#vinylstate-input-modal").val()?.trim() || null,
+            digitalFormat: $modal.find("#digitalformat-input-modal").val()?.trim() || null,
+            bitness: $modal.find("#bitness-input-modal").val() ? Number($modal.find("#bitness-input-modal").val()) : null,
+            sampling: $modal.find("#sampling-input-modal").val() ? parseFloat($modal.find("#sampling-input-modal").val().replace(",", ".")) : null,
+            sourceFormat: $modal.find("#sourceformat-input-modal").val()?.trim() || null,
+            player: $modal.find("#player-input-modal").val()?.trim() || null,
+            playerManufacturer: $modal.find("#player-manufacturer-input-modal").val()?.trim() || null,
+            cartridge: $modal.find("#cartridge-input-modal").val()?.trim() || null,
+            cartridgeManufacturer: $modal.find("#cartridge-manufacturer-input-modal").val()?.trim() || null,
+            amplifier: $modal.find("#amp-input-modal").val()?.trim() || null,
+            amplifierManufacturer: $modal.find("#amp-manufacturer-input-modal").val()?.trim() || null,
+            adc: $modal.find("#adc-input-modal").val()?.trim() || null,
+            adcManufacturer: $modal.find("#adc-manufacturer-input-modal").val()?.trim() || null,
+            wire: $modal.find("#wire-input-modal").val()?.trim() || null,
+            wireManufacturer: $modal.find("#wire-manufacturer-input-modal").val()?.trim() || null
         };
         
         $("#loader").show();
@@ -552,46 +552,46 @@
         } catch (err) {
             console.error("Error adding digitization:", err);
             $("#loader").hide();
-            showToast("toast_digitization_error", "Error adding digitization: " + err.message);
+            showToast("toast-digitization-error", "Error adding digitization: " + err.message);
         }
     }
 
     async function UpdateDigitization() {
         if (selectedDigitizationId === 0) {
-            showToast("toast_digitization_warning", "Please select a digitization to update");
+            showToast("toast-digitization-warning", "Please select a digitization to update");
             return;
         }
         
         const req = {
-            albumId: Number($("#albumid").val()) || 0,
+            albumId: Number($("#album-id").val()) || 0,
             digitizationId: selectedDigitizationId,
-            artist: $("#artist_input").val()?.trim() || "",
-            album: $("#album_input").val()?.trim() || "",
-            genre: $("#genre_input").val()?.trim() || "",
-            source: $("#source").val()?.trim() || null,
+            artist: $("#artist-input").val()?.trim() || "",
+            album: $("#album-input").val()?.trim() || "",
+            genre: $("#genre-input").val()?.trim() || "",
+            source: $("#source-input").val()?.trim() || null,
             discogs: $("input[placeholder='Discogs link']").val()?.trim() || null,
             isFirstPress: false,
             country: $("input[placeholder='Country']").val()?.trim() || null,
             label: $("input[placeholder='Label']").val()?.trim() || null,
             storage: $("input[placeholder='Storage']").val()?.trim() || null,
-            year: $("#year_input").val() ? Number($("#year_input").val()) : null,
-            reissue: $("#reissue_input").val() ? Number($("#reissue_input").val()) : null,
-            size: $("#size_input").val() ? parseFloat($("#size_input").val().replace(",", ".")) : null,
-            vinylState: $("#vinylstate_input").val()?.trim() || null,
-            digitalFormat: $("#digitalformat_input").val()?.trim() || null,
-            bitness: $("#bitness_input").val() ? Number($("#bitness_input").val()) : null,
-            sampling: $("#sampling_input").val() ? parseFloat($("#sampling_input").val().replace(",", ".")) : null,
-            sourceFormat: $("#sourceformat_input").val()?.trim() || null,
-            player: $("#player_input").val()?.trim() || null,
-            playerManufacturer: $("#player_manufacturer_input").val()?.trim() || null,
-            cartridge: $("#cartridge_input").val()?.trim() || null,
-            cartridgeManufacturer: $("#cartridge_manufacturer_input").val()?.trim() || null,
-            amplifier: $("#amp_input").val()?.trim() || null,
-            amplifierManufacturer: $("#amp_manufacturer_input").val()?.trim() || null,
-            adc: $("#adc_input").val()?.trim() || null,
-            adcManufacturer: $("#adc_manufacturer_input").val()?.trim() || null,
-            wire: $("#wire_input").val()?.trim() || null,
-            wireManufacturer: $("#wire_manufacturer_input").val()?.trim() || null
+            year: $("#year-input").val() ? Number($("#year-input").val()) : null,
+            reissue: $("#reissue-input").val() ? Number($("#reissue-input").val()) : null,
+            size: $("#size-input").val() ? parseFloat($("#size-input").val().replace(",", ".")) : null,
+            vinylState: $("#vinylstate-input").val()?.trim() || null,
+            digitalFormat: $("#digitalformat-input").val()?.trim() || null,
+            bitness: $("#bitness-input").val() ? Number($("#bitness-input").val()) : null,
+            sampling: $("#sampling-input").val() ? parseFloat($("#sampling-input").val().replace(",", ".")) : null,
+            sourceFormat: $("#sourceformat-input").val()?.trim() || null,
+            player: $("#player-input").val()?.trim() || null,
+            playerManufacturer: $("#player-manufacturer-input").val()?.trim() || null,
+            cartridge: $("#cartridge-input").val()?.trim() || null,
+            cartridgeManufacturer: $("#cartridge-manufacturer-input").val()?.trim() || null,
+            amplifier: $("#amp-input").val()?.trim() || null,
+            amplifierManufacturer: $("#amp-manufacturer-input").val()?.trim() || null,
+            adc: $("#adc-input").val()?.trim() || null,
+            adcManufacturer: $("#adc-manufacturer-input").val()?.trim() || null,
+            wire: $("#wire-input").val()?.trim() || null,
+            wireManufacturer: $("#wire-manufacturer-input").val()?.trim() || null
         };
         
         $("#loader").show();
@@ -600,7 +600,7 @@
         } catch (err) {
             console.error("Error updating digitization:", err);
             $("#loader").hide();
-            showToast("toast_digitization_error", "Error updating digitization: " + err.message);
+            showToast("toast-digitization-error", "Error updating digitization: " + err.message);
         }
     }
 
@@ -611,7 +611,7 @@
 
     function ShowRemoveModal() {
         if (selectedDigitizationId === 0) {
-            showToast("toast_digitization_warning", "Please select a digitization to remove");
+            showToast("toast-digitization-warning", "Please select a digitization to remove");
             return;
         }
         const modal = new bootstrap.Modal(document.getElementById("removeModal"));
@@ -630,18 +630,18 @@
         } catch (err) {
             console.error("Error removing digitization:", err);
             $("#loader").hide();
-            showToast("toast_digitization_error", "Error removing digitization: " + err.message);
+            showToast("toast-digitization-error", "Error removing digitization: " + err.message);
         }
     }
 
     // --- Validation ---
     function checkValidData(isNew = false) {
-        const suffix = isNew ? "_modal" : "";
-        const codec = $(`#digitalformat_input${suffix}`).val()?.toLowerCase();
-        const bitness = $(`#bitness_input${suffix}`).val();
-        let sampling = $(`#sampling_input${suffix}`).val()?.replace(",", ".");
+        const idSuffix = isNew ? "-modal" : "";
+        const codec = $(`#digitalformat-input${idSuffix}`).val()?.toLowerCase();
+        const bitness = $(`#bitness-input${idSuffix}`).val();
+        let sampling = $(`#sampling-input${idSuffix}`).val()?.replace(",", ".");
         if (!codec || !bitness || !sampling) return;
-        const alertId = `digitization_warning${suffix}`;
+        const alertId = `digitization-warning${idSuffix}`;
         if (dsdFormats[codec]) {
             if (bitness !== "1") {
                 showAlert(alertId, "alert-warning", "DSD is 1 bit/s format");
@@ -655,11 +655,11 @@
 
     function checkAlbumIsExists(isNew = false) {
         currentAlbumCheckContext = isNew ? "modal" : "main";
-        let albumId = Number($("#albumid").val());
-        let album = $("#album_input").val();
-        let artist = $("#artist_input").val();
-        let source = $(`#source_input${isNew ? "_modal" : ""}`).val();
-        const alertId = isNew ? "digitization_warning_modal" : "digitization_warning";
+        let albumId = Number($("#album-id").val());
+        let album = $("#album-input").val();
+        let artist = $("#artist-input").val();
+        let source = $(`#source-input${isNew ? "-modal" : ""}`).val();
+        const alertId = isNew ? "digitization-warning-modal" : "digitization-warning";
         if (albumId && album && artist) {
             checkAlbum(albumId, album, artist, source, alertId);
         } else {
@@ -678,7 +678,7 @@
     }
 
     function onSubmit() {
-        const $input = $("#size_input");
+        const $input = $("#size-input");
         const action = "@Model.Action";
         let value = $input.val();
         $input.val(value.replace(/\./g, ","));
@@ -711,31 +711,31 @@
         }
         const categoryFieldMap = { "player": "player", "cartridge": "cartridge", "amplifier": "amp", "adc": "adc", "wire": "wire" };
         const fieldPrefix = categoryFieldMap[category.toLowerCase()];
-        if (fieldPrefix) $(`#${fieldPrefix}_manufacturer_input`).val(result || "");
+        if (fieldPrefix) $(`#${fieldPrefix}-manufacturer-input`).val(result || "");
     });
 
     connection.on("AlbumIsExist", (factor, albumId) => {
-        const alertId = currentAlbumCheckContext === "modal" ? "digitization_warning_modal" : "digitization_warning";
+        const alertId = currentAlbumCheckContext === "modal" ? "digitization-warning-modal" : "digitization-warning";
         $(`#${alertId} .album-check-spinner`).addClass("d-none");
         const message = alertMessages[factor];
         if (!message) return;
         const text = typeof message.text === "function" ? message.text(albumId) : message.text;
         showAlert(alertId, `alert-${message.type}`, text);
         const isDuplicate = factor === 1 || factor === 100;
-        $("#save_album_btn").prop("disabled", isDuplicate);
-        $("#add_digitization_btn").prop("disabled", isDuplicate);
+        $("#save-album-btn").prop("disabled", isDuplicate);
+        $("#add-digitization-btn").prop("disabled", isDuplicate);
         if (!isDuplicate) checkAddButtonState();
     });
 
     connection.on("DigitizationAdded", (success, message, albumId, digitizations) => {
         $("#loader").hide();
         if (success) {
-            if (albumId > 0 && $("#albumid").val() == "0") $("#albumid").val(albumId);
+            if (albumId > 0 && $("#album-id").val() == "0") $("#album-id").val(albumId);
             renderDigitizations(digitizations);
             clearDigitizationFields();
-            showToast("toast_digitization_added");
+            showToast("toast-digitization-added");
         } else {
-            showToast("toast_digitization_error", "Error: " + message);
+            showToast("toast-digitization-error", "Error: " + message);
         }
     });
 
@@ -744,9 +744,9 @@
         if (success) {
             renderDigitizations(digitizations);
             clearDigitizationFields();
-            showToast("toast_digitization_updated");
+            showToast("toast-digitization-updated");
         } else {
-            showToast("toast_digitization_error", "Error: " + message);
+            showToast("toast-digitization-error", "Error: " + message);
         }
     });
 
@@ -755,9 +755,9 @@
         if (success) {
             renderDigitizations(digitizations);
             clearDigitizationFields();
-            showToast("toast_digitization_removed");
+            showToast("toast-digitization-removed");
         } else {
-            showToast("toast_digitization_error", "Error: " + message);
+            showToast("toast-digitization-error", "Error: " + message);
         }
     });
 
@@ -775,12 +775,12 @@
         dictDefaultMessage: "<b>Upload album cover</b><br><i>Images > 300x300 pixels will be resized</i>",
         acceptedFiles: ".jpeg,.png,.jpg",
         success: (file, data) => {
-            $("#coverid").val(data.filename);
+            $("#cover-id").val(data.filename);
             $(file.previewElement).addClass("dz-success text-success");
         },
         init: function () {
-            const coverId = $("#coverid").val();
-            const albumId = $("#albumid").val();
+            const coverId = $("#cover-id").val();
+            const albumId = $("#album-id").val();
             if (coverId !== "" && !coverId.includes("nocover")) {
             let myDropzone = this;
             let coverUrl = window.location.href.includes("edit") && albumId
@@ -791,7 +791,7 @@
             }
         },
         removedfile: function (file) {
-            $("#coverid").val("");
+            $("#cover-id").val("");
             if (file.previewElement?.parentNode) file.previewElement.parentNode.removeChild(file.previewElement);
             return this._updateMaxFilesReachedClass();
         }
@@ -807,8 +807,8 @@
         updateDigitizationHardwareTabsVisibility();
         
         // Set up field change listeners
-        $("#artist_input, #album_input, #genre_input").on("input", checkAddButtonState);
-        $("#vinylstate_input, #digitalformat_input, #bitness_input, #sampling_input, #sourceformat_input, #year_input, #reissue_input, #source, #size_input, #player_input, #cartridge_input, #amp_input, #adc_input, #wire_input").on("input", checkAddButtonState);
+        $("#artist-input, #album-input, #genre-input").on("input", checkAddButtonState);
+        $("#vinylstate-input, #digitalformat-input, #bitness-input, #sampling-input, #sourceformat-input, #year-input, #reissue-input, #source-input, #size-input, #player-input, #cartridge-input, #amp-input, #adc-input, #wire-input").on("input", checkAddButtonState);
         
         // Load existing digitizations if any
         @if (Model.Digitizations?.Any() == true)
@@ -854,13 +854,13 @@
 
     // --- Autocomplete init (DOM ready) ---
     $(() => {
-        $("input:is([id$='_input'], [id$='_input_modal'])").each(function () {
+        $("input:is([id$='-input'], [id$='-input-modal'])").each(function () {
             const $input = $(this);
             const fieldId = this.id;
-            const baseId = fieldId.replace(/_modal$/, '');
+            const baseId = fieldId.replace(/-modal$/, '');
             const entityType = fieldEntityMap[baseId];
             if (entityType) {
-                const isModal = fieldId.includes('_modal');
+                const isModal = fieldId.includes('-modal');
                 const autocompleteOpts = {
                     source: (request, response) => {
                         if (request.term.length < 2) { response([]); return; }
@@ -882,7 +882,7 @@
                     select: function (event, ui) {
                         const manufacturerType = equipmentManufacturerMap[baseId];
                         if (manufacturerType) {
-                            const manufacturerFieldId = fieldId.replace(/_input(_modal)?$/, (_, suffix) => '_manufacturer_input' + (suffix || ''));
+                            const manufacturerFieldId = fieldId.replace(/-input(-modal)?$/, (_, suffix) => '-manufacturer-input' + (suffix || ''));
                             window._lastManufacturerTargetId = manufacturerFieldId;
                             getManufacturer(manufacturerType, ui.item.value);
                         }

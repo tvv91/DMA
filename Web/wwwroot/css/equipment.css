@@ -140,3 +140,25 @@
     font-size: 1.1rem;
 }
 
+/* Equipment Details — tabs and digitized albums */
+.equipment-detail-with-tabs .nav-tabs {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.equipment-detail-with-tabs .nav-link {
+    color: #495057;
+    border: 1px solid transparent;
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+
+.equipment-detail-with-tabs .nav-link.active {
+    color: #0d6efd;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+
+.equipment-no-albums {
+    padding: 1rem 0;
+    font-style: italic;
+}
+

@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Web.Enums;
 using Web.Interfaces;
@@ -11,11 +11,13 @@ namespace Web.Controllers
     {
         private readonly IEquipmentService _equipmentService;
         private readonly IImageService _imageService;
+        private readonly IDigitizationRepository _digitizationRepository;
 
-        public EquipmentController(IEquipmentService equipmentService, IImageService imageService)
+        public EquipmentController(IEquipmentService equipmentService, IImageService imageService, IDigitizationRepository digitizationRepository)
         {
             _equipmentService = equipmentService;
             _imageService = imageService;
+            _digitizationRepository = digitizationRepository;
         }
 
         public IActionResult Index()
@@ -98,7 +100,7 @@ namespace Web.Controllers
         }
 
         [HttpGet("equipment/{category}/{id}", Order = 2)]
-        public async Task<IActionResult> GetById(EntityType category, int id)
+        public async Task<IActionResult> GetById(EntityType category, int id, string? tab = null, int page = 1, int pageSize = 18)
         {
             if (id <= 0)
                 return BadRequest();
@@ -110,6 +112,14 @@ namespace Web.Controllers
 
             var imageUrl = await _imageService.GetImageUrlAsync(id, category);
             var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
+
+            if (string.Equals(tab, "albums", StringComparison.OrdinalIgnoreCase))
+            {
+                vm.ActiveTab = "albums";
+                if (pageSize <= 0) pageSize = 18;
+                if (page < 1) page = 1;
+                vm.DigitizedAlbumsPage = await _digitizationRepository.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
+            }
 
             return View("Details", vm);
         }

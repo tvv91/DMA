@@ -14,6 +14,7 @@ namespace Tests.Integration
     {
         private readonly CustomWebApplicationFactory<Program> _factory;
         private readonly HttpClient _client;
+        private const string IntegrationDbName = "TestDb_Integration";
 
         public EquipmentControllerIntegrationTests(CustomWebApplicationFactory<Program> factory)
         {
@@ -23,9 +24,8 @@ namespace Tests.Integration
 
         private async Task<int> CreateTestEquipmentAsync(EntityType type = EntityType.Adc, string name = "Test Equipment")
         {
-            var dbName = "TestDb_Integration";
             var options = new DbContextOptionsBuilder<DMADbContext>()
-                .UseInMemoryDatabase(dbName)
+                .UseInMemoryDatabase(IntegrationDbName)
                 .Options;
             
             using var testContext = new DMADbContext(options);
@@ -194,6 +194,91 @@ namespace Tests.Integration
 
             // Assert
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        /// <summary>
+        /// Seeds an album and a digitization that uses the given player, so that the equipment Albums tab can show it.
+        /// </summary>
+        private async Task SeedAlbumDigitizedByPlayerAsync(int playerId, string albumTitle = "Album For Equipment Tab")
+        {
+            var options = new DbContextOptionsBuilder<DMADbContext>()
+                .UseInMemoryDatabase(IntegrationDbName)
+                .Options;
+
+            using var ctx = new DMADbContext(options);
+
+            var artist = await ctx.Artists.FirstOrDefaultAsync(a => a.Name == "Equipment Tab Artist");
+            if (artist == null)
+            {
+                artist = TestDataBuilder.CreateArtist(0, "Equipment Tab Artist");
+                ctx.Artists.Add(artist);
+                await ctx.SaveChangesAsync();
+            }
+
+            var genre = await ctx.Genres.FirstOrDefaultAsync(g => g.Name == "Equipment Tab Genre");
+            if (genre == null)
+            {
+                genre = TestDataBuilder.CreateGenre(0, "Equipment Tab Genre");
+                ctx.Genres.Add(genre);
+                await ctx.SaveChangesAsync();
+            }
+
+            var album = new Album
+            {
+                Title = albumTitle,
+                ArtistId = artist.Id,
+                GenreId = genre.Id,
+                AddedDate = DateTime.UtcNow
+            };
+            ctx.Albums.Add(album);
+            await ctx.SaveChangesAsync();
+
+            var equipmentInfo = new EquipmentInfo { PlayerId = playerId };
+            ctx.EquipmentInfos.Add(equipmentInfo);
+            await ctx.SaveChangesAsync();
+
+            var digitization = new Digitization
+            {
+                AlbumId = album.Id,
+                EquipmentInfoId = equipmentInfo.Id,
+                AddedDate = DateTime.UtcNow
+            };
+            ctx.Digitizations.Add(digitization);
+            await ctx.SaveChangesAsync();
+        }
+
+        [Fact]
+        public async Task GetById_WithTabAlbums_ReturnsSuccess_AndShowsAlbumsContent()
+        {
+            // Arrange: create player and an album digitized with that player
+            var playerId = await CreateTestEquipmentAsync(EntityType.Player, "Player For Albums Tab");
+            await SeedAlbumDigitizedByPlayerAsync(playerId, "Album Shown On Equipment Tab");
+
+            // Act
+            var response = await _client.GetAsync($"/equipment/player/{playerId}?tab=albums&page=1&pageSize=18");
+            var html = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains("Album Shown On Equipment Tab", html);
+            Assert.Contains("Equipment Tab Artist", html);
+            Assert.Contains("tab=albums", html);
+        }
+
+        [Fact]
+        public async Task GetById_WithTabAlbums_ReturnsSuccess_WhenNoAlbumsDigitized()
+        {
+            // Arrange: player with no digitizations
+            var playerId = await CreateTestEquipmentAsync(EntityType.Player, "Player With No Albums");
+
+            // Act
+            var response = await _client.GetAsync($"/equipment/player/{playerId}?tab=albums&page=1&pageSize=18");
+            var html = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            response.EnsureSuccessStatusCode();
+            Assert.Contains("No albums have been digitized with this equipment", html);
         }
 
         public void Dispose()

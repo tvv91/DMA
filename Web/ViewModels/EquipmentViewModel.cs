@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Web.Common;
 using Web.Enums;
+using Web.Models;
 
 namespace Web.ViewModels
 {
@@ -12,9 +14,12 @@ namespace Web.ViewModels
         public string? Manufacturer { get; set; }
         public EntityType EquipmentType { get; set; }
         public ActionType? Action { get; set; }
-        //public int EquipmentId { get; set; }
         public string? EquipmentCover { get; set; }
         public string? Description { get; set; }
+        /// <summary> "info" or "albums" — which tab is active on equipment details. </summary>
+        public string ActiveTab { get; set; } = "info";
+        /// <summary> Paged albums digitized by this equipment; set when ActiveTab is "albums". </summary>
+        public PagedResult<Album>? DigitizedAlbumsPage { get; set; }
         public List<SelectListItem> Equipments { get; } = new List<SelectListItem>
         {
             new SelectListItem { Text = EntityType.Adc.ToString(), Value = EntityType.Adc.ToString() },

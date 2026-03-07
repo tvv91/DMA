@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Common;
 using Web.Db;
+using Web.Enums;
 using Web.Extentions;
 using Web.Interfaces;
 using Web.Models;
@@ -114,6 +115,61 @@ namespace Web.Implementation
             _context.Digitizations.Remove(digitization);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<IEnumerable<Digitization>> GetDigitizationsByEquipmentAsync(EntityType equipmentType, int equipmentId)
+        {
+            var query = _context.Digitizations
+                .Include(d => d.Album).ThenInclude(a => a.Artist)
+                .Where(d => d.EquipmentInfoId != null)
+                .AsNoTracking();
+
+            query = equipmentType switch
+            {
+                EntityType.Player => query.Where(d => d.EquipmentInfo!.PlayerId == equipmentId),
+                EntityType.Cartridge => query.Where(d => d.EquipmentInfo!.CartridgeId == equipmentId),
+                EntityType.Amplifier => query.Where(d => d.EquipmentInfo!.AmplifierId == equipmentId),
+                EntityType.Adc => query.Where(d => d.EquipmentInfo!.AdcId == equipmentId),
+                EntityType.Wire => query.Where(d => d.EquipmentInfo!.WireId == equipmentId),
+                _ => query.Where(_ => false)
+            };
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<PagedResult<Album>> GetAlbumsDigitizedByEquipmentPagedAsync(EntityType equipmentType, int equipmentId, int page, int pageSize)
+        {
+            if (page < 1) page = 1;
+
+            var digitizationsQuery = _context.Digitizations
+                .Where(d => d.EquipmentInfoId != null)
+                .AsNoTracking();
+
+            digitizationsQuery = equipmentType switch
+            {
+                EntityType.Player => digitizationsQuery.Where(d => d.EquipmentInfo!.PlayerId == equipmentId),
+                EntityType.Cartridge => digitizationsQuery.Where(d => d.EquipmentInfo!.CartridgeId == equipmentId),
+                EntityType.Amplifier => digitizationsQuery.Where(d => d.EquipmentInfo!.AmplifierId == equipmentId),
+                EntityType.Adc => digitizationsQuery.Where(d => d.EquipmentInfo!.AdcId == equipmentId),
+                EntityType.Wire => digitizationsQuery.Where(d => d.EquipmentInfo!.WireId == equipmentId),
+                _ => digitizationsQuery.Where(_ => false)
+            };
+
+            var distinctAlbumIds = digitizationsQuery.Select(d => d.AlbumId).Distinct();
+            var albumsQuery = _context.Albums
+                .Where(a => distinctAlbumIds.Contains(a.Id))
+                .Include(a => a.Artist)
+                .AsNoTracking()
+                .OrderBy(a => a.Artist!.Name)
+                .ThenBy(a => a.Title);
+
+            var totalItems = await albumsQuery.CountAsync();
+            var items = await albumsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Album>(items, totalItems, page, pageSize);
         }
 
         public async Task<bool> ExistsByAlbumIdAsync(int albumId)

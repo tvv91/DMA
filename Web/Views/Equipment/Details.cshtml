@@ -1,4 +1,4 @@
-﻿@model EquipmentViewModel 
+@model EquipmentViewModel 
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <div id="toasterror" class="toast toast-error" role="alert" aria-live="assertive" aria-atomic="true">
@@ -48,45 +48,137 @@
   </div>
 </div>
 <a id="back_button" class="btn btn-secondary mt-3" asp-action="index" asp-controller="equipment">Back</a>
-<div class="equipment-detail-containter">
-    <div id="coverdiv" class="box1">
-        <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
-        <i id="nocovericon" class="fa-regular fa-image fa-6x d-none"></i>
-        <img id="cover" class="equipment-cover justifiy-element-size d-none" />
-    </div>
-    <div class="equipment-detail-box">
-        <div>
-            <a data-bs-toggle="modal" data-bs-target="#removeDialogModal">
-                <i class="fa-solid fa-trash fa-lg fa-pull-right"></i>
-            </a>
-            <a href="/equipment/@Model.EquipmentType.ToString().ToLower()/@Model.Id/edit">
-                <i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i>
-            </a>
-
-            @if (Model?.Manufacturer != null) {
-                <h1><b>@Model?.Manufacturer</b> @Model?.ModelName</h1>
-                <b>Manufacturer: </b> @Model?.Manufacturer <br />
-                <b>Model: </b> @Model?.ModelName
-            } else {
-                <h1>@Model?.ModelName</h1>
-                <b>Model: </b> @Model?.ModelName
-            }
-        </div>
-        @if (Model?.Description != null) {
-            <div class="equipment-detail-description">
-                <textarea class="equipment-description" readonly>@Model?.Description</textarea>
+@{
+    var eqCategory = Model?.EquipmentType.ToString().ToLowerInvariant() ?? "";
+    var eqId = Model?.Id ?? 0;
+    var albumsPageSize = Model?.DigitizedAlbumsPage?.PageSize ?? 18;
+    var baseAlbumsUrl = $"/equipment/{eqCategory}/{eqId}?tab=albums&pageSize={albumsPageSize}";
+}
+<div class="equipment-detail-with-tabs">
+<ul class="nav nav-tabs mt-3" id="equipmentDetailTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <a class="nav-link @(Model?.ActiveTab != "albums" ? "active" : "")" href="/equipment/@eqCategory/@eqId" role="tab">General</a>
+    </li>
+    <li class="nav-item" role="presentation">
+        <a class="nav-link @(Model?.ActiveTab == "albums" ? "active" : "")" href="@(baseAlbumsUrl)&page=1" role="tab">Albums</a>
+    </li>
+</ul>
+<div class="tab-content mt-2" id="equipmentDetailTabContent">
+    <div class="tab-pane fade @(Model?.ActiveTab != "albums" ? "show active" : "")" id="info-pane" role="tabpanel">
+        <div class="equipment-detail-containter">
+            <div id="coverdiv" class="box1">
+                <div id="coverspinner" class="spinner-grow text-light justifiy-element-size"></div>
+                <i id="nocovericon" class="fa-regular fa-image fa-6x d-none"></i>
+                <img id="cover" class="equipment-cover justifiy-element-size d-none" />
             </div>
+            <div class="equipment-detail-box">
+                <div>
+                    <a data-bs-toggle="modal" data-bs-target="#removeDialogModal">
+                        <i class="fa-solid fa-trash fa-lg fa-pull-right"></i>
+                    </a>
+                    <a href="/equipment/@Model?.EquipmentType.ToString().ToLower()/@Model?.Id/edit">
+                        <i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i>
+                    </a>
+
+                    @if (Model?.Manufacturer != null) {
+                        <h1><b>@Model?.Manufacturer</b> @Model?.ModelName</h1>
+                        <b>Manufacturer: </b> @Model?.Manufacturer <br />
+                        <b>Model: </b> @Model?.ModelName
+                    } else {
+                        <h1>@Model?.ModelName</h1>
+                        <b>Model: </b> @Model?.ModelName
+                    }
+                </div>
+                @if (Model?.Description != null) {
+                    <div class="equipment-detail-description">
+                        <textarea class="equipment-description" readonly>@Model?.Description</textarea>
+                    </div>
+                } else {
+                    <p class="text-muted mb-0">No description.</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane fade @(Model?.ActiveTab == "albums" ? "show active" : "")" id="albums-pane" role="tabpanel">
+        @if (Model?.DigitizedAlbumsPage != null && Model.DigitizedAlbumsPage.Items.Count > 0) {
+            <div class="album-page">
+                <div class="wrapper">
+                    @foreach (var album in Model.DigitizedAlbumsPage.Items) {
+                        <article class="album-card">
+                            <a asp-controller="Album" asp-action="GetById" asp-route-id="@album.Id" class="album-link">
+                                <div class="album-img-wrapper">
+                                    <div id="spinner-@album.Id" class="spinner-overlay">
+                                        <div class="spinner-border text-primary" role="status"></div>
+                                    </div>
+                                    <img id="album-img-@album.Id" class="album-cover d-none" alt="@(album.Artist?.Name) - @album.Title" />
+                                </div>
+                            </a>
+                            <div class="album-base-info">
+                                <div class="album-artist">@(album.Artist?.Name)</div>
+                                <div class="album-title">@album.Title</div>
+                            </div>
+                        </article>
+                    }
+                </div>
+                <div class="album-pagination">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            @if (Model.DigitizedAlbumsPage.CurrentPage > 1) {
+                                <li class="page-item">
+                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.DigitizedAlbumsPage.CurrentPage - 1)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+                                </li>
+                            }
+                            @for (var i = 1; i <= Model.DigitizedAlbumsPage.TotalPages; i++) {
+                                var isActive = i == Model.DigitizedAlbumsPage.CurrentPage ? "active" : "";
+                                var ariaCurrent = i == Model.DigitizedAlbumsPage.CurrentPage ? "aria-current=\"page\"" : "";
+                                <li class="page-item @isActive">
+                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@i" @Html.Raw(ariaCurrent)>@i</a>
+                                </li>
+                            }
+                            @if (Model.DigitizedAlbumsPage.CurrentPage < Model.DigitizedAlbumsPage.TotalPages) {
+                                <li class="page-item">
+                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.DigitizedAlbumsPage.CurrentPage + 1)" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        } else if (Model?.ActiveTab == "albums") {
+            <p class="equipment-no-albums text-muted">No albums have been digitized with this equipment yet.</p>
         }
     </div>
+</div>
 </div>
 <script>
       $(document).ready(async () => {
         await start();
-        await getEquipmentImage(@Model.Id);
+        await getEquipmentImage(@(Model?.Id ?? 0));
 
         showToast("equipment_updated", "toastinfo_updated");
         showToast("equipment_created", "toastinfo_created");
         showToast("equipment_deleted", "toastinfo_deleted");
+
+        @if (Model?.DigitizedAlbumsPage?.Items != null && Model.DigitizedAlbumsPage.Items.Count > 0) {
+          <text>
+          (async function loadEquipmentAlbumCovers() {
+            try {
+              await connection.invoke("GetAlbumCovers", connection.connectionId, @Json.Serialize(Model.DigitizedAlbumsPage.Items.Select(a => a.Id).ToList()));
+            } catch (err) { console.error("GetAlbumCovers:", err); }
+          })();
+          connection.on("ReceivedAlbumCover", (albumId, cover) => {
+            const img = $("#album-img-" + albumId);
+            const spinner = $("#spinner-" + albumId);
+            if (img.length === 0 || spinner.length === 0) return;
+            img.off("load error")
+              .on("load", () => { spinner.addClass("hidden"); img.removeClass("d-none"); })
+              .on("error", () => { img.attr("src", "/img/nocover.png"); spinner.addClass("hidden"); img.removeClass("d-none"); });
+            img.attr("src", cover);
+            if (img[0].complete && img[0].naturalHeight !== 0) { spinner.addClass("hidden"); img.removeClass("d-none"); }
+            else if (img[0].complete && img[0].naturalHeight === 0) img.trigger("error");
+          });
+          </text>
+        }
       });
 
       function showToast(key, toastId) {
@@ -98,7 +190,7 @@
 
       async function getEquipmentImage(id) {
         try {
-          await equipmentConnection.invoke("GetEquipmentImage", equipmentConnection.connectionId, id, "@Model.EquipmentType");
+          await equipmentConnection.invoke("GetEquipmentImage", equipmentConnection.connectionId, id, "@(Model?.EquipmentType.ToString() ?? "Adc")");
         } catch (err) {
           console.error("Error sending request to GetEquipmentImage:", err);
         }

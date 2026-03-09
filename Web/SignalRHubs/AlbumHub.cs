@@ -15,7 +15,7 @@ namespace Web.SignalRHubs
         IAlbumService albumService,
         IDigitizationService digitizationService,
         IEquipmentRepository equipmentRepository,
-        EntityFindOrCreateService entityService) : Hub
+        IEntityFindOrCreateService entityService) : Hub
     {
         private readonly IImageService _imgService = imageService;
         private readonly IDigitizationRepository _digitizationRepository = digitizationRepository;
@@ -23,7 +23,7 @@ namespace Web.SignalRHubs
         private readonly IAlbumService _albumService = albumService;
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly IEquipmentRepository _equipmentRepository = equipmentRepository;
-        private readonly EntityFindOrCreateService _entityService = entityService;
+        private readonly IEntityFindOrCreateService _entityService = entityService;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()

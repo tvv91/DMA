@@ -37,7 +37,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IDigitizationService, DigitizationService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
-builder.Services.AddScoped<EntityFindOrCreateService>();
+builder.Services.AddScoped<IEntityFindOrCreateService, EntityFindOrCreateService>();
 
 builder.Services.AddSignalR(options =>
 {
@@ -58,7 +58,7 @@ else
     app.UseExceptionHandler("/Home/Error");
 }
 
-    app.UseStatusCodePages();
+app.UseStatusCodePages();
 app.UseStaticFiles();
 app.MapControllerRoute(name: "default", pattern: "{controller=Post}/{action=Index}");
 app.MapHub<AlbumHub>("/albumhub");
@@ -73,5 +73,5 @@ if (!string.IsNullOrWhiteSpace(connectionString) &&
     await SeedData.EnsurePopulated(app);
 }
 
-app.Run();
+await app.RunAsync();
 

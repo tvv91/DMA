@@ -86,7 +86,7 @@ namespace Web.Services
         public async Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id)
         {
             var album = await GetByIdAsync(id);
-            if (album == null)
+            if (album is null)
                 throw new KeyNotFoundException($"Album with id {id} not found");
 
             var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
@@ -126,7 +126,7 @@ namespace Web.Services
                 .Include(a => a.Genre)
                 .FirstOrDefaultAsync(a => a.Id == albumId);
             
-            if (existing == null)
+            if (existing is null)
                 throw new KeyNotFoundException($"Album {albumId} not found");
 
             // Business logic: Check if nothing changed
@@ -160,7 +160,7 @@ namespace Web.Services
         public async Task<bool> DeleteAlbumAsync(int id)
         {
             var album = await _context.Albums.FindAsync(id);
-            if (album == null)
+            if (album is null)
                 return false;
 
             _context.Albums.Remove(album);

@@ -85,7 +85,7 @@ namespace Web.Controllers
             
             var equipment = await _equipmentService.GetByIdAsync(id, category);
             
-            if (equipment == null)
+            if (equipment is null)
                 return NotFound();
 
             var imageUrl = await _imageService.GetCoverUrlAsync(id, category);
@@ -103,7 +103,7 @@ namespace Web.Controllers
 
             var equipment = await _equipmentService.GetByIdAsync(id, category);
 
-            if (equipment == null)
+            if (equipment is null)
                 return NotFound();
 
             var imageUrl = await _imageService.GetCoverUrlAsync(id, category);

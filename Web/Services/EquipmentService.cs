@@ -73,7 +73,7 @@ namespace Web.Services
         public async Task<bool> DeleteEquipmentAsync(int id, EntityType type)
         {
             var item = await GetByIdAsync(id, type);
-            if (item == null) return false;
+            if (item is null) return false;
 
             _context.Remove(item);
             await _context.SaveChangesAsync();
@@ -162,14 +162,14 @@ namespace Web.Services
             var existingManufacturer = await _context.Manufacturer
                 .FirstOrDefaultAsync(m => m.Name == normalizedName && m.Type == manufacturerType);
 
-            if (existingManufacturer != null)
+            if (existingManufacturer is not null)
                 return existingManufacturer;
 
             // If not found by name and type, try to find by name only (to reuse existing manufacturers)
             var existingByName = await _context.Manufacturer
                 .FirstOrDefaultAsync(m => m.Name == normalizedName);
 
-            if (existingByName != null)
+            if (existingByName is not null)
             {
                 // Update the type if it's different (to gradually fix data inconsistencies)
                 if (existingByName.Type != manufacturerType)

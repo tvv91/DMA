@@ -14,6 +14,8 @@ namespace Web.Controllers
         {
             var result = await _statisticService.ProcessAsync();
             var viewModel = JsonSerializer.Deserialize<StatisticViewModel>(result.Name);
+            if (viewModel is null)
+                return Problem("Failed to deserialize StatisticViewModel.");
             viewModel.LastUpdate = result.LastUpdate;
             return View("Index", viewModel);
         }

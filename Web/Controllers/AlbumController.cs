@@ -19,7 +19,6 @@ namespace Web.Controllers
         private const int MAX_ALBUMS_PER_PAGE = 30;
         private readonly IAlbumService _albumService = albumService;
         private readonly ICoverService _imageService = imageService;
-        private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly DMADbContext _context = context;
 
         [HttpGet("album")]
@@ -90,7 +89,7 @@ namespace Web.Controllers
             try
             {
                 var album = await _albumService.GetByIdAsync(id);
-                if (album == null)
+                if (album is null)
                     return NotFound();
 
                 var vm = await _albumService.MapAlbumToCreateUpdateVMAsync(album);
@@ -112,7 +111,7 @@ namespace Web.Controllers
             {
                 var album = await _albumService.CreateOrFindAlbumAsync(request.Title, request.Artist, request.Genre);
 
-                if (request.AlbumCover != null)
+                if (request.AlbumCover is not null)
                     await _imageService.SaveCoverAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
 
                 return RedirectToAction("GetById", "Album", new { id = album.Id });

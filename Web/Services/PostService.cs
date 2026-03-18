@@ -90,7 +90,7 @@ namespace Web.Services
         public async Task<PostViewModel> GetPostViewModelAsync(int id)
         {
             var post = await GetByIdAsync(id);
-            if (post == null)
+            if (post is null)
                 throw new KeyNotFoundException($"Post with id {id} not found");
 
             return MapPostToViewModel(post);
@@ -153,7 +153,7 @@ namespace Web.Services
                 .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
                 .FirstOrDefaultAsync(p => p.Id == postId);
             
-            if (existing == null)
+            if (existing is null)
                 throw new KeyNotFoundException($"Post with Id {postId} not found.");
 
             // Business logic: Update properties
@@ -185,7 +185,7 @@ namespace Web.Services
         public async Task<bool> DeletePostAsync(int id)
         {
             var post = await _context.Posts.FindAsync(id);
-            if (post == null)
+            if (post is null)
                 return false;
 
             _context.Posts.Remove(post);
@@ -215,7 +215,7 @@ namespace Web.Services
             var category = await _context.Categories
                 .FirstOrDefaultAsync(c => c.Title == normalizedCategoryTitle);
 
-            if (category == null)
+            if (category is null)
             {
                 category = new Category { Title = categoryTitle };
                 _context.Categories.Add(category);

@@ -13,7 +13,7 @@ namespace Web.Services
         public async Task<Year> FindOrCreateYearAsync(int yearValue)
         {
             var year = await _context.Years.FirstOrDefaultAsync(y => y.Value == yearValue);
-            if (year == null)
+            if (year is null)
             {
                 year = new Year { Value = yearValue };
                 _context.Years.Add(year);
@@ -25,7 +25,7 @@ namespace Web.Services
         public async Task<Reissue> FindOrCreateReissueAsync(int reissueValue)
         {
             var reissue = await _context.Reissues.FirstOrDefaultAsync(r => r.Value == reissueValue);
-            if (reissue == null)
+            if (reissue is null)
             {
                 reissue = new Reissue { Value = reissueValue };
                 _context.Reissues.Add(reissue);
@@ -39,7 +39,7 @@ namespace Web.Services
             var normalizedCountryName = countryName.Trim();
 
             var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name == normalizedCountryName);
-            if (country == null)
+            if (country is null)
             {
                 country = new Country { Name = countryName };
                 _context.Countries.Add(country);
@@ -53,7 +53,7 @@ namespace Web.Services
             var normalizedLabelName = labelName.Trim();
 
             var label = await _context.Labels.FirstOrDefaultAsync(l => l.Name == normalizedLabelName);
-            if (label == null)
+            if (label is null)
             {
                 label = new Label { Name = labelName };
                 _context.Labels.Add(label);
@@ -67,7 +67,7 @@ namespace Web.Services
             var normalizedStorageData = storageData.Trim();
 
             var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Data == normalizedStorageData);
-            if (storage == null)
+            if (storage is null)
             {
                 storage = new Storage { Data = storageData };
                 _context.Storages.Add(storage);
@@ -79,7 +79,7 @@ namespace Web.Services
         public async Task<Bitness> FindOrCreateBitnessAsync(int bitnessValue)
         {
             var bitness = await _context.Bitnesses.FirstOrDefaultAsync(b => b.Value == bitnessValue);
-            if (bitness == null)
+            if (bitness is null)
             {
                 bitness = new Bitness { Value = bitnessValue };
                 _context.Bitnesses.Add(bitness);
@@ -91,7 +91,7 @@ namespace Web.Services
         public async Task<Sampling> FindOrCreateSamplingAsync(double samplingValue)
         {
             var sampling = await _context.Samplings.FirstOrDefaultAsync(s => s.Value == samplingValue);
-            if (sampling == null)
+            if (sampling is null)
             {
                 sampling = new Sampling { Value = samplingValue };
                 _context.Samplings.Add(sampling);
@@ -105,7 +105,7 @@ namespace Web.Services
             var normalizedFormatName = formatName.Trim();
 
             var format = await _context.DigitalFormats.FirstOrDefaultAsync(f => f.Name == normalizedFormatName);
-            if (format == null)
+            if (format is null)
             {
                 format = new DigitalFormat { Name = formatName };
                 _context.DigitalFormats.Add(format);
@@ -119,7 +119,7 @@ namespace Web.Services
             var normalizedFormatName = formatName.Trim();
 
             var format = await _context.SourceFormats.FirstOrDefaultAsync(f => f.Name == normalizedFormatName);
-            if (format == null)
+            if (format is null)
             {
                 format = new SourceFormat { Name = formatName };
                 _context.SourceFormats.Add(format);
@@ -133,7 +133,7 @@ namespace Web.Services
             var normalizedStateName = stateName.Trim();
 
             var state = await _context.VinylStates.FirstOrDefaultAsync(v => v.Name == normalizedStateName);
-            if (state == null)
+            if (state is null)
             {
                 state = new VinylState { Name = stateName };
                 _context.VinylStates.Add(state);
@@ -150,7 +150,7 @@ namespace Web.Services
                 .Include(p => p.Manufacturer)
                 .FirstOrDefaultAsync(p => p.Name == normalizedPlayerName);
             
-            if (player == null)
+            if (player is null)
             {
                 player = new Player { Name = playerName };
                 
@@ -163,10 +163,10 @@ namespace Web.Services
                 _context.Players.Add(player);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && player.ManufacturerId == null)
+            else if (!string.IsNullOrWhiteSpace(manufacturerName) && player.ManufacturerId is null)
             {
                 var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.PlayerManufacturer);
-                if (manufacturer != null)
+                if (manufacturer is not null)
                 {
                     player.ManufacturerId = manufacturer.Id;
                     await _context.SaveChangesAsync();
@@ -184,7 +184,7 @@ namespace Web.Services
                 .Include(c => c.Manufacturer)
                 .FirstOrDefaultAsync(c => c.Name == normalizedCartridgeName);
             
-            if (cartridge == null)
+            if (cartridge is null)
             {
                 cartridge = new Cartridge { Name = cartridgeName };
                 
@@ -197,10 +197,10 @@ namespace Web.Services
                 _context.Cartridges.Add(cartridge);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && cartridge.ManufacturerId == null)
+            else if (!string.IsNullOrWhiteSpace(manufacturerName) && cartridge.ManufacturerId is null)
             {
                 var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.CartridgeManufacturer);
-                if (manufacturer != null)
+                if (manufacturer is not null)
                 {
                     cartridge.ManufacturerId = manufacturer.Id;
                     await _context.SaveChangesAsync();
@@ -218,7 +218,7 @@ namespace Web.Services
                 .Include(a => a.Manufacturer)
                 .FirstOrDefaultAsync(a => a.Name == normalizedAmplifierName);
             
-            if (amplifier == null)
+            if (amplifier is null)
             {
                 amplifier = new Amplifier { Name = amplifierName };
                 
@@ -231,10 +231,10 @@ namespace Web.Services
                 _context.Amplifiers.Add(amplifier);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && amplifier.ManufacturerId == null)
+            else if (!string.IsNullOrWhiteSpace(manufacturerName) && amplifier.ManufacturerId is null)
             {
                 var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.AmplifierManufacturer);
-                if (manufacturer != null)
+                if (manufacturer is not null)
                 {
                     amplifier.ManufacturerId = manufacturer.Id;
                     await _context.SaveChangesAsync();
@@ -252,7 +252,7 @@ namespace Web.Services
                 .Include(a => a.Manufacturer)
                 .FirstOrDefaultAsync(a => a.Name == normalizedAdcName);
             
-            if (adc == null)
+            if (adc is null)
             {
                 adc = new Adc { Name = adcName };
                 
@@ -265,10 +265,10 @@ namespace Web.Services
                 _context.Adces.Add(adc);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && adc.ManufacturerId == null)
+            else if (!string.IsNullOrWhiteSpace(manufacturerName) && adc.ManufacturerId is null)
             {
                 var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.AdcManufacturer);
-                if (manufacturer != null)
+                if (manufacturer is not null)
                 {
                     adc.ManufacturerId = manufacturer.Id;
                     await _context.SaveChangesAsync();
@@ -286,7 +286,7 @@ namespace Web.Services
                 .Include(w => w.Manufacturer)
                 .FirstOrDefaultAsync(w => w.Name == normalizedWireName);
             
-            if (wire == null)
+            if (wire is null)
             {
                 wire = new Wire { Name = wireName };
                 
@@ -299,10 +299,10 @@ namespace Web.Services
                 _context.Wires.Add(wire);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && wire.ManufacturerId == null)
+            else if (!string.IsNullOrWhiteSpace(manufacturerName) && wire.ManufacturerId is null)
             {
                 var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName, EntityType.WireManufacturer);
-                if (manufacturer != null)
+                if (manufacturer is not null)
                 {
                     wire.ManufacturerId = manufacturer.Id;
                     await _context.SaveChangesAsync();
@@ -322,13 +322,13 @@ namespace Web.Services
             var existingManufacturer = await _context.Manufacturer
                 .FirstOrDefaultAsync(m => m.Name == normalizedManufacturerName && m.Type == manufacturerType);
 
-            if (existingManufacturer != null)
+            if (existingManufacturer is not null)
                 return existingManufacturer;
 
             var existingByName = await _context.Manufacturer
                 .FirstOrDefaultAsync(m => m.Name == normalizedManufacturerName);
 
-            if (existingByName != null)
+            if (existingByName is not null)
             {
                 if (existingByName.Type != manufacturerType)
                 {

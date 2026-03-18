@@ -19,13 +19,13 @@ namespace Web.Services
         {
             var stat = await _context.Statistics.FirstOrDefaultAsync();
 
-            if (stat == null)
+            if (stat is null)
             {
                 await _refreshLock.WaitAsync();
                 try
                 {
                     stat = await _context.Statistics.FirstOrDefaultAsync();
-                    if (stat == null)
+                    if (stat is null)
                     {
                         stat = await RefreshStatisticAsync();
                         await _context.Statistics.AddAsync(stat);
@@ -41,7 +41,7 @@ namespace Web.Services
             }
 
             var needsRefresh = _timeProvider.GetUtcNow().UtcDateTime - stat.LastUpdate > TimeSpan.FromDays(1);
-            var canRefresh = _lastRefreshAttempt == null ||
+            var canRefresh = _lastRefreshAttempt is null ||
                              _timeProvider.GetUtcNow().UtcDateTime - _lastRefreshAttempt.Value > _refreshCooldown;
 
             if (needsRefresh && canRefresh)
@@ -50,7 +50,7 @@ namespace Web.Services
                 try
                 {
                     stat = await _context.Statistics.FirstOrDefaultAsync();
-                    if (stat != null && _timeProvider.GetUtcNow().UtcDateTime - stat.LastUpdate > TimeSpan.FromDays(1))
+                    if (stat is not null && _timeProvider.GetUtcNow().UtcDateTime - stat.LastUpdate > TimeSpan.FromDays(1))
                     {
                         _lastRefreshAttempt = _timeProvider.GetUtcNow().UtcDateTime;
                         var refreshed = await RefreshStatisticAsync();

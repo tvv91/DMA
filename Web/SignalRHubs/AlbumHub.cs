@@ -115,7 +115,7 @@ namespace Web.SignalRHubs
                 else
                 {
                     album = await _albumService.GetByIdAsync(request.AlbumId);
-                    if (album == null)
+                    if (album is null)
                     {
                         await Clients.Client(connectionId).SendAsync("DigitizationAdded", false, "Album not found", 0);
                         return;
@@ -148,7 +148,7 @@ namespace Web.SignalRHubs
                 }
 
                 var existing = await _digitizationService.GetByIdAsync(request.DigitizationId);
-                if (existing == null)
+                if (existing is null)
                 {
                     await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, "Digitization not found");
                     return;
@@ -175,7 +175,7 @@ namespace Web.SignalRHubs
             try
             {
                 var digitization = await _digitizationService.GetByIdAsync(digitizationId);
-                if (digitization == null)
+                if (digitization is null)
                 {
                     await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, "Digitization not found");
                     return;
@@ -221,7 +221,7 @@ namespace Web.SignalRHubs
         {
             var digitization = await _digitizationService.GetByIdAsync(digitizationId);
 
-            if (digitization == null)
+            if (digitization is null)
             {
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
@@ -230,7 +230,21 @@ namespace Web.SignalRHubs
             var formatInfo = digitization.FormatInfo;
             var equipmentInfo = digitization.EquipmentInfo;
 
-            if (formatInfo == null && equipmentInfo == null)
+            var hasFormatInfo =
+                formatInfo?.VinylStateId is not null ||
+                formatInfo?.DigitalFormatId is not null ||
+                formatInfo?.BitnessId is not null ||
+                formatInfo?.SamplingId is not null ||
+                formatInfo?.SourceFormatId is not null;
+
+            var hasEquipmentInfo =
+                equipmentInfo?.PlayerId is not null ||
+                equipmentInfo?.CartridgeId is not null ||
+                equipmentInfo?.AmplifierId is not null ||
+                equipmentInfo?.AdcId is not null ||
+                equipmentInfo?.WireId is not null;
+
+            if (!hasFormatInfo && !hasEquipmentInfo)
             {
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
                 return;

@@ -12,11 +12,13 @@ namespace Web.Services
     public class AlbumService(
         IDigitizationService digitizationService,
         IImageService imageService,
-        DMADbContext context) : IAlbumService
+        DMADbContext context,
+        TimeProvider timeProvider) : IAlbumService
     {
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly IImageService _imageService = imageService;
         private readonly DMADbContext _context = context;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {
@@ -99,7 +101,7 @@ namespace Web.Services
             {
                 album = new Album
                 {
-                    AddedDate = DateTime.Now,
+                    AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
                     Title = title,
                     Artist = await FindOrCreateArtistAsync(artist),
                     Genre = await FindOrCreateGenreAsync(genre)
@@ -137,7 +139,7 @@ namespace Web.Services
 
             // Business logic: Update properties
             existing.Title = title;
-            existing.UpdateDate = DateTime.UtcNow;
+            existing.UpdateDate = _timeProvider.GetUtcNow().UtcDateTime;
 
             if (!string.IsNullOrWhiteSpace(genre))
             {
@@ -171,7 +173,7 @@ namespace Web.Services
             return new Digitization
             {
                 AlbumId = albumId,
-                AddedDate = DateTime.Now,
+                AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
                 Source = request.Source,
                 Discogs = request.Discogs,
                 IsFirstPress = false,

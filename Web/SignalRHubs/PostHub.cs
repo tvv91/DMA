@@ -6,9 +6,10 @@ using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
-    public class PostHub(IPostService postService) : Hub
+    public class PostHub(IPostService postService, TimeProvider timeProvider) : Hub
     {
         private readonly IPostService _postService = postService;
+        private readonly TimeProvider _timeProvider = timeProvider;
         private const int POSTS_PER_PAGE = 5;
 
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
@@ -73,7 +74,7 @@ namespace Web.SignalRHubs
 
         public async Task AutoSavePost(string connectionId, int id, string title, string description, string content, string category)
         {
-            var now = DateTime.UtcNow;
+            var now = _timeProvider.GetUtcNow().UtcDateTime;
             bool isNew = id == 0;
 
             try

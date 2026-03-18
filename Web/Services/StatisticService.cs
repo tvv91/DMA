@@ -6,9 +6,10 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class StatisticService(DMADbContext context) : IStatisticService
+    public class StatisticService(DMADbContext context, TimeProvider timeProvider) : IStatisticService
     {
         private readonly DMADbContext _context = context;
+        private readonly TimeProvider _timeProvider = timeProvider;
         private static readonly double[] _dsdFreq = { 2.8, 5.6, 11.2, 22.5 };
         private static readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
         private static DateTime? _lastRefreshAttempt = null;
@@ -39,9 +40,9 @@ namespace Web.Services
                 return stat;
             }
 
-            var needsRefresh = DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1);
+            var needsRefresh = _timeProvider.GetUtcNow().UtcDateTime - stat.LastUpdate > TimeSpan.FromDays(1);
             var canRefresh = _lastRefreshAttempt == null ||
-                             DateTime.UtcNow - _lastRefreshAttempt.Value > _refreshCooldown;
+                             _timeProvider.GetUtcNow().UtcDateTime - _lastRefreshAttempt.Value > _refreshCooldown;
 
             if (needsRefresh && canRefresh)
             {
@@ -49,9 +50,9 @@ namespace Web.Services
                 try
                 {
                     stat = await _context.Statistics.FirstOrDefaultAsync();
-                    if (stat != null && DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1))
+                    if (stat != null && _timeProvider.GetUtcNow().UtcDateTime - stat.LastUpdate > TimeSpan.FromDays(1))
                     {
-                        _lastRefreshAttempt = DateTime.UtcNow;
+                        _lastRefreshAttempt = _timeProvider.GetUtcNow().UtcDateTime;
                         var refreshed = await RefreshStatisticAsync();
                         stat.Name = refreshed.Name;
                         stat.LastUpdate = refreshed.LastUpdate;
@@ -103,7 +104,7 @@ namespace Web.Services
             return new Statistic
             {
                 Name = JsonSerializer.Serialize(data),
-                LastUpdate = DateTime.UtcNow
+                LastUpdate = _timeProvider.GetUtcNow().UtcDateTime
             };
         }
 

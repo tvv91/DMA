@@ -7,9 +7,10 @@ using Web.ViewModels;
 
 namespace Web.Services
 {
-    public class PostService(DMADbContext context) : IPostService
+    public class PostService(DMADbContext context, TimeProvider timeProvider) : IPostService
     {
         private readonly DMADbContext _context = context;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)
         {
@@ -102,7 +103,7 @@ namespace Web.Services
                 Title = model.Title,
                 Description = model.Description,
                 Content = model.Content,
-                CreatedDate = DateTime.UtcNow,
+                CreatedDate = _timeProvider.GetUtcNow().UtcDateTime,
                 IsDraft = false
             };
 
@@ -127,7 +128,7 @@ namespace Web.Services
                 Title = model.Title,
                 Description = model.Description,
                 Content = model.Content,
-                CreatedDate = DateTime.UtcNow,
+                CreatedDate = _timeProvider.GetUtcNow().UtcDateTime,
                 IsDraft = true
             };
 
@@ -159,7 +160,7 @@ namespace Web.Services
             existing.Title = model.Title;
             existing.Description = model.Description;
             existing.Content = model.Content;
-            existing.UpdatedDate = DateTime.UtcNow;
+            existing.UpdatedDate = _timeProvider.GetUtcNow().UtcDateTime;
 
             // Business logic: Update category if changed
             var currentCategory = existing.PostCategories.FirstOrDefault()?.Category?.Title;

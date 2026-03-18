@@ -13,13 +13,15 @@ namespace Web.SignalRHubs
         IAlbumService albumService,
         IDigitizationService digitizationService,
         IEquipmentService equipmentService,
-        IEntityFindOrCreateService entityService) : Hub
+        IEntityFindOrCreateService entityService,
+        TimeProvider timeProvider) : Hub
     {
         private readonly IImageService _imgService = imageService;
         private readonly IAlbumService _albumService = albumService;
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly IEquipmentService _equipmentService = equipmentService;
         private readonly IEntityFindOrCreateService _entityService = entityService;
+        private readonly TimeProvider _timeProvider = timeProvider;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
@@ -265,7 +267,7 @@ namespace Web.SignalRHubs
             var digitization = new Digitization
             {
                 AlbumId = albumId,
-                AddedDate = DateTime.Now,
+                AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
                 Source = request.Source,
                 Discogs = request.Discogs,
                 IsFirstPress = request.IsFirstPress,

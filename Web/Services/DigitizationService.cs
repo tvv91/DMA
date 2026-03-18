@@ -8,9 +8,10 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class DigitizationService(DMADbContext context) : IDigitizationService
+    public class DigitizationService(DMADbContext context, TimeProvider timeProvider) : IDigitizationService
     {
         private readonly DMADbContext _context = context;
+        private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<IEnumerable<Digitization>> GetByAlbumIdAsync(int albumId)
         {
@@ -109,7 +110,7 @@ namespace Web.Services
 
         public async Task<Digitization> AddAsync(Digitization digitization)
         {
-            digitization.AddedDate = DateTime.Now;
+            digitization.AddedDate = _timeProvider.GetLocalNow().LocalDateTime;
             _context.Digitizations.Add(digitization);
             await _context.SaveChangesAsync();
             return digitization;
@@ -117,7 +118,7 @@ namespace Web.Services
 
         public async Task<Digitization> UpdateAsync(Digitization digitization)
         {
-            digitization.UpdateDate = DateTime.UtcNow;
+            digitization.UpdateDate = _timeProvider.GetUtcNow().UtcDateTime;
             
             // Business logic: Load existing digitization with related entities
             var existing = await _context.Digitizations

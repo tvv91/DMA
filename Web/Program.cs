@@ -7,6 +7,7 @@ using Web.SignalRHubs;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<DMADbContext>(opts =>
 {
     var connectionString = builder.Configuration["ConnectionStrings:DbConnectionDev"];

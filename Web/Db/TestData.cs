@@ -1,4 +1,4 @@
-﻿using Web.Models;
+using Web.Models;
 
 namespace Web.Db
 {
@@ -44,6 +44,7 @@ namespace Web.Db
 
         public List<PostCategory> GetPosts()
         {
+            var now = TimeProvider.System.GetLocalNow().LocalDateTime;
             for (int i = 1; i <= 100; i++)
             {
                 var post = new Post()
@@ -52,7 +53,7 @@ namespace Web.Db
                     Description = GenerateRandomText(50),
                     Title = GenerateRandomText(32),
                     CreatedDate = GenerateRandomDate(new DateTime(2015, 1, 1), DateTime.Today),
-                    UpdatedDate = DateTime.Now,
+                    UpdatedDate = now,
                     IsDraft = GetRandomBool(),
                 };
 
@@ -242,7 +243,7 @@ namespace Web.Db
             #region Digitization
             var digitization1 = new Digitization
             {
-                AddedDate = DateTime.Now,
+                AddedDate = TimeProvider.System.GetLocalNow().LocalDateTime,
                 Source = "https://somelink.com",
                 Discogs = "https://somelink.com",
                 Size = 2.4,
@@ -271,7 +272,7 @@ namespace Web.Db
 
             var digitization2 = new Digitization
             {
-                AddedDate = DateTime.Now,
+                AddedDate = TimeProvider.System.GetLocalNow().LocalDateTime,
                 Source = "https://somelink.com",
                 Discogs = "https://somelink.com",
                 Size = 3.5,
@@ -300,7 +301,7 @@ namespace Web.Db
 
             var digitization3 = new Digitization
             {
-                AddedDate = DateTime.Now,
+                AddedDate = TimeProvider.System.GetLocalNow().LocalDateTime,
                 Source = "https://somelink.com",
                 Discogs = "https://somelink.com",
                 Size = 4.5,
@@ -380,7 +381,7 @@ namespace Web.Db
         {
             return new Digitization
             {
-                AddedDate = DateTime.Now,
+                AddedDate = TimeProvider.System.GetLocalNow().LocalDateTime,
                 Source = "https://somelink.com",
                 Discogs = "https://somelink.com",
                 Size = size,

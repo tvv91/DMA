@@ -210,8 +210,10 @@ namespace Web.Services
 
         private async Task<Category> FindOrCreateCategoryAsync(string categoryTitle)
         {
+            var normalizedCategoryTitle = categoryTitle.Trim();
+
             var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Title.ToLower() == categoryTitle.ToLower());
+                .FirstOrDefaultAsync(c => c.Title == normalizedCategoryTitle);
 
             if (category == null)
             {

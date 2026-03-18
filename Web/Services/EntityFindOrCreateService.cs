@@ -36,7 +36,9 @@ namespace Web.Services
 
         public async Task<Country> FindOrCreateCountryAsync(string countryName)
         {
-            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name.ToLower() == countryName.ToLower());
+            var normalizedCountryName = countryName.Trim();
+
+            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name == normalizedCountryName);
             if (country == null)
             {
                 country = new Country { Name = countryName };
@@ -48,7 +50,9 @@ namespace Web.Services
 
         public async Task<Label> FindOrCreateLabelAsync(string labelName)
         {
-            var label = await _context.Labels.FirstOrDefaultAsync(l => l.Name.ToLower() == labelName.ToLower());
+            var normalizedLabelName = labelName.Trim();
+
+            var label = await _context.Labels.FirstOrDefaultAsync(l => l.Name == normalizedLabelName);
             if (label == null)
             {
                 label = new Label { Name = labelName };
@@ -60,7 +64,9 @@ namespace Web.Services
 
         public async Task<Storage> FindOrCreateStorageAsync(string storageData)
         {
-            var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Data.ToLower() == storageData.ToLower());
+            var normalizedStorageData = storageData.Trim();
+
+            var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Data == normalizedStorageData);
             if (storage == null)
             {
                 storage = new Storage { Data = storageData };
@@ -96,7 +102,9 @@ namespace Web.Services
 
         public async Task<DigitalFormat> FindOrCreateDigitalFormatAsync(string formatName)
         {
-            var format = await _context.DigitalFormats.FirstOrDefaultAsync(f => f.Name.ToLower() == formatName.ToLower());
+            var normalizedFormatName = formatName.Trim();
+
+            var format = await _context.DigitalFormats.FirstOrDefaultAsync(f => f.Name == normalizedFormatName);
             if (format == null)
             {
                 format = new DigitalFormat { Name = formatName };
@@ -108,7 +116,9 @@ namespace Web.Services
 
         public async Task<SourceFormat> FindOrCreateSourceFormatAsync(string formatName)
         {
-            var format = await _context.SourceFormats.FirstOrDefaultAsync(f => f.Name.ToLower() == formatName.ToLower());
+            var normalizedFormatName = formatName.Trim();
+
+            var format = await _context.SourceFormats.FirstOrDefaultAsync(f => f.Name == normalizedFormatName);
             if (format == null)
             {
                 format = new SourceFormat { Name = formatName };
@@ -120,7 +130,9 @@ namespace Web.Services
 
         public async Task<VinylState> FindOrCreateVinylStateAsync(string stateName)
         {
-            var state = await _context.VinylStates.FirstOrDefaultAsync(v => v.Name.ToLower() == stateName.ToLower());
+            var normalizedStateName = stateName.Trim();
+
+            var state = await _context.VinylStates.FirstOrDefaultAsync(v => v.Name == normalizedStateName);
             if (state == null)
             {
                 state = new VinylState { Name = stateName };
@@ -132,9 +144,11 @@ namespace Web.Services
 
         public async Task<Player> FindOrCreatePlayerAsync(string playerName, string? manufacturerName = null)
         {
+            var normalizedPlayerName = playerName.Trim();
+
             var player = await _context.Players
                 .Include(p => p.Manufacturer)
-                .FirstOrDefaultAsync(p => p.Name.ToLower() == playerName.ToLower());
+                .FirstOrDefaultAsync(p => p.Name == normalizedPlayerName);
             
             if (player == null)
             {
@@ -164,9 +178,11 @@ namespace Web.Services
 
         public async Task<Cartridge> FindOrCreateCartridgeAsync(string cartridgeName, string? manufacturerName = null)
         {
+            var normalizedCartridgeName = cartridgeName.Trim();
+
             var cartridge = await _context.Cartridges
                 .Include(c => c.Manufacturer)
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == cartridgeName.ToLower());
+                .FirstOrDefaultAsync(c => c.Name == normalizedCartridgeName);
             
             if (cartridge == null)
             {
@@ -196,9 +212,11 @@ namespace Web.Services
 
         public async Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName, string? manufacturerName = null)
         {
+            var normalizedAmplifierName = amplifierName.Trim();
+
             var amplifier = await _context.Amplifiers
                 .Include(a => a.Manufacturer)
-                .FirstOrDefaultAsync(a => a.Name.ToLower() == amplifierName.ToLower());
+                .FirstOrDefaultAsync(a => a.Name == normalizedAmplifierName);
             
             if (amplifier == null)
             {
@@ -228,9 +246,11 @@ namespace Web.Services
 
         public async Task<Adc> FindOrCreateAdcAsync(string adcName, string? manufacturerName = null)
         {
+            var normalizedAdcName = adcName.Trim();
+
             var adc = await _context.Adces
                 .Include(a => a.Manufacturer)
-                .FirstOrDefaultAsync(a => a.Name.ToLower() == adcName.ToLower());
+                .FirstOrDefaultAsync(a => a.Name == normalizedAdcName);
             
             if (adc == null)
             {
@@ -260,9 +280,11 @@ namespace Web.Services
 
         public async Task<Wire> FindOrCreateWireAsync(string wireName, string? manufacturerName = null)
         {
+            var normalizedWireName = wireName.Trim();
+
             var wire = await _context.Wires
                 .Include(w => w.Manufacturer)
-                .FirstOrDefaultAsync(w => w.Name.ToLower() == wireName.ToLower());
+                .FirstOrDefaultAsync(w => w.Name == normalizedWireName);
             
             if (wire == null)
             {
@@ -295,14 +317,16 @@ namespace Web.Services
             if (string.IsNullOrWhiteSpace(manufacturerName))
                 return null;
 
+            var normalizedManufacturerName = manufacturerName.Trim();
+
             var existingManufacturer = await _context.Manufacturer
-                .FirstOrDefaultAsync(m => m.Name.ToLower() == manufacturerName.ToLower() && m.Type == manufacturerType);
+                .FirstOrDefaultAsync(m => m.Name == normalizedManufacturerName && m.Type == manufacturerType);
 
             if (existingManufacturer != null)
                 return existingManufacturer;
 
             var existingByName = await _context.Manufacturer
-                .FirstOrDefaultAsync(m => m.Name.ToLower() == manufacturerName.ToLower());
+                .FirstOrDefaultAsync(m => m.Name == normalizedManufacturerName);
 
             if (existingByName != null)
             {

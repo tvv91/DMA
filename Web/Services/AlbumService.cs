@@ -71,16 +71,16 @@ namespace Web.Services
             if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(artist))
                 return null;
 
-            var normalizedTitle = title.Trim().ToLower();
-            var normalizedArtist = artist.Trim().ToLower();
+            var normalizedTitle = title.Trim();
+            var normalizedArtist = artist.Trim();
 
             return await _context.Albums
                 .Include(a => a.Artist)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a =>
                     a.Artist != null &&
-                    a.Title.ToLower() == normalizedTitle &&
-                    a.Artist.Name.ToLower() == normalizedArtist);
+                    a.Title == normalizedTitle &&
+                    a.Artist.Name == normalizedArtist);
         }
 
         public async Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id)
@@ -239,8 +239,10 @@ namespace Web.Services
 
         private async Task<Artist> FindOrCreateArtistAsync(string artistName)
         {
+            var normalizedArtistName = artistName.Trim();
+
             var artist = await _context.Artists
-                .FirstOrDefaultAsync(a => a.Name.ToLower() == artistName.ToLower());
+                .FirstOrDefaultAsync(a => a.Name == normalizedArtistName);
 
             if (artist is null)
             {
@@ -254,8 +256,10 @@ namespace Web.Services
 
         private async Task<Genre> FindOrCreateGenreAsync(string genreName)
         {
+            var normalizedGenreName = genreName.Trim();
+
             var genre = await _context.Genres
-                .FirstOrDefaultAsync(g => g.Name.ToLower() == genreName.ToLower());
+                .FirstOrDefaultAsync(g => g.Name == normalizedGenreName);
 
             if (genre is null)
             {

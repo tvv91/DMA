@@ -156,16 +156,18 @@ namespace Web.Services
             if (string.IsNullOrWhiteSpace(name))
                 return null;
 
+            var normalizedName = name.Trim();
+
             // First, try to find existing manufacturer by name and type (case-insensitive)
             var existingManufacturer = await _context.Manufacturer
-                .FirstOrDefaultAsync(m => m.Name.ToLower() == name.ToLower() && m.Type == manufacturerType);
+                .FirstOrDefaultAsync(m => m.Name == normalizedName && m.Type == manufacturerType);
 
             if (existingManufacturer != null)
                 return existingManufacturer;
 
             // If not found by name and type, try to find by name only (to reuse existing manufacturers)
             var existingByName = await _context.Manufacturer
-                .FirstOrDefaultAsync(m => m.Name.ToLower() == name.ToLower());
+                .FirstOrDefaultAsync(m => m.Name == normalizedName);
 
             if (existingByName != null)
             {

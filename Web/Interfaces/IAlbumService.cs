@@ -1,4 +1,4 @@
-﻿using Web.Common;
+using Web.Common;
 using Web.Models;
 using Web.ViewModels;
 
@@ -8,6 +8,7 @@ namespace Web.Interfaces
     {
         Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null);
         Task<Album?> GetByIdAsync(int id);
+        Task<Album?> FindByAlbumAndArtistAsync(string title, string artist);
         Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id);
         Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre);
         Task<Album> UpdateAlbumAsync(int albumId, string title, string? artist, string? genre);

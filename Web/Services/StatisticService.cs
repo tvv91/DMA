@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-using System.Threading;
 using Web.Db;
 using Web.Interfaces;
 using Web.Models;
 
-namespace Web.Implementation
+namespace Web.Services
 {
-    public class StatisticRepository : IStatisticRepository
+    public class StatisticService : IStatisticService
     {
         private readonly DMADbContext _context;
         private static readonly double[] _dsdFreq = { 2.8, 5.6, 11.2, 22.5 };
@@ -15,9 +14,9 @@ namespace Web.Implementation
         private static DateTime? _lastRefreshAttempt = null;
         private static readonly TimeSpan _refreshCooldown = TimeSpan.FromMinutes(5);
 
-        public StatisticRepository(DMADbContext context) => _context = context;
+        public StatisticService(DMADbContext context) => _context = context;
 
-        public async Task<Statistic> Process()
+        public async Task<Statistic> ProcessAsync()
         {
             var stat = await _context.Statistics.FirstOrDefaultAsync();
 
@@ -26,11 +25,10 @@ namespace Web.Implementation
                 await _refreshLock.WaitAsync();
                 try
                 {
-                    // Double-check after acquiring lock
                     stat = await _context.Statistics.FirstOrDefaultAsync();
                     if (stat == null)
                     {
-                        stat = await RefreshStatistic();
+                        stat = await RefreshStatisticAsync();
                         await _context.Statistics.AddAsync(stat);
                         await _context.SaveChangesAsync();
                     }
@@ -39,27 +37,24 @@ namespace Web.Implementation
                 {
                     _refreshLock.Release();
                 }
+
                 return stat;
             }
 
-            // Check if refresh is needed (older than 1 day)
             var needsRefresh = DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1);
-            
-            // Also check if we recently attempted a refresh (to prevent multiple concurrent refreshes)
-            var canRefresh = _lastRefreshAttempt == null || 
-                            DateTime.UtcNow - _lastRefreshAttempt.Value > _refreshCooldown;
+            var canRefresh = _lastRefreshAttempt == null ||
+                             DateTime.UtcNow - _lastRefreshAttempt.Value > _refreshCooldown;
 
             if (needsRefresh && canRefresh)
             {
                 await _refreshLock.WaitAsync();
                 try
                 {
-                    // Double-check after acquiring lock
                     stat = await _context.Statistics.FirstOrDefaultAsync();
                     if (stat != null && DateTime.UtcNow - stat.LastUpdate > TimeSpan.FromDays(1))
                     {
                         _lastRefreshAttempt = DateTime.UtcNow;
-                        var refreshed = await RefreshStatistic();
+                        var refreshed = await RefreshStatisticAsync();
                         stat.Name = refreshed.Name;
                         stat.LastUpdate = refreshed.LastUpdate;
                         await _context.SaveChangesAsync();
@@ -74,7 +69,7 @@ namespace Web.Implementation
             return stat;
         }
 
-        private async Task<Statistic> RefreshStatistic()
+        private async Task<Statistic> RefreshStatisticAsync()
         {
             var totalEquipment = await _context.Adces.CountAsync() +
                                  await _context.Amplifiers.CountAsync() +
@@ -310,3 +305,4 @@ namespace Web.Implementation
         }
     }
 }
+

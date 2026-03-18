@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Web.Common;
 using Web.Db;
 using Web.Interfaces;
 using Web.Models;
@@ -8,23 +9,91 @@ namespace Web.Services
 {
     public class PostService : IPostService
     {
-        private readonly IPostRepository _postRepository;
         private readonly DMADbContext _context;
 
-        public PostService(IPostRepository postRepository, DMADbContext context)
+        public PostService(DMADbContext context)
         {
-            _postRepository = postRepository;
             _context = context;
+        }
+
+        public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)
+        {
+            var query = _context.Posts
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .AsNoTracking()
+                .AsQueryable();
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+                .ThenByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Post>(items, totalItems, page, pageSize);
+        }
+
+        public async Task<PagedResult<Post>> GetFilteredListAsync(
+            int page,
+            int pageSize,
+            string? searchText,
+            string? category,
+            string? year,
+            bool onlyDrafts)
+        {
+            var query = _context.Posts
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(searchText))
+            {
+                query = query.Where(p =>
+                    p.Title.Contains(searchText) ||
+                    p.Description.Contains(searchText) ||
+                    p.Content.Contains(searchText));
+            }
+
+            if (!string.IsNullOrWhiteSpace(category))
+            {
+                query = query.Where(p => p.PostCategories.Any(pc => pc.Category.Title == category));
+            }
+
+            if (!string.IsNullOrWhiteSpace(year) && int.TryParse(year, out var yearValue))
+            {
+                query = query.Where(p => p.CreatedDate.HasValue && p.CreatedDate.Value.Year == yearValue);
+            }
+
+            if (onlyDrafts)
+            {
+                query = query.Where(p => p.IsDraft);
+            }
+
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+                .ThenByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<Post>(items, totalItems, page, pageSize);
         }
 
         public async Task<Post?> GetByIdAsync(int id)
         {
-            return await _postRepository.GetByIdAsync(id);
+            return await _context.Posts
+                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<PostViewModel> GetPostViewModelAsync(int id)
         {
-            var post = await _postRepository.GetByIdAsync(id);
+            var post = await GetByIdAsync(id);
             if (post == null)
                 throw new KeyNotFoundException($"Post with id {id} not found");
 
@@ -51,7 +120,9 @@ namespace Web.Services
                 });
             }
 
-            return await _postRepository.AddAsync(post);
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync();
+            return post;
         }
 
         public async Task<Post> CreateDraftPostAsync(PostViewModel model)
@@ -74,7 +145,9 @@ namespace Web.Services
                 });
             }
 
-            return await _postRepository.AddAsync(post);
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync();
+            return post;
         }
 
         public async Task<Post> UpdatePostAsync(int postId, PostViewModel model)
@@ -109,12 +182,19 @@ namespace Web.Services
             }
 
             // Repository only saves changes
-            return await _postRepository.UpdateAsync(existing);
+            await _context.SaveChangesAsync();
+            return existing;
         }
 
         public async Task<bool> DeletePostAsync(int id)
         {
-            return await _postRepository.DeleteAsync(id);
+            var post = await _context.Posts.FindAsync(id);
+            if (post == null)
+                return false;
+
+            _context.Posts.Remove(post);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public PostViewModel MapPostToViewModel(Post post)

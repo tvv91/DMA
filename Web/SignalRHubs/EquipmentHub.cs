@@ -9,7 +9,7 @@ namespace Web.SignalRHubs
     public class EquipmentHub : Hub
     {
         private readonly IImageService _imgService;
-        private readonly IEquipmentRepository _equipmentRepository;
+        private readonly IEquipmentService _equipmentService;
         private const int ITEMS_PER_PAGE = 18;
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
@@ -21,10 +21,10 @@ namespace Web.SignalRHubs
             { "wire", EntityType.Wire },
         };
 
-        public EquipmentHub(IImageService imageService, IEquipmentRepository equipmentRepository)
+        public EquipmentHub(IImageService imageService, IEquipmentService equipmentService)
         {
             _imgService = imageService;
-            _equipmentRepository = equipmentRepository;
+            _equipmentService = equipmentService;
         }
 
         public async Task GetHardwareByCategory(string connectionId, string category, int page)
@@ -32,7 +32,7 @@ namespace Web.SignalRHubs
             if (!_categoryEntityMap.TryGetValue(category, out var entityType))
                 return;
 
-            var pagedResult = await _equipmentRepository.GetListAsync(page, ITEMS_PER_PAGE, entityType);
+            var pagedResult = await _equipmentService.GetListAsync(page, ITEMS_PER_PAGE, entityType);
 
             var result = pagedResult.Items
                 .Select(x => new EquipmentViewModel
@@ -68,7 +68,7 @@ namespace Web.SignalRHubs
                 return;
             }
 
-            var item = await _equipmentRepository.GetManufacturerByNameAsync(value, type);
+            var item = await _equipmentService.GetManufacturerByNameAsync(value, type);
             var result = item?.Manufacturer?.Name ?? string.Empty;
 
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);

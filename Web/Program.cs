@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
-using Web.Implementation;
 using Web.Interfaces;
 using Web.Services;
 using Web.SignalRHubs;
@@ -16,12 +15,7 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
         sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
     });
 });
-builder.Services.AddScoped<IAlbumRepository, AlbumRepository>();
-builder.Services.AddScoped<IDigitizationRepository, DigitizationRepository>();
 builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IStatisticRepository, StatisticRepository>();
-builder.Services.AddScoped<IPostRepository, PostRepository>();
-builder.Services.AddScoped<IEquipmentRepository, EquipmentRepository>();
 
 // Services
 builder.Services.AddScoped<IAlbumService, AlbumService>();
@@ -29,6 +23,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IDigitizationService, DigitizationService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddScoped<IEntityFindOrCreateService, EntityFindOrCreateService>();
 
 builder.Services.AddSignalR(options =>

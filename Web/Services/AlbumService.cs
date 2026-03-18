@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Web.Common;
 using Web.Db;
 using Web.Enums;
+using Web.Extentions;
 using Web.Interfaces;
 using Web.Models;
 using Web.ViewModels;
@@ -10,14 +11,12 @@ namespace Web.Services
 {
     public class AlbumService : IAlbumService
     {
-        private readonly IAlbumRepository _albumRepository;
         private readonly IDigitizationService _digitizationService;
         private readonly IImageService _imageService;
         private readonly DMADbContext _context;
 
-        public AlbumService(IAlbumRepository albumRepository, IDigitizationService digitizationService, IImageService imageService, DMADbContext context)
+        public AlbumService(IDigitizationService digitizationService, IImageService imageService, DMADbContext context)
         {
-            _albumRepository = albumRepository;
             _digitizationService = digitizationService;
             _imageService = imageService;
             _context = context;
@@ -25,17 +24,70 @@ namespace Web.Services
 
         public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {
-            return await _albumRepository.GetIndexListAsync(page, pageSize, artistName, genreName, yearValue, albumTitle);
+            var query = _context.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Genre)
+                .AsNoTracking()
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(artistName))
+            {
+                query = query.Where(a => a.Artist != null && a.Artist.Name.Contains(artistName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(genreName))
+            {
+                query = query.Where(a => a.Genre != null && a.Genre.Name.Contains(genreName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(albumTitle))
+            {
+                query = query.Where(a => a.Title.Contains(albumTitle));
+            }
+
+            if (!string.IsNullOrWhiteSpace(yearValue))
+            {
+                if (int.TryParse(yearValue, out int yearInt))
+                {
+                    query = query.Where(a => _context.Digitizations.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value == yearInt));
+                }
+                else
+                {
+                    query = query.Where(a => _context.Digitizations.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value.ToString().Contains(yearValue)));
+                }
+            }
+
+            return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
         }
 
         public async Task<Album?> GetByIdAsync(int id)
         {
-            return await _albumRepository.GetByIdAsync(id);
+            return await _context.Albums
+                .Include(a => a.Artist)
+                .Include(a => a.Genre)
+                .FirstOrDefaultAsync(a => a.Id == id);
+        }
+
+        public async Task<Album?> FindByAlbumAndArtistAsync(string title, string artist)
+        {
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(artist))
+                return null;
+
+            var normalizedTitle = title.Trim().ToLower();
+            var normalizedArtist = artist.Trim().ToLower();
+
+            return await _context.Albums
+                .Include(a => a.Artist)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(a =>
+                    a.Artist != null &&
+                    a.Title.ToLower() == normalizedTitle &&
+                    a.Artist.Name.ToLower() == normalizedArtist);
         }
 
         public async Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id)
         {
-            var album = await _albumRepository.GetByIdAsync(id);
+            var album = await GetByIdAsync(id);
             if (album == null)
                 throw new KeyNotFoundException($"Album with id {id} not found");
 
@@ -45,7 +97,7 @@ namespace Web.Services
 
         public async Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre)
         {
-            var album = await _albumRepository.FindByAlbumAndArtistAsync(title, artist);
+            var album = await FindByAlbumAndArtistAsync(title, artist);
 
             if (album is null)
             {
@@ -57,7 +109,8 @@ namespace Web.Services
                     Genre = await FindOrCreateGenreAsync(genre)
                 };
 
-                album = await _albumRepository.AddAsync(album);
+                _context.Albums.Add(album);
+                await _context.SaveChangesAsync();
             }
 
             return album;
@@ -102,13 +155,19 @@ namespace Web.Services
                 existing.ArtistId = artistEntity.Id;
             }
 
-            // Repository only saves changes
-            return await _albumRepository.UpdateAsync(existing);
+            await _context.SaveChangesAsync();
+            return existing;
         }
 
         public async Task<bool> DeleteAlbumAsync(int id)
         {
-            return await _albumRepository.DeleteAsync(id);
+            var album = await _context.Albums.FindAsync(id);
+            if (album == null)
+                return false;
+
+            _context.Albums.Remove(album);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public Digitization MapViewModelToDigitization(int albumId, AlbumCreateUpdateViewModel request)

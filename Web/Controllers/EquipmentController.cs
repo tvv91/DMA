@@ -11,13 +11,13 @@ namespace Web.Controllers
     {
         private readonly IEquipmentService _equipmentService;
         private readonly IImageService _imageService;
-        private readonly IDigitizationRepository _digitizationRepository;
+        private readonly IDigitizationService _digitizationService;
 
-        public EquipmentController(IEquipmentService equipmentService, IImageService imageService, IDigitizationRepository digitizationRepository)
+        public EquipmentController(IEquipmentService equipmentService, IImageService imageService, IDigitizationService digitizationService)
         {
             _equipmentService = equipmentService;
             _imageService = imageService;
-            _digitizationRepository = digitizationRepository;
+            _digitizationService = digitizationService;
         }
 
         public IActionResult Index()
@@ -118,7 +118,7 @@ namespace Web.Controllers
                 vm.ActiveTab = "albums";
                 if (pageSize <= 0) pageSize = 18;
                 if (page < 1) page = 1;
-                vm.DigitizedAlbumsPage = await _digitizationRepository.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
+                vm.DigitizedAlbumsPage = await _digitizationService.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
             }
 
             return View("Details", vm);

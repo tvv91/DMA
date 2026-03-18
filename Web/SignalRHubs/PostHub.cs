@@ -8,19 +8,17 @@ namespace Web.SignalRHubs
 {
     public class PostHub : Hub
     {
-        private readonly IPostRepository _postRepository;
         private readonly IPostService _postService;
         private const int POSTS_PER_PAGE = 5;
 
-        public PostHub(IPostRepository postRepository, IPostService postService)
+        public PostHub(IPostService postService)
         {
-            _postRepository = postRepository;
             _postService = postService;
         }
 
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {
-            var result = await _postRepository.GetFilteredListAsync(page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts);
+            var result = await _postService.GetFilteredListAsync(page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts);
 
             var response = result.Items
                 .Select(p => new
@@ -39,7 +37,7 @@ namespace Web.SignalRHubs
 
         public async Task GetBlogTree(string connectionId)
         {
-            var posts = await _postRepository.GetListAsync(1, int.MaxValue);
+            var posts = await _postService.GetListAsync(1, int.MaxValue);
             var allPosts = posts.Items.Where(p => !p.IsDraft && p.CreatedDate.HasValue).ToList();
 
             var tree = allPosts

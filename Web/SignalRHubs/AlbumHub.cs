@@ -10,19 +10,15 @@ namespace Web.SignalRHubs
 {
     public class AlbumHub(
         IImageService imageService,
-        IDigitizationRepository digitizationRepository,
-        IAlbumRepository albumRepository,
         IAlbumService albumService,
         IDigitizationService digitizationService,
-        IEquipmentRepository equipmentRepository,
+        IEquipmentService equipmentService,
         IEntityFindOrCreateService entityService) : Hub
     {
         private readonly IImageService _imgService = imageService;
-        private readonly IDigitizationRepository _digitizationRepository = digitizationRepository;
-        private readonly IAlbumRepository _albumRepository = albumRepository;
         private readonly IAlbumService _albumService = albumService;
         private readonly IDigitizationService _digitizationService = digitizationService;
-        private readonly IEquipmentRepository _equipmentRepository = equipmentRepository;
+        private readonly IEquipmentService _equipmentService = equipmentService;
         private readonly IEntityFindOrCreateService _entityService = entityService;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
@@ -76,7 +72,7 @@ namespace Web.SignalRHubs
 
         public async Task CheckAlbum(string connectionId, int albumId, string album, string artist, string source)
         {
-            var result = await _albumRepository.FindByAlbumAndArtistAsync(album, artist);
+            var result = await _albumService.FindByAlbumAndArtistAsync(album, artist);
 
             if (result is null)
             {
@@ -92,7 +88,7 @@ namespace Web.SignalRHubs
 
             if (!string.IsNullOrWhiteSpace(source))
             {
-                var sourceExists = await _digitizationRepository.ExistsByAlbumIdAndSourceAsync(result.Id, source);
+                var sourceExists = await _digitizationService.ExistsByAlbumIdAndSourceAsync(result.Id, source);
                 if (sourceExists)
                 {
                     await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, result.Id);
@@ -116,7 +112,7 @@ namespace Web.SignalRHubs
                 }
                 else
                 {
-                    album = await _albumRepository.GetByIdAsync(request.AlbumId);
+                    album = await _albumService.GetByIdAsync(request.AlbumId);
                     if (album == null)
                     {
                         await Clients.Client(connectionId).SendAsync("DigitizationAdded", false, "Album not found", 0);
@@ -149,7 +145,7 @@ namespace Web.SignalRHubs
                     return;
                 }
 
-                var existing = await _digitizationRepository.GetByIdAsync(request.DigitizationId);
+                var existing = await _digitizationService.GetByIdAsync(request.DigitizationId);
                 if (existing == null)
                 {
                     await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, "Digitization not found");
@@ -176,7 +172,7 @@ namespace Web.SignalRHubs
         {
             try
             {
-                var digitization = await _digitizationRepository.GetByIdAsync(digitizationId);
+                var digitization = await _digitizationService.GetByIdAsync(digitizationId);
                 if (digitization == null)
                 {
                     await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, "Digitization not found");
@@ -213,7 +209,7 @@ namespace Web.SignalRHubs
                 return;
             }
 
-            var item = await _equipmentRepository.GetManufacturerByNameAsync(value, type);
+            var item = await _equipmentService.GetManufacturerByNameAsync(value, type);
             var result = item?.Manufacturer?.Name ?? string.Empty;
 
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
@@ -221,7 +217,7 @@ namespace Web.SignalRHubs
 
         public async Task GetTechnicalInfoIcons(string connectionId, int digitizationId)
         {
-            var digitization = await _digitizationRepository.GetByIdAsync(digitizationId);
+            var digitization = await _digitizationService.GetByIdAsync(digitizationId);
 
             if (digitization == null)
             {

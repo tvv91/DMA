@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Enums;
@@ -9,22 +9,18 @@ using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class AlbumController : Controller
+    public class AlbumController(
+        IAlbumService albumService,
+        IImageService imageService,
+        IDigitizationService digitizationService,
+        DMADbContext context) : Controller
     {
         private const int DEFAULT_ALBUMS_PER_PAGE = 15;
         private const int MAX_ALBUMS_PER_PAGE = 30;
-        private readonly IAlbumService _albumService;
-        private readonly IImageService _imageService;
-        private readonly IDigitizationService _digitizationService;
-        private readonly DMADbContext _context;
-
-        public AlbumController(IAlbumService albumService, IImageService imageService, IDigitizationService digitizationService, DMADbContext context)
-        {
-            _albumService = albumService;
-            _imageService = imageService;
-            _digitizationService = digitizationService;
-            _context = context;
-        }
+        private readonly IAlbumService _albumService = albumService;
+        private readonly IImageService _imageService = imageService;
+        private readonly IDigitizationService _digitizationService = digitizationService;
+        private readonly DMADbContext _context = context;
 
         [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)

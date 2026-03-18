@@ -1,16 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Web.Interfaces;
 using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class PostController : Controller
+    public class PostController(IPostService postService) : Controller
     {
-        private readonly IPostService _postService;
-        public PostController(IPostService postService)
-        {
-            _postService = postService;
-        }
+        private readonly IPostService _postService = postService;
 
         public IActionResult Index()
         {

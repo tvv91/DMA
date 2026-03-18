@@ -6,15 +6,10 @@ using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
-    public class PostHub : Hub
+    public class PostHub(IPostService postService) : Hub
     {
-        private readonly IPostService _postService;
+        private readonly IPostService _postService = postService;
         private const int POSTS_PER_PAGE = 5;
-
-        public PostHub(IPostService postService)
-        {
-            _postService = postService;
-        }
 
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {

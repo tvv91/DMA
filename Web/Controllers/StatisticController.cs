@@ -5,14 +5,9 @@ using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class StatisticController : Controller
+    public class StatisticController(IStatisticService statisticService) : Controller
     {
-        private readonly IStatisticService _statisticService;
-
-        public StatisticController(IStatisticService statisticService)
-        {
-            _statisticService = statisticService;
-        }
+        private readonly IStatisticService _statisticService = statisticService;
 
         [HttpGet("statistic")]
         public async Task<IActionResult> Index()

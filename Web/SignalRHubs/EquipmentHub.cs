@@ -6,10 +6,12 @@ using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
-    public class EquipmentHub : Hub
+    public class EquipmentHub(
+        IImageService imageService,
+        IEquipmentService equipmentService) : Hub
     {
-        private readonly IImageService _imgService;
-        private readonly IEquipmentService _equipmentService;
+        private readonly IImageService _imgService = imageService;
+        private readonly IEquipmentService _equipmentService = equipmentService;
         private const int ITEMS_PER_PAGE = 18;
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
@@ -20,12 +22,6 @@ namespace Web.SignalRHubs
             { "player", EntityType.Player },
             { "wire", EntityType.Wire },
         };
-
-        public EquipmentHub(IImageService imageService, IEquipmentService equipmentService)
-        {
-            _imgService = imageService;
-            _equipmentService = equipmentService;
-        }
 
         public async Task GetHardwareByCategory(string connectionId, string category, int page)
         {

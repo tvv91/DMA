@@ -7,18 +7,14 @@ using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class EquipmentController : Controller
+    public class EquipmentController(
+        IEquipmentService equipmentService,
+        IImageService imageService,
+        IDigitizationService digitizationService) : Controller
     {
-        private readonly IEquipmentService _equipmentService;
-        private readonly IImageService _imageService;
-        private readonly IDigitizationService _digitizationService;
-
-        public EquipmentController(IEquipmentService equipmentService, IImageService imageService, IDigitizationService digitizationService)
-        {
-            _equipmentService = equipmentService;
-            _imageService = imageService;
-            _digitizationService = digitizationService;
-        }
+        private readonly IEquipmentService _equipmentService = equipmentService;
+        private readonly IImageService _imageService = imageService;
+        private readonly IDigitizationService _digitizationService = digitizationService;
 
         public IActionResult Index()
         {

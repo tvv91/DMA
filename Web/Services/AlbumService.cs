@@ -9,18 +9,14 @@ using Web.ViewModels;
 
 namespace Web.Services
 {
-    public class AlbumService : IAlbumService
+    public class AlbumService(
+        IDigitizationService digitizationService,
+        IImageService imageService,
+        DMADbContext context) : IAlbumService
     {
-        private readonly IDigitizationService _digitizationService;
-        private readonly IImageService _imageService;
-        private readonly DMADbContext _context;
-
-        public AlbumService(IDigitizationService digitizationService, IImageService imageService, DMADbContext context)
-        {
-            _digitizationService = digitizationService;
-            _imageService = imageService;
-            _context = context;
-        }
+        private readonly IDigitizationService _digitizationService = digitizationService;
+        private readonly IImageService _imageService = imageService;
+        private readonly DMADbContext _context = context;
 
         public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {

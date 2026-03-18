@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Response;
@@ -6,14 +6,9 @@ using Web.Response;
 namespace Web.Controllers
 {
     [Route("search")]
-    public class SearchController : Controller
+    public class SearchController(ISearchService searchService) : Controller
     {
-        private readonly ISearchService _searchService;
-
-        public SearchController(ISearchService searchService)
-        {
-            _searchService = searchService;
-        }
+        private readonly ISearchService _searchService = searchService;
 
         [HttpGet("{entityType}")]
         public async Task<IActionResult> Search(string entityType, [FromQuery] string value)

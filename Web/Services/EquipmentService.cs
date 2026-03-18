@@ -9,14 +9,9 @@ using Web.ViewModels;
 
 namespace Web.Services
 {
-    public class EquipmentService : IEquipmentService
+    public class EquipmentService(DMADbContext context) : IEquipmentService
     {
-        private readonly DMADbContext _context;
-
-        public EquipmentService(DMADbContext context)
-        {
-            _context = context;
-        }
+        private readonly DMADbContext _context = context;
 
         public async Task<IManufacturer?> GetByIdAsync(int id, EntityType type)
         {

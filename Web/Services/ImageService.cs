@@ -1,14 +1,14 @@
-﻿using Web.Enums;
+using Web.Enums;
 
 namespace Web.Services
 {
-    internal class ImageService : IImageService
+    internal class ImageService(ILogger<ImageService> logger) : IImageService
     {
         private const string STORAGE = "wwwroot";
         private const string NO_COVER = "resources/nocover.png";
         private const string TEMP = "wwwroot/temp";
 
-        private readonly ILogger<ImageService> _logger;
+        private readonly ILogger<ImageService> _logger = logger;
 
         private readonly Dictionary<EntityType, (string Path, string Ext)> _map = new()
             {
@@ -24,11 +24,6 @@ namespace Web.Services
                 { EntityType.Adc, ("covers/adc", ".jpg") },
                 { EntityType.Wire, ("covers/wire", ".jpg") },
             };
-
-        public ImageService(ILogger<ImageService> logger)
-        {
-            _logger = logger;
-        }
 
         public async Task<string> GetImageUrlAsync(int id, EntityType entity)
         {

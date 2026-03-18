@@ -6,15 +6,13 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class StatisticService : IStatisticService
+    public class StatisticService(DMADbContext context) : IStatisticService
     {
-        private readonly DMADbContext _context;
+        private readonly DMADbContext _context = context;
         private static readonly double[] _dsdFreq = { 2.8, 5.6, 11.2, 22.5 };
         private static readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
         private static DateTime? _lastRefreshAttempt = null;
         private static readonly TimeSpan _refreshCooldown = TimeSpan.FromMinutes(5);
-
-        public StatisticService(DMADbContext context) => _context = context;
 
         public async Task<Statistic> ProcessAsync()
         {

@@ -11,7 +11,7 @@ using Web.Db;
 
 namespace Web.Migrations
 {
-    [DbContext(typeof(DMADbContext))]
+    [DbContext(typeof(Context))]
     [Migration("20260225080411_Init")]
     partial class Init
     {

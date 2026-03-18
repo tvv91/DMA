@@ -8,9 +8,9 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class DigitizationService(DMADbContext context, TimeProvider timeProvider) : IDigitizationService
+    public class DigitizationService(Context context, TimeProvider timeProvider) : IDigitizationService
     {
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<IEnumerable<Digitization>> GetByAlbumIdAsync(int albumId)

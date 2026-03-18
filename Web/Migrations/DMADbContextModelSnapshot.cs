@@ -10,7 +10,7 @@ using Web.Db;
 
 namespace Web.Migrations
 {
-    [DbContext(typeof(DMADbContext))]
+    [DbContext(typeof(Context))]
     partial class DMADbContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

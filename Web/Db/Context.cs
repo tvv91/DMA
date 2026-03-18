@@ -3,9 +3,9 @@ using Web.Models;
 
 namespace Web.Db
 {
-    public class DMADbContext : DbContext
+    public class Context : DbContext
     {
-        public DMADbContext(DbContextOptions<DMADbContext> options) : base(options) { }
+        public Context(DbContextOptions<Context> options) : base(options) { }
         
         #region Base info
         public DbSet<Album> Albums { get; set; }

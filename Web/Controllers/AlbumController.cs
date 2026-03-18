@@ -13,13 +13,13 @@ namespace Web.Controllers
         IAlbumService albumService,
         ICoverService imageService,
         IDigitizationService digitizationService,
-        DMADbContext context) : Controller
+        Context context) : Controller
     {
         private const int DEFAULT_ALBUMS_PER_PAGE = 15;
         private const int MAX_ALBUMS_PER_PAGE = 30;
         private readonly IAlbumService _albumService = albumService;
         private readonly ICoverService _imageService = imageService;
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
 
         [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)

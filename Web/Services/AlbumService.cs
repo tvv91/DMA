@@ -12,12 +12,12 @@ namespace Web.Services
     public class AlbumService(
         IDigitizationService digitizationService,
         ICoverService imageService,
-        DMADbContext context,
+        Context context,
         TimeProvider timeProvider) : IAlbumService
     {
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly ICoverService _imageService = imageService;
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)

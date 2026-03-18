@@ -6,9 +6,9 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class StatisticService(DMADbContext context, TimeProvider timeProvider) : IStatisticService
+    public class StatisticService(Context context, TimeProvider timeProvider) : IStatisticService
     {
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
         private static readonly double[] _dsdFreq = { 2.8, 5.6, 11.2, 22.5 };
         private static readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);

@@ -7,9 +7,9 @@ using Web.Response;
 
 namespace Web.Services
 {
-    public class SearchService(DMADbContext context) : ISearchService
+    public class SearchService(Context context) : ISearchService
     {
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
         private readonly Dictionary<EntityType, Func<string, Task<List<AutocompleteResponse>>>> _searchMap = new()
         {
             { EntityType.Artist, v => SearchStringAsync(context.Artists, x => x.Name, v) },
@@ -90,7 +90,7 @@ namespace Web.Services
                 .ToList();
         }
 
-        private static async Task<List<AutocompleteResponse>> SearchManufacturerAsync(DMADbContext context, EntityType type, string value)
+        private static async Task<List<AutocompleteResponse>> SearchManufacturerAsync(Context context, EntityType type, string value)
         {
             var likePattern = $"%{value}%";
 

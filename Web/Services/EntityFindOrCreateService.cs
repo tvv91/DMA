@@ -6,9 +6,9 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class EntityFindOrCreateService(DMADbContext context) : IEntityFindOrCreateService
+    public class EntityFindOrCreateService(Context context) : IEntityFindOrCreateService
     {
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
 
         public async Task<Year> FindOrCreateYearAsync(int yearValue)
         {

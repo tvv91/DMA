@@ -11,7 +11,7 @@ namespace Web.Db
         {
             try
             {
-                var ctx = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<DMADbContext>();
+                var ctx = app.ApplicationServices.CreateScope().ServiceProvider.GetRequiredService<Context>();
                 
                 // Skip migrations for InMemory database (used in tests)
                 // Check if it's InMemory by examining the database provider type

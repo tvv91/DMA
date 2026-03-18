@@ -7,9 +7,9 @@ using Web.ViewModels;
 
 namespace Web.Services
 {
-    public class PostService(DMADbContext context, TimeProvider timeProvider) : IPostService
+    public class PostService(Context context, TimeProvider timeProvider) : IPostService
     {
-        private readonly DMADbContext _context = context;
+        private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
 
         public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)

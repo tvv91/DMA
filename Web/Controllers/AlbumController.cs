@@ -11,14 +11,14 @@ namespace Web.Controllers
 {
     public class AlbumController(
         IAlbumService albumService,
-        IImageService imageService,
+        ICoverService imageService,
         IDigitizationService digitizationService,
         DMADbContext context) : Controller
     {
         private const int DEFAULT_ALBUMS_PER_PAGE = 15;
         private const int MAX_ALBUMS_PER_PAGE = 30;
         private readonly IAlbumService _albumService = albumService;
-        private readonly IImageService _imageService = imageService;
+        private readonly ICoverService _imageService = imageService;
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly DMADbContext _context = context;
 

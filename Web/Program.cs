@@ -16,7 +16,7 @@ builder.Services.AddDbContext<DMADbContext>(opts =>
         sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
     });
 });
-builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<ICoverService, CoverService>();
 
 // Services
 builder.Services.AddScoped<IAlbumService, AlbumService>();

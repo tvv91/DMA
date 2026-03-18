@@ -9,11 +9,11 @@ namespace Web.Controllers
 {
     public class EquipmentController(
         IEquipmentService equipmentService,
-        IImageService imageService,
+        ICoverService imageService,
         IDigitizationService digitizationService) : Controller
     {
         private readonly IEquipmentService _equipmentService = equipmentService;
-        private readonly IImageService _imageService = imageService;
+        private readonly ICoverService _imageService = imageService;
         private readonly IDigitizationService _digitizationService = digitizationService;
 
         public IActionResult Index()
@@ -88,7 +88,7 @@ namespace Web.Controllers
             if (equipment == null)
                 return NotFound();
 
-            var imageUrl = await _imageService.GetImageUrlAsync(id, category);
+            var imageUrl = await _imageService.GetCoverUrlAsync(id, category);
             var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
             vm.Action = ActionType.Update;
 
@@ -106,7 +106,7 @@ namespace Web.Controllers
             if (equipment == null)
                 return NotFound();
 
-            var imageUrl = await _imageService.GetImageUrlAsync(id, category);
+            var imageUrl = await _imageService.GetCoverUrlAsync(id, category);
             var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
 
             if (string.Equals(tab, "albums", StringComparison.OrdinalIgnoreCase))

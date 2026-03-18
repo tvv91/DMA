@@ -2,13 +2,13 @@ using Web.Enums;
 
 namespace Web.Services
 {
-    internal class ImageService(ILogger<ImageService> logger) : IImageService
+    public class CoverService(ILogger<CoverService> logger) : ICoverService
     {
         private const string STORAGE = "wwwroot";
         private const string NO_COVER = "resources/nocover.png";
         private const string TEMP = "wwwroot/temp";
 
-        private readonly ILogger<ImageService> _logger = logger;
+        private readonly ILogger<CoverService> _logger = logger;
 
         private readonly Dictionary<EntityType, (string Path, string Ext)> _map = new()
             {
@@ -25,14 +25,14 @@ namespace Web.Services
                 { EntityType.Wire, ("covers/wire", ".jpg") },
             };
 
-        public async Task<string> GetImageUrlAsync(int id, EntityType entity)
+        public async Task<string> GetCoverUrlAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return NO_COVER;
 
             var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
             var fullPath = Path.Combine(STORAGE, relativePath);
-
+            // Yeah, this code is sync, but when we change to cloud blobk storage, it will be async, so let's keep the signature async for now
             return await Task.FromResult(File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}");
         }
 
@@ -47,7 +47,7 @@ namespace Web.Services
             {
                 if (File.Exists(fullPath))
                 {
-                    await Task.Run(() => File.Delete(fullPath));
+                    File.Delete(fullPath);
                 }
             }
             catch (Exception ex)
@@ -71,10 +71,28 @@ namespace Web.Services
                         Directory.CreateDirectory(targetDir);
 
                     var destFile = Path.Combine(targetDir, $"{id}{info.Ext}");
-                    await Task.Run(() => File.Move(tempFile, destFile, true));
+
+                    await using var source = new FileStream(
+                        tempFile,
+                        FileMode.Open,
+                        FileAccess.Read,
+                        FileShare.Read,
+                        bufferSize: 81920,
+                        useAsync: true);
+
+                    await using var destination = new FileStream(
+                        destFile,
+                        FileMode.Create,
+                        FileAccess.Write,
+                        FileShare.None,
+                        bufferSize: 81920,
+                        useAsync: true);
+
+                    await source.CopyToAsync(destination);
+                    await destination.FlushAsync();
 
                     if (File.Exists(tempFile))
-                        await Task.Run(() => File.Delete(tempFile));
+                        File.Delete(tempFile);
                 }
             }
             catch (Exception ex)

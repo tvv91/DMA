@@ -1,10 +1,10 @@
-﻿using Web.Enums;
+using Web.Enums;
 
 namespace Web.Services
 {
-    public interface IImageService
+    public interface ICoverService
     {
-        Task<string> GetImageUrlAsync(int id, EntityType entity);
+        Task<string> GetCoverUrlAsync(int id, EntityType entity);
         Task SaveCoverAsync(int id, string filename, EntityType entity);
         Task RemoveCoverAsync(int id, EntityType entity);
     }

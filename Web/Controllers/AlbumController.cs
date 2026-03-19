@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Web.Db;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Services;
@@ -11,15 +9,12 @@ namespace Web.Controllers
 {
     public class AlbumController(
         IAlbumService albumService,
-        ICoverService imageService,
-        IDigitizationService digitizationService,
-        Context context) : Controller
+        ICoverService imageService) : Controller
     {
         private const int DEFAULT_ALBUMS_PER_PAGE = 15;
         private const int MAX_ALBUMS_PER_PAGE = 30;
         private readonly IAlbumService _albumService = albumService;
         private readonly ICoverService _imageService = imageService;
-        private readonly Context _context = context;
 
         [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
@@ -36,7 +31,7 @@ namespace Web.Controllers
             var result = await _albumService.GetIndexListAsync(page, pageSize, artistName, genreName, yearValue, albumTitle);
 
             // Check if there are any albums in the database at all (unfiltered)
-            var hasAnyAlbumsInDb = await _context.Albums.AnyAsync();
+            var hasAnyAlbumsInDb = await _albumService.HasAnyAlbumsAsync();
 
             var vm = new AlbumIndexViewModel
             {

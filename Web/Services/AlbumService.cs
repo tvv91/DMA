@@ -20,6 +20,11 @@ namespace Web.Services
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
 
+        public async Task<bool> HasAnyAlbumsAsync()
+        {
+            return await _context.Albums.AsNoTracking().AnyAsync();
+        }
+
         public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
         {
             var query = _context.Albums

@@ -431,7 +431,7 @@ namespace Web.SignalRHubs
                 Reissue = d.Reissue?.Value,
                 Country = d.Country?.Name,
                 Label = d.Label?.Name,
-                Storage = d.Storage?.Data,
+                Storage = d.Storage?.Name,
                 Discogs = d.Discogs,
                 Size = d.Size
             }).ToList<object>();

@@ -100,16 +100,20 @@ namespace Web.Services
 
         public async Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre)
         {
-            var album = await FindByAlbumAndArtistAsync(title, artist);
+            var normalizedTitle = title.Trim();
+            var normalizedArtist = artist.Trim();
+            var normalizedGenre = genre.Trim();
+
+            var album = await FindByAlbumAndArtistAsync(normalizedTitle, normalizedArtist);
 
             if (album is null)
             {
                 album = new Album
                 {
                     AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
-                    Title = title,
-                    Artist = await FindOrCreateArtistAsync(artist),
-                    Genre = await FindOrCreateGenreAsync(genre)
+                    Title = normalizedTitle,
+                    Artist = await FindOrCreateArtistAsync(normalizedArtist),
+                    Genre = await FindOrCreateGenreAsync(normalizedGenre)
                 };
 
                 _context.Albums.Add(album);
@@ -186,7 +190,7 @@ namespace Web.Services
                 ReissueId = request.Reissue,
                 Country = !string.IsNullOrEmpty(request.Country) ? new Country { Name = request.Country } : null,
                 Label = !string.IsNullOrEmpty(request.Label) ? new Label { Name = request.Label } : null,
-                Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Data = request.Storage } : null,
+                Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Name = request.Storage } : null,
 
                 FormatInfo = new FormatInfo
                 {
@@ -251,7 +255,8 @@ namespace Web.Services
 
             if (artist is null)
             {
-                artist = new Artist { Name = artistName };
+                // Store normalized value so unique Name constraint behaves consistently.
+                artist = new Artist { Name = normalizedArtistName };
                 _context.Artists.Add(artist);
                 await _context.SaveChangesAsync();
             }
@@ -268,7 +273,8 @@ namespace Web.Services
 
             if (genre is null)
             {
-                genre = new Genre { Name = genreName };
+                // Store normalized value so lookups (and unique constraints) are consistent.
+                genre = new Genre { Name = normalizedGenreName };
                 _context.Genres.Add(genre);
                 await _context.SaveChangesAsync();
             }

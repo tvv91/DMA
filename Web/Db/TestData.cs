@@ -107,7 +107,7 @@ namespace Web.Db
             #endregion            
 
             #region Storage
-            var storage = new Storage { Data = "D1" };
+            var storage = new Storage { Name = "D1" };
             #endregion
 
             #region Adc

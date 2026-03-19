@@ -13,7 +13,7 @@ namespace Web.Controllers
         public async Task<IActionResult> Index()
         {
             var result = await _statisticService.ProcessAsync();
-            var viewModel = JsonSerializer.Deserialize<StatisticViewModel>(result.Name);
+            var viewModel = JsonSerializer.Deserialize<StatisticViewModel>(result.Data);
             if (viewModel is null)
                 return Problem("Failed to deserialize StatisticViewModel.");
             viewModel.LastUpdate = result.LastUpdate;

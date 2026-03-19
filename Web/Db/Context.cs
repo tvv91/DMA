@@ -1,12 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Web.Models;
 
 namespace Web.Db
 {
-    public class Context : DbContext
-    {
-        public Context(DbContextOptions<Context> options) : base(options) { }
-        
+    public class Context(DbContextOptions<Context> options) : DbContext(options)
+    {        
         #region Base info
         public DbSet<Album> Albums { get; set; }
         public DbSet<Artist> Artists { get; set; }
@@ -90,102 +88,76 @@ namespace Web.Db
             modelBuilder.Entity<VinylState>().HasData(new VinylState { Id = 5, Name = "Good" });
             modelBuilder.Entity<VinylState>().HasData(new VinylState { Id = 6, Name = "Unknown" });
 
+            // Uniqueness constraints
+            modelBuilder.Entity<Adc>().HasIndex(a => a.Name).IsUnique();
+            modelBuilder.Entity<Amplifier>().HasIndex(a => a.Name).IsUnique();
+            modelBuilder.Entity<Artist>().HasIndex(a => a.Name).IsUnique();
+            modelBuilder.Entity<Cartridge>().HasIndex(c => c.Name).IsUnique();
+            modelBuilder.Entity<Country>().HasIndex(c => c.Name).IsUnique();
+            modelBuilder.Entity<DigitalFormat>().HasIndex(d => d.Name).IsUnique();
+            modelBuilder.Entity<SourceFormat>().HasIndex(s => s.Name).IsUnique();
+            modelBuilder.Entity<Genre>().HasIndex(g => g.Name).IsUnique();
+            modelBuilder.Entity<Label>().HasIndex(l => l.Name).IsUnique();
+            modelBuilder.Entity<Manufacturer>().HasIndex(m => m.Name).IsUnique();
+            modelBuilder.Entity<Player>().HasIndex(p => p.Name).IsUnique();
+            modelBuilder.Entity<Storage>().HasIndex(s => s.Name).IsUnique();
+            modelBuilder.Entity<VinylState>().HasIndex(v => v.Name).IsUnique();
+            modelBuilder.Entity<Wire>().HasIndex(w => w.Name).IsUnique();
+            modelBuilder.Entity<Category>().HasIndex(c => c.Title).IsUnique();
+            modelBuilder.Entity<Bitness>().HasIndex(b => b.Value).IsUnique();
+            modelBuilder.Entity<Reissue>().HasIndex(r => r.Value).IsUnique();
+            modelBuilder.Entity<Sampling>().HasIndex(s => s.Value).IsUnique();
+            modelBuilder.Entity<Year>().HasIndex(y => y.Value).IsUnique();
+
             // Performance indexes
-            // Album indexes
-            modelBuilder.Entity<Album>()
-                .HasIndex(a => a.Title);
-            modelBuilder.Entity<Album>()
-                .HasIndex(a => a.ArtistId);
-            modelBuilder.Entity<Album>()
-                .HasIndex(a => a.GenreId);
-
-            // Digitization indexes
-            modelBuilder.Entity<Digitization>()
-                .HasIndex(d => d.AlbumId);
-            modelBuilder.Entity<Digitization>()
-                .HasIndex(d => d.CountryId);
-            modelBuilder.Entity<Digitization>()
-                .HasIndex(d => d.LabelId);
-            modelBuilder.Entity<Digitization>()
-                .HasIndex(d => d.YearId);
-            modelBuilder.Entity<Digitization>()
-                .HasIndex(d => d.StorageId);
-
-            // FormatInfo indexes
-            modelBuilder.Entity<FormatInfo>()
-                .HasIndex(f => f.BitnessId);
-            modelBuilder.Entity<FormatInfo>()
-                .HasIndex(f => f.SamplingId);
-            modelBuilder.Entity<FormatInfo>()
-                .HasIndex(f => f.DigitalFormatId);
-            modelBuilder.Entity<FormatInfo>()
-                .HasIndex(f => f.SourceFormatId);
-            modelBuilder.Entity<FormatInfo>()
-                .HasIndex(f => f.VinylStateId);
-
-            // EquipmentInfo indexes
-            modelBuilder.Entity<EquipmentInfo>()
-                .HasIndex(e => e.PlayerId);
-            modelBuilder.Entity<EquipmentInfo>()
-                .HasIndex(e => e.CartridgeId);
-            modelBuilder.Entity<EquipmentInfo>()
-                .HasIndex(e => e.AmplifierId);
-            modelBuilder.Entity<EquipmentInfo>()
-                .HasIndex(e => e.AdcId);
-            modelBuilder.Entity<EquipmentInfo>()
-                .HasIndex(e => e.WireId);
-
-            // Post indexes
-            modelBuilder.Entity<Post>()
-                .HasIndex(p => p.CreatedDate);
-            modelBuilder.Entity<Post>()
-                .HasIndex(p => p.IsDraft);
-            modelBuilder.Entity<Post>()
-                .HasIndex(p => p.Title);
-
-            // PostCategory indexes
-            modelBuilder.Entity<PostCategory>()
-                .HasIndex(pc => pc.PostId);
-            modelBuilder.Entity<PostCategory>()
-                .HasIndex(pc => pc.CategoryId);
-
-            // Equipment indexes for manufacturer lookups
-            modelBuilder.Entity<Player>()
-                .HasIndex(p => p.ManufacturerId);
-            modelBuilder.Entity<Cartridge>()
-                .HasIndex(c => c.ManufacturerId);
-            modelBuilder.Entity<Amplifier>()
-                .HasIndex(a => a.ManufacturerId);
-            modelBuilder.Entity<Adc>()
-                .HasIndex(a => a.ManufacturerId);
-            modelBuilder.Entity<Wire>()
-                .HasIndex(w => w.ManufacturerId);
+            modelBuilder.Entity<Album>().HasIndex(a => a.Title);
+            modelBuilder.Entity<Album>().HasIndex(a => a.ArtistId);
+            modelBuilder.Entity<Album>().HasIndex(a => a.GenreId);
+            modelBuilder.Entity<Digitization>().HasIndex(d => d.AlbumId);
+            modelBuilder.Entity<Digitization>().HasIndex(d => d.CountryId);
+            modelBuilder.Entity<Digitization>().HasIndex(d => d.LabelId);
+            modelBuilder.Entity<Digitization>().HasIndex(d => d.YearId);
+            modelBuilder.Entity<Digitization>().HasIndex(d => d.StorageId);
+            modelBuilder.Entity<FormatInfo>().HasIndex(f => f.BitnessId);
+            modelBuilder.Entity<FormatInfo>().HasIndex(f => f.SamplingId);
+            modelBuilder.Entity<FormatInfo>().HasIndex(f => f.DigitalFormatId);
+            modelBuilder.Entity<FormatInfo>().HasIndex(f => f.SourceFormatId);
+            modelBuilder.Entity<FormatInfo>().HasIndex(f => f.VinylStateId);
+            modelBuilder.Entity<EquipmentInfo>().HasIndex(e => e.PlayerId);
+            modelBuilder.Entity<EquipmentInfo>().HasIndex(e => e.CartridgeId);
+            modelBuilder.Entity<EquipmentInfo>().HasIndex(e => e.AmplifierId);
+            modelBuilder.Entity<EquipmentInfo>().HasIndex(e => e.AdcId);
+            modelBuilder.Entity<EquipmentInfo>().HasIndex(e => e.WireId);
+            modelBuilder.Entity<Post>().HasIndex(p => p.CreatedDate);
+            modelBuilder.Entity<Post>().HasIndex(p => p.IsDraft);
+            modelBuilder.Entity<Post>().HasIndex(p => p.Title);
+            modelBuilder.Entity<PostCategory>().HasIndex(pc => pc.PostId);
+            modelBuilder.Entity<PostCategory>().HasIndex(pc => pc.CategoryId);
+            modelBuilder.Entity<Player>().HasIndex(p => p.ManufacturerId);
+            modelBuilder.Entity<Cartridge>().HasIndex(c => c.ManufacturerId);
+            modelBuilder.Entity<Amplifier>().HasIndex(a => a.ManufacturerId);
+            modelBuilder.Entity<Adc>().HasIndex(a => a.ManufacturerId);
+            modelBuilder.Entity<Wire>().HasIndex(w => w.ManufacturerId);
 
             // Cascade delete configuration
-            // Album -> Digitizations: Cascade delete (when album is deleted, delete all digitizations)
             modelBuilder.Entity<Digitization>()
                 .HasOne(d => d.Album)
                 .WithMany(a => a.Digitizations)
                 .HasForeignKey(d => d.AlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Digitization -> FormatInfo: Cascade delete (FormatInfo is owned by Digitization)
-            // But FormatInfo's referenced entities (Bitness, Sampling, etc.) should remain
             modelBuilder.Entity<Digitization>()
                 .HasOne(d => d.FormatInfo)
                 .WithMany()
                 .HasForeignKey(d => d.FormatInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Digitization -> EquipmentInfo: Cascade delete (EquipmentInfo is owned by Digitization)
-            // But EquipmentInfo's referenced entities (Player, Cartridge, etc.) should remain
             modelBuilder.Entity<Digitization>()
                 .HasOne(d => d.EquipmentInfo)
                 .WithMany()
                 .HasForeignKey(d => d.EquipmentInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Digitization -> Related entities: No cascade delete (Country, Label, Year, Reissue, Storage should remain)
             modelBuilder.Entity<Digitization>()
                 .HasOne(d => d.Country)
                 .WithMany(c => c.Digitizations)
@@ -216,7 +188,6 @@ namespace Web.Db
                 .HasForeignKey(d => d.StorageId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // FormatInfo -> Related entities: No cascade delete
             modelBuilder.Entity<FormatInfo>()
                 .HasOne(f => f.Bitness)
                 .WithMany()
@@ -247,7 +218,6 @@ namespace Web.Db
                 .HasForeignKey(f => f.VinylStateId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // EquipmentInfo -> Related entities: No cascade delete
             modelBuilder.Entity<EquipmentInfo>()
                 .HasOne(e => e.Player)
                 .WithMany()
@@ -278,14 +248,12 @@ namespace Web.Db
                 .HasForeignKey(e => e.WireId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Post -> PostCategories: Cascade delete
             modelBuilder.Entity<PostCategory>()
                 .HasOne(pc => pc.Post)
                 .WithMany(p => p.PostCategories)
                 .HasForeignKey(pc => pc.PostId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // PostCategory -> Category: No cascade delete (Category should remain)
             modelBuilder.Entity<PostCategory>()
                 .HasOne(pc => pc.Category)
                 .WithMany(c => c.PostCategories)

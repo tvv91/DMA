@@ -176,7 +176,7 @@ namespace Web.Services
                 YearId = x.YearId,
                 Year = x.Year == null ? null : new Year { Id = x.Year.Id, Value = x.Year.Value },
                 StorageId = x.StorageId,
-                Storage = x.Storage == null ? null : new Storage { Id = x.Storage.Id, Data = x.Storage.Data },
+                Storage = x.Storage == null ? null : new Storage { Id = x.Storage.Id, Name = x.Storage.Name },
                 FormatInfoId = x.FormatInfoId,
                 FormatInfo = new FormatInfo
                 {

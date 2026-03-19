@@ -24,7 +24,7 @@ namespace Web.Services
             { EntityType.SourceFormat, v => SearchStringAsync(context.SourceFormats, x => x.Name, v) },
             { EntityType.Country, v => SearchStringAsync(context.Countries, x => x.Name, v) },
             { EntityType.Label, v => SearchStringAsync(context.Labels, x => x.Name, v) },
-            { EntityType.Storage, v => SearchStringAsync(context.Storages, x => x.Data, v) },
+            { EntityType.Storage, v => SearchStringAsync(context.Storages, x => x.Name, v) },
 
             { EntityType.Player, v => SearchStringAsync(context.Players, x => x.Name, v) },
             { EntityType.Cartridge, v => SearchStringAsync(context.Cartridges, x => x.Name, v) },

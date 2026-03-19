@@ -54,7 +54,7 @@ namespace Web.Services
                     {
                         _lastRefreshAttempt = _timeProvider.GetUtcNow().UtcDateTime;
                         var refreshed = await RefreshStatisticAsync();
-                        stat.Name = refreshed.Name;
+                        stat.Data = refreshed.Data;
                         stat.LastUpdate = refreshed.LastUpdate;
                         await _context.SaveChangesAsync();
                     }
@@ -103,7 +103,7 @@ namespace Web.Services
 
             return new Statistic
             {
-                Name = JsonSerializer.Serialize(data),
+                Data = JsonSerializer.Serialize(data),
                 LastUpdate = _timeProvider.GetUtcNow().UtcDateTime
             };
         }

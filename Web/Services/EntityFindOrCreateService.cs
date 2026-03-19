@@ -66,10 +66,10 @@ namespace Web.Services
         {
             var normalizedStorageData = storageData.Trim();
 
-            var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Data == normalizedStorageData);
+            var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Name == normalizedStorageData);
             if (storage is null)
             {
-                storage = new Storage { Data = storageData };
+                storage = new Storage { Name = storageData };
                 _context.Storages.Add(storage);
                 await _context.SaveChangesAsync();
             }

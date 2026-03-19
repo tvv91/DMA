@@ -1,10 +1,10 @@
-﻿namespace Web.Models
+namespace Web.Models
 {
     public class Digitization
     {
         public int Id { get; set; }
         public int AlbumId { get; set; }
-        public Album Album { get; set; }
+        public Album Album { get; set; } = null!;
         public DateTime? AddedDate { get; set; }
         public DateTime? UpdateDate { get; set; }
         public string? Source { get; set; }

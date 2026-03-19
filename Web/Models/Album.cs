@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Web.Models
 {
@@ -10,9 +10,9 @@ namespace Web.Models
         public DateTime? AddedDate { get; set; }
         public DateTime? UpdateDate { get; set; }
         public int GenreId { get; set; }
-        public Genre Genre { get; set; }
+        public Genre Genre { get; set; } = null!;
         public int ArtistId { get; set; }
-        public Artist Artist { get; set; }
+        public Artist Artist { get; set; } = null!;
         public ICollection<Digitization> Digitizations { get; set; } = [];
     }
 }

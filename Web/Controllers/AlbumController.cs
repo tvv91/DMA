@@ -136,20 +136,14 @@ namespace Web.Controllers
             {
                 var album = await _albumService.UpdateAlbumAsync(request.AlbumId, request.Title, request.Artist, request.Genre);
 
-                // Handle album cover:
-                // - If AlbumCover is the album ID, the image hasn't changed (don't do anything)
-                // - If AlbumCover is a temp filename, save it (new image uploaded)
-                // - If AlbumCover is null/empty, remove the cover (user removed it)
                 if (string.IsNullOrWhiteSpace(request.AlbumCover))
                 {
                     await _imageService.RemoveCoverAsync(album.Id, EntityType.AlbumCover);
                 }
                 else if (request.AlbumCover != album.Id.ToString())
                 {
-                    // It's a new temp filename, save it
                     await _imageService.SaveCoverAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
                 }
-                // If AlbumCover equals album ID, image hasn't changed - do nothing
 
                 AlbumHub.InvalidateAlbumCache(album.Id);
 

@@ -24,7 +24,7 @@ namespace Web.SignalRHubs
         private readonly TimeProvider _timeProvider = timeProvider;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
-        private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
+        private readonly Dictionary<string, EntityType> _categoryEntityMap = new()
         {
             { "adc", EntityType.Adc },
             { "amplifier", EntityType.Amplifier },
@@ -250,7 +250,7 @@ namespace Web.SignalRHubs
                 return;
             }
 
-            var mapping = new Dictionary<string, (int? id, EntityType type)>
+            Dictionary<string, (int? id, EntityType type)> mapping = new()
             {
                 ["vinylstate"] = (formatInfo?.VinylStateId, EntityType.VinylState),
                 ["digitalformat"] = (formatInfo?.DigitalFormatId, EntityType.DigitalFormat),

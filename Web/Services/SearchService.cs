@@ -46,7 +46,7 @@ namespace Web.Services
                 return await func(value);
             }
 
-            return new List<AutocompleteResponse>();
+            return [];
         }
 
         private static async Task<List<AutocompleteResponse>> SearchStringAsync<TEntity>(

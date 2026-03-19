@@ -14,7 +14,7 @@ namespace Web.SignalRHubs
         private readonly IEquipmentService _equipmentService = equipmentService;
         private const int ITEMS_PER_PAGE = 18;
 
-        private readonly Dictionary<string, EntityType> _categoryEntityMap = new Dictionary<string, EntityType>()
+        private readonly Dictionary<string, EntityType> _categoryEntityMap = new()
         {
             { "adc", EntityType.Adc },
             { "amplifier", EntityType.Amplifier },

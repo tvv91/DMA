@@ -1,4 +1,5 @@
 /* Post Index Page */
+/* Match /album: no extra horizontal inset (layout .container already provides gutters) */
 .blog-container {
     display: grid;
     grid-template-rows: auto;
@@ -9,7 +10,7 @@
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding: 0 20px;
+    padding: 0;
 }
 
 @media (max-width: 992px) {
@@ -479,12 +480,12 @@
     font-size: 0.875rem;
 }
 
-/* Post Details View */
+/* Post Details View — no extra horizontal inset (layout .container already gutters); keep vertical spacing */
 .post-details-container {
     max-width: 100%;
     width: 100%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 0;
 }
 
 .post-details-header {
@@ -615,6 +616,37 @@
     line-height: 1.8;
     color: #495057;
     padding-top: 24px;
+    /* Wrap long words / URLs and respect container width (rich HTML from editor) */
+    overflow-wrap: anywhere;
+    word-wrap: break-word;
+    word-break: break-word;
+    max-width: 100%;
+    min-width: 0;
+}
+
+.post-details-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+}
+
+.post-details-content code {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.post-details-content img,
+.post-details-content video,
+.post-details-content iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+.post-details-content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .post-details-content h1,
@@ -939,7 +971,7 @@
 /* Responsive adjustments */
 @media (max-width: 768px) {
     .blog-container {
-        padding: 0 16px;
+        padding: 0;
         gap: 16px;
     }
     
@@ -956,7 +988,7 @@
     }
     
     .post-details-container {
-        padding: 16px;
+        padding: 16px 0;
     }
     
     .post-details-article {

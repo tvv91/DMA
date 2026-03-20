@@ -1,4 +1,4 @@
-﻿@model PostViewModel
+@model PostViewModel
 @Html.AntiForgeryToken()
 
 <body data-page="view-post">
@@ -17,7 +17,7 @@
     <div class="post-details-container">
         <div class="post-details-header">
             <a class="btn btn-back" asp-action="index" asp-controller="post">
-                <i class="fa fa-arrow-left"></i> Back to Posts
+                <i class="fa fa-arrow-left"></i> Back
             </a>
             <div class="post-details-actions">
                 <a class="btn btn-edit" asp-action="edit" asp-controller="post" asp-route-id="@Model.Id">

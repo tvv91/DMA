@@ -47,7 +47,7 @@
     </div>
   </div>
 </div>
-<a id="back_button" class="btn btn-secondary mt-3" asp-action="index" asp-controller="equipment">Back</a>
+<a id="back_button" class="btn btn-back mt-3" asp-action="index" asp-controller="equipment"><i class="fa fa-arrow-left"></i> Back</a>
 @{
     var eqCategory = Model?.EquipmentType.ToString().ToLowerInvariant() ?? "";
     var eqId = Model?.Id ?? 0;

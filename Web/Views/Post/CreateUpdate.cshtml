@@ -9,13 +9,13 @@
                 @if (Model.Id > 0)
                 {
                     <a class="btn btn-back" asp-action="GetById" asp-controller="post" asp-route-id="@Model.Id">
-                        <i class="fa fa-arrow-left"></i> Back to Post
+                        <i class="fa fa-arrow-left"></i> Back
                     </a>
                 }
                 else
                 {
                     <a class="btn btn-back" asp-action="Index" asp-controller="post">
-                        <i class="fa fa-arrow-left"></i> Back to Posts
+                        <i class="fa fa-arrow-left"></i> Back
                     </a>
                 }
                 <div class="post-details-actions">

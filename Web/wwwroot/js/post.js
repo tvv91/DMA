@@ -1,4 +1,4 @@
-﻿const BACK_PAGE_POST_INDEX = "BACK_PAGE_POST_INDEX";
+const BACK_PAGE_POST_INDEX = "BACK_PAGE_POST_INDEX";
 let isChanged = false;
 let autoSaveInterval;
 let postId = null;
@@ -387,7 +387,7 @@ $(document).ready(async () => {
         console.error("Error starting SignalR connection:", err);
     }
 
-    const page = $("body").data("page");
+    const page = $("[data-page]").first().data("page");
 
     if (page === "post-list") initPostListPage();
     else if (page === "view-post") initViewPostPage();

@@ -686,12 +686,30 @@
     border-bottom-color: #667eea;
 }
 
+/* Editor: same shell as post view; body area is the rich text editor */
+.post-details-content.post-editor-rich-content {
+    padding-top: 0;
+}
+
+.post-details-article .post-editor-fields {
+    margin-bottom: 0;
+}
+
+/* Create / edit post: no extra padding (layout .container only) */
+.post-editor-page .post-details-container {
+    padding: 0;
+}
+
+.post-editor-page .post-details-article {
+    padding: 0;
+}
+
 /* Post Editor Styles */
 .post-editor-container {
     max-width: 100%;
     width: 100%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 0;
 }
 
 .post-editor-header {

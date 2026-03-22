@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
+using Web.Common;
 using Web.Enums;
+using Web.Models;
 using Web.Interfaces;
 using Web.Services;
 using Web.ViewModels;
@@ -95,6 +97,35 @@ namespace Web.Controllers
             return View("CreateUpdate", vm);
         }
 
+        private const int DefaultEquipmentAlbumsPageSize = 18;
+        private const int MaxEquipmentAlbumsPageSize = 100;
+
+        /// <summary>
+        /// HTML partial for client-side paging on the equipment details "Albums" tab (fetch).
+        /// </summary>
+        [HttpGet("equipment/{category}/{id}/albums-data", Order = 0)]
+        public async Task<IActionResult> EquipmentAlbumsData(EntityType category, int id, int page = 1, int pageSize = DefaultEquipmentAlbumsPageSize)
+        {
+            if (id <= 0)
+                return BadRequest();
+
+            var equipment = await _equipmentService.GetByIdAsync(id, category);
+            if (equipment is null)
+                return NotFound();
+
+            if (pageSize <= 0)
+                pageSize = DefaultEquipmentAlbumsPageSize;
+            else if (pageSize > MaxEquipmentAlbumsPageSize)
+                pageSize = MaxEquipmentAlbumsPageSize;
+
+            if (page < 1)
+                page = 1;
+
+            var result = await _digitizationService.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
+            var vm = MapDigitizedAlbumsPage(category, id, result);
+            return PartialView("_EquipmentDigitizedAlbumsInner", vm);
+        }
+
         [HttpGet("equipment/{category}/{id}", Order = 2)]
         public async Task<IActionResult> GetById(EntityType category, int id, string? tab = null, int page = 1, int pageSize = 18)
         {
@@ -112,9 +143,11 @@ namespace Web.Controllers
             if (string.Equals(tab, "albums", StringComparison.OrdinalIgnoreCase))
             {
                 vm.ActiveTab = "albums";
-                if (pageSize <= 0) pageSize = 18;
+                if (pageSize <= 0) pageSize = DefaultEquipmentAlbumsPageSize;
+                if (pageSize > MaxEquipmentAlbumsPageSize) pageSize = MaxEquipmentAlbumsPageSize;
                 if (page < 1) page = 1;
-                vm.DigitizedAlbumsPage = await _digitizationService.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
+                var albumsPage = await _digitizationService.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
+                vm.DigitizedAlbumsPage = MapDigitizedAlbumsPage(category, id, albumsPage);
             }
 
             return View("Details", vm);
@@ -147,6 +180,27 @@ namespace Web.Controllers
                 await _imageService.SaveCoverAsync(equipment.Id, request.EquipmentCover, request.EquipmentType);
 
             return Redirect($"/equipment/{request.EquipmentType}/{equipment.Id}");
+        }
+
+        private EquipmentDigitizedAlbumsPageViewModel MapDigitizedAlbumsPage(EntityType category, int equipmentId, PagedResult<Album> result)
+        {
+            var catSeg = category.ToString().ToLowerInvariant();
+            return new EquipmentDigitizedAlbumsPageViewModel
+            {
+                CurrentPage = result.CurrentPage,
+                PageCount = result.TotalPages,
+                PageSize = result.PageSize,
+                HasResults = result.Items.Count > 0,
+                CategorySegment = catSeg,
+                EquipmentId = equipmentId,
+                Albums = [.. result.Items.Select(a => new EquipmentAlbumRowViewModel
+                {
+                    Id = a.Id,
+                    Title = a.Title,
+                    ArtistName = a.Artist?.Name ?? string.Empty,
+                    DetailUrl = Url.Action("GetById", "Album", new { id = a.Id }) ?? string.Empty
+                })]
+            };
         }
     }
 }

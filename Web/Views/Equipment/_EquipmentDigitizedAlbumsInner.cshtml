@@ -1,0 +1,87 @@
+@model EquipmentDigitizedAlbumsPageViewModel
+@if (!Model.HasResults)
+{
+    <p class="equipment-no-albums text-muted">No albums have been digitized with this equipment yet.</p>
+}
+else
+{
+    var baseAlbumsUrl = $"/equipment/{Model.CategorySegment}/{Model.EquipmentId}?tab=albums&pageSize={Model.PageSize}";
+    <div class="album-page">
+        <div class="wrapper">
+            @foreach (var album in Model.Albums)
+            {
+                <article class="album-card" data-album-id="@album.Id">
+                    <a href="@album.DetailUrl" class="album-link">
+                        <div class="album-img-wrapper">
+                            <div id="spinner-@album.Id" class="spinner-overlay">
+                                <div class="spinner-border text-primary" role="status"></div>
+                            </div>
+                            <img id="album-img-@album.Id" class="album-cover d-none" alt="@album.ArtistName - @album.Title" />
+                        </div>
+                    </a>
+                    <div class="album-base-info">
+                        <div class="album-artist">@album.ArtistName</div>
+                        <div class="album-title">@album.Title</div>
+                    </div>
+                </article>
+            }
+        </div>
+        <div class="album-pagination">
+            <nav aria-label="Page navigation">
+                <ul id="equipment-albums-pagination" class="pagination justify-content-center">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.CurrentPage - 1)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
+                        </li>
+                    }
+                    @{
+                        const int sideWindow = 2;
+                        var startPage = Math.Max(1, Model.CurrentPage - sideWindow);
+                        var endPage = Math.Min(Model.PageCount, Model.CurrentPage + sideWindow);
+                    }
+                    @if (startPage > 1)
+                    {
+                        var firstIsActive = Model.CurrentPage == 1 ? "active" : "";
+                        <li class="page-item @firstIsActive">
+                            <a class="page-link" href="@(baseAlbumsUrl)&page=1" @(Model.CurrentPage == 1 ? Html.Raw("aria-current=\"page\"") : null)>1</a>
+                        </li>
+                    }
+                    @if (startPage > 2)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    @for (var i = startPage; i <= endPage; i++)
+                    {
+                        var isActive = i == Model.CurrentPage ? "active" : "";
+                        var ariaCurrent = i == Model.CurrentPage ? "aria-current=\"page\"" : "";
+                        <li class="page-item @isActive">
+                            <a class="page-link" href="@(baseAlbumsUrl)&page=@i" @Html.Raw(ariaCurrent)>@i</a>
+                        </li>
+                    }
+                    @if (endPage < Model.PageCount - 1)
+                    {
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    }
+                    @if (endPage < Model.PageCount)
+                    {
+                        var lastIsActive = Model.CurrentPage == Model.PageCount ? "active" : "";
+                        <li class="page-item @lastIsActive">
+                            <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.PageCount)" @(Model.CurrentPage == Model.PageCount ? Html.Raw("aria-current=\"page\"") : null)>@Model.PageCount</a>
+                        </li>
+                    }
+                    @if (Model.CurrentPage < Model.PageCount)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.CurrentPage + 1)" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+}

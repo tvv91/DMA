@@ -99,85 +99,82 @@
             </div>
         </div>
     </div>
-    <div class="tab-pane fade @(Model?.ActiveTab == "albums" ? "show active" : "")" id="albums-pane" role="tabpanel">
-        @if (Model?.DigitizedAlbumsPage != null && Model.DigitizedAlbumsPage.Items.Count > 0) {
-            <div class="album-page">
-                <div class="wrapper">
-                    @foreach (var album in Model.DigitizedAlbumsPage.Items) {
-                        <article class="album-card">
-                            <a asp-controller="Album" asp-action="GetById" asp-route-id="@album.Id" class="album-link">
-                                <div class="album-img-wrapper">
-                                    <div id="spinner-@album.Id" class="spinner-overlay">
-                                        <div class="spinner-border text-primary" role="status"></div>
-                                    </div>
-                                    <img id="album-img-@album.Id" class="album-cover d-none" alt="@(album.Artist?.Name) - @album.Title" />
-                                </div>
-                            </a>
-                            <div class="album-base-info">
-                                <div class="album-artist">@(album.Artist?.Name)</div>
-                                <div class="album-title">@album.Title</div>
-                            </div>
-                        </article>
-                    }
-                </div>
-                <div class="album-pagination">
-                    <nav aria-label="Page navigation">
-                        <ul class="pagination justify-content-center">
-                            @if (Model.DigitizedAlbumsPage.CurrentPage > 1) {
-                                <li class="page-item">
-                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.DigitizedAlbumsPage.CurrentPage - 1)" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a>
-                                </li>
-                            }
-                            @{
-                                const int sideWindow = 2;
-                                var startPage = Math.Max(1, Model.DigitizedAlbumsPage.CurrentPage - sideWindow);
-                                var endPage = Math.Min(Model.DigitizedAlbumsPage.TotalPages, Model.DigitizedAlbumsPage.CurrentPage + sideWindow);
-                            }
-                            @if (startPage > 1) {
-                                var firstIsActive = Model.DigitizedAlbumsPage.CurrentPage == 1 ? "active" : "";
-                                <li class="page-item @firstIsActive">
-                                    <a class="page-link" href="@(baseAlbumsUrl)&page=1" @(Model.DigitizedAlbumsPage.CurrentPage == 1 ? Html.Raw("aria-current=\"page\"") : null)>1</a>
-                                </li>
-                            }
-                            @if (startPage > 2) {
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                            }
-                            @for (var i = startPage; i <= endPage; i++) {
-                                var isActive = i == Model.DigitizedAlbumsPage.CurrentPage ? "active" : "";
-                                var ariaCurrent = i == Model.DigitizedAlbumsPage.CurrentPage ? "aria-current=\"page\"" : "";
-                                <li class="page-item @isActive">
-                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@i" @Html.Raw(ariaCurrent)>@i</a>
-                                </li>
-                            }
-                            @if (endPage < Model.DigitizedAlbumsPage.TotalPages - 1) {
-                                <li class="page-item disabled">
-                                    <span class="page-link">...</span>
-                                </li>
-                            }
-                            @if (endPage < Model.DigitizedAlbumsPage.TotalPages) {
-                                var lastIsActive = Model.DigitizedAlbumsPage.CurrentPage == Model.DigitizedAlbumsPage.TotalPages ? "active" : "";
-                                <li class="page-item @lastIsActive">
-                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.DigitizedAlbumsPage.TotalPages)" @(Model.DigitizedAlbumsPage.CurrentPage == Model.DigitizedAlbumsPage.TotalPages ? Html.Raw("aria-current=\"page\"") : null)>@Model.DigitizedAlbumsPage.TotalPages</a>
-                                </li>
-                            }
-                            @if (Model.DigitizedAlbumsPage.CurrentPage < Model.DigitizedAlbumsPage.TotalPages) {
-                                <li class="page-item">
-                                    <a class="page-link" href="@(baseAlbumsUrl)&page=@(Model.DigitizedAlbumsPage.CurrentPage + 1)" aria-label="Next"><span aria-hidden="true">&raquo;</span></a>
-                                </li>
-                            }
-                        </ul>
-                    </nav>
-                </div>
-            </div>
-        } else if (Model?.ActiveTab == "albums") {
-            <p class="equipment-no-albums text-muted">No albums have been digitized with this equipment yet.</p>
+    <div class="tab-pane fade @(Model?.ActiveTab == "albums" ? "show active" : "")" id="albums-pane" role="tabpanel"
+         data-eq-category="@eqCategory"
+         data-eq-id="@eqId"
+         data-albums-partial-url="@Url.Action("EquipmentAlbumsData", "Equipment", new { category = Model!.EquipmentType, id = Model.Id })">
+        <div id="equipment-albums-inner">
+        @if (Model?.ActiveTab == "albums" && Model.DigitizedAlbumsPage != null)
+        {
+            @await Html.PartialAsync("_EquipmentDigitizedAlbumsInner", Model.DigitizedAlbumsPage)
         }
+        </div>
     </div>
 </div>
 </div>
 <script>
+      function equipmentAlbumsDataFetchUrl(detailsUrl) {
+        const pane = document.getElementById('albums-pane');
+        if (!pane || !pane.dataset.albumsPartialUrl) return '';
+        const u = new URL(detailsUrl, window.location.origin);
+        const page = u.searchParams.get('page') || '1';
+        const pageSize = u.searchParams.get('pageSize') || '18';
+        const sep = pane.dataset.albumsPartialUrl.includes('?') ? '&' : '?';
+        return `${pane.dataset.albumsPartialUrl}${sep}page=${encodeURIComponent(page)}&pageSize=${encodeURIComponent(pageSize)}`;
+      }
+
+      async function loadEquipmentAlbumsPartial(detailsPageUrl, pushState) {
+        const inner = document.getElementById('equipment-albums-inner');
+        if (!inner) return;
+        const fetchUrl = equipmentAlbumsDataFetchUrl(detailsPageUrl);
+        if (!fetchUrl) return;
+        const res = await fetch(fetchUrl, {
+          credentials: 'same-origin',
+          headers: { 'Accept': 'text/html', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (!res.ok) return;
+        inner.innerHTML = await res.text();
+        if (pushState) {
+          const u = new URL(detailsPageUrl, window.location.origin);
+          history.pushState({}, '', u.pathname + u.search);
+        }
+        const albumIds = [...inner.querySelectorAll('[data-album-id]')].map((el) => parseInt(el.getAttribute('data-album-id'), 10)).filter((id) => !Number.isNaN(id));
+        if (albumIds.length > 0) {
+          try {
+            await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
+          } catch (err) { console.error("GetAlbumCovers:", err); }
+        }
+      }
+
+      connection.on("ReceivedAlbumCover", (albumId, cover) => {
+        const img = $("#album-img-" + albumId);
+        const spinner = $("#spinner-" + albumId);
+        if (img.length === 0 || spinner.length === 0) return;
+        img.off("load error")
+          .on("load", () => { spinner.addClass("hidden"); img.removeClass("d-none"); })
+          .on("error", () => { img.attr("src", "/img/nocover.png"); spinner.addClass("hidden"); img.removeClass("d-none"); });
+        img.attr("src", cover);
+        if (img[0].complete && img[0].naturalHeight !== 0) { spinner.addClass("hidden"); img.removeClass("d-none"); }
+        else if (img[0].complete && img[0].naturalHeight === 0) img.trigger("error");
+      });
+
+      $(document).on('click', '#albums-pane .album-pagination a.page-link', function (e) {
+        if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+        const href = this.getAttribute('href');
+        if (!href || !href.toLowerCase().includes('tab=albums')) return;
+        e.preventDefault();
+        loadEquipmentAlbumsPartial(href, true);
+      });
+
+      window.addEventListener('popstate', () => {
+        const u = new URL(window.location.href);
+        if (u.searchParams.get('tab') === 'albums') {
+          loadEquipmentAlbumsPartial(window.location.href, false);
+        } else {
+          window.location.reload();
+        }
+      });
+
       $(document).ready(async () => {
         await start();
         await getEquipmentImage(@(Model?.Id ?? 0));
@@ -186,24 +183,13 @@
         showToast("equipment_created", "toastinfo_created");
         showToast("equipment_deleted", "toastinfo_deleted");
 
-        @if (Model?.DigitizedAlbumsPage?.Items != null && Model.DigitizedAlbumsPage.Items.Count > 0) {
+        @if (Model?.DigitizedAlbumsPage?.HasResults == true) {
           <text>
-          (async function loadEquipmentAlbumCovers() {
+          (async function loadEquipmentAlbumCoversInitial() {
             try {
-              await connection.invoke("GetAlbumCovers", connection.connectionId, @Json.Serialize(Model.DigitizedAlbumsPage.Items.Select(a => a.Id).ToList()));
+              await connection.invoke("GetAlbumCovers", connection.connectionId, @Json.Serialize(Model.DigitizedAlbumsPage.Albums.Select(a => a.Id).ToList()));
             } catch (err) { console.error("GetAlbumCovers:", err); }
           })();
-          connection.on("ReceivedAlbumCover", (albumId, cover) => {
-            const img = $("#album-img-" + albumId);
-            const spinner = $("#spinner-" + albumId);
-            if (img.length === 0 || spinner.length === 0) return;
-            img.off("load error")
-              .on("load", () => { spinner.addClass("hidden"); img.removeClass("d-none"); })
-              .on("error", () => { img.attr("src", "/img/nocover.png"); spinner.addClass("hidden"); img.removeClass("d-none"); });
-            img.attr("src", cover);
-            if (img[0].complete && img[0].naturalHeight !== 0) { spinner.addClass("hidden"); img.removeClass("d-none"); }
-            else if (img[0].complete && img[0].naturalHeight === 0) img.trigger("error");
-          });
           </text>
         }
       });

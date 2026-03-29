@@ -217,8 +217,7 @@ namespace Web.Services
                             : new Manufacturer
                             {
                                 Id = x.EquipmentInfo.Player.Manufacturer.Id,
-                                Name = x.EquipmentInfo.Player.Manufacturer.Name,
-                                Type = x.EquipmentInfo.Player.Manufacturer.Type
+                                Name = x.EquipmentInfo.Player.Manufacturer.Name
                             }
                     },
                     CartridgeId = x.EquipmentInfo == null ? null : x.EquipmentInfo.CartridgeId,
@@ -232,8 +231,7 @@ namespace Web.Services
                             : new Manufacturer
                             {
                                 Id = x.EquipmentInfo.Cartridge.Manufacturer.Id,
-                                Name = x.EquipmentInfo.Cartridge.Manufacturer.Name,
-                                Type = x.EquipmentInfo.Cartridge.Manufacturer.Type
+                                Name = x.EquipmentInfo.Cartridge.Manufacturer.Name
                             }
                     },
                     AmplifierId = x.EquipmentInfo == null ? null : x.EquipmentInfo.AmplifierId,
@@ -247,8 +245,7 @@ namespace Web.Services
                             : new Manufacturer
                             {
                                 Id = x.EquipmentInfo.Amplifier.Manufacturer.Id,
-                                Name = x.EquipmentInfo.Amplifier.Manufacturer.Name,
-                                Type = x.EquipmentInfo.Amplifier.Manufacturer.Type
+                                Name = x.EquipmentInfo.Amplifier.Manufacturer.Name
                             }
                     },
                     AdcId = x.EquipmentInfo == null ? null : x.EquipmentInfo.AdcId,
@@ -262,8 +259,7 @@ namespace Web.Services
                             : new Manufacturer
                             {
                                 Id = x.EquipmentInfo.Adc.Manufacturer.Id,
-                                Name = x.EquipmentInfo.Adc.Manufacturer.Name,
-                                Type = x.EquipmentInfo.Adc.Manufacturer.Type
+                                Name = x.EquipmentInfo.Adc.Manufacturer.Name
                             }
                     },
                     WireId = x.EquipmentInfo == null ? null : x.EquipmentInfo.WireId,
@@ -277,8 +273,7 @@ namespace Web.Services
                             : new Manufacturer
                             {
                                 Id = x.EquipmentInfo.Wire.Manufacturer.Id,
-                                Name = x.EquipmentInfo.Wire.Manufacturer.Name,
-                                Type = x.EquipmentInfo.Wire.Manufacturer.Type
+                                Name = x.EquipmentInfo.Wire.Manufacturer.Name
                             }
                     }
                 }

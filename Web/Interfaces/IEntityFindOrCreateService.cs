@@ -1,4 +1,3 @@
-using Web.Enums;
 using Web.Models;
 
 namespace Web.Interfaces
@@ -20,6 +19,6 @@ namespace Web.Interfaces
         Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName, string? manufacturerName = null);
         Task<Adc> FindOrCreateAdcAsync(string adcName, string? manufacturerName = null);
         Task<Wire> FindOrCreateWireAsync(string wireName, string? manufacturerName = null);
-        Task<Manufacturer?> FindOrCreateManufacturerAsync(string manufacturerName, EntityType manufacturerType);
+        Task<Manufacturer?> FindOrCreateManufacturerAsync(string manufacturerName);
     }
 }

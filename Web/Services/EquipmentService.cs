@@ -95,7 +95,7 @@ namespace Web.Services
 
         public async Task<IManufacturer> MapViewModelToEquipmentAsync(EquipmentViewModel request)
         {
-            var manufacturer = await FindOrCreateManufacturerAsync(request.Manufacturer, GetManufacturerType(request.EquipmentType));
+            var manufacturer = await FindOrCreateManufacturerAsync(request.Manufacturer);
 
             return request.EquipmentType switch
             {
@@ -138,55 +138,20 @@ namespace Web.Services
             };
         }
 
-        private static EntityType GetManufacturerType(EntityType equipmentType)
-        {
-            return equipmentType switch
-            {
-                EntityType.Adc => EntityType.AdcManufacturer,
-                EntityType.Amplifier => EntityType.AmplifierManufacturer,
-                EntityType.Cartridge => EntityType.CartridgeManufacturer,
-                EntityType.Player => EntityType.PlayerManufacturer,
-                EntityType.Wire => EntityType.WireManufacturer,
-                _ => throw new ArgumentOutOfRangeException(nameof(equipmentType), equipmentType, "Unknown equipment type")
-            };
-        }
-
-        private async Task<Manufacturer?> FindOrCreateManufacturerAsync(string? name, EntityType manufacturerType)
+        private async Task<Manufacturer?> FindOrCreateManufacturerAsync(string? name)
         {
             if (string.IsNullOrWhiteSpace(name))
                 return null;
 
             var normalizedName = name.Trim();
 
-            // First, try to find existing manufacturer by name and type (case-insensitive)
-            var existingManufacturer = await _context.Manufacturer
-                .FirstOrDefaultAsync(m => m.Name == normalizedName && m.Type == manufacturerType);
-
-            if (existingManufacturer is not null)
-                return existingManufacturer;
-
-            // If not found by name and type, try to find by name only (to reuse existing manufacturers)
-            var existingByName = await _context.Manufacturer
+            var existing = await _context.Manufacturer
                 .FirstOrDefaultAsync(m => m.Name == normalizedName);
 
-            if (existingByName is not null)
-            {
-                // Update the type if it's different (to gradually fix data inconsistencies)
-                if (existingByName.Type != manufacturerType)
-                {
-                    existingByName.Type = manufacturerType;
-                    await _context.SaveChangesAsync();
-                }
-                return existingByName;
-            }
+            if (existing is not null)
+                return existing;
 
-            // If not found at all, create a new one
-            var newManufacturer = new Manufacturer
-            {
-                Name = name.Trim(),
-                Type = manufacturerType
-            };
-
+            var newManufacturer = new Manufacturer { Name = normalizedName };
             _context.Manufacturer.Add(newManufacturer);
             await _context.SaveChangesAsync();
 

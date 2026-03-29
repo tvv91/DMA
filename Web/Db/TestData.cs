@@ -314,17 +314,16 @@ namespace Web.Db
         }
 
         /// <summary>
-        /// <see cref="Manufacturer.Name"/> is globally unique; <see cref="Manufacturer.Type"/> is a single enum —
-        /// use distinct manufacturer strings when the same real-world brand appears in more than one equipment category.
+        /// <see cref="Manufacturer.Name"/> is globally unique in seed data.
         /// </summary>
-        private static Manufacturer Mfr(string name, EntityType type) =>
-            new() { Name = name, Type = type };
+        private static Manufacturer Mfr(string name) =>
+            new() { Name = name };
 
         private static void AddAdc(List<Adc> list, Dictionary<string, Manufacturer> reg, string mfrName, string modelName)
         {
             if (!reg.TryGetValue(mfrName, out var m))
             {
-                m = Mfr(mfrName, EntityType.AdcManufacturer);
+                m = Mfr(mfrName);
                 reg[mfrName] = m;
             }
             list.Add(new Adc { Name = modelName, Manufacturer = m });
@@ -334,7 +333,7 @@ namespace Web.Db
         {
             if (!reg.TryGetValue(mfrName, out var m))
             {
-                m = Mfr(mfrName, EntityType.AmplifierManufacturer);
+                m = Mfr(mfrName);
                 reg[mfrName] = m;
             }
             list.Add(new Amplifier { Name = modelName, Manufacturer = m });
@@ -344,7 +343,7 @@ namespace Web.Db
         {
             if (!reg.TryGetValue(mfrName, out var m))
             {
-                m = Mfr(mfrName, EntityType.CartridgeManufacturer);
+                m = Mfr(mfrName);
                 reg[mfrName] = m;
             }
             list.Add(new Cartridge { Name = modelName, Manufacturer = m });
@@ -354,7 +353,7 @@ namespace Web.Db
         {
             if (!reg.TryGetValue(mfrName, out var m))
             {
-                m = Mfr(mfrName, EntityType.PlayerManufacturer);
+                m = Mfr(mfrName);
                 reg[mfrName] = m;
             }
             list.Add(new Player { Name = modelName, Manufacturer = m });
@@ -364,7 +363,7 @@ namespace Web.Db
         {
             if (!reg.TryGetValue(mfrName, out var m))
             {
-                m = Mfr(mfrName, EntityType.WireManufacturer);
+                m = Mfr(mfrName);
                 reg[mfrName] = m;
             }
             list.Add(new Wire { Name = modelName, Manufacturer = m });

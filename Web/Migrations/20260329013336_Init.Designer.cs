@@ -12,7 +12,7 @@ using Web.Db;
 namespace Web.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20260320192056_Init")]
+    [Migration("20260329013336_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -495,9 +495,6 @@ namespace Web.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

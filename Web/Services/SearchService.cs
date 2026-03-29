@@ -32,11 +32,11 @@ namespace Web.Services
             { EntityType.Adc, v => SearchStringAsync(context.Adces, x => x.Name, v) },
             { EntityType.Wire, v => SearchStringAsync(context.Wires, x => x.Name, v) },
 
-            { EntityType.PlayerManufacturer, v => SearchManufacturerAsync(context, EntityType.PlayerManufacturer, v) },
-            { EntityType.CartridgeManufacturer, v => SearchManufacturerAsync(context, EntityType.CartridgeManufacturer, v) },
-            { EntityType.AmplifierManufacturer, v => SearchManufacturerAsync(context, EntityType.AmplifierManufacturer, v) },
-            { EntityType.AdcManufacturer, v => SearchManufacturerAsync(context, EntityType.AdcManufacturer, v) },
-            { EntityType.WireManufacturer, v => SearchManufacturerAsync(context, EntityType.WireManufacturer, v) },
+            { EntityType.PlayerManufacturer, v => SearchManufacturerAsync(context, v) },
+            { EntityType.CartridgeManufacturer, v => SearchManufacturerAsync(context, v) },
+            { EntityType.AmplifierManufacturer, v => SearchManufacturerAsync(context, v) },
+            { EntityType.AdcManufacturer, v => SearchManufacturerAsync(context, v) },
+            { EntityType.WireManufacturer, v => SearchManufacturerAsync(context, v) },
         };
 
         public async Task<List<AutocompleteResponse>> SearchAsync(EntityType entityType, string value)
@@ -90,13 +90,13 @@ namespace Web.Services
                 .ToList();
         }
 
-        private static async Task<List<AutocompleteResponse>> SearchManufacturerAsync(Context context, EntityType type, string value)
+        private static async Task<List<AutocompleteResponse>> SearchManufacturerAsync(Context context, string value)
         {
             var likePattern = $"%{value}%";
 
             return await context.Manufacturer
                 .AsNoTracking()
-                .Where(m => m.Type == type && EF.Functions.Like(m.Name, likePattern))
+                .Where(m => EF.Functions.Like(m.Name, likePattern))
                 .Select(m => new AutocompleteResponse { Label = m.Name, Value = m.Name })
                 .Distinct()
                 .ToListAsync();

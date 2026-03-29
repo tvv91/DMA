@@ -188,16 +188,36 @@
     </div>
     <div class="digitization-table">
         <div class="table-header">
-            <div class="col col-vinyl">Vinyl state</div>
-            <div class="col col-bitness">Bitness</div>
-            <div class="col col-sampling">Sampling</div>
-            <div class="col col-format">Format</div>
-            <div class="col col-source">Source</div>
-            <div class="col col-player">Player</div>
-            <div class="col col-cartridge">Cartridge</div>
-            <div class="col col-amplifier">Amplifier</div>
-            <div class="col col-adc">ADC</div>
-            <div class="col col-wire">Wire</div>
+            <div class="col col-vinyl sortable-header" data-sort-key="vinyl" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Vinyl state</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-bitness sortable-header" data-sort-key="bitness" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Bitness</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-sampling sortable-header" data-sort-key="sampling" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Sampling</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-format sortable-header" data-sort-key="format" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Format</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-source sortable-header" data-sort-key="source" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Source</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-player sortable-header" data-sort-key="player" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Player</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-cartridge sortable-header" data-sort-key="cartridge" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Cartridge</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-amplifier sortable-header" data-sort-key="amplifier" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Amplifier</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-adc sortable-header" data-sort-key="adc" role="columnheader" tabindex="0" aria-sort="none">
+                <span>ADC</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
+            <div class="col col-wire sortable-header" data-sort-key="wire" role="columnheader" tabindex="0" aria-sort="none">
+                <span>Wire</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
+            </div>
         </div>
         <div class="table-body" id="digitizationTableBody">
             @if (Model.Digitizations != null && Model.Digitizations.Any())
@@ -372,7 +392,102 @@
 </div>
 <script>
     const digitizations = @Html.Raw(JsonSerializer.Serialize(Model.Digitizations, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }))
-    
+    const digitizationSortState = { key: null, ascending: true };
+
+    function digitizationListSafe() {
+        return Array.isArray(digitizations) ? digitizations : [];
+    }
+
+    function equipmentSortString(item, equipmentProp) {
+        const eq = item.EquipmentInfo && item.EquipmentInfo[equipmentProp];
+        if (!eq) return null;
+        const m = (eq.Manufacturer && eq.Manufacturer.Name) || '';
+        const n = eq.Name || '';
+        const s = (m + ' ' + n).trim();
+        return s.length ? s.toLowerCase() : null;
+    }
+
+    function getSortComparable(item, sortKey) {
+        const fi = item.FormatInfo || {};
+        switch (sortKey) {
+            case 'vinyl':
+                return { kind: 'string', value: fi.VinylState && fi.VinylState.Name ? String(fi.VinylState.Name).toLowerCase() : null };
+            case 'bitness':
+                return { kind: 'number', value: fi.Bitness != null && fi.Bitness.Value != null ? Number(fi.Bitness.Value) : null };
+            case 'sampling':
+                return { kind: 'number', value: fi.Sampling != null && fi.Sampling.Value != null ? Number(fi.Sampling.Value) : null };
+            case 'format':
+                return { kind: 'string', value: fi.DigitalFormat && fi.DigitalFormat.Name ? String(fi.DigitalFormat.Name).toLowerCase() : null };
+            case 'source':
+                return { kind: 'string', value: fi.SourceFormat && fi.SourceFormat.Name ? String(fi.SourceFormat.Name).toLowerCase() : null };
+            case 'player':
+                return { kind: 'string', value: equipmentSortString(item, 'Player') };
+            case 'cartridge':
+                return { kind: 'string', value: equipmentSortString(item, 'Cartridge') };
+            case 'amplifier':
+                return { kind: 'string', value: equipmentSortString(item, 'Amplifier') };
+            case 'adc':
+                return { kind: 'string', value: equipmentSortString(item, 'Adc') };
+            case 'wire':
+                return { kind: 'string', value: equipmentSortString(item, 'Wire') };
+            default:
+                return { kind: 'string', value: null };
+        }
+    }
+
+    function compareDigitizationSort(a, b, sortKey, ascending) {
+        const ca = getSortComparable(a, sortKey);
+        const cb = getSortComparable(b, sortKey);
+        const va = ca.value;
+        const vb = cb.value;
+        const aEmpty = va == null || va === '';
+        const bEmpty = vb == null || vb === '';
+        if (aEmpty && bEmpty) return 0;
+        if (aEmpty) return 1;
+        if (bEmpty) return -1;
+        let cmp = 0;
+        if (ca.kind === 'number' && cb.kind === 'number') {
+            cmp = va - vb;
+        } else {
+            cmp = String(va).localeCompare(String(vb), undefined, { sensitivity: 'base' });
+        }
+        return ascending ? cmp : -cmp;
+    }
+
+    function applyDigitizationSort(sortKey, ascending) {
+        const list = digitizationListSafe().slice();
+        if (!list.length) return;
+        list.sort(function (a, b) { return compareDigitizationSort(a, b, sortKey, ascending); });
+        const $body = $('#digitizationTableBody');
+        const selectedId = $body.find('.table-row.selected').data('id');
+        list.forEach(function (d) {
+            const $r = $body.find('.table-row[data-id="' + d.Id + '"]');
+            if ($r.length) $body.append($r);
+        });
+        if (selectedId) {
+            $body.find('.table-row').removeClass('selected');
+            $body.find('.table-row[data-id="' + selectedId + '"]').addClass('selected');
+        }
+    }
+
+    function updateDigitizationSortHeaderUi(activeKey, direction) {
+        $('.digitization-table .sortable-header').each(function () {
+            const $h = $(this);
+            const key = $h.data('sort-key');
+            const $icon = $h.find('.sort-icon');
+            $h.removeClass('sorted-asc sorted-desc');
+            $icon.removeClass('fa-sort fa-sort-up fa-sort-down');
+            if (key === activeKey) {
+                $h.addClass(direction === 'asc' ? 'sorted-asc' : 'sorted-desc');
+                $icon.addClass(direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down');
+                $h.attr('aria-sort', direction === 'asc' ? 'ascending' : 'descending');
+            } else {
+                $icon.addClass('fa-sort');
+                $h.attr('aria-sort', 'none');
+            }
+        });
+    }
+
     $(document).ready(async () => {
         await start();
         await getAlbumCover(@Model.AlbumId);
@@ -384,13 +499,13 @@
         if (backIndex && backIndex !== "1") {
             $("#back_button").attr("href", `/album?page=${backIndex}`);
         }
-        $('.table-row').each(function (i) {
+        $('#digitizationTableBody .table-row[data-id]').each(function (i) {
             const $row = $(this);
-            setTimeout(() => $row.addClass('visible'), i * 100);
+            setTimeout(function () { $row.addClass('visible'); }, i * 100);
         });
 
-        $('.table-row').on('click', async function () {
-            $('.table-row').removeClass('selected');
+        $('#digitizationTableBody').on('click', '.table-row[data-id]', async function () {
+            $('#digitizationTableBody .table-row[data-id]').removeClass('selected');
             $(this).addClass('selected');
 
             const id = $(this).data('id');
@@ -399,12 +514,29 @@
                 await getTechnicalInfoIcons(id);
                 setDigitizationValue(id);
             }
-    });
+        });
 
-    const $firstRow = $('.table-row').first();
-    if ($firstRow.length) {
-        $firstRow.addClass('selected');
-        const id = $firstRow.data('id');
+        $('.digitization-table .table-header').on('click keydown', '.sortable-header', function (e) {
+            if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            if (!digitizationListSafe().length) return;
+            const key = $(this).data('sort-key');
+            if (!key) return;
+            if (digitizationSortState.key === key) {
+                digitizationSortState.ascending = !digitizationSortState.ascending;
+            } else {
+                digitizationSortState.key = key;
+                digitizationSortState.ascending = true;
+            }
+            const dir = digitizationSortState.ascending ? 'asc' : 'desc';
+            applyDigitizationSort(key, digitizationSortState.ascending);
+            updateDigitizationSortHeaderUi(key, dir);
+        });
+
+        const $firstRow = $('#digitizationTableBody .table-row[data-id]').first();
+        if ($firstRow.length) {
+            $firstRow.addClass('selected');
+            const id = $firstRow.data('id');
             if (id) {
                 resetSpinners();
                 await getTechnicalInfoIcons(id);
@@ -414,7 +546,7 @@
     })
 
     function setDigitizationValue(id) {
-        const item = digitizations.find(x => x.Id === id);
+        const item = digitizationListSafe().find(x => x.Id === id);
 
         if (!item) {
             console.warn("Digitization not found for id:", id);

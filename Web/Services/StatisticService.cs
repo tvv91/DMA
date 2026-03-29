@@ -14,6 +14,7 @@ namespace Web.Services
         private static readonly SemaphoreSlim _refreshLock = new SemaphoreSlim(1, 1);
         private static DateTime? _lastRefreshAttempt = null;
         private static readonly TimeSpan _refreshCooldown = TimeSpan.FromMinutes(5);
+        private const int TopStatisticsItems = 10;
 
         public async Task<Statistic> ProcessAsync()
         {
@@ -118,6 +119,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -131,6 +133,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -138,12 +141,13 @@ namespace Web.Services
         {
             return await _context.Years
                 .Where(y => y.Digitizations.Any())
-                .OrderByDescending(y => y.Value)
                 .Select(y => new CounterItem
                 {
                     Description = y.Value.ToString(),
                     Count = y.Digitizations.Count
                 })
+                .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -157,6 +161,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -170,6 +175,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -183,6 +189,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -196,6 +203,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -209,6 +217,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -222,6 +231,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -235,6 +245,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -248,6 +259,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -261,6 +273,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -274,6 +287,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -287,6 +301,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
 
@@ -300,6 +315,7 @@ namespace Web.Services
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
+                .Take(TopStatisticsItems)
                 .ToListAsync();
         }
     }

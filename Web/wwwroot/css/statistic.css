@@ -28,22 +28,24 @@
     color: #007bff;
 }
 
-/* Overview Statistics Cards */
+/* Overview Statistics Cards — always six columns on one row (see mobile breakpoint below) */
 .statistics-overview {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 1.5rem;
     margin-bottom: 3rem;
 }
 
 .stat-card {
+    min-width: 0;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.25rem 1.5rem 1.5rem;
     color: white;
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -77,27 +79,39 @@
     background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
 }
 
-.stat-card-icon {
-    font-size: 2.5rem;
-    opacity: 0.9;
+.stat-card-label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    width: 100%;
+    min-width: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.95;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1.3;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.28);
 }
 
-.stat-card-content {
-    flex: 1;
+.stat-card-label i {
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    opacity: 0.95;
+    line-height: 1;
+}
+
+.stat-card-label span {
+    min-width: 0;
 }
 
 .stat-card-value {
     font-size: 2rem;
     font-weight: 700;
     line-height: 1.2;
-    margin-bottom: 0.25rem;
-}
-
-.stat-card-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    text-align: center;
+    min-width: 0;
 }
 
 /* Statistics Sections */
@@ -131,13 +145,15 @@
     font-size: 1.25rem;
 }
 
+/* Music / Format / Equipment: five cards per section, one row on desktop */
 .statistics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 1.5rem;
 }
 
 .statistics-card {
+    min-width: 0;
     background: #f8f9fa;
     border-radius: 8px;
     padding: 1.25rem;

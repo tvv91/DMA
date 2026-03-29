@@ -1,4 +1,4 @@
-﻿@model StatisticViewModel;
+@model StatisticViewModel;
 @using static System.Math;
 
 <div class="statistics-page">
@@ -13,58 +13,46 @@
     <!-- General Statistics Cards -->
     <div class="statistics-overview">
         <div class="stat-card">
-            <div class="stat-card-icon">
-                <i class="fa-solid fa-compact-disc"></i>
+            <div class="stat-card-label">
+                <i class="fa-solid fa-compact-disc" aria-hidden="true"></i>
+                <span>Total Albums</span>
             </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">@Model.TotalAlbums</div>
-                <div class="stat-card-label">Total Albums</div>
-            </div>
+            <div class="stat-card-value">@Model.TotalAlbums</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card-icon">
-                <i class="fa-solid fa-database"></i>
+            <div class="stat-card-label">
+                <i class="fa-solid fa-database" aria-hidden="true"></i>
+                <span>Total Size</span>
             </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">@Math.Truncate(@Model.TotalSize) GB</div>
-                <div class="stat-card-label">Total Size</div>
-            </div>
+            <div class="stat-card-value">@Math.Truncate(@Model.TotalSize) GB</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card-icon">
-                <i class="fa-solid fa-hard-drive"></i>
+            <div class="stat-card-label">
+                <i class="fa-solid fa-hard-drive" aria-hidden="true"></i>
+                <span>Storages</span>
             </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">@Model.StorageCount</div>
-                <div class="stat-card-label">Storages</div>
-            </div>
+            <div class="stat-card-value">@Model.StorageCount</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card-icon">
-                <i class="fa-solid fa-music"></i>
+            <div class="stat-card-label">
+                <i class="fa-solid fa-music" aria-hidden="true"></i>
+                <span>Digitizations</span>
             </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">@Model.TotalDigitizations</div>
-                <div class="stat-card-label">Digitizations</div>
-            </div>
+            <div class="stat-card-value">@Model.TotalDigitizations</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card-icon">
-                <i class="fa-solid fa-user-music"></i>
+            <div class="stat-card-label">
+                <i class="fa-solid fa-microphone" aria-hidden="true"></i>
+                <span>Artists</span>
             </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">@Model.TotalArtists</div>
-                <div class="stat-card-label">Artists</div>
-            </div>
+            <div class="stat-card-value">@Model.TotalArtists</div>
         </div>
         <div class="stat-card">
-            <div class="stat-card-icon">
-                <i class="fa-solid fa-microchip"></i>
+            <div class="stat-card-label">
+                <i class="fa-solid fa-microchip" aria-hidden="true"></i>
+                <span>Equipment</span>
             </div>
-            <div class="stat-card-content">
-                <div class="stat-card-value">@Model.TotalEquipment</div>
-                <div class="stat-card-label">Equipment</div>
-            </div>
+            <div class="stat-card-value">@Model.TotalEquipment</div>
         </div>
     </div>
     <!-- Detailed Statistics Sections -->

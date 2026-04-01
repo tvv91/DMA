@@ -1,6 +1,6 @@
 using Web.Enums;
 
-namespace Web.Services
+namespace Web.Interfaces
 {
     public interface ICoverService
     {

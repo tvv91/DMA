@@ -246,7 +246,7 @@ namespace Web.Db
             }
             else
             {
-                int[] pcmBitnessIds = [2, 3, 4];
+                int[] pcmBitnessIds = [2, 3];
                 int[] pcmSamplingIds = [1, 2, 3];
                 bitnessId = pcmBitnessIds[_random.Next(pcmBitnessIds.Length)];
                 samplingId = pcmSamplingIds[_random.Next(pcmSamplingIds.Length)];

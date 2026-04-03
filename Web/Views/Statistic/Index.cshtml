@@ -9,22 +9,29 @@
             <span>Updated once per day. Last update: <strong>@Model.LastUpdate.ToString("yyyy-MM-dd HH:mm")</strong></span>
         </div>
     </div>
-
-    <!-- General Statistics Cards -->
     <div class="statistics-overview">
         <div class="stat-card">
             <div class="stat-card-label">
                 <i class="fa-solid fa-compact-disc" aria-hidden="true"></i>
-                <span>Total Albums</span>
+                <span>Albums</span>
             </div>
             <div class="stat-card-value">@Model.TotalAlbums</div>
         </div>
         <div class="stat-card">
             <div class="stat-card-label">
                 <i class="fa-solid fa-database" aria-hidden="true"></i>
-                <span>Total Size</span>
+                <span>Size</span>
             </div>
-            <div class="stat-card-value">@Math.Truncate(@Model.TotalSize) GB</div>
+            <div class="stat-card-value">
+                @if (Model.TotalSize >= 1000)
+                {
+                    @($"{Model.TotalSize / 1000:0.##} TB")
+                }
+                else
+                {
+                    @($"{Math.Truncate(Model.TotalSize)} GB")
+                }
+            </div>
         </div>
         <div class="stat-card">
             <div class="stat-card-label">
@@ -50,14 +57,12 @@
         <div class="stat-card">
             <div class="stat-card-label">
                 <i class="fa-solid fa-microchip" aria-hidden="true"></i>
-                <span>Equipment</span>
+                <span>Equipments</span>
             </div>
             <div class="stat-card-value">@Model.TotalEquipment</div>
         </div>
     </div>
-    <!-- Detailed Statistics Sections -->
     <div class="statistics-sections">
-        <!-- Music Information Section -->
         <section class="statistics-section">
             <h3 class="section-title">
                 <i class="fa-solid fa-music"></i>
@@ -171,8 +176,6 @@
                 </div>
             </div>
         </section>
-
-        <!-- Format Information Section -->
         <section class="statistics-section">
             <h3 class="section-title">
                 <i class="fa-solid fa-file-audio"></i>
@@ -286,12 +289,10 @@
                 </div>
             </div>
         </section>
-
-        <!-- Equipment Section -->
         <section class="statistics-section">
             <h3 class="section-title">
                 <i class="fa-solid fa-sliders"></i>
-                Equipment
+                Equipments
             </h3>
             <div class="statistics-grid">
                 <div class="statistics-card">

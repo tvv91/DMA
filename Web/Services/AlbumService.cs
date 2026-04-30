@@ -11,12 +11,12 @@ namespace Web.Services
 {
     public class AlbumService(
         IDigitizationService digitizationService,
-        ICoverService imageService,
+        IImageService imageService,
         Context context,
         TimeProvider timeProvider) : IAlbumService
     {
         private readonly IDigitizationService _digitizationService = digitizationService;
-        private readonly ICoverService _imageService = imageService;
+        private readonly IImageService _imageService = imageService;
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
 
@@ -231,7 +231,7 @@ namespace Web.Services
             var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
             
             // Check if cover exists - only set AlbumCover if cover actually exists
-            var coverUrl = await _imageService.GetCoverUrlAsync(album.Id, EntityType.AlbumCover);
+            var coverUrl = await _imageService.GetUrlAsync(album.Id, EntityType.AlbumCover);
             var albumCover = coverUrl.Contains("nocover") ? null : album.Id.ToString();
             
             return new AlbumCreateUpdateViewModel

@@ -7,10 +7,10 @@ using Web.ViewModels;
 namespace Web.SignalRHubs
 {
     public class EquipmentHub(
-        ICoverService imageService,
+        IImageService imageService,
         IEquipmentService equipmentService) : Hub
     {
-        private readonly ICoverService _imgService = imageService;
+        private readonly IImageService _imgService = imageService;
         private readonly IEquipmentService _equipmentService = equipmentService;
         private const int ITEMS_PER_PAGE = 18;
 
@@ -47,7 +47,7 @@ namespace Web.SignalRHubs
 
             foreach (var item in result)
             {
-                var imageUrl = await _imgService.GetCoverUrlAsync(item.Id, entityType);
+                var imageUrl = await _imgService.GetUrlAsync(item.Id, entityType);
                 await Clients.Client(connectionId).SendAsync(
                     "ReceivedItemImage",
                     item.Id,
@@ -72,7 +72,7 @@ namespace Web.SignalRHubs
 
         public async Task GetEquipmentImage(string connectionId, int equipmentId, string type)
         {
-            var imageUrl = await _imgService.GetCoverUrlAsync(equipmentId, Enum.Parse<EntityType>(type));
+            var imageUrl = await _imgService.GetUrlAsync(equipmentId, Enum.Parse<EntityType>(type));
             await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", imageUrl);
         }
     }

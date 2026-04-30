@@ -9,14 +9,14 @@ using Web.Services;
 namespace Web.SignalRHubs
 {
     public class AlbumHub(
-        ICoverService imageService,
+        IImageService imageService,
         IAlbumService albumService,
         IDigitizationService digitizationService,
         IEquipmentService equipmentService,
         IEntityFindOrCreateService entityService,
         TimeProvider timeProvider) : Hub
     {
-        private readonly ICoverService _imgService = imageService;
+        private readonly IImageService _imgService = imageService;
         private readonly IAlbumService _albumService = albumService;
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly IEquipmentService _equipmentService = equipmentService;
@@ -53,7 +53,7 @@ namespace Web.SignalRHubs
             if (_coverCache.TryGetValue(albumId, out var cachedCover))
                 return cachedCover;
 
-            var cover = await _imgService.GetCoverUrlAsync(albumId, EntityType.AlbumCover);
+            var cover = await _imgService.GetUrlAsync(albumId, EntityType.AlbumCover);
             _coverCache.TryAdd(albumId, cover);
             return cover;
         }
@@ -68,7 +68,7 @@ namespace Web.SignalRHubs
         /// </summary>
         public async Task GetAlbumCover(string connectionId, int albumId)
         {
-            var imageUrl = await _imgService.GetCoverUrlAsync(albumId, EntityType.AlbumCover);
+            var imageUrl = await _imgService.GetUrlAsync(albumId, EntityType.AlbumCover);
             await Clients.Client(connectionId).SendAsync("ReceivedAlbumCoverDetailed", imageUrl);
         }
 
@@ -270,7 +270,7 @@ namespace Web.SignalRHubs
                 string? url = null;
 
                 if (kvp.Value.id.HasValue)
-                    url = await _imgService.GetCoverUrlAsync(kvp.Value.id.Value, kvp.Value.type);
+                    url = await _imgService.GetUrlAsync(kvp.Value.id.Value, kvp.Value.type);
 
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", category, url);
             }

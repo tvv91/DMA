@@ -3,13 +3,13 @@ using Web.Interfaces;
 
 namespace Web.Services
 {
-    public class CoverService(ILogger<CoverService> logger) : ICoverService
+    public class LocalStorageService(ILogger<LocalStorageService> logger) : IImageService
     {
         private const string STORAGE = "wwwroot";
         private const string NO_COVER = "resources/nocover.png";
         private const string TEMP = "wwwroot/temp";
 
-        private readonly ILogger<CoverService> _logger = logger;
+        private readonly ILogger<LocalStorageService> _logger = logger;
 
         private readonly Dictionary<EntityType, (string Path, string Ext)> _map = new()
             {
@@ -26,7 +26,7 @@ namespace Web.Services
                 { EntityType.Wire, ("covers/wire", ".jpg") },
             };
 
-        public async Task<string> GetCoverUrlAsync(int id, EntityType entity)
+        public async Task<string> GetUrlAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return NO_COVER;
@@ -37,7 +37,7 @@ namespace Web.Services
             return await Task.FromResult(File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}");
         }
 
-        public async Task RemoveCoverAsync(int id, EntityType entity)
+        public async Task RemoveAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return;
@@ -57,7 +57,7 @@ namespace Web.Services
             }
         }
 
-        public async Task SaveCoverAsync(int id, string filename, EntityType entity)
+        public async Task SaveAsync(int id, string filename, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
                 return;

@@ -9,12 +9,12 @@ namespace Web.Controllers
 {
     public class AlbumController(
         IAlbumService albumService,
-        ICoverService imageService) : Controller
+        IImageService imageService) : Controller
     {
         private const int DEFAULT_ALBUMS_PER_PAGE = 15;
         private const int MAX_ALBUMS_PER_PAGE = 30;
         private readonly IAlbumService _albumService = albumService;
-        private readonly ICoverService _imageService = imageService;
+        private readonly IImageService _imageService = imageService;
 
         [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
@@ -107,7 +107,7 @@ namespace Web.Controllers
                 var album = await _albumService.CreateOrFindAlbumAsync(request.Title, request.Artist, request.Genre);
 
                 if (request.AlbumCover is not null)
-                    await _imageService.SaveCoverAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
+                    await _imageService.SaveAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
 
                 return RedirectToAction("GetById", "Album", new { id = album.Id });
             }
@@ -133,11 +133,11 @@ namespace Web.Controllers
 
                 if (string.IsNullOrWhiteSpace(request.AlbumCover))
                 {
-                    await _imageService.RemoveCoverAsync(album.Id, EntityType.AlbumCover);
+                    await _imageService.RemoveAsync(album.Id, EntityType.AlbumCover);
                 }
                 else if (request.AlbumCover != album.Id.ToString())
                 {
-                    await _imageService.SaveCoverAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
+                    await _imageService.SaveAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
                 }
 
                 AlbumHub.InvalidateAlbumCache(album.Id);
@@ -162,7 +162,7 @@ namespace Web.Controllers
 
             try
             {
-                await _imageService.RemoveCoverAsync(id, EntityType.AlbumCover);
+                await _imageService.RemoveAsync(id, EntityType.AlbumCover);
             }
             catch (Exception ex)
             {

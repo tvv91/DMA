@@ -3,22 +3,17 @@ using Web.Interfaces;
 
 namespace Web.Services
 {
-    public class LocalStorageService(ILogger<LocalStorageService> logger) : IImageService
+    public class LocalStorageImageService(ILogger<LocalStorageImageService> logger) : IImageService
     {
         private const string STORAGE = "wwwroot";
         private const string NO_COVER = "resources/nocover.png";
         private const string TEMP = "wwwroot/temp";
 
-        private readonly ILogger<LocalStorageService> _logger = logger;
+        private readonly ILogger<LocalStorageImageService> _logger = logger;
 
         private readonly Dictionary<EntityType, (string Path, string Ext)> _map = new()
             {
                 { EntityType.AlbumCover, ("covers/album", ".jpg") },
-                { EntityType.VinylState, ("resources/vinylstate", ".png") },
-                { EntityType.DigitalFormat, ("resources/codec", ".png") },
-                { EntityType.Bitness, ("resources/bitness", ".png") },
-                { EntityType.Sampling, ("resources/sampling", ".png") },
-                { EntityType.SourceFormat, ("resources/sourceformat", ".png") },
                 { EntityType.Player, ("covers/player", ".jpg") },
                 { EntityType.Cartridge, ("covers/cartridge", ".jpg") },
                 { EntityType.Amplifier, ("covers/amp", ".jpg") },

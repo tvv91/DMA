@@ -16,7 +16,8 @@ builder.Services.AddDbContext<Context>(opts =>
         sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
     });
 });
-builder.Services.AddScoped<IImageService, LocalStorageService>();
+builder.Services.AddScoped<IImageService, LocalStorageImageService>();
+builder.Services.AddScoped<IResourceIconService, LocalResourceIconService>();
 
 // Services
 builder.Services.AddScoped<IAlbumService, AlbumService>();

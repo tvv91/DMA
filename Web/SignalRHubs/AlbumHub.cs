@@ -10,6 +10,7 @@ namespace Web.SignalRHubs
 {
     public class AlbumHub(
         IImageService imageService,
+        IResourceIconService resourceIconService,
         IAlbumService albumService,
         IDigitizationService digitizationService,
         IEquipmentService equipmentService,
@@ -17,6 +18,7 @@ namespace Web.SignalRHubs
         TimeProvider timeProvider) : Hub
     {
         private readonly IImageService _imgService = imageService;
+        private readonly IResourceIconService _resourceIconService = resourceIconService;
         private readonly IAlbumService _albumService = albumService;
         private readonly IDigitizationService _digitizationService = digitizationService;
         private readonly IEquipmentService _equipmentService = equipmentService;
@@ -250,18 +252,18 @@ namespace Web.SignalRHubs
                 return;
             }
 
-            Dictionary<string, (int? id, EntityType type)> mapping = new()
+            Dictionary<string, (int? id, EntityType type, bool isResourceIcon)> mapping = new()
             {
-                ["vinylstate"] = (formatInfo?.VinylStateId, EntityType.VinylState),
-                ["digitalformat"] = (formatInfo?.DigitalFormatId, EntityType.DigitalFormat),
-                ["bitness"] = (formatInfo?.BitnessId, EntityType.Bitness),
-                ["sampling"] = (formatInfo?.SamplingId, EntityType.Sampling),
-                ["format"] = (formatInfo?.SourceFormatId, EntityType.SourceFormat),
-                ["player"] = (equipmentInfo?.PlayerId, EntityType.Player),
-                ["cartridge"] = (equipmentInfo?.CartridgeId, EntityType.Cartridge),
-                ["amp"] = (equipmentInfo?.AmplifierId, EntityType.Amplifier),
-                ["adc"] = (equipmentInfo?.AdcId, EntityType.Adc),
-                ["wire"] = (equipmentInfo?.WireId, EntityType.Wire),
+                ["vinylstate"] = (formatInfo?.VinylStateId, EntityType.VinylState, true),
+                ["digitalformat"] = (formatInfo?.DigitalFormatId, EntityType.DigitalFormat, true),
+                ["bitness"] = (formatInfo?.BitnessId, EntityType.Bitness, true),
+                ["sampling"] = (formatInfo?.SamplingId, EntityType.Sampling, true),
+                ["format"] = (formatInfo?.SourceFormatId, EntityType.SourceFormat, true),
+                ["player"] = (equipmentInfo?.PlayerId, EntityType.Player, false),
+                ["cartridge"] = (equipmentInfo?.CartridgeId, EntityType.Cartridge, false),
+                ["amp"] = (equipmentInfo?.AmplifierId, EntityType.Amplifier, false),
+                ["adc"] = (equipmentInfo?.AdcId, EntityType.Adc, false),
+                ["wire"] = (equipmentInfo?.WireId, EntityType.Wire, false),
             };
 
             foreach (var kvp in mapping)
@@ -270,7 +272,11 @@ namespace Web.SignalRHubs
                 string? url = null;
 
                 if (kvp.Value.id.HasValue)
-                    url = await _imgService.GetUrlAsync(kvp.Value.id.Value, kvp.Value.type);
+                {
+                    url = kvp.Value.isResourceIcon
+                        ? await _resourceIconService.GetIconUrlAsync(kvp.Value.id.Value, kvp.Value.type)
+                        : await _imgService.GetUrlAsync(kvp.Value.id.Value, kvp.Value.type);
+                }
 
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", category, url);
             }

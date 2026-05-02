@@ -439,7 +439,8 @@ namespace Web.SignalRHubs
                 Label = d.Label?.Name,
                 Storage = d.Storage?.Name,
                 Discogs = d.Discogs,
-                Size = d.Size
+                Size = d.Size,
+                IsFirstPress = d.IsFirstPress
             }).ToList<object>();
         }
     }

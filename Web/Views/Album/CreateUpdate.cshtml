@@ -112,6 +112,12 @@
                                 <div class="col-md-4">
                                     <input id="size-input" class="form-control" asp-for="Size" placeholder="Size (GB)" />
                                 </div>
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input id="is-first-press-input" class="form-check-input" type="checkbox" />
+                                        <label class="form-check-label" for="is-first-press-input">Is first press</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="hardware" role="tabpanel">
@@ -245,6 +251,12 @@
                                 </div>
                                 <div class="col-md-4">
                                     <input id="size-input-modal" class="form-control" asp-for="Size" placeholder="Size (GB)" />
+                                </div>
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <div class="form-check">
+                                        <input id="is-first-press-input-modal" class="form-check-input" type="checkbox" />
+                                        <label class="form-check-label" for="is-first-press-input-modal">Is first press</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -385,6 +397,7 @@
         $("#vinylstate-input, #digitalformat-input, #bitness-input, #sampling-input, #sourceformat-input").val("");
         $("#year-input, #reissue-input").val("");
         $("#source-input, #size-input").val("");
+        $("#is-first-press-input, #is-first-press-input-modal").prop("checked", false);
         $("#player-input, #cartridge-input, #amp-input, #adc-input, #wire-input").val("");
         $("#player-manufacturer-input, #cartridge-manufacturer-input, #amp-manufacturer-input, #adc-manufacturer-input, #wire-manufacturer-input").val("");
         $("input[placeholder='Country']").val("");
@@ -405,6 +418,7 @@
         $("#sampling-input").val(digitization.sampling != null ? digitization.sampling : (digitization.Sampling != null ? digitization.Sampling : ""));
         $("#sourceformat-input").val(digitization.sourceFormat || digitization.SourceFormat || "");
         $("#size-input").val(digitization.size != null ? digitization.size : (digitization.Size != null ? digitization.Size : ""));
+        $("#is-first-press-input").prop("checked", Boolean(digitization.isFirstPress ?? digitization.IsFirstPress));
         
         // Equipment Info - handle both camelCase and PascalCase
         const playerManufacturer = digitization.playerManufacturer || digitization.PlayerManufacturer || "";
@@ -464,6 +478,7 @@
                         <th scope="col">BTS</th>
                         <th scope="col">SMP</th>
                         <th scope="col">FMT</th>
+                        <th scope="col">FP</th>
                         <th scope="col">SRC</th>
                         <th scope="col">PLR</th>
                         <th scope="col">CRT</th>
@@ -486,6 +501,7 @@
                     <td>${(dig.bitness || dig.Bitness) ? (dig.bitness || dig.Bitness) + 'bit' : '-'}</td>
                     <td>${dig.sampling || dig.Sampling || '-'}</td>
                     <td>${dig.digitalFormat || dig.DigitalFormat || '-'}</td>
+                    <td>${(dig.isFirstPress ?? dig.IsFirstPress) ? 'Yes' : '-'}</td>
                     <td>${dig.source || dig.Source || '-'}</td>
                     <td>${dig.player || dig.Player || '-'}</td>
                     <td>${dig.cartridge || dig.Cartridge || '-'}</td>
@@ -522,7 +538,7 @@
             genre: $("#genre-input").val()?.trim() || "",
             source: $modal.find("#source-input-modal").val()?.trim() || null,
             discogs: $modal.find("input[placeholder='Discogs link']").val()?.trim() || null,
-            isFirstPress: false,
+            isFirstPress: $modal.find("#is-first-press-input-modal").is(":checked"),
             country: $modal.find("#country-input-modal").val()?.trim() || null,
             label: $modal.find("input[placeholder='Label']").val()?.trim() || null,
             storage: $modal.find("input[placeholder='Storage']").val()?.trim() || null,
@@ -570,7 +586,7 @@
             genre: $("#genre-input").val()?.trim() || "",
             source: $("#source-input").val()?.trim() || null,
             discogs: $("input[placeholder='Discogs link']").val()?.trim() || null,
-            isFirstPress: false,
+            isFirstPress: $("#is-first-press-input").is(":checked"),
             country: $("input[placeholder='Country']").val()?.trim() || null,
             label: $("input[placeholder='Label']").val()?.trim() || null,
             storage: $("input[placeholder='Storage']").val()?.trim() || null,
@@ -838,7 +854,8 @@
                 label = d.Label?.Name,
                 storage = d.Storage?.Name,
                 discogs = d.Discogs,
-                size = d.Size
+                size = d.Size,
+                isFirstPress = d.IsFirstPress
             }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
             renderDigitizations(existingDigs);
             $("#loader").hide();

@@ -466,9 +466,23 @@
     background-color: #f2f7ff;
 }
 
+.table-row.first-press-row {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.18), #fff 42%);
+    border-left: 3px solid #ffc107;
+}
+
+.table-row.first-press-row:hover {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.26), #f8fbff 46%);
+}
+
 .table-row.selected {
     background-color: #d9ecff;
     border-left: 3px solid #007bff;
+}
+
+.table-row.first-press-row.selected {
+    background: linear-gradient(90deg, rgba(255, 193, 7, 0.32), #d9ecff 48%);
+    border-left-color: #ffb300;
 }
 
 .table-row.visible {

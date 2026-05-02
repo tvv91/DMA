@@ -225,7 +225,7 @@
                 foreach (var d in Model.Digitizations)
                 {
                     bool isDsd = d.FormatInfo?.DigitalFormat?.Name?.Contains("dsd", StringComparison.OrdinalIgnoreCase) == true;
-                    <div class="table-row" data-id="@d.Id">
+                    <div class="table-row @(d.IsFirstPress == true ? "first-press-row" : "")" data-id="@d.Id">
                         <div class="col col-vinyl">
                             @if (!string.IsNullOrWhiteSpace(d.FormatInfo?.VinylState?.Name))
                             {

@@ -3,12 +3,18 @@ using Web.Interfaces;
 
 namespace Web.Services
 {
-    public class LocalStorageImageService(ILogger<LocalStorageImageService> logger) : IImageService
+    public class LocalStorageImageService(
+        IWebHostEnvironment environment,
+        ILogger<LocalStorageImageService> logger) : IImageService
     {
-        private const string STORAGE = "wwwroot";
         private const string NO_COVER = "resources/nocover.png";
-        private const string TEMP = "wwwroot/temp";
+        private static readonly HashSet<string> AllowedTempExtensions = new(StringComparer.OrdinalIgnoreCase)
+        {
+            ".jpg",
+            ".png"
+        };
 
+        private readonly IWebHostEnvironment _environment = environment;
         private readonly ILogger<LocalStorageImageService> _logger = logger;
 
         private readonly Dictionary<EntityType, (string Path, string Ext)> _map = new()
@@ -27,7 +33,7 @@ namespace Web.Services
                 return NO_COVER;
 
             var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
-            var fullPath = Path.Combine(STORAGE, relativePath);
+            var fullPath = Path.Combine(GetWebRootPath(), relativePath);
             // Yeah, this code is sync, but when we change to cloud blobk storage, it will be async, so let's keep the signature async for now
             return await Task.FromResult(File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}");
         }
@@ -37,7 +43,7 @@ namespace Web.Services
             if (!_map.TryGetValue(entity, out var info))
                 return;
 
-            var fullPath = Path.Combine(STORAGE, info.Path, $"{id}{info.Ext}");
+            var fullPath = GetSafeStorageFilePath(info.Path, $"{id}{info.Ext}");
 
             try
             {
@@ -57,44 +63,113 @@ namespace Web.Services
             if (!_map.TryGetValue(entity, out var info))
                 return;
 
+            var safeFilename = GetSafeTempFilename(filename);
+            if (safeFilename is null)
+            {
+                _logger.LogWarning("Rejected invalid temp image filename {Filename} for {Entity}:{Id}", filename, entity, id);
+                return;
+            }
+
             try
             {
-                var tempFile = Path.Combine(TEMP, filename);
+                var tempFile = GetSafeTempFilePath(safeFilename);
                 if (File.Exists(tempFile))
                 {
-                    var targetDir = Path.Combine(STORAGE, info.Path);
+                    var targetDir = GetSafeStorageDirectory(info.Path);
                     if (!Directory.Exists(targetDir))
                         Directory.CreateDirectory(targetDir);
 
-                    var destFile = Path.Combine(targetDir, $"{id}{info.Ext}");
+                    var destFile = GetSafeStorageFilePath(info.Path, $"{id}{info.Ext}");
 
-                    await using var source = new FileStream(
+                    await using (var source = new FileStream(
                         tempFile,
                         FileMode.Open,
                         FileAccess.Read,
                         FileShare.Read,
                         bufferSize: 81920,
-                        useAsync: true);
-
-                    await using var destination = new FileStream(
+                        useAsync: true))
+                    await using (var destination = new FileStream(
                         destFile,
                         FileMode.Create,
                         FileAccess.Write,
                         FileShare.None,
                         bufferSize: 81920,
-                        useAsync: true);
+                        useAsync: true))
+                    {
+                        await source.CopyToAsync(destination);
+                        await destination.FlushAsync();
+                    }
 
-                    await source.CopyToAsync(destination);
-                    await destination.FlushAsync();
-
-                    if (File.Exists(tempFile))
-                        File.Delete(tempFile);
+                    File.Delete(tempFile);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during cover saving {Entity}:{Id}", entity, id);
             }
+        }
+
+        private string GetWebRootPath()
+        {
+            return Path.GetFullPath(_environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot"));
+        }
+
+        private string GetSafeTempDirectory()
+        {
+            return Path.GetFullPath(Path.Combine(GetWebRootPath(), "temp"));
+        }
+
+        private string GetSafeTempFilePath(string filename)
+        {
+            var fullTempDirectory = GetSafeTempDirectory();
+            var fullPath = Path.GetFullPath(Path.Combine(fullTempDirectory, filename));
+            EnsurePathInsideDirectory(fullTempDirectory, fullPath);
+            return fullPath;
+        }
+
+        private string GetSafeStorageDirectory(string relativePath)
+        {
+            var fullWebRoot = GetWebRootPath();
+            var fullPath = Path.GetFullPath(Path.Combine(fullWebRoot, relativePath));
+            EnsurePathInsideDirectory(fullWebRoot, fullPath);
+            return fullPath;
+        }
+
+        private string GetSafeStorageFilePath(string relativePath, string filename)
+        {
+            var directory = GetSafeStorageDirectory(relativePath);
+            var fullPath = Path.GetFullPath(Path.Combine(directory, Path.GetFileName(filename)));
+            EnsurePathInsideDirectory(directory, fullPath);
+            return fullPath;
+        }
+
+        private static string? GetSafeTempFilename(string filename)
+        {
+            if (string.IsNullOrWhiteSpace(filename))
+                return null;
+
+            var safeFilename = Path.GetFileName(filename);
+            if (!string.Equals(filename, safeFilename, StringComparison.Ordinal))
+                return null;
+
+            var extension = Path.GetExtension(safeFilename);
+            if (!AllowedTempExtensions.Contains(extension))
+                return null;
+
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(safeFilename);
+            return Guid.TryParseExact(nameWithoutExtension, "N", out _) ? safeFilename : null;
+        }
+
+        private static void EnsurePathInsideDirectory(string directory, string path)
+        {
+            var fullDirectory = Path.GetFullPath(directory);
+            var fullPath = Path.GetFullPath(path);
+
+            if (string.Equals(fullDirectory, fullPath, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            if (!fullPath.StartsWith(fullDirectory + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Resolved image path is outside of the expected storage directory.");
         }
     }
 }

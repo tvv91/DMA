@@ -27,6 +27,7 @@ builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddScoped<IEntityFindOrCreateService, EntityFindOrCreateService>();
+builder.Services.AddHostedService<TempImageCleanupService>();
 
 builder.Services.AddSignalR(options =>
 {

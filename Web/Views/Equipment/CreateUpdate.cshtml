@@ -105,6 +105,20 @@
                 $(selectors.entityType).val(e.value);
             }
 
+            function isTempImageFilename(filename) {
+                return /^[0-9a-f]{32}\.(jpg|png)$/i.test(filename || "");
+            }
+
+            async function deleteTempImage(filename) {
+                if (!isTempImageFilename(filename)) return;
+
+                try {
+                    await fetch(`/uploadimage/${encodeURIComponent(filename)}`, { method: "DELETE" });
+                } catch (err) {
+                    console.warn("Failed to delete temp image", err);
+                }
+            }
+
             Dropzone.autoDiscover = false;
             let myDropzone = new Dropzone("div#mydropzone",
             {
@@ -118,6 +132,7 @@
                 acceptedFiles: ".jpeg,.png,.jpg",
                     success: (file, data) => {
                         $("#coverid").val(data.filename);
+                        file.uploadedFilename = data.filename;
                         let preview = $(file.previewElement);
                         preview.addClass("dz-success text-success");
                     },
@@ -126,11 +141,15 @@
                         if (coverId !== "" && !coverId.includes("nocover")) {
                             let myDropzone = this;
                             let coverUrl = window.location.href.includes("edit") ? coverId : `/temp/${coverId}`;
-                            myDropzone.displayExistingFile({}, coverUrl);
+                            const mockFile = {};
+                            if (isTempImageFilename(coverId)) mockFile.uploadedFilename = coverId;
+                            myDropzone.displayExistingFile(mockFile, coverUrl);
                         }
                     },
                     removedfile: function(file) {
+                        const filename = file.uploadedFilename;
                         $("#coverid").val("");
+                        void deleteTempImage(filename);
                         if (file.previewElement != null && file.previewElement.parentNode != null) {
                             file.previewElement.parentNode.removeChild(file.previewElement);
                         }

@@ -780,6 +780,20 @@
     connection.onclose(async () => { await start(); });
 
     // --- Dropzone ---
+    function isTempImageFilename(filename) {
+        return /^[0-9a-f]{32}\.(jpg|png)$/i.test(filename || "");
+    }
+
+    async function deleteTempImage(filename) {
+        if (!isTempImageFilename(filename)) return;
+
+        try {
+            await fetch(`/uploadimage/${encodeURIComponent(filename)}`, { method: "DELETE" });
+        } catch (err) {
+            console.warn("Failed to delete temp image", err);
+        }
+    }
+
     Dropzone.autoDiscover = false;
     let myDropzone = new Dropzone("div#mydropzone", {
         url: "/uploadimage",
@@ -792,6 +806,7 @@
         acceptedFiles: ".jpeg,.png,.jpg",
         success: (file, data) => {
             $("#cover-id").val(data.filename);
+            file.uploadedFilename = data.filename;
             $(file.previewElement).addClass("dz-success text-success");
         },
         init: function () {
@@ -803,11 +818,14 @@
                 ? `/covers/album/${albumId}.jpg`
                 : `/temp/${coverId}`;
             const mockFile = { name: "cover.jpg", size: 0, type: "image/jpeg" };
+            if (isTempImageFilename(coverId)) mockFile.uploadedFilename = coverId;
             myDropzone.displayExistingFile(mockFile, coverUrl);
             }
         },
         removedfile: function (file) {
+            const filename = file.uploadedFilename;
             $("#cover-id").val("");
+            void deleteTempImage(filename);
             if (file.previewElement?.parentNode) file.previewElement.parentNode.removeChild(file.previewElement);
             return this._updateMaxFilesReachedClass();
         }

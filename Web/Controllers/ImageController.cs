@@ -72,6 +72,30 @@ namespace Web.Controllers
             }
         }
 
+        [HttpDelete("/uploadimage/{filename}")]
+        public IActionResult DeleteTempImage(string filename)
+        {
+            var safeFilename = GetSafeUploadedFilename(filename);
+            if (safeFilename is null)
+                return BadRequest("Invalid image filename.");
+
+            try
+            {
+                var tempDirectory = GetSafeTempDirectory();
+                var physicalPath = GetSafeTempFilePath(tempDirectory, safeFilename);
+
+                if (System.IO.File.Exists(physicalPath))
+                    System.IO.File.Delete(physicalPath);
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during temp image deleting {Filename}", filename);
+                return BadRequest("Failed to delete temp image.");
+            }
+        }
+
         private static string? GetSafeExtension(string fileName)
         {
             var originalName = Path.GetFileName(fileName);
@@ -80,6 +104,23 @@ namespace Web.Controllers
             return AllowedExtensions.TryGetValue(extension, out var normalizedExtension)
                 ? normalizedExtension
                 : null;
+        }
+
+        private static string? GetSafeUploadedFilename(string filename)
+        {
+            if (string.IsNullOrWhiteSpace(filename))
+                return null;
+
+            var safeFilename = Path.GetFileName(filename);
+            if (!string.Equals(filename, safeFilename, StringComparison.Ordinal))
+                return null;
+
+            var extension = GetSafeExtension(safeFilename);
+            if (extension is null)
+                return null;
+
+            var nameWithoutExtension = Path.GetFileNameWithoutExtension(safeFilename);
+            return Guid.TryParseExact(nameWithoutExtension, "N", out _) ? safeFilename : null;
         }
 
         private static async Task<bool> HasValidImageSignatureAsync(IFormFile file, string extension)

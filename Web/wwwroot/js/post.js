@@ -343,8 +343,9 @@ function initPostEditorPage() {
 
 async function onRemove(postId) {
     try {
-        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
-        const token = tokenElement ? tokenElement.value : "";
+        const token = window.getRequestVerificationToken
+            ? window.getRequestVerificationToken()
+            : document.querySelector('input[name="__RequestVerificationToken"]')?.value || "";
 
         const response = await fetch(`/post/delete?id=${postId}`, {
             method: "DELETE",

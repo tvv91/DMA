@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Web.Db;
 using Web.Interfaces;
 using Web.Services;
@@ -6,7 +7,10 @@ using Web.SignalRHubs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<Context>(opts =>
 {

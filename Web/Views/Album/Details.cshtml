@@ -740,7 +740,10 @@
 
     async function onRemove(albumId) {
         try {
-            const response = await fetch(`delete?id=${albumId}`, { method: "DELETE" });
+            const response = await fetch(`delete?id=${albumId}`, {
+                method: "DELETE",
+                headers: { "RequestVerificationToken": window.getRequestVerificationToken() }
+            });
 
             if (response.ok) {
                 sessionStorage.setItem("albumdeleted", "1");

@@ -113,7 +113,10 @@
                 if (!isTempImageFilename(filename)) return;
 
                 try {
-                    await fetch(`/uploadimage/${encodeURIComponent(filename)}`, { method: "DELETE" });
+                    await fetch(`/uploadimage/${encodeURIComponent(filename)}`, {
+                        method: "DELETE",
+                        headers: { "RequestVerificationToken": window.getRequestVerificationToken() }
+                    });
                 } catch (err) {
                     console.warn("Failed to delete temp image", err);
                 }
@@ -123,6 +126,7 @@
             let myDropzone = new Dropzone("div#mydropzone",
             {
                 url: "/uploadimage",
+                headers: { "RequestVerificationToken": window.getRequestVerificationToken() },
                 addRemoveLinks: true,
                 thumbnailWidth: 300,
                 thumbnailHeight: 300,

@@ -230,7 +230,10 @@
 
     async function onRemove(id) {
     try {
-      const response = await fetch(`delete?id=${id}`, { method: "DELETE" });
+      const response = await fetch(`delete?id=${id}`, {
+        method: "DELETE",
+        headers: { "RequestVerificationToken": window.getRequestVerificationToken() }
+      });
 
       if (response.ok) {
         sessionStorage.setItem("equipment_deleted", "1");

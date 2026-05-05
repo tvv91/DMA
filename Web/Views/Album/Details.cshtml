@@ -586,7 +586,7 @@
         addCell("First press", item.IsFirstPress ? "Yes" : null);
         addCell("Label", item.Label?.Name);
         addCell("Country", item.Country?.Name);
-        addCell("Storage", item.Storage?.Data);
+        addCell("Storage", item.Storage?.Name);
         addCell("Source", item.Source ? `<a href="${item.Source}" target="_blank">LINK</a>` : null);
         addCell("Discogs", item.Discogs ? `<a href="${item.Discogs}" target="_blank">LINK</a>` : null);
         addCell("Added", item.AddedDate ? new Date(item.AddedDate).toLocaleDateString() : null);

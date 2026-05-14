@@ -1,30 +1,30 @@
 @model EquipmentViewModel 
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-  <div id="toasterror" class="toast toast-error" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="toast-header toast-header-error">
+  <div id="toasterror" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
       <strong class="me-auto">Error</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body">Some error during deletion</div>
   </div>
-  <div id="toastinfo_updated" class="toast toast-info" role="alert" aria-live="polite" aria-atomic="true">
+  <div id="toastinfo_updated" class="toast toast-variant-update" role="alert" aria-live="polite" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Information</strong>
+      <strong class="me-auto">Updated</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body">Equipment updated</div>
   </div>
-  <div id="toastinfo_created" class="toast toast-success" role="alert" aria-live="polite" aria-atomic="true">
+  <div id="toastinfo_created" class="toast toast-variant-success" role="alert" aria-live="polite" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Information</strong>
+      <strong class="me-auto">Success</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body">Equipment created</div>
   </div>
-  <div id="toastinfo_deleted" class="toast toast-warning" role="alert" aria-live="polite" aria-atomic="true">
+  <div id="toastinfo_deleted" class="toast toast-variant-danger" role="alert" aria-live="polite" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Information</strong>
+      <strong class="me-auto">Removed</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
     <div class="toast-body">Equipment deleted</div>

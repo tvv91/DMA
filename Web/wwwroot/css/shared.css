@@ -1,25 +1,44 @@
 /* Shared styles used across multiple pages */
 
-/* Toast notifications */
-.toast-body-update {
-    background: #ffd800;
+/* Toasts: success (green), updated/edited (orange), error or removed (red) */
+.toast.toast-variant-success .toast-header {
+    background-color: #198754;
+    color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.toast-body-create {
-    background: #b6ff00;
+.toast.toast-variant-success .toast-body {
+    background-color: #d1e7dd;
+    color: #0a3622;
 }
 
-.toast-body-deleted {
-    background: #e09696;
+.toast.toast-variant-update .toast-header {
+    background-color: #e8590c;
+    color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.toast-body-error {
-    color: red;
+.toast.toast-variant-update .toast-body {
+    background-color: #ffecdc;
+    color: #5c2907;
 }
 
-.toast-header-error {
-    background: red;
-    color: white;
+.toast.toast-variant-danger .toast-header {
+    background-color: #dc3545;
+    color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.toast.toast-variant-danger .toast-body {
+    background-color: #f8d7da;
+    color: #58151c;
+}
+
+.toast.toast-variant-success .toast-header .btn-close,
+.toast.toast-variant-update .toast-header .btn-close,
+.toast.toast-variant-danger .toast-header .btn-close {
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
 }
 
 /* Spinner overlay */

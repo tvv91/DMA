@@ -114,6 +114,37 @@ namespace Web.Services
                         return new AutocompleteResponse { Label = s, Value = s };
                     }),
                 EntityType.Sampling => await ListAllSamplingForAutocompleteAsync(_context, AutocompleteMaxItems),
+                EntityType.Player => await _context.Players.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Cartridge => await _context.Cartridges.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Amplifier => await _context.Amplifiers.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Adc => await _context.Adces.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Wire => await _context.Wires.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.PlayerManufacturer or EntityType.CartridgeManufacturer or EntityType.AmplifierManufacturer
+                    or EntityType.AdcManufacturer or EntityType.WireManufacturer => await _context.Manufacturer.AsNoTracking()
+                    .OrderBy(m => m.Name)
+                    .Select(m => new AutocompleteResponse { Label = m.Name, Value = m.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
                 _ => [],
             };
         }

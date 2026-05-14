@@ -331,9 +331,14 @@
         "sourceformat-input": "SourceFormat", "year-input": "Year", "reissue-input": "Reissue",
         "player-input": "Player", "cartridge-input": "Cartridge", "amp-input": "Amplifier",
         "adc-input": "Adc", "wire-input": "Wire", "country-input": "Country",
-        "label-input": "Label", "storage-input": "Storage"
+        "label-input": "Label", "storage-input": "Storage",
+        "player-manufacturer-input": "PlayerManufacturer",
+        "cartridge-manufacturer-input": "CartridgeManufacturer",
+        "amp-manufacturer-input": "AmplifierManufacturer",
+        "adc-manufacturer-input": "AdcManufacturer",
+        "wire-manufacturer-input": "WireManufacturer"
     };
-    /** Digitization tab + add modal: show full list on focus, filter while typing, allow values not in DB (find-or-create). */
+    /** Digitization + Hardware tabs (main + add modal): full list on focus, filter while typing. */
     const fullListComboboxIds = new Set([
         "vinylstate-input", "vinylstate-input-modal",
         "digitalformat-input", "digitalformat-input-modal",
@@ -343,7 +348,17 @@
         "year-input", "year-input-modal",
         "reissue-input", "reissue-input-modal",
         "country-input", "country-input-modal",
-        "label-input", "label-input-modal"
+        "label-input", "label-input-modal",
+        "player-input", "player-input-modal",
+        "cartridge-input", "cartridge-input-modal",
+        "amp-input", "amp-input-modal",
+        "adc-input", "adc-input-modal",
+        "wire-input", "wire-input-modal",
+        "player-manufacturer-input", "player-manufacturer-input-modal",
+        "cartridge-manufacturer-input", "cartridge-manufacturer-input-modal",
+        "amp-manufacturer-input", "amp-manufacturer-input-modal",
+        "adc-manufacturer-input", "adc-manufacturer-input-modal",
+        "wire-manufacturer-input", "wire-manufacturer-input-modal"
     ]);
     const equipmentManufacturerMap = {
         "player-input": "PlayerManufacturer", "cartridge-input": "CartridgeManufacturer",

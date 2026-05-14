@@ -749,6 +749,11 @@
             if (albumId > 0 && $("#album-id").val() == "0") $("#album-id").val(albumId);
             renderDigitizations(digitizations);
             clearDigitizationFields();
+            const addModalEl = document.getElementById("addDigitizationModal");
+            if (addModalEl) {
+                const addModal = bootstrap.Modal.getInstance(addModalEl) ?? bootstrap.Modal.getOrCreateInstance(addModalEl);
+                addModal.hide();
+            }
             showToast("toast-digitization-added");
         } else {
             showToast("toast-digitization-error", "Error: " + message);

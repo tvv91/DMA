@@ -115,7 +115,7 @@
                                     <input id="country-input" class="form-control" asp-for="Country" placeholder="Country" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control" asp-for="Label" placeholder="Label" />
+                                    <input id="label-input" class="form-control" asp-for="Label" placeholder="Label" />
                                 </div>
                                 <div class="col-md-8">
                                     <input id="source-input" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(false)" />
@@ -255,7 +255,7 @@
                                     <input id="country-input-modal" class="form-control" asp-for="Country" placeholder="Country" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control" asp-for="Label" placeholder="Label" />
+                                    <input id="label-input-modal" class="form-control" asp-for="Label" placeholder="Label" />
                                 </div>
                                 <div class="col-md-8">
                                     <input id="source-input-modal" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(true)" />
@@ -333,6 +333,18 @@
         "adc-input": "Adc", "wire-input": "Wire", "country-input": "Country",
         "label-input": "Label", "storage-input": "Storage"
     };
+    /** Digitization tab + add modal: show full list on focus, filter while typing, allow values not in DB (find-or-create). */
+    const fullListComboboxIds = new Set([
+        "vinylstate-input", "vinylstate-input-modal",
+        "digitalformat-input", "digitalformat-input-modal",
+        "bitness-input", "bitness-input-modal",
+        "sampling-input", "sampling-input-modal",
+        "sourceformat-input", "sourceformat-input-modal",
+        "year-input", "year-input-modal",
+        "reissue-input", "reissue-input-modal",
+        "country-input", "country-input-modal",
+        "label-input", "label-input-modal"
+    ]);
     const equipmentManufacturerMap = {
         "player-input": "PlayerManufacturer", "cartridge-input": "CartridgeManufacturer",
         "amp-input": "AmplifierManufacturer", "adc-input": "AdcManufacturer", "wire-input": "WireManufacturer"
@@ -414,8 +426,7 @@
         $("#is-first-press-input, #is-first-press-input-modal").prop("checked", false);
         $("#player-input, #cartridge-input, #amp-input, #adc-input, #wire-input").val("");
         $("#player-manufacturer-input, #cartridge-manufacturer-input, #amp-manufacturer-input, #adc-manufacturer-input, #wire-manufacturer-input").val("");
-        $("input[placeholder='Country']").val("");
-        $("input[placeholder='Label']").val("");
+        $("#country-input, #label-input").val("");
         $("input[placeholder='Storage']").val("");
         $("input[placeholder='Discogs link']").val("");
         selectedDigitizationId = 0;
@@ -460,8 +471,8 @@
         $("#reissue-input").val(digitization.reissue || digitization.Reissue || "");
         
         // Country, Label, Storage, Discogs
-        $("input[placeholder='Country']").val(digitization.country || digitization.Country || "");
-        $("input[placeholder='Label']").val(digitization.label || digitization.Label || "");
+        $("#country-input").val(digitization.country || digitization.Country || "");
+        $("#label-input").val(digitization.label || digitization.Label || "");
         $("input[placeholder='Storage']").val(digitization.storage || digitization.Storage || "");
         $("input[placeholder='Discogs link']").val(digitization.discogs || digitization.Discogs || "");
         $("#source-input").val(digitization.source || digitization.Source || "");
@@ -554,7 +565,7 @@
             discogs: $modal.find("input[placeholder='Discogs link']").val()?.trim() || null,
             isFirstPress: $modal.find("#is-first-press-input-modal").is(":checked"),
             country: $modal.find("#country-input-modal").val()?.trim() || null,
-            label: $modal.find("input[placeholder='Label']").val()?.trim() || null,
+            label: $modal.find("#label-input-modal").val()?.trim() || null,
             storage: $modal.find("input[placeholder='Storage']").val()?.trim() || null,
             year: $modal.find("#year-input-modal").val() ? Number($modal.find("#year-input-modal").val()) : null,
             reissue: $modal.find("#reissue-input-modal").val() ? Number($modal.find("#reissue-input-modal").val()) : null,
@@ -602,7 +613,7 @@
             discogs: $("input[placeholder='Discogs link']").val()?.trim() || null,
             isFirstPress: $("#is-first-press-input").is(":checked"),
             country: $("input[placeholder='Country']").val()?.trim() || null,
-            label: $("input[placeholder='Label']").val()?.trim() || null,
+            label: $("#label-input").val()?.trim() || null,
             storage: $("input[placeholder='Storage']").val()?.trim() || null,
             year: $("#year-input").val() ? Number($("#year-input").val()) : null,
             reissue: $("#reissue-input").val() ? Number($("#reissue-input").val()) : null,
@@ -919,10 +930,13 @@
             const entityType = fieldEntityMap[baseId];
             if (entityType) {
                 const isModal = fieldId.includes('-modal');
+                const isFullListCombobox = fullListComboboxIds.has(fieldId);
+                const minLength = isFullListCombobox ? 0 : 2;
                 const autocompleteOpts = {
                     source: (request, response) => {
-                        if (request.term.length < 2) { response([]); return; }
-                        $.getJSON(`/search/${entityType}`, { value: request.term })
+                        const term = request.term ?? '';
+                        if (!isFullListCombobox && term.length < minLength) { response([]); return; }
+                        $.getJSON(`/search/${entityType}`, { value: term })
                             .done(function (data) {
                                 const items = (data || []).map(item => {
                                     const label = item.label ?? item.Label ?? item.value ?? item.Value ?? '';
@@ -933,8 +947,8 @@
                             })
                             .fail(() => response([]));
                     },
-                    delay: 300,
-                    minLength: 2,
+                    delay: isFullListCombobox ? 150 : 300,
+                    minLength,
                     messages: { noResults: '', results: () => {} },
                     appendTo: isModal ? "#addDigitizationModal" : undefined,
                     select: function (event, ui) {
@@ -947,6 +961,13 @@
                     }
                 };
                 $input.autocomplete(autocompleteOpts);
+                if (isFullListCombobox) {
+                    $input.on('focus', function () {
+                        const $el = $(this);
+                        if ($el.autocomplete('widget').is(':visible')) return;
+                        $el.autocomplete('search', '');
+                    });
+                }
             }
         });
     });

@@ -11,14 +11,11 @@ namespace Web.Controllers
         private readonly ISearchService _searchService = searchService;
 
         [HttpGet("{entityType}")]
-        public async Task<IActionResult> Search(string entityType, [FromQuery] string value)
+        public async Task<IActionResult> Search(string entityType, [FromQuery] string? value)
         {
-            if (string.IsNullOrWhiteSpace(value))
-                return Ok(new List<AutocompleteResponse>());
-
             if (Enum.TryParse<EntityType>(entityType, true, out var entityTypeEnum))
             {
-                var results = await _searchService.SearchAsync(entityTypeEnum, value);
+                var results = await _searchService.SearchAsync(entityTypeEnum, value ?? "");
                 return Ok(results);
             }
 

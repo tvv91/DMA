@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Web.Db;
@@ -9,6 +10,8 @@ namespace Web.Services
 {
     public class SearchService(Context context) : ISearchService
     {
+        private const int AutocompleteMaxItems = 10;
+
         private readonly Context _context = context;
         private readonly Dictionary<EntityType, Func<string, Task<List<AutocompleteResponse>>>> _searchMap = new()
         {
@@ -20,7 +23,7 @@ namespace Web.Services
             { EntityType.VinylState, v => SearchStringAsync(context.VinylStates, x => x.Name, v) },
             { EntityType.DigitalFormat, v => SearchStringAsync(context.DigitalFormats, x => x.Name, v) },
             { EntityType.Bitness, v => SearchNumberAsync(context.Bitnesses, x => x.Value, v) },
-            { EntityType.Sampling, v => SearchNumberAsync(context.Samplings, x => x.Value, v) },
+            { EntityType.Sampling, v => SearchSamplingAsync(context, v) },
             { EntityType.SourceFormat, v => SearchStringAsync(context.SourceFormats, x => x.Name, v) },
             { EntityType.Country, v => SearchStringAsync(context.Countries, x => x.Name, v) },
             { EntityType.Label, v => SearchStringAsync(context.Labels, x => x.Name, v) },
@@ -41,12 +44,137 @@ namespace Web.Services
 
         public async Task<List<AutocompleteResponse>> SearchAsync(EntityType entityType, string value)
         {
+            if (string.IsNullOrWhiteSpace(value))
+                return await ListAllForAutocompleteAsync(entityType);
+
             if (_searchMap.TryGetValue(entityType, out var func))
-            {
                 return await func(value);
-            }
 
             return [];
+        }
+
+        /// <summary>Full list for combobox “open on focus” (empty query). Only entity types used that way; others return [].</summary>
+        private async Task<List<AutocompleteResponse>> ListAllForAutocompleteAsync(EntityType entityType)
+        {
+            return entityType switch
+            {
+                EntityType.VinylState => await _context.VinylStates.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.DigitalFormat => await _context.DigitalFormats.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.SourceFormat => await _context.SourceFormats.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Country => await _context.Countries.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Label => await _context.Labels.AsNoTracking()
+                    .OrderBy(x => x.Name)
+                    .Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name })
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync(),
+                EntityType.Bitness => (await _context.Bitnesses.AsNoTracking()
+                    .OrderBy(x => x.Value)
+                    .Select(x => x.Value)
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync())
+                    .ConvertAll(v =>
+                    {
+                        var s = v.ToString(CultureInfo.InvariantCulture);
+                        return new AutocompleteResponse { Label = s, Value = s };
+                    }),
+                EntityType.Year => (await _context.Years.AsNoTracking()
+                    .OrderBy(x => x.Value)
+                    .Select(x => x.Value)
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync())
+                    .ConvertAll(v =>
+                    {
+                        var s = v.ToString(CultureInfo.InvariantCulture);
+                        return new AutocompleteResponse { Label = s, Value = s };
+                    }),
+                EntityType.Reissue => (await _context.Reissues.AsNoTracking()
+                    .OrderBy(x => x.Value)
+                    .Select(x => x.Value)
+                    .Take(AutocompleteMaxItems)
+                    .ToListAsync())
+                    .ConvertAll(v =>
+                    {
+                        var s = v.ToString(CultureInfo.InvariantCulture);
+                        return new AutocompleteResponse { Label = s, Value = s };
+                    }),
+                EntityType.Sampling => await ListAllSamplingForAutocompleteAsync(_context, AutocompleteMaxItems),
+                _ => [],
+            };
+        }
+
+        private static async Task<List<AutocompleteResponse>> ListAllSamplingForAutocompleteAsync(Context context, int take)
+        {
+            var values = await context.Samplings.AsNoTracking()
+                .OrderBy(x => x.Value)
+                .Select(x => x.Value)
+                .Take(take)
+                .ToListAsync();
+            return values.ConvertAll(v => new AutocompleteResponse
+            {
+                Value = SamplingAutocompleteValue(v),
+                Label = SamplingAutocompleteLabel(v)
+            });
+        }
+
+        private static async Task<List<AutocompleteResponse>> SearchSamplingAsync(Context context, string value)
+        {
+            var needle = value.Trim();
+            var list = await context.Samplings.AsNoTracking().ToListAsync();
+            return list
+                .Where(s =>
+                {
+                    var token = SamplingAutocompleteValue(s.Value);
+                    var label = SamplingAutocompleteLabel(s.Value);
+                    return token.Contains(needle, StringComparison.OrdinalIgnoreCase)
+                        || label.Contains(needle, StringComparison.OrdinalIgnoreCase);
+                })
+                .OrderBy(s => s.Value)
+                .Take(AutocompleteMaxItems)
+                .Select(s => new AutocompleteResponse
+                {
+                    Value = SamplingAutocompleteValue(s.Value),
+                    Label = SamplingAutocompleteLabel(s.Value)
+                })
+                .ToList();
+        }
+
+        /// <summary>DSD nominal rates in MHz (aligned with seeded rows and <see cref="StatisticService"/>).</summary>
+        private static ReadOnlySpan<double> DsdSamplingMhzValues => [2.8, 5.6, 11.2, 22.5];
+
+        private static bool IsDsdSamplingMhz(double value)
+        {
+            foreach (var d in DsdSamplingMhzValues)
+            {
+                if (Math.Abs(value - d) < 0.0001)
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string SamplingAutocompleteValue(double v) =>
+            v.ToString(CultureInfo.InvariantCulture);
+
+        private static string SamplingAutocompleteLabel(double v)
+        {
+            var n = SamplingAutocompleteValue(v);
+            return IsDsdSamplingMhz(v) ? $"{n} MHz" : $"{n} kHz";
         }
 
         private static async Task<List<AutocompleteResponse>> SearchStringAsync<TEntity>(
@@ -67,6 +195,7 @@ namespace Web.Services
                     Value = EF.Property<string>(x, propertyName)
                 })
                 .Distinct()
+                .Take(AutocompleteMaxItems)
                 .ToListAsync();
         }
 
@@ -87,6 +216,7 @@ namespace Web.Services
                     return new AutocompleteResponse { Label = val, Value = val };
                 })
                 .Distinct()
+                .Take(AutocompleteMaxItems)
                 .ToList();
         }
 
@@ -99,6 +229,7 @@ namespace Web.Services
                 .Where(m => EF.Functions.Like(m.Name, likePattern))
                 .Select(m => new AutocompleteResponse { Label = m.Name, Value = m.Name })
                 .Distinct()
+                .Take(AutocompleteMaxItems)
                 .ToListAsync();
         }
     }

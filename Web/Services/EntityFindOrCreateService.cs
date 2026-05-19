@@ -162,14 +162,9 @@ namespace Web.Services
                 _context.Players.Add(player);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && player.ManufacturerId is null)
+            else
             {
-                var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                if (manufacturer is not null)
-                {
-                    player.ManufacturerId = manufacturer.Id;
-                    await _context.SaveChangesAsync();
-                }
+                await ApplyManufacturerIfProvidedAsync(player.ManufacturerId, manufacturerName, id => player.ManufacturerId = id);
             }
             
             return player;
@@ -196,14 +191,9 @@ namespace Web.Services
                 _context.Cartridges.Add(cartridge);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && cartridge.ManufacturerId is null)
+            else
             {
-                var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                if (manufacturer is not null)
-                {
-                    cartridge.ManufacturerId = manufacturer.Id;
-                    await _context.SaveChangesAsync();
-                }
+                await ApplyManufacturerIfProvidedAsync(cartridge.ManufacturerId, manufacturerName, id => cartridge.ManufacturerId = id);
             }
             
             return cartridge;
@@ -230,14 +220,9 @@ namespace Web.Services
                 _context.Amplifiers.Add(amplifier);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && amplifier.ManufacturerId is null)
+            else
             {
-                var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                if (manufacturer is not null)
-                {
-                    amplifier.ManufacturerId = manufacturer.Id;
-                    await _context.SaveChangesAsync();
-                }
+                await ApplyManufacturerIfProvidedAsync(amplifier.ManufacturerId, manufacturerName, id => amplifier.ManufacturerId = id);
             }
             
             return amplifier;
@@ -264,14 +249,9 @@ namespace Web.Services
                 _context.Adces.Add(adc);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && adc.ManufacturerId is null)
+            else
             {
-                var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                if (manufacturer is not null)
-                {
-                    adc.ManufacturerId = manufacturer.Id;
-                    await _context.SaveChangesAsync();
-                }
+                await ApplyManufacturerIfProvidedAsync(adc.ManufacturerId, manufacturerName, id => adc.ManufacturerId = id);
             }
             
             return adc;
@@ -298,17 +278,25 @@ namespace Web.Services
                 _context.Wires.Add(wire);
                 await _context.SaveChangesAsync();
             }
-            else if (!string.IsNullOrWhiteSpace(manufacturerName) && wire.ManufacturerId is null)
+            else
             {
-                var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                if (manufacturer is not null)
-                {
-                    wire.ManufacturerId = manufacturer.Id;
-                    await _context.SaveChangesAsync();
-                }
+                await ApplyManufacturerIfProvidedAsync(wire.ManufacturerId, manufacturerName, id => wire.ManufacturerId = id);
             }
             
             return wire;
+        }
+
+        private async Task ApplyManufacturerIfProvidedAsync(int? currentManufacturerId, string? manufacturerName, Action<int?> setManufacturerId)
+        {
+            if (string.IsNullOrWhiteSpace(manufacturerName))
+                return;
+
+            var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
+            if (manufacturer is not null && currentManufacturerId != manufacturer.Id)
+            {
+                setManufacturerId(manufacturer.Id);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<Manufacturer?> FindOrCreateManufacturerAsync(string manufacturerName)

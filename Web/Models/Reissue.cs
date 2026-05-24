@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Web.Models
 {
@@ -6,6 +6,6 @@ namespace Web.Models
     {
         public int Id { get; set; }
         public int Value { get; set; }
-        public ICollection<Digitization> Digitizations { get; set; } = [];
+        public ICollection<Release> Releases { get; set; } = [];
     }
 }

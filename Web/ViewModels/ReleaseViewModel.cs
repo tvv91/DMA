@@ -1,8 +1,8 @@
-﻿namespace Web.ViewModels
+namespace Web.ViewModels
 {
-    public class DigitizationViewModel
+    public class ReleaseViewModel
     {
-        public int DigitizationId { get; set; }
+        public int ReleaseId { get; set; }
         public string? VinylState { get; set; }
         public string? DigitalFormat { get; set; }
         public int? Bitness { get; set; }

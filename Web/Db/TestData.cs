@@ -279,7 +279,7 @@ namespace Web.Db
             };
         }
 
-        private Digitization CreateDigitization(
+        private Release CreateRelease(
             IReadOnlyList<Year> years,
             IReadOnlyList<Reissue> reissues,
             IReadOnlyList<Country> countries,
@@ -297,7 +297,7 @@ namespace Web.Db
             Label? label = _random.Next(4) == 0 ? null : labels[_random.Next(labels.Count)];
             Storage? storage = _random.Next(4) == 0 ? null : storages[_random.Next(storages.Count)];
 
-            return new Digitization
+            return new Release
             {
                 AddedDate = TimeProvider.System.GetLocalNow().LocalDateTime,
                 Source = "https://somelink.com",
@@ -510,11 +510,11 @@ namespace Web.Db
 
             foreach (var entry in catalog)
             {
-                int digitizationCount = _random.Next(0, 101);
-                var digitizations = new List<Digitization>(digitizationCount);
-                for (int d = 0; d < digitizationCount; d++)
+                int releaseCount = _random.Next(0, 101);
+                var releases = new List<Release>(releaseCount);
+                for (int d = 0; d < releaseCount; d++)
                 {
-                    digitizations.Add(CreateDigitization(
+                    releases.Add(CreateRelease(
                         years, reissues, countries, labels, storages,
                         adcs, amplifiers, cartridges, players, wires));
                 }
@@ -524,7 +524,7 @@ namespace Web.Db
                     Title = entry.AlbumTitle,
                     Artist = new Artist { Name = entry.ArtistName },
                     Genre = genreByName[entry.GenreName],
-                    Digitizations = digitizations,
+                    Releases = releases,
                 });
             }
 

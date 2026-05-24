@@ -12,7 +12,7 @@ namespace Web.SignalRHubs
         IImageService imageService,
         IResourceIconService resourceIconService,
         IAlbumService albumService,
-        IDigitizationService digitizationService,
+        IReleaseService releaseService,
         IEquipmentService equipmentService,
         IEntityFindOrCreateService entityService,
         TimeProvider timeProvider) : Hub
@@ -20,7 +20,7 @@ namespace Web.SignalRHubs
         private readonly IImageService _imgService = imageService;
         private readonly IResourceIconService _resourceIconService = resourceIconService;
         private readonly IAlbumService _albumService = albumService;
-        private readonly IDigitizationService _digitizationService = digitizationService;
+        private readonly IReleaseService _releaseService = releaseService;
         private readonly IEquipmentService _equipmentService = equipmentService;
         private readonly IEntityFindOrCreateService _entityService = entityService;
         private readonly TimeProvider _timeProvider = timeProvider;
@@ -92,7 +92,7 @@ namespace Web.SignalRHubs
 
             if (!string.IsNullOrWhiteSpace(source))
             {
-                var sourceExists = await _digitizationService.ExistsByAlbumIdAndSourceAsync(result.Id, source);
+                var sourceExists = await _releaseService.ExistsByAlbumIdAndSourceAsync(result.Id, source);
                 if (sourceExists)
                 {
                     await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, result.Id);
@@ -103,7 +103,7 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
         }
 
-        public async Task AddDigitization(string connectionId, CreateUpdateDigitizationRequest request)
+        public async Task AddRelease(string connectionId, CreateUpdateReleaseRequest request)
         {
             try
             {
@@ -119,89 +119,89 @@ namespace Web.SignalRHubs
                     album = await _albumService.GetByIdAsync(request.AlbumId);
                     if (album is null)
                     {
-                        await Clients.Client(connectionId).SendAsync("DigitizationAdded", false, "Album not found", 0);
+                        await Clients.Client(connectionId).SendAsync("ReleaseAdded", false, "Album not found", 0);
                         return;
                     }
                 }
 
-                var digitization = await MapRequestToDigitizationAsync(album.Id, request);
-                digitization = await _digitizationService.AddAsync(digitization);
+                var release = await MapRequestToReleaseAsync(album.Id, request);
+                release = await _releaseService.AddAsync(release);
 
-                // Get all digitizations for the album
-                var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
-                var digitizationList = MapDigitizationsToDto(digitizations);
+                // Get all releases for the album
+                var releases = await _releaseService.GetByAlbumIdAsync(album.Id);
+                var releaseList = MapReleasesToDto(releases);
 
-                await Clients.Client(connectionId).SendAsync("DigitizationAdded", true, "", album.Id, digitizationList);
+                await Clients.Client(connectionId).SendAsync("ReleaseAdded", true, "", album.Id, releaseList);
             }
             catch (Exception ex)
             {
-                await Clients.Client(connectionId).SendAsync("DigitizationAdded", false, ex.Message, 0);
+                await Clients.Client(connectionId).SendAsync("ReleaseAdded", false, ex.Message, 0);
             }
         }
 
-        public async Task UpdateDigitization(string connectionId, CreateUpdateDigitizationRequest request)
+        public async Task UpdateRelease(string connectionId, CreateUpdateReleaseRequest request)
         {
             try
             {
-                if (request.DigitizationId == 0)
+                if (request.ReleaseId == 0)
                 {
-                    await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, "Digitization ID is required");
+                    await Clients.Client(connectionId).SendAsync("ReleaseUpdated", false, "Release ID is required");
                     return;
                 }
 
-                var existing = await _digitizationService.GetByIdAsync(request.DigitizationId);
+                var existing = await _releaseService.GetByIdAsync(request.ReleaseId);
                 if (existing is null)
                 {
-                    await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, "Digitization not found");
+                    await Clients.Client(connectionId).SendAsync("ReleaseUpdated", false, "Release not found");
                     return;
                 }
 
-                var digitization = await MapRequestToDigitizationAsync(existing.AlbumId, request);
-                digitization.Id = request.DigitizationId;
-                digitization = await _digitizationService.UpdateAsync(digitization);
+                var release = await MapRequestToReleaseAsync(existing.AlbumId, request);
+                release.Id = request.ReleaseId;
+                release = await _releaseService.UpdateAsync(release);
 
-                // Get all digitizations for the album
-                var digitizations = await _digitizationService.GetByAlbumIdAsync(existing.AlbumId);
-                var digitizationList = MapDigitizationsToDto(digitizations);
+                // Get all releases for the album
+                var releases = await _releaseService.GetByAlbumIdAsync(existing.AlbumId);
+                var releaseList = MapReleasesToDto(releases);
 
-                await Clients.Client(connectionId).SendAsync("DigitizationUpdated", true, "", digitizationList);
+                await Clients.Client(connectionId).SendAsync("ReleaseUpdated", true, "", releaseList);
             }
             catch (Exception ex)
             {
-                await Clients.Client(connectionId).SendAsync("DigitizationUpdated", false, ex.Message);
+                await Clients.Client(connectionId).SendAsync("ReleaseUpdated", false, ex.Message);
             }
         }
 
-        public async Task RemoveDigitization(string connectionId, int digitizationId)
+        public async Task RemoveRelease(string connectionId, int releaseId)
         {
             try
             {
-                var digitization = await _digitizationService.GetByIdAsync(digitizationId);
-                if (digitization is null)
+                var release = await _releaseService.GetByIdAsync(releaseId);
+                if (release is null)
                 {
-                    await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, "Digitization not found");
+                    await Clients.Client(connectionId).SendAsync("ReleaseRemoved", false, "Release not found");
                     return;
                 }
 
-                var albumId = digitization.AlbumId;
-                var success = await _digitizationService.DeleteAsync(digitizationId);
+                var albumId = release.AlbumId;
+                var success = await _releaseService.DeleteAsync(releaseId);
 
                 if (success)
                 {
-                    // Get all remaining digitizations for the album
-                    var digitizations = await _digitizationService.GetByAlbumIdAsync(albumId);
-                    var digitizationList = MapDigitizationsToDto(digitizations);
+                    // Get all remaining releases for the album
+                    var releases = await _releaseService.GetByAlbumIdAsync(albumId);
+                    var releaseList = MapReleasesToDto(releases);
 
-                    await Clients.Client(connectionId).SendAsync("DigitizationRemoved", true, "", digitizationList);
+                    await Clients.Client(connectionId).SendAsync("ReleaseRemoved", true, "", releaseList);
                 }
                 else
                 {
-                    await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, "Failed to remove digitization");
+                    await Clients.Client(connectionId).SendAsync("ReleaseRemoved", false, "Failed to remove release");
                 }
             }
             catch (Exception ex)
             {
-                await Clients.Client(connectionId).SendAsync("DigitizationRemoved", false, ex.Message);
+                await Clients.Client(connectionId).SendAsync("ReleaseRemoved", false, ex.Message);
             }
         }
 
@@ -219,18 +219,18 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
-        public async Task GetTechnicalInfoIcons(string connectionId, int digitizationId)
+        public async Task GetTechnicalInfoIcons(string connectionId, int releaseId)
         {
-            var digitization = await _digitizationService.GetByIdAsync(digitizationId);
+            var release = await _releaseService.GetByIdAsync(releaseId);
 
-            if (digitization is null)
+            if (release is null)
             {
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
             }
 
-            var formatInfo = digitization.FormatInfo;
-            var equipmentInfo = digitization.EquipmentInfo;
+            var formatInfo = release.FormatInfo;
+            var equipmentInfo = release.EquipmentInfo;
 
             var hasFormatInfo =
                 formatInfo?.VinylStateId is not null ||
@@ -282,9 +282,9 @@ namespace Web.SignalRHubs
             }
         }
 
-        private async Task<Digitization> MapRequestToDigitizationAsync(int albumId, CreateUpdateDigitizationRequest request)
+        private async Task<Release> MapRequestToReleaseAsync(int albumId, CreateUpdateReleaseRequest request)
         {
-            var digitization = new Digitization
+            var release = new Release
             {
                 AlbumId = albumId,
                 AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
@@ -298,35 +298,35 @@ namespace Web.SignalRHubs
             if (request.Year.HasValue)
             {
                 var year = await _entityService.FindOrCreateYearAsync(request.Year.Value);
-                digitization.YearId = year.Id;
+                release.YearId = year.Id;
             }
 
             // Find or create Reissue
             if (request.Reissue.HasValue)
             {
                 var reissue = await _entityService.FindOrCreateReissueAsync(request.Reissue.Value);
-                digitization.ReissueId = reissue.Id;
+                release.ReissueId = reissue.Id;
             }
 
             // Find or create Country
             if (!string.IsNullOrWhiteSpace(request.Country))
             {
                 var country = await _entityService.FindOrCreateCountryAsync(request.Country);
-                digitization.CountryId = country.Id;
+                release.CountryId = country.Id;
             }
 
             // Find or create Label
             if (!string.IsNullOrWhiteSpace(request.Label))
             {
                 var label = await _entityService.FindOrCreateLabelAsync(request.Label);
-                digitization.LabelId = label.Id;
+                release.LabelId = label.Id;
             }
 
             // Find or create Storage
             if (!string.IsNullOrWhiteSpace(request.Storage))
             {
                 var storage = await _entityService.FindOrCreateStorageAsync(request.Storage);
-                digitization.StorageId = storage.Id;
+                release.StorageId = storage.Id;
             }
 
             // FormatInfo
@@ -367,7 +367,7 @@ namespace Web.SignalRHubs
                 formatInfo.VinylStateId = vinylState.Id;
             }
 
-            digitization.FormatInfo = formatInfo;
+            release.FormatInfo = formatInfo;
 
             // EquipmentInfo
             var equipmentInfo = new EquipmentInfo();
@@ -407,14 +407,14 @@ namespace Web.SignalRHubs
                 equipmentInfo.WireId = wire.Id;
             }
 
-            digitization.EquipmentInfo = equipmentInfo;
+            release.EquipmentInfo = equipmentInfo;
 
-            return digitization;
+            return release;
         }
 
-        private static List<object> MapDigitizationsToDto(IEnumerable<Digitization> digitizations)
+        private static List<object> MapReleasesToDto(IEnumerable<Release> releases)
         {
-            return digitizations.Select(d => new
+            return releases.Select(d => new
             {
                 Id = d.Id,
                 VinylState = d.FormatInfo?.VinylState?.Name,

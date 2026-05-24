@@ -1,6 +1,6 @@
 namespace Web.ViewModels
 {
-    public class EquipmentDigitizedAlbumsPageViewModel
+    public class EquipmentReleasedAlbumsPageViewModel
     {
         public List<EquipmentAlbumRowViewModel> Albums { get; set; } = [];
         public int CurrentPage { get; set; }

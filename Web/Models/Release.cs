@@ -1,6 +1,6 @@
 namespace Web.Models
 {
-    public class Digitization
+    public class Release
     {
         public int Id { get; set; }
         public int AlbumId { get; set; }

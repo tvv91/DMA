@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using Web.Models;
 
 namespace Web.ViewModels
@@ -12,7 +12,7 @@ namespace Web.ViewModels
         public string? AlbumCoverUrl { get; set; }
         public DateTime? AddedDate { get; set; }
         public DateTime? UpdateDate { get; set; }
-        public IEnumerable<Digitization>? Digitizations { get; set; }
+        public IEnumerable<Release>? Releases { get; set; }
         
     }
 }

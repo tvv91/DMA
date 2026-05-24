@@ -80,9 +80,9 @@ namespace Web.Services
             var data = new StatisticCounters
             {
                 TotalAlbums = await _context.Albums.CountAsync(),
-                TotalSize = await _context.Digitizations.Where(d => d.Size != null).SumAsync(d => d.Size ?? 0),
+                TotalSize = await _context.Releases.Where(d => d.Size != null).SumAsync(d => d.Size ?? 0),
                 StorageCount = await _context.Storages.CountAsync(),
-                TotalDigitizations = await _context.Digitizations.CountAsync(),
+                TotalReleases = await _context.Releases.CountAsync(),
                 TotalArtists = await _context.Artists.CountAsync(),
                 TotalEquipment = totalEquipment,
                 Genre = await CountGenresAsync(),
@@ -140,11 +140,11 @@ namespace Web.Services
         private async Task<List<CounterItem>> CountYearsAsync()
         {
             return await _context.Years
-                .Where(y => y.Digitizations.Any())
+                .Where(y => y.Releases.Any())
                 .Select(y => new CounterItem
                 {
                     Description = y.Value.ToString(),
-                    Count = y.Digitizations.Count
+                    Count = y.Releases.Count
                 })
                 .OrderByDescending(x => x.Count)
                 .Take(TopStatisticsItems)
@@ -157,7 +157,7 @@ namespace Web.Services
                 .Select(c => new CounterItem
                 {
                     Description = c.Name,
-                    Count = c.Digitizations.Count
+                    Count = c.Releases.Count
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -171,7 +171,7 @@ namespace Web.Services
                 .Select(l => new CounterItem
                 {
                     Description = l.Name,
-                    Count = l.Digitizations.Count
+                    Count = l.Releases.Count
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -185,7 +185,7 @@ namespace Web.Services
                 .Select(b => new CounterItem
                 {
                     Description = $"{b.Value} bit",
-                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.BitnessId == b.Id)
+                    Count = _context.Releases.Count(d => d.FormatInfo != null && d.FormatInfo.BitnessId == b.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -199,7 +199,7 @@ namespace Web.Services
                 .Select(s => new CounterItem
                 {
                     Description = $"{s.Value}{(_dsdFreq.Contains(s.Value) ? " MHz" : " kHz")}",
-                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.SamplingId == s.Id)
+                    Count = _context.Releases.Count(d => d.FormatInfo != null && d.FormatInfo.SamplingId == s.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -213,7 +213,7 @@ namespace Web.Services
                 .Select(s => new CounterItem
                 {
                     Description = s.Name,
-                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.SourceFormatId == s.Id)
+                    Count = _context.Releases.Count(d => d.FormatInfo != null && d.FormatInfo.SourceFormatId == s.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -227,7 +227,7 @@ namespace Web.Services
                 .Select(d => new CounterItem
                 {
                     Description = d.Name,
-                    Count = _context.Digitizations.Count(dig => dig.FormatInfo != null && dig.FormatInfo.DigitalFormatId == d.Id)
+                    Count = _context.Releases.Count(dig => dig.FormatInfo != null && dig.FormatInfo.DigitalFormatId == d.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -241,7 +241,7 @@ namespace Web.Services
                 .Select(v => new CounterItem
                 {
                     Description = v.Name,
-                    Count = _context.Digitizations.Count(d => d.FormatInfo != null && d.FormatInfo.VinylStateId == v.Id)
+                    Count = _context.Releases.Count(d => d.FormatInfo != null && d.FormatInfo.VinylStateId == v.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -255,7 +255,7 @@ namespace Web.Services
                 .Select(a => new CounterItem
                 {
                     Description = a.Manufacturer != null ? $"{a.Manufacturer.Name} {a.Name}" : a.Name,
-                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.AdcId == a.Id)
+                    Count = _context.Releases.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.AdcId == a.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -269,7 +269,7 @@ namespace Web.Services
                 .Select(a => new CounterItem
                 {
                     Description = a.Manufacturer != null ? $"{a.Manufacturer.Name} {a.Name}" : a.Name,
-                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.AmplifierId == a.Id)
+                    Count = _context.Releases.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.AmplifierId == a.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -283,7 +283,7 @@ namespace Web.Services
                 .Select(c => new CounterItem
                 {
                     Description = c.Manufacturer != null ? $"{c.Manufacturer.Name} {c.Name}" : c.Name,
-                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.CartridgeId == c.Id)
+                    Count = _context.Releases.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.CartridgeId == c.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -297,7 +297,7 @@ namespace Web.Services
                 .Select(p => new CounterItem
                 {
                     Description = p.Manufacturer != null ? $"{p.Manufacturer.Name} {p.Name}" : p.Name,
-                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.PlayerId == p.Id)
+                    Count = _context.Releases.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.PlayerId == p.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)
@@ -311,7 +311,7 @@ namespace Web.Services
                 .Select(w => new CounterItem
                 {
                     Description = w.Manufacturer != null ? $"{w.Manufacturer.Name} {w.Name}" : w.Name,
-                    Count = _context.Digitizations.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.WireId == w.Id)
+                    Count = _context.Releases.Count(d => d.EquipmentInfo != null && d.EquipmentInfo.WireId == w.Id)
                 })
                 .Where(x => x.Count > 0)
                 .OrderByDescending(x => x.Count)

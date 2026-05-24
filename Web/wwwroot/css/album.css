@@ -383,8 +383,8 @@
     color: #111;
 }
 
-/* Digitization Table */
-.digitization-table {
+/* Release Table */
+.release-table {
     width: 100%;
     max-height: min(65vh, 36rem);
     border-radius: 12px;
@@ -395,7 +395,7 @@
     background: #fff;
 }
 
-.digitization-table .table-header {
+.release-table .table-header {
     position: sticky;
     top: 0;
     z-index: 2;
@@ -407,7 +407,7 @@
     border-bottom: 2px solid #ddd;
 }
 
-.digitization-table .table-header .sortable-header {
+.release-table .table-header .sortable-header {
     display: flex;
     align-items: center;
     gap: 0.35rem;
@@ -418,23 +418,23 @@
     padding: 4px;
 }
 
-.digitization-table .table-header .sortable-header:hover {
+.release-table .table-header .sortable-header:hover {
     color: #0d6efd;
 }
 
-.digitization-table .table-header .sortable-header:focus-visible {
+.release-table .table-header .sortable-header:focus-visible {
     outline: 2px solid #0d6efd;
     outline-offset: 1px;
 }
 
-.digitization-table .table-header .sortable-header .sort-icon {
+.release-table .table-header .sortable-header .sort-icon {
     font-size: 0.72em;
     opacity: 0.4;
     flex-shrink: 0;
 }
 
-.digitization-table .table-header .sortable-header.sorted-asc .sort-icon,
-.digitization-table .table-header .sortable-header.sorted-desc .sort-icon {
+.release-table .table-header .sortable-header.sorted-asc .sort-icon,
+.release-table .table-header .sortable-header.sorted-desc .sort-icon {
     opacity: 1;
 }
 
@@ -490,17 +490,17 @@
     transform: translateY(0);
 }
 
-.digitization-title {
+.release-title {
     margin-bottom: 6px;
     font-size: 0.95rem;
 }
 
-.digitization-spec {
+.release-spec {
     width: 100%;
     table-layout: fixed;
 }
 
-.digitization-spec th, .digitization-spec td {
+.release-spec th, .release-spec td {
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
@@ -538,7 +538,7 @@
     z-index: 10;
 }
 
-.album-create-update-no-digitizations {
+.album-create-update-no-releases {
     display: flex;
     justify-content: center;
 }
@@ -559,12 +559,12 @@
     background-color: #f0f0f0;
 }
 
-/* Autocomplete in Add digitization modal - keep dropdown above modal content */
-#addDigitizationModal .ui-autocomplete {
+/* Autocomplete in Add release modal - keep dropdown above modal content */
+#addReleaseModal .ui-autocomplete {
     z-index: 1060;
 }
 
-/* Album edit: digitization / hardware tabs — keep autocomplete above tab panels */
+/* Album edit: release / hardware tabs — keep autocomplete above tab panels */
 #albumTabsContent .ui-autocomplete {
     z-index: 1050;
 }

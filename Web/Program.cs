@@ -26,7 +26,7 @@ builder.Services.AddScoped<IResourceIconService, LocalResourceIconService>();
 // Services
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IDigitizationService, DigitizationService>();
+builder.Services.AddScoped<IReleaseService, ReleaseService>();
 builder.Services.AddScoped<IEquipmentService, EquipmentService>();
 builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IStatisticService, StatisticService>();

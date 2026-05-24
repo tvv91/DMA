@@ -13,6 +13,6 @@ namespace Web.Models
         public Genre Genre { get; set; } = null!;
         public int ArtistId { get; set; }
         public Artist Artist { get; set; } = null!;
-        public ICollection<Digitization> Digitizations { get; set; } = [];
+        public ICollection<Release> Releases { get; set; } = [];
     }
 }

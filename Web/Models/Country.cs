@@ -4,6 +4,6 @@ namespace Web.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public ICollection<Digitization> Digitizations { get; set; } = [];
+        public ICollection<Release> Releases { get; set; } = [];
     }
 }

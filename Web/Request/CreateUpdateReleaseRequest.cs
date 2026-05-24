@@ -1,9 +1,9 @@
-﻿namespace Web.Request
+namespace Web.Request
 {
-    public class CreateUpdateDigitizationRequest
+    public class CreateUpdateReleaseRequest
     {
         public int AlbumId { get; set; }
-        public int DigitizationId { get; set; }
+        public int ReleaseId { get; set; }
         public string Artist { get; set; } = string.Empty;
         public string Album { get; set; } = string.Empty;
         public string Genre { get; set; } = string.Empty;

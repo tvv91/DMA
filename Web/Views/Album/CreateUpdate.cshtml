@@ -1,35 +1,35 @@
 @model AlbumCreateUpdateViewModel;
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
-    <div id="toast-digitization-added" class="toast toast-variant-success" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-release-added" class="toast toast-variant-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Success</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Digitization added successfully</div>
+        <div class="toast-body">Release added successfully</div>
     </div>
-    <div id="toast-digitization-updated" class="toast toast-variant-update" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-release-updated" class="toast toast-variant-update" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Updated</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Digitization updated successfully</div>
+        <div class="toast-body">Release updated successfully</div>
     </div>
-    <div id="toast-digitization-removed" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-release-removed" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Removed</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Digitization removed successfully</div>
+        <div class="toast-body">Release removed successfully</div>
     </div>
-    <div id="toast-digitization-error" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-release-error" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Error</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body"></div>
     </div>
-    <div id="toast-digitization-warning" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
+    <div id="toast-release-warning" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Notice</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -60,12 +60,12 @@
                                 General
                             </button>
                         </li>
-                        <li class="nav-item digitization-dependent-tab d-none" role="presentation">
-                            <button class="nav-link" id="digitization-tab" data-bs-toggle="tab" data-bs-target="#digitization" type="button" role="tab">
-                                Digitization
+                        <li class="nav-item release-dependent-tab d-none" role="presentation">
+                            <button class="nav-link" id="release-tab" data-bs-toggle="tab" data-bs-target="#release" type="button" role="tab">
+                                Release
                             </button>
                         </li>
-                        <li class="nav-item digitization-dependent-tab d-none" role="presentation">
+                        <li class="nav-item release-dependent-tab d-none" role="presentation">
                             <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardware" type="button" role="tab">
                                 Hardware
                             </button>
@@ -85,7 +85,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="digitization" role="tabpanel">
+                        <div class="tab-pane fade" id="release" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <input id="vinylstate-input" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
@@ -152,20 +152,20 @@
                 </div>
             </div>
             <div class="d-flex justify-content-end align-items-center gap-2 mt-4">
-                <div id="digitization-warning" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
+                <div id="release-warning" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
                      role="alert"
                      style="white-space: nowrap; min-height: 38px;">
                     <span id="album-check-spinner" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
                     <i id="alert-icon" class="me-2"></i>&nbsp
                     <span class="alert-message"></span>
                 </div>
-                <button id="add-digitization-btn" class="btn btn-info px-4" onclick="ShowAddModal()" type="button" disabled>
+                <button id="add-release-btn" class="btn btn-info px-4" onclick="ShowAddModal()" type="button" disabled>
                     <i class="fa-solid fa-plus"></i> Add
                 </button>
-                <button id="update-digitization-btn" class="btn btn-warning px-4" onclick="UpdateDigitization()" type="button" disabled>
+                <button id="update-release-btn" class="btn btn-warning px-4" onclick="UpdateRelease()" type="button" disabled>
                     <i class="fa-regular fa-pen-to-square"></i> Update
                 </button>
-                <button id="remove-digitization-btn" class="btn btn-danger px-4" onclick="ShowRemoveModal()" type="button" disabled>
+                <button id="remove-release-btn" class="btn btn-danger px-4" onclick="ShowRemoveModal()" type="button" disabled>
                     <i class="fa-solid fa-xmark"></i> Remove
                 </button>
                 <button id="save-album-btn" type="submit" class="btn btn-success px-4">
@@ -180,8 +180,8 @@
         <div class="album-create-update-overlay" id="loader">
             <div class="spinner-border" role="status"></div>
         </div>
-        <div id="digitizations-container">
-            <div class="album-create-update-no-digitizations" id="no-digitizations">No digitizations</div>
+        <div id="releases-container">
+            <div class="album-create-update-no-releases" id="no-releases">No releases</div>
         </div>
     </div>
     <div class="modal fade" id="removeModal" tabindex="-1">
@@ -192,20 +192,20 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to remove this digitization? This action cannot be undone.
+                    Are you sure you want to remove this release? This action cannot be undone.
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="RemoveDigitization()">Remove</button>
+                    <button type="button" class="btn btn-danger" onclick="RemoveRelease()">Remove</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="modal fade" id="addDigitizationModal" tabindex="-1">
+    <div class="modal fade" id="addReleaseModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add new digitization</h5>
+                    <h5 class="modal-title">Add new release</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -214,8 +214,8 @@
                 <div class="col d-flex flex-column">
                     <ul class="nav nav-tabs" id="albumTabs" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link active" id="digitization-tab" data-bs-toggle="tab" data-bs-target="#digitizationModal" type="button" role="tab">
-                                Digitization
+                            <button class="nav-link active" id="release-tab" data-bs-toggle="tab" data-bs-target="#releaseModal" type="button" role="tab">
+                                Release
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
@@ -225,7 +225,7 @@
                         </li>
                     </ul>
                     <div class="tab-content border border-top-0 rounded-bottom p-3 bg-light" id="albumTabsContentModal">
-                        <div class="tab-pane fade show active" id="digitizationModal" role="tabpanel">
+                        <div class="tab-pane fade show active" id="releaseModal" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-4">
                                     <input id="vinylstate-input-modal" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
@@ -293,13 +293,13 @@
             </div>
             </div>
                 <div class="modal-footer">
-                    <div id="digitization-warning-modal" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1" role="alert" style="white-space: nowrap; min-height: 38px;">
+                    <div id="release-warning-modal" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1" role="alert" style="white-space: nowrap; min-height: 38px;">
                         <span id="album-check-spinner-modal" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
                         <i id="alert-icon-modal" class="me-2"></i>&nbsp
                         <span class="alert-message"></span>
                     </div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-success" onclick="AddDigitization()">Add</button>
+                    <button type="button" class="btn btn-success" onclick="AddRelease()">Add</button>
                 </div>
             </div>
         </div>
@@ -307,16 +307,16 @@
 </div>
 <script>
     // --- State ---
-    let selectedDigitizationId = 0;
-    let digitizations = [];
+    let selectedReleaseId = 0;
+    let releases = [];
     let currentAlbumCheckContext = "main";
 
     // --- Constants / config ---
     const alertMessages = {
         0: { type: "success", text: "No duplicates found." },
         1: { type: "danger", text: (id) => `${prepareAlbumLink(id)} already exists.` },
-        50: { type: "warning", text: "Digitization already exists. Please check to make sure this is not a duplicate." },
-        100: { type: "danger", text: "Digitization already exists with that source." }
+        50: { type: "warning", text: "Release already exists. Please check to make sure this is not a duplicate." },
+        100: { type: "danger", text: "Release already exists with that source." }
     };
     const levels = {
         "alert-success": { icon: "fa-solid fa-circle-check" },
@@ -338,7 +338,7 @@
         "adc-manufacturer-input": "AdcManufacturer",
         "wire-manufacturer-input": "WireManufacturer"
     };
-    /** Digitization + Hardware tabs (main + add modal): full list on focus, filter while typing. */
+    /** Release + Hardware tabs (main + add modal): full list on focus, filter while typing. */
     const fullListComboboxIds = new Set([
         "vinylstate-input", "vinylstate-input-modal",
         "digitalformat-input", "digitalformat-input-modal",
@@ -410,18 +410,18 @@
         const album = $("#album-input").val()?.trim();
         const genre = $("#genre-input").val()?.trim();
         const hasRequiredFields = artist && album && genre;
-        $("#add-digitization-btn").prop("disabled", !hasRequiredFields);
+        $("#add-release-btn").prop("disabled", !hasRequiredFields);
     }
 
     function checkUpdateRemoveButtons() {
-        const enabled = selectedDigitizationId > 0;
-        $("#update-digitization-btn").prop("disabled", !enabled);
-        $("#remove-digitization-btn").prop("disabled", !enabled);
+        const enabled = selectedReleaseId > 0;
+        $("#update-release-btn").prop("disabled", !enabled);
+        $("#remove-release-btn").prop("disabled", !enabled);
     }
 
-    function updateDigitizationHardwareTabsVisibility() {
-        const show = selectedDigitizationId > 0;
-        const $dependentTabs = $("#mainAlbumTabs .digitization-dependent-tab");
+    function updateReleaseHardwareTabsVisibility() {
+        const show = selectedReleaseId > 0;
+        const $dependentTabs = $("#mainAlbumTabs .release-dependent-tab");
         if (show) {
             $dependentTabs.removeClass("d-none");
         } else {
@@ -433,8 +433,8 @@
         }
     }
 
-    // --- Digitization: form & CRUD ---
-    function clearDigitizationFields() {
+    // --- Release: form & CRUD ---
+    function clearReleaseFields() {
         $("#vinylstate-input, #digitalformat-input, #bitness-input, #sampling-input, #sourceformat-input").val("");
         $("#year-input, #reissue-input").val("");
         $("#source-input, #size-input").val("");
@@ -444,35 +444,35 @@
         $("#country-input, #label-input").val("");
         $("input[placeholder='Storage']").val("");
         $("input[placeholder='Discogs link']").val("");
-        selectedDigitizationId = 0;
+        selectedReleaseId = 0;
         checkUpdateRemoveButtons();
-        updateDigitizationHardwareTabsVisibility();
+        updateReleaseHardwareTabsVisibility();
     }
 
-    function loadDigitizationToFields(digitization) {
-        selectedDigitizationId = digitization.id || digitization.Id;
+    function loadReleaseToFields(release) {
+        selectedReleaseId = release.id || release.Id;
         // Format Info - handle both camelCase and PascalCase (use ?? so 0 is shown)
-        $("#vinylstate-input").val(digitization.vinylState || digitization.VinylState || "");
-        $("#digitalformat-input").val(digitization.digitalFormat || digitization.DigitalFormat || "");
-        $("#bitness-input").val(digitization.bitness != null ? digitization.bitness : (digitization.Bitness != null ? digitization.Bitness : ""));
-        $("#sampling-input").val(digitization.sampling != null ? digitization.sampling : (digitization.Sampling != null ? digitization.Sampling : ""));
-        $("#sourceformat-input").val(digitization.sourceFormat || digitization.SourceFormat || "");
-        $("#size-input").val(digitization.size != null ? digitization.size : (digitization.Size != null ? digitization.Size : ""));
-        $("#is-first-press-input").prop("checked", Boolean(digitization.isFirstPress ?? digitization.IsFirstPress));
+        $("#vinylstate-input").val(release.vinylState || release.VinylState || "");
+        $("#digitalformat-input").val(release.digitalFormat || release.DigitalFormat || "");
+        $("#bitness-input").val(release.bitness != null ? release.bitness : (release.Bitness != null ? release.Bitness : ""));
+        $("#sampling-input").val(release.sampling != null ? release.sampling : (release.Sampling != null ? release.Sampling : ""));
+        $("#sourceformat-input").val(release.sourceFormat || release.SourceFormat || "");
+        $("#size-input").val(release.size != null ? release.size : (release.Size != null ? release.Size : ""));
+        $("#is-first-press-input").prop("checked", Boolean(release.isFirstPress ?? release.IsFirstPress));
         
         // Equipment Info - handle both camelCase and PascalCase
-        const playerManufacturer = digitization.playerManufacturer || digitization.PlayerManufacturer || "";
-        const cartridgeManufacturer = digitization.cartridgeManufacturer || digitization.CartridgeManufacturer || "";
-        const amplifierManufacturer = digitization.amplifierManufacturer || digitization.AmplifierManufacturer || "";
-        const adcManufacturer = digitization.adcManufacturer || digitization.AdcManufacturer || "";
-        const wireManufacturer = digitization.wireManufacturer || digitization.WireManufacturer || "";
+        const playerManufacturer = release.playerManufacturer || release.PlayerManufacturer || "";
+        const cartridgeManufacturer = release.cartridgeManufacturer || release.CartridgeManufacturer || "";
+        const amplifierManufacturer = release.amplifierManufacturer || release.AmplifierManufacturer || "";
+        const adcManufacturer = release.adcManufacturer || release.AdcManufacturer || "";
+        const wireManufacturer = release.wireManufacturer || release.WireManufacturer || "";
         
         // Set equipment names
-        $("#player-input").val(digitization.player || digitization.Player || "");
-        $("#cartridge-input").val(digitization.cartridge || digitization.Cartridge || "");
-        $("#amp-input").val(digitization.amplifier || digitization.Amplifier || "");
-        $("#adc-input").val(digitization.adc || digitization.Adc || "");
-        $("#wire-input").val(digitization.wire || digitization.Wire || "");
+        $("#player-input").val(release.player || release.Player || "");
+        $("#cartridge-input").val(release.cartridge || release.Cartridge || "");
+        $("#amp-input").val(release.amplifier || release.Amplifier || "");
+        $("#adc-input").val(release.adc || release.Adc || "");
+        $("#wire-input").val(release.wire || release.Wire || "");
         
         // Set manufacturer fields
         $("#player-manufacturer-input").val(playerManufacturer);
@@ -482,30 +482,30 @@
         $("#wire-manufacturer-input").val(wireManufacturer);
         
         // Other fields - handle both camelCase and PascalCase
-        $("#year-input").val(digitization.year || digitization.Year || "");
-        $("#reissue-input").val(digitization.reissue || digitization.Reissue || "");
+        $("#year-input").val(release.year || release.Year || "");
+        $("#reissue-input").val(release.reissue || release.Reissue || "");
         
         // Country, Label, Storage, Discogs
-        $("#country-input").val(digitization.country || digitization.Country || "");
-        $("#label-input").val(digitization.label || digitization.Label || "");
-        $("input[placeholder='Storage']").val(digitization.storage || digitization.Storage || "");
-        $("input[placeholder='Discogs link']").val(digitization.discogs || digitization.Discogs || "");
-        $("#source-input").val(digitization.source || digitization.Source || "");
+        $("#country-input").val(release.country || release.Country || "");
+        $("#label-input").val(release.label || release.Label || "");
+        $("input[placeholder='Storage']").val(release.storage || release.Storage || "");
+        $("input[placeholder='Discogs link']").val(release.discogs || release.Discogs || "");
+        $("#source-input").val(release.source || release.Source || "");
 
         checkUpdateRemoveButtons();
-        updateDigitizationHardwareTabsVisibility();
+        updateReleaseHardwareTabsVisibility();
     }
 
-    function renderDigitizations(digs) {
-        digitizations = digs || [];
-        const $container = $("#digitizations-container");
+    function renderReleases(digs) {
+        releases = digs || [];
+        const $container = $("#releases-container");
         $container.empty();
         
         if (!digs || digs.length === 0) {
-            $container.html('<div class="album-create-update-no-digitizations" id="no-digitizations">No digitizations</div>');
-            selectedDigitizationId = 0;
+            $container.html('<div class="album-create-update-no-releases" id="no-releases">No releases</div>');
+            selectedReleaseId = 0;
             checkUpdateRemoveButtons();
-            updateDigitizationHardwareTabsVisibility();
+            updateReleaseHardwareTabsVisibility();
             $("#loader").hide();
             return;
         }
@@ -536,7 +536,7 @@
         digs.forEach(dig => {
             const digId = dig.id || dig.Id;
             const $row = $(`
-                <tr class="digitization-row ${selectedDigitizationId === digId ? 'table-active' : ''}" data-id="${digId}" style="cursor: pointer;">
+                <tr class="release-row ${selectedReleaseId === digId ? 'table-active' : ''}" data-id="${digId}" style="cursor: pointer;">
                     <td>${dig.vinylState || dig.VinylState || '-'}</td>
                     <td>${(dig.bitness || dig.Bitness) ? (dig.bitness || dig.Bitness) + 'bit' : '-'}</td>
                     <td>${dig.sampling || dig.Sampling || '-'}</td>
@@ -552,12 +552,12 @@
             `);
             
             $row.on("click", function() {
-                $(".digitization-row").removeClass("table-active");
+                $(".release-row").removeClass("table-active");
                 $(this).addClass("table-active");
                 const clickedDigId = $(this).data("id");
-                const clickedDig = digitizations.find(d => (d.id === clickedDigId) || (d.Id === clickedDigId));
+                const clickedDig = releases.find(d => (d.id === clickedDigId) || (d.Id === clickedDigId));
                 if (clickedDig) {
-                    loadDigitizationToFields(clickedDig);
+                    loadReleaseToFields(clickedDig);
                 }
             });
             
@@ -568,11 +568,11 @@
         $("#loader").hide();
     }
 
-    async function AddDigitization() {
-        const $modal = $("#addDigitizationModal");
+    async function AddRelease() {
+        const $modal = $("#addReleaseModal");
         const req = {
             albumId: Number($("#album-id").val()) || 0,
-            digitizationId: 0,
+            releaseId: 0,
             artist: $("#artist-input").val()?.trim() || "",
             album: $("#album-input").val()?.trim() || "",
             genre: $("#genre-input").val()?.trim() || "",
@@ -604,23 +604,23 @@
         
         $("#loader").show();
         try {
-            await connection.invoke("AddDigitization", connection.connectionId, req);
+            await connection.invoke("AddRelease", connection.connectionId, req);
         } catch (err) {
-            console.error("Error adding digitization:", err);
+            console.error("Error adding release:", err);
             $("#loader").hide();
-            showToast("toast-digitization-error", "Error adding digitization: " + err.message);
+            showToast("toast-release-error", "Error adding release: " + err.message);
         }
     }
 
-    async function UpdateDigitization() {
-        if (selectedDigitizationId === 0) {
-            showToast("toast-digitization-warning", "Please select a digitization to update");
+    async function UpdateRelease() {
+        if (selectedReleaseId === 0) {
+            showToast("toast-release-warning", "Please select a release to update");
             return;
         }
         
         const req = {
             albumId: Number($("#album-id").val()) || 0,
-            digitizationId: selectedDigitizationId,
+            releaseId: selectedReleaseId,
             artist: $("#artist-input").val()?.trim() || "",
             album: $("#album-input").val()?.trim() || "",
             genre: $("#genre-input").val()?.trim() || "",
@@ -652,41 +652,41 @@
         
         $("#loader").show();
         try {
-            await connection.invoke("UpdateDigitization", connection.connectionId, req);
+            await connection.invoke("UpdateRelease", connection.connectionId, req);
         } catch (err) {
-            console.error("Error updating digitization:", err);
+            console.error("Error updating release:", err);
             $("#loader").hide();
-            showToast("toast-digitization-error", "Error updating digitization: " + err.message);
+            showToast("toast-release-error", "Error updating release: " + err.message);
         }
     }
 
     function ShowAddModal() {
-        const modal = new bootstrap.Modal(document.getElementById("addDigitizationModal"));
+        const modal = new bootstrap.Modal(document.getElementById("addReleaseModal"));
         modal.show();
     }
 
     function ShowRemoveModal() {
-        if (selectedDigitizationId === 0) {
-            showToast("toast-digitization-warning", "Please select a digitization to remove");
+        if (selectedReleaseId === 0) {
+            showToast("toast-release-warning", "Please select a release to remove");
             return;
         }
         const modal = new bootstrap.Modal(document.getElementById("removeModal"));
         modal.show();
     }
 
-    async function RemoveDigitization() {
-        if (selectedDigitizationId === 0) return;
+    async function RemoveRelease() {
+        if (selectedReleaseId === 0) return;
         
         $("#loader").show();
         const modal = bootstrap.Modal.getInstance(document.getElementById("removeModal"));
         modal.hide();
         
         try {
-            await connection.invoke("RemoveDigitization", connection.connectionId, selectedDigitizationId);
+            await connection.invoke("RemoveRelease", connection.connectionId, selectedReleaseId);
         } catch (err) {
-            console.error("Error removing digitization:", err);
+            console.error("Error removing release:", err);
             $("#loader").hide();
-            showToast("toast-digitization-error", "Error removing digitization: " + err.message);
+            showToast("toast-release-error", "Error removing release: " + err.message);
         }
     }
 
@@ -697,7 +697,7 @@
         const bitness = $(`#bitness-input${idSuffix}`).val();
         let sampling = $(`#sampling-input${idSuffix}`).val()?.replace(",", ".");
         if (!codec || !bitness || !sampling) return;
-        const alertId = `digitization-warning${idSuffix}`;
+        const alertId = `release-warning${idSuffix}`;
         if (dsdFormats[codec]) {
             if (bitness !== "1") {
                 showAlert(alertId, "alert-warning", "DSD is 1 bit/s format");
@@ -715,7 +715,7 @@
         let album = $("#album-input").val();
         let artist = $("#artist-input").val();
         let source = $(`#source-input${isNew ? "-modal" : ""}`).val();
-        const alertId = isNew ? "digitization-warning-modal" : "digitization-warning";
+        const alertId = isNew ? "release-warning-modal" : "release-warning";
         if (albumId && album && artist) {
             checkAlbum(albumId, album, artist, source, alertId);
         } else {
@@ -771,7 +771,7 @@
     });
 
     connection.on("AlbumIsExist", (factor, albumId) => {
-        const alertId = currentAlbumCheckContext === "modal" ? "digitization-warning-modal" : "digitization-warning";
+        const alertId = currentAlbumCheckContext === "modal" ? "release-warning-modal" : "release-warning";
         $(`#${alertId} .album-check-spinner`).addClass("d-none");
         const message = alertMessages[factor];
         if (!message) return;
@@ -779,46 +779,46 @@
         showAlert(alertId, `alert-${message.type}`, text);
         const isDuplicate = factor === 1 || factor === 100;
         $("#save-album-btn").prop("disabled", isDuplicate);
-        $("#add-digitization-btn").prop("disabled", isDuplicate);
+        $("#add-release-btn").prop("disabled", isDuplicate);
         if (!isDuplicate) checkAddButtonState();
     });
 
-    connection.on("DigitizationAdded", (success, message, albumId, digitizations) => {
+    connection.on("ReleaseAdded", (success, message, albumId, releases) => {
         $("#loader").hide();
         if (success) {
             if (albumId > 0 && $("#album-id").val() == "0") $("#album-id").val(albumId);
-            renderDigitizations(digitizations);
-            clearDigitizationFields();
-            const addModalEl = document.getElementById("addDigitizationModal");
+            renderReleases(releases);
+            clearReleaseFields();
+            const addModalEl = document.getElementById("addReleaseModal");
             if (addModalEl) {
                 const addModal = bootstrap.Modal.getInstance(addModalEl) ?? bootstrap.Modal.getOrCreateInstance(addModalEl);
                 addModal.hide();
             }
-            showToast("toast-digitization-added");
+            showToast("toast-release-added");
         } else {
-            showToast("toast-digitization-error", "Error: " + message);
+            showToast("toast-release-error", "Error: " + message);
         }
     });
 
-    connection.on("DigitizationUpdated", (success, message, digitizations) => {
+    connection.on("ReleaseUpdated", (success, message, releases) => {
         $("#loader").hide();
         if (success) {
-            renderDigitizations(digitizations);
-            clearDigitizationFields();
-            showToast("toast-digitization-updated");
+            renderReleases(releases);
+            clearReleaseFields();
+            showToast("toast-release-updated");
         } else {
-            showToast("toast-digitization-error", "Error: " + message);
+            showToast("toast-release-error", "Error: " + message);
         }
     });
 
-    connection.on("DigitizationRemoved", (success, message, digitizations) => {
+    connection.on("ReleaseRemoved", (success, message, releases) => {
         $("#loader").hide();
         if (success) {
-            renderDigitizations(digitizations);
-            clearDigitizationFields();
-            showToast("toast-digitization-removed");
+            renderReleases(releases);
+            clearReleaseFields();
+            showToast("toast-release-removed");
         } else {
-            showToast("toast-digitization-error", "Error: " + message);
+            showToast("toast-release-error", "Error: " + message);
         }
     });
 
@@ -887,17 +887,17 @@
         // Initialize button states
         checkAddButtonState();
         checkUpdateRemoveButtons();
-        updateDigitizationHardwareTabsVisibility();
+        updateReleaseHardwareTabsVisibility();
         
         // Set up field change listeners
         $("#artist-input, #album-input, #genre-input").on("input", checkAddButtonState);
         $("#vinylstate-input, #digitalformat-input, #bitness-input, #sampling-input, #sourceformat-input, #year-input, #reissue-input, #source-input, #size-input, #player-input, #cartridge-input, #amp-input, #adc-input, #wire-input").on("input", checkAddButtonState);
         
-        // Load existing digitizations if any
-        @if (Model.Digitizations?.Any() == true)
+        // Load existing releases if any
+        @if (Model.Releases?.Any() == true)
         {
             <text>
-            const existingDigs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Digitizations.Select(d => new {
+            const existingDigs = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Releases.Select(d => new {
                 id = d.Id,
                 vinylState = d.FormatInfo?.VinylState?.Name,
                 bitness = d.FormatInfo?.Bitness?.Value,
@@ -924,7 +924,7 @@
                 size = d.Size,
                 isFirstPress = d.IsFirstPress
             }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase }));
-            renderDigitizations(existingDigs);
+            renderReleases(existingDigs);
             $("#loader").hide();
             </text>
         }
@@ -965,7 +965,7 @@
                     delay: isFullListCombobox ? 150 : 300,
                     minLength,
                     messages: { noResults: '', results: () => {} },
-                    appendTo: isModal ? "#addDigitizationModal" : undefined,
+                    appendTo: isModal ? "#addReleaseModal" : undefined,
                     select: function (event, ui) {
                         const manufacturerType = equipmentManufacturerMap[baseId];
                         if (manufacturerType) {

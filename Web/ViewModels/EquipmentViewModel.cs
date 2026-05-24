@@ -15,7 +15,7 @@ namespace Web.ViewModels
         public string? EquipmentCover { get; set; }
         public string? Description { get; set; }
         public string ActiveTab { get; set; } = "info";
-        public EquipmentDigitizedAlbumsPageViewModel? DigitizedAlbumsPage { get; set; }
+        public EquipmentReleasedAlbumsPageViewModel? ReleasedAlbumsPage { get; set; }
         public List<SelectListItem> Equipments { get; } =
         [
             new SelectListItem { Text = EntityType.Adc.ToString(), Value = EntityType.Adc.ToString() },

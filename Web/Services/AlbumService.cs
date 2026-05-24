@@ -10,12 +10,12 @@ using Web.ViewModels;
 namespace Web.Services
 {
     public class AlbumService(
-        IDigitizationService digitizationService,
+        IReleaseService releaseService,
         IImageService imageService,
         Context context,
         TimeProvider timeProvider) : IAlbumService
     {
-        private readonly IDigitizationService _digitizationService = digitizationService;
+        private readonly IReleaseService _releaseService = releaseService;
         private readonly IImageService _imageService = imageService;
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
@@ -52,11 +52,11 @@ namespace Web.Services
             {
                 if (int.TryParse(yearValue, out int yearInt))
                 {
-                    query = query.Where(a => _context.Digitizations.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value == yearInt));
+                    query = query.Where(a => _context.Releases.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value == yearInt));
                 }
                 else
                 {
-                    query = query.Where(a => _context.Digitizations.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value.ToString().Contains(yearValue)));
+                    query = query.Where(a => _context.Releases.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value.ToString().Contains(yearValue)));
                 }
             }
 
@@ -94,8 +94,8 @@ namespace Web.Services
             if (album is null)
                 throw new KeyNotFoundException($"Album with id {id} not found");
 
-            var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
-            return MapAlbumToAlbumDetailsVM(album, digitizations);
+            var releases = await _releaseService.GetByAlbumIdAsync(album.Id);
+            return MapAlbumToAlbumDetailsVM(album, releases);
         }
 
         public async Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre)
@@ -177,9 +177,9 @@ namespace Web.Services
             return true;
         }
 
-        public Digitization MapViewModelToDigitization(int albumId, AlbumCreateUpdateViewModel request)
+        public Release MapViewModelToRelease(int albumId, AlbumCreateUpdateViewModel request)
         {
-            return new Digitization
+            return new Release
             {
                 AlbumId = albumId,
                 AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
@@ -212,7 +212,7 @@ namespace Web.Services
             };
         }
 
-        public AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Digitization>? digitizations = null)
+        public AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Release>? releases = null)
         {
             return new AlbumDetailsViewModel
             {
@@ -222,13 +222,13 @@ namespace Web.Services
                 Genre = album.Genre?.Name ?? string.Empty,
                 AddedDate = album.AddedDate,
                 UpdateDate = album.UpdateDate,
-                Digitizations = digitizations
+                Releases = releases
             };
         }
 
         public async Task<AlbumCreateUpdateViewModel> MapAlbumToCreateUpdateVMAsync(Album album)
         {
-            var digitizations = await _digitizationService.GetByAlbumIdAsync(album.Id);
+            var releases = await _releaseService.GetByAlbumIdAsync(album.Id);
             
             // Check if cover exists - only set AlbumCover if cover actually exists
             var coverUrl = await _imageService.GetUrlAsync(album.Id, EntityType.AlbumCover);
@@ -242,7 +242,7 @@ namespace Web.Services
                 Genre = album.Genre?.Name ?? string.Empty,
                 AlbumCover = albumCover, // Set album ID only if cover exists, otherwise null
                 Action = ActionType.Update,
-                Digitizations = digitizations.ToList()
+                Releases = releases.ToList()
             };
         }
 

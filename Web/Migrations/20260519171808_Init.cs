@@ -477,7 +477,7 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Digitizations",
+                name: "Releases",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -499,51 +499,51 @@ namespace Web.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Digitizations", x => x.Id);
+                    table.PrimaryKey("PK_Releases", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Albums_AlbumId",
+                        name: "FK_Releases_Albums_AlbumId",
                         column: x => x.AlbumId,
                         principalTable: "Albums",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Countries_CountryId",
+                        name: "FK_Releases_Countries_CountryId",
                         column: x => x.CountryId,
                         principalTable: "Countries",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Digitizations_EquipmentInfos_EquipmentInfoId",
+                        name: "FK_Releases_EquipmentInfos_EquipmentInfoId",
                         column: x => x.EquipmentInfoId,
                         principalTable: "EquipmentInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Digitizations_FormatInfos_FormatInfoId",
+                        name: "FK_Releases_FormatInfos_FormatInfoId",
                         column: x => x.FormatInfoId,
                         principalTable: "FormatInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Labels_LabelId",
+                        name: "FK_Releases_Labels_LabelId",
                         column: x => x.LabelId,
                         principalTable: "Labels",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Reissues_ReissueId",
+                        name: "FK_Releases_Reissues_ReissueId",
                         column: x => x.ReissueId,
                         principalTable: "Reissues",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Storages_StorageId",
+                        name: "FK_Releases_Storages_StorageId",
                         column: x => x.StorageId,
                         principalTable: "Storages",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
-                        name: "FK_Digitizations_Years_YearId",
+                        name: "FK_Releases_Years_YearId",
                         column: x => x.YearId,
                         principalTable: "Years",
                         principalColumn: "Id",
@@ -693,46 +693,6 @@ namespace Web.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_AlbumId",
-                table: "Digitizations",
-                column: "AlbumId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_CountryId",
-                table: "Digitizations",
-                column: "CountryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_EquipmentInfoId",
-                table: "Digitizations",
-                column: "EquipmentInfoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_FormatInfoId",
-                table: "Digitizations",
-                column: "FormatInfoId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_LabelId",
-                table: "Digitizations",
-                column: "LabelId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_ReissueId",
-                table: "Digitizations",
-                column: "ReissueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_StorageId",
-                table: "Digitizations",
-                column: "StorageId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Digitizations_YearId",
-                table: "Digitizations",
-                column: "YearId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_EquipmentInfos_AdcId",
                 table: "EquipmentInfos",
                 column: "AdcId");
@@ -843,6 +803,46 @@ namespace Web.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Releases_AlbumId",
+                table: "Releases",
+                column: "AlbumId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_CountryId",
+                table: "Releases",
+                column: "CountryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_EquipmentInfoId",
+                table: "Releases",
+                column: "EquipmentInfoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_FormatInfoId",
+                table: "Releases",
+                column: "FormatInfoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_LabelId",
+                table: "Releases",
+                column: "LabelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_ReissueId",
+                table: "Releases",
+                column: "ReissueId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_StorageId",
+                table: "Releases",
+                column: "StorageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_YearId",
+                table: "Releases",
+                column: "YearId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Samplings_Value",
                 table: "Samplings",
                 column: "Value",
@@ -888,13 +888,19 @@ namespace Web.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Digitizations");
-
-            migrationBuilder.DropTable(
                 name: "PostCategories");
 
             migrationBuilder.DropTable(
+                name: "Releases");
+
+            migrationBuilder.DropTable(
                 name: "Statistics");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
+
+            migrationBuilder.DropTable(
+                name: "Posts");
 
             migrationBuilder.DropTable(
                 name: "Albums");
@@ -919,12 +925,6 @@ namespace Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "Years");
-
-            migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
-                name: "Posts");
 
             migrationBuilder.DropTable(
                 name: "Artists");

@@ -28,13 +28,13 @@ namespace Web.Db
         public DbSet<Manufacturer> Manufacturer { get; set; }
         #endregion
 
-        #region Digitization
+        #region Release
         public DbSet<Bitness> Bitnesses { get; set; }
         public DbSet<Sampling> Samplings { get; set; }
         public DbSet<DigitalFormat> DigitalFormats { get; set; }
         public DbSet<SourceFormat> SourceFormats { get; set; }
         public DbSet<VinylState> VinylStates { get; set; }
-        public DbSet<Digitization> Digitizations { get; set; }
+        public DbSet<Release> Releases { get; set; }
         public DbSet<FormatInfo> FormatInfos { get; set; }
         public DbSet<EquipmentInfo> EquipmentInfos { get; set; }
         #endregion
@@ -113,11 +113,11 @@ namespace Web.Db
             modelBuilder.Entity<Album>().HasIndex(a => a.Title);
             modelBuilder.Entity<Album>().HasIndex(a => a.ArtistId);
             modelBuilder.Entity<Album>().HasIndex(a => a.GenreId);
-            modelBuilder.Entity<Digitization>().HasIndex(d => d.AlbumId);
-            modelBuilder.Entity<Digitization>().HasIndex(d => d.CountryId);
-            modelBuilder.Entity<Digitization>().HasIndex(d => d.LabelId);
-            modelBuilder.Entity<Digitization>().HasIndex(d => d.YearId);
-            modelBuilder.Entity<Digitization>().HasIndex(d => d.StorageId);
+            modelBuilder.Entity<Release>().HasIndex(d => d.AlbumId);
+            modelBuilder.Entity<Release>().HasIndex(d => d.CountryId);
+            modelBuilder.Entity<Release>().HasIndex(d => d.LabelId);
+            modelBuilder.Entity<Release>().HasIndex(d => d.YearId);
+            modelBuilder.Entity<Release>().HasIndex(d => d.StorageId);
             modelBuilder.Entity<FormatInfo>().HasIndex(f => f.BitnessId);
             modelBuilder.Entity<FormatInfo>().HasIndex(f => f.SamplingId);
             modelBuilder.Entity<FormatInfo>().HasIndex(f => f.DigitalFormatId);
@@ -140,51 +140,51 @@ namespace Web.Db
             modelBuilder.Entity<Wire>().HasIndex(w => w.ManufacturerId);
 
             // Cascade delete configuration
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.Album)
-                .WithMany(a => a.Digitizations)
+                .WithMany(a => a.Releases)
                 .HasForeignKey(d => d.AlbumId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.FormatInfo)
                 .WithMany()
                 .HasForeignKey(d => d.FormatInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.EquipmentInfo)
                 .WithMany()
                 .HasForeignKey(d => d.EquipmentInfoId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.Country)
-                .WithMany(c => c.Digitizations)
+                .WithMany(c => c.Releases)
                 .HasForeignKey(d => d.CountryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.Label)
-                .WithMany(l => l.Digitizations)
+                .WithMany(l => l.Releases)
                 .HasForeignKey(d => d.LabelId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.Year)
-                .WithMany(y => y.Digitizations)
+                .WithMany(y => y.Releases)
                 .HasForeignKey(d => d.YearId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.Reissue)
-                .WithMany(r => r.Digitizations)
+                .WithMany(r => r.Releases)
                 .HasForeignKey(d => d.ReissueId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            modelBuilder.Entity<Digitization>()
+            modelBuilder.Entity<Release>()
                 .HasOne(d => d.Storage)
-                .WithMany(s => s.Digitizations)
+                .WithMany(s => s.Releases)
                 .HasForeignKey(d => d.StorageId)
                 .OnDelete(DeleteBehavior.SetNull);
 

@@ -8,48 +8,48 @@ using Web.Models;
 
 namespace Web.Services
 {
-    public class DigitizationService(Context context, TimeProvider timeProvider) : IDigitizationService
+    public class ReleaseService(Context context, TimeProvider timeProvider) : IReleaseService
     {
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;
 
-        public async Task<IEnumerable<Digitization>> GetByAlbumIdAsync(int albumId)
+        public async Task<IEnumerable<Release>> GetByAlbumIdAsync(int albumId)
         {
-            return await _context.Digitizations
+            return await _context.Releases
                 .AsNoTracking()
                 .Where(d => d.AlbumId == albumId)
-                .Select(DigitizationProjection)
+                .Select(ReleaseProjection)
                 .ToListAsync();
         }
 
-        public async Task<Digitization?> GetByIdAsync(int id)
+        public async Task<Release?> GetByIdAsync(int id)
         {
-            return await _context.Digitizations
+            return await _context.Releases
                 .AsNoTracking()
                 .Where(d => d.Id == id)
-                .Select(DigitizationProjection)
+                .Select(ReleaseProjection)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<PagedResult<Album>> GetAlbumsDigitizedByEquipmentPagedAsync(EntityType equipmentType, int equipmentId, int page, int pageSize)
+        public async Task<PagedResult<Album>> GetAlbumsReleasedByEquipmentPagedAsync(EntityType equipmentType, int equipmentId, int page, int pageSize)
         {
             if (page < 1) page = 1;
 
-            var digitizationsQuery = _context.Digitizations
+            var releasesQuery = _context.Releases
                 .Where(d => d.EquipmentInfoId != null)
                 .AsNoTracking();
 
-            digitizationsQuery = equipmentType switch
+            releasesQuery = equipmentType switch
             {
-                EntityType.Player => digitizationsQuery.Where(d => d.EquipmentInfo!.PlayerId == equipmentId),
-                EntityType.Cartridge => digitizationsQuery.Where(d => d.EquipmentInfo!.CartridgeId == equipmentId),
-                EntityType.Amplifier => digitizationsQuery.Where(d => d.EquipmentInfo!.AmplifierId == equipmentId),
-                EntityType.Adc => digitizationsQuery.Where(d => d.EquipmentInfo!.AdcId == equipmentId),
-                EntityType.Wire => digitizationsQuery.Where(d => d.EquipmentInfo!.WireId == equipmentId),
-                _ => digitizationsQuery.Where(_ => false)
+                EntityType.Player => releasesQuery.Where(d => d.EquipmentInfo!.PlayerId == equipmentId),
+                EntityType.Cartridge => releasesQuery.Where(d => d.EquipmentInfo!.CartridgeId == equipmentId),
+                EntityType.Amplifier => releasesQuery.Where(d => d.EquipmentInfo!.AmplifierId == equipmentId),
+                EntityType.Adc => releasesQuery.Where(d => d.EquipmentInfo!.AdcId == equipmentId),
+                EntityType.Wire => releasesQuery.Where(d => d.EquipmentInfo!.WireId == equipmentId),
+                _ => releasesQuery.Where(_ => false)
             };
 
-            var distinctAlbumIds = digitizationsQuery.Select(d => d.AlbumId).Distinct();
+            var distinctAlbumIds = releasesQuery.Select(d => d.AlbumId).Distinct();
             var albumsQuery = _context.Albums
                 .Where(a => distinctAlbumIds.Contains(a.Id))
                 .Include(a => a.Artist)
@@ -71,74 +71,74 @@ namespace Web.Services
             if (string.IsNullOrWhiteSpace(source))
                 return false;
 
-            return await _context.Digitizations.AnyAsync(d =>
+            return await _context.Releases.AnyAsync(d =>
                 d.AlbumId == albumId &&
                 d.Source != null &&
                 d.Source.Equals(source));
         }
 
-        public async Task<Digitization> AddAsync(Digitization digitization)
+        public async Task<Release> AddAsync(Release release)
         {
-            digitization.AddedDate = _timeProvider.GetLocalNow().LocalDateTime;
-            _context.Digitizations.Add(digitization);
+            release.AddedDate = _timeProvider.GetLocalNow().LocalDateTime;
+            _context.Releases.Add(release);
             await _context.SaveChangesAsync();
-            return digitization;
+            return release;
         }
 
-        public async Task<Digitization> UpdateAsync(Digitization digitization)
+        public async Task<Release> UpdateAsync(Release release)
         {
-            digitization.UpdateDate = _timeProvider.GetUtcNow().UtcDateTime;
+            release.UpdateDate = _timeProvider.GetUtcNow().UtcDateTime;
             
-            var existing = await _context.Digitizations
+            var existing = await _context.Releases
                 .Include(d => d.FormatInfo)
                 .Include(d => d.EquipmentInfo)
-                .FirstOrDefaultAsync(d => d.Id == digitization.Id);
+                .FirstOrDefaultAsync(d => d.Id == release.Id);
 
             if (existing is null)
-                throw new KeyNotFoundException($"Digitization {digitization.Id} not found");
+                throw new KeyNotFoundException($"Release {release.Id} not found");
 
-            if (digitization.FormatInfo is not null && existing.FormatInfo is null)
+            if (release.FormatInfo is not null && existing.FormatInfo is null)
             {
                 existing.FormatInfo = new FormatInfo();
                 _context.FormatInfos.Add(existing.FormatInfo);
                 await _context.SaveChangesAsync();
             }
 
-            if (digitization.EquipmentInfo is not null && existing.EquipmentInfo is null)
+            if (release.EquipmentInfo is not null && existing.EquipmentInfo is null)
             {
                 existing.EquipmentInfo = new EquipmentInfo();
                 _context.EquipmentInfos.Add(existing.EquipmentInfo);
                 await _context.SaveChangesAsync();
             }
 
-            existing.AlbumId = digitization.AlbumId;
-            existing.Source = digitization.Source;
-            existing.Discogs = digitization.Discogs;
-            existing.IsFirstPress = digitization.IsFirstPress;
-            existing.CountryId = digitization.CountryId;
-            existing.LabelId = digitization.LabelId;
-            existing.ReissueId = digitization.ReissueId;
-            existing.YearId = digitization.YearId;
-            existing.StorageId = digitization.StorageId;
-            existing.Size = digitization.Size;
-            existing.UpdateDate = digitization.UpdateDate;
+            existing.AlbumId = release.AlbumId;
+            existing.Source = release.Source;
+            existing.Discogs = release.Discogs;
+            existing.IsFirstPress = release.IsFirstPress;
+            existing.CountryId = release.CountryId;
+            existing.LabelId = release.LabelId;
+            existing.ReissueId = release.ReissueId;
+            existing.YearId = release.YearId;
+            existing.StorageId = release.StorageId;
+            existing.Size = release.Size;
+            existing.UpdateDate = release.UpdateDate;
 
-            if (digitization.FormatInfo is not null && existing.FormatInfo is not null)
+            if (release.FormatInfo is not null && existing.FormatInfo is not null)
             {
-                existing.FormatInfo.BitnessId = digitization.FormatInfo.BitnessId;
-                existing.FormatInfo.SamplingId = digitization.FormatInfo.SamplingId;
-                existing.FormatInfo.DigitalFormatId = digitization.FormatInfo.DigitalFormatId;
-                existing.FormatInfo.SourceFormatId = digitization.FormatInfo.SourceFormatId;
-                existing.FormatInfo.VinylStateId = digitization.FormatInfo.VinylStateId;
+                existing.FormatInfo.BitnessId = release.FormatInfo.BitnessId;
+                existing.FormatInfo.SamplingId = release.FormatInfo.SamplingId;
+                existing.FormatInfo.DigitalFormatId = release.FormatInfo.DigitalFormatId;
+                existing.FormatInfo.SourceFormatId = release.FormatInfo.SourceFormatId;
+                existing.FormatInfo.VinylStateId = release.FormatInfo.VinylStateId;
             }
 
-            if (digitization.EquipmentInfo is not null && existing.EquipmentInfo is not null)
+            if (release.EquipmentInfo is not null && existing.EquipmentInfo is not null)
             {
-                existing.EquipmentInfo.PlayerId = digitization.EquipmentInfo.PlayerId;
-                existing.EquipmentInfo.CartridgeId = digitization.EquipmentInfo.CartridgeId;
-                existing.EquipmentInfo.AmplifierId = digitization.EquipmentInfo.AmplifierId;
-                existing.EquipmentInfo.AdcId = digitization.EquipmentInfo.AdcId;
-                existing.EquipmentInfo.WireId = digitization.EquipmentInfo.WireId;
+                existing.EquipmentInfo.PlayerId = release.EquipmentInfo.PlayerId;
+                existing.EquipmentInfo.CartridgeId = release.EquipmentInfo.CartridgeId;
+                existing.EquipmentInfo.AmplifierId = release.EquipmentInfo.AmplifierId;
+                existing.EquipmentInfo.AdcId = release.EquipmentInfo.AdcId;
+                existing.EquipmentInfo.WireId = release.EquipmentInfo.WireId;
             }
 
             await _context.SaveChangesAsync();
@@ -147,17 +147,17 @@ namespace Web.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var digitization = await _context.Digitizations.FindAsync(id);
-            if (digitization is null)
+            var release = await _context.Releases.FindAsync(id);
+            if (release is null)
                 return false;
 
-            _context.Digitizations.Remove(digitization);
+            _context.Releases.Remove(release);
             await _context.SaveChangesAsync();
             return true;
         }
 
-        private static readonly Expression<Func<Digitization, Digitization>> DigitizationProjection =
-            x => new Digitization
+        private static readonly Expression<Func<Release, Release>> ReleaseProjection =
+            x => new Release
             {
                 Id = x.Id,
                 AlbumId = x.AlbumId,

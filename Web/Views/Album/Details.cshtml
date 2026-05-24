@@ -78,18 +78,18 @@
                 <img id="cover" class="album-cover justifiy-element-size" style="display: none" />
             </div>
         </div>
-        @if (Model.Digitizations == null || !Model.Digitizations.Any())
+        @if (Model.Releases == null || !Model.Releases.Any())
         {
             <div class="tech-info-empty">
                 <div class="empty-icon">
                     <i class="fa-solid fa-waveform-lines"></i>
                 </div>
                 <div class="empty-text">
-                    <h3>No digitizations :(</h3>
-                    <p>This album doesn’t have any technical data yet.<br />Add the first digitization to see the equipment and format details.</p>
+                    <h3>No releases :(</h3>
+                    <p>This album doesn’t have any technical data yet.<br />Add the first release to see the equipment and format details.</p>
                 </div>
-                <a href="/digitization/create?albumId=@Model.AlbumId" class="btn btn-outline-primary mt-2">
-                    <i class="fa-solid fa-plus"></i> Add digitization
+                <a href="/album/edit/@Model.AlbumId" class="btn btn-outline-primary mt-2">
+                    <i class="fa-solid fa-plus"></i> Add release
                 </a>
             </div>
         }
@@ -172,7 +172,7 @@
     <div class="info-card">
         Genre: <b>@Model.Genre</b>
         &nbsp;|&nbsp;
-        Digitizations: <b>@Model.Digitizations?.Count()</b>
+        Releases: <b>@Model.Releases?.Count()</b>
 
         @if (Model.AddedDate != null)
         {
@@ -184,9 +184,9 @@
             @:&nbsp;|&nbsp; Updated: <b>@Model.UpdateDate</b>
         }
         <hr />
-        <div id="digitizationinfo"></div>
+        <div id="releaseinfo"></div>
     </div>
-    <div class="digitization-table">
+    <div class="release-table">
         <div class="table-header">
             <div class="col col-vinyl sortable-header" data-sort-key="vinyl" role="columnheader" tabindex="0" aria-sort="none">
                 <span>Vinyl state</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
@@ -219,10 +219,10 @@
                 <span>Wire</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
             </div>
         </div>
-        <div class="table-body" id="digitizationTableBody">
-            @if (Model.Digitizations != null && Model.Digitizations.Any())
+        <div class="table-body" id="releaseTableBody">
+            @if (Model.Releases != null && Model.Releases.Any())
             {
-                foreach (var d in Model.Digitizations)
+                foreach (var d in Model.Releases)
                 {
                     bool isDsd = d.FormatInfo?.DigitalFormat?.Name?.Contains("dsd", StringComparison.OrdinalIgnoreCase) == true;
                     <div class="table-row @(d.IsFirstPress == true ? "first-press-row" : "")" data-id="@d.Id">
@@ -383,7 +383,7 @@
             {
                 <div class="table-row">
                     <div class="col" style="grid-column: span 10; text-align:center; color:#888;">
-                        No digitizations available
+                        No releases available
                     </div>
                 </div>
             }
@@ -391,11 +391,11 @@
     </div>
 </div>
 <script>
-    const digitizations = @Html.Raw(JsonSerializer.Serialize(Model.Digitizations, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }))
-    const digitizationSortState = { key: null, ascending: true };
+    const releases = @Html.Raw(JsonSerializer.Serialize(Model.Releases, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }))
+    const releaseSortState = { key: null, ascending: true };
 
-    function digitizationListSafe() {
-        return Array.isArray(digitizations) ? digitizations : [];
+    function releaseListSafe() {
+        return Array.isArray(releases) ? releases : [];
     }
 
     function equipmentSortString(item, equipmentProp) {
@@ -435,7 +435,7 @@
         }
     }
 
-    function compareDigitizationSort(a, b, sortKey, ascending) {
+    function compareReleaseSort(a, b, sortKey, ascending) {
         const ca = getSortComparable(a, sortKey);
         const cb = getSortComparable(b, sortKey);
         const va = ca.value;
@@ -454,11 +454,11 @@
         return ascending ? cmp : -cmp;
     }
 
-    function applyDigitizationSort(sortKey, ascending) {
-        const list = digitizationListSafe().slice();
+    function applyReleaseSort(sortKey, ascending) {
+        const list = releaseListSafe().slice();
         if (!list.length) return;
-        list.sort(function (a, b) { return compareDigitizationSort(a, b, sortKey, ascending); });
-        const $body = $('#digitizationTableBody');
+        list.sort(function (a, b) { return compareReleaseSort(a, b, sortKey, ascending); });
+        const $body = $('#releaseTableBody');
         const selectedId = $body.find('.table-row.selected').data('id');
         list.forEach(function (d) {
             const $r = $body.find('.table-row[data-id="' + d.Id + '"]');
@@ -470,8 +470,8 @@
         }
     }
 
-    function updateDigitizationSortHeaderUi(activeKey, direction) {
-        $('.digitization-table .sortable-header').each(function () {
+    function updateReleaseSortHeaderUi(activeKey, direction) {
+        $('.release-table .sortable-header').each(function () {
             const $h = $(this);
             const key = $h.data('sort-key');
             const $icon = $h.find('.sort-icon');
@@ -499,57 +499,57 @@
         if (backIndex && backIndex !== "1") {
             $("#back_button").attr("href", `/album?page=${backIndex}`);
         }
-        $('#digitizationTableBody .table-row[data-id]').each(function (i) {
+        $('#releaseTableBody .table-row[data-id]').each(function (i) {
             const $row = $(this);
             setTimeout(function () { $row.addClass('visible'); }, i * 100);
         });
 
-        $('#digitizationTableBody').on('click', '.table-row[data-id]', async function () {
-            $('#digitizationTableBody .table-row[data-id]').removeClass('selected');
+        $('#releaseTableBody').on('click', '.table-row[data-id]', async function () {
+            $('#releaseTableBody .table-row[data-id]').removeClass('selected');
             $(this).addClass('selected');
 
             const id = $(this).data('id');
             if (id) {
                 resetSpinners();
                 await getTechnicalInfoIcons(id);
-                setDigitizationValue(id);
+                setReleaseValue(id);
             }
         });
 
-        $('.digitization-table .table-header').on('click keydown', '.sortable-header', function (e) {
+        $('.release-table .table-header').on('click keydown', '.sortable-header', function (e) {
             if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
             e.preventDefault();
-            if (!digitizationListSafe().length) return;
+            if (!releaseListSafe().length) return;
             const key = $(this).data('sort-key');
             if (!key) return;
-            if (digitizationSortState.key === key) {
-                digitizationSortState.ascending = !digitizationSortState.ascending;
+            if (releaseSortState.key === key) {
+                releaseSortState.ascending = !releaseSortState.ascending;
             } else {
-                digitizationSortState.key = key;
-                digitizationSortState.ascending = true;
+                releaseSortState.key = key;
+                releaseSortState.ascending = true;
             }
-            const dir = digitizationSortState.ascending ? 'asc' : 'desc';
-            applyDigitizationSort(key, digitizationSortState.ascending);
-            updateDigitizationSortHeaderUi(key, dir);
+            const dir = releaseSortState.ascending ? 'asc' : 'desc';
+            applyReleaseSort(key, releaseSortState.ascending);
+            updateReleaseSortHeaderUi(key, dir);
         });
 
-        const $firstRow = $('#digitizationTableBody .table-row[data-id]').first();
+        const $firstRow = $('#releaseTableBody .table-row[data-id]').first();
         if ($firstRow.length) {
             $firstRow.addClass('selected');
             const id = $firstRow.data('id');
             if (id) {
                 resetSpinners();
                 await getTechnicalInfoIcons(id);
-                setDigitizationValue(id);
+                setReleaseValue(id);
             }
         }
     })
 
-    function setDigitizationValue(id) {
-        const item = digitizationListSafe().find(x => x.Id === id);
+    function setReleaseValue(id) {
+        const item = releaseListSafe().find(x => x.Id === id);
 
         if (!item) {
-            console.warn("Digitization not found for id:", id);
+            console.warn("Release not found for id:", id);
             return;
         }
 
@@ -569,7 +569,7 @@
         $('#ampvalue').html(`<b>${ei.Amplifier?.Manufacturer?.Name ?? ''}</b><br>${ei.Amplifier?.Name ?? ''}`);
         $('#adcvalue').html(`<b>${ei.Adc?.Manufacturer?.Name ?? ''}</b><br>${ei.Adc?.Name ?? ''}`);
         $('#wirevalue').html(`<b>${ei.Wire?.Manufacturer?.Name ?? ''}</b><br>${ei.Wire?.Name ?? ''}`);
-        $('#digitizationinfo').text(item.Size + " Gb");
+        $('#releaseinfo').text(item.Size + " Gb");
 
         const headers = [];
         const values = [];
@@ -592,8 +592,8 @@
         addCell("Added", item.AddedDate ? new Date(item.AddedDate).toLocaleDateString() : null);
         addCell("Updated", item.UpdateDate ? new Date(item.UpdateDate).toLocaleDateString() : null);
 
-        $('#digitizationinfo').html(`
-            <table class="digitization-spec">
+        $('#releaseinfo').html(`
+            <table class="release-spec">
                 <tr>${headers.join("")}</tr>
                 <tr>${values.join("")}</tr>
             </table>

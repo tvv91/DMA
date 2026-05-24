@@ -5,7 +5,7 @@ namespace Web.Models
         public int TotalAlbums { get; set; }
         public double TotalSize { get; set; }
         public int StorageCount { get; set; }
-        public int TotalDigitizations { get; set; }
+        public int TotalReleases { get; set; }
         public int TotalArtists { get; set; }
         public int TotalEquipment { get; set; }
         public List<CounterItem>? Genre { get; set; }

@@ -51,7 +51,7 @@
 @{
     var eqCategory = Model?.EquipmentType.ToString().ToLowerInvariant() ?? "";
     var eqId = Model?.Id ?? 0;
-    var albumsPageSize = Model?.DigitizedAlbumsPage?.PageSize ?? 18;
+    var albumsPageSize = Model?.ReleasedAlbumsPage?.PageSize ?? 18;
     var baseAlbumsUrl = $"/equipment/{eqCategory}/{eqId}?tab=albums&pageSize={albumsPageSize}";
 }
 <div class="equipment-detail-with-tabs">
@@ -104,9 +104,9 @@
          data-eq-id="@eqId"
          data-albums-partial-url="@Url.Action("EquipmentAlbumsData", "Equipment", new { category = Model!.EquipmentType, id = Model.Id })">
         <div id="equipment-albums-inner">
-        @if (Model?.ActiveTab == "albums" && Model.DigitizedAlbumsPage != null)
+        @if (Model?.ActiveTab == "albums" && Model.ReleasedAlbumsPage != null)
         {
-            @await Html.PartialAsync("_EquipmentDigitizedAlbumsInner", Model.DigitizedAlbumsPage)
+            @await Html.PartialAsync("_EquipmentReleasedAlbumsInner", Model.ReleasedAlbumsPage)
         }
         </div>
     </div>
@@ -183,11 +183,11 @@
         showToast("equipment_created", "toastinfo_created");
         showToast("equipment_deleted", "toastinfo_deleted");
 
-        @if (Model?.DigitizedAlbumsPage?.HasResults == true) {
+        @if (Model?.ReleasedAlbumsPage?.HasResults == true) {
           <text>
           (async function loadEquipmentAlbumCoversInitial() {
             try {
-              await connection.invoke("GetAlbumCovers", connection.connectionId, @Json.Serialize(Model.DigitizedAlbumsPage.Albums.Select(a => a.Id).ToList()));
+              await connection.invoke("GetAlbumCovers", connection.connectionId, @Json.Serialize(Model.ReleasedAlbumsPage.Albums.Select(a => a.Id).ToList()));
             } catch (err) { console.error("GetAlbumCovers:", err); }
           })();
           </text>

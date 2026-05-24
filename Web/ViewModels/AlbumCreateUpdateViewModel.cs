@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using Web.Enums;
 using Web.Models;
 
@@ -45,6 +45,6 @@ namespace Web.ViewModels
         public ActionType Action { get; set; }
         public int AlbumId { get; set; }
         public int DigtizationId { get; set; }
-        public IEnumerable<Digitization>? Digitizations { get; set; }
+        public IEnumerable<Release>? Releases { get; set; }
     }
 }

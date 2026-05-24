@@ -12,11 +12,11 @@ namespace Web.Controllers
     public class EquipmentController(
         IEquipmentService equipmentService,
         IImageService imageService,
-        IDigitizationService digitizationService) : Controller
+        IReleaseService releaseService) : Controller
     {
         private readonly IEquipmentService _equipmentService = equipmentService;
         private readonly IImageService _imageService = imageService;
-        private readonly IDigitizationService _digitizationService = digitizationService;
+        private readonly IReleaseService _releaseService = releaseService;
 
         public IActionResult Index()
         {
@@ -121,9 +121,9 @@ namespace Web.Controllers
             if (page < 1)
                 page = 1;
 
-            var result = await _digitizationService.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
-            var vm = MapDigitizedAlbumsPage(category, id, result);
-            return PartialView("_EquipmentDigitizedAlbumsInner", vm);
+            var result = await _releaseService.GetAlbumsReleasedByEquipmentPagedAsync(category, id, page, pageSize);
+            var vm = MapReleasedAlbumsPage(category, id, result);
+            return PartialView("_EquipmentReleasedAlbumsInner", vm);
         }
 
         [HttpGet("equipment/{category}/{id}", Order = 2)]
@@ -146,8 +146,8 @@ namespace Web.Controllers
                 if (pageSize <= 0) pageSize = DefaultEquipmentAlbumsPageSize;
                 if (pageSize > MaxEquipmentAlbumsPageSize) pageSize = MaxEquipmentAlbumsPageSize;
                 if (page < 1) page = 1;
-                var albumsPage = await _digitizationService.GetAlbumsDigitizedByEquipmentPagedAsync(category, id, page, pageSize);
-                vm.DigitizedAlbumsPage = MapDigitizedAlbumsPage(category, id, albumsPage);
+                var albumsPage = await _releaseService.GetAlbumsReleasedByEquipmentPagedAsync(category, id, page, pageSize);
+                vm.ReleasedAlbumsPage = MapReleasedAlbumsPage(category, id, albumsPage);
             }
 
             return View("Details", vm);
@@ -182,10 +182,10 @@ namespace Web.Controllers
             return Redirect($"/equipment/{request.EquipmentType}/{equipment.Id}");
         }
 
-        private EquipmentDigitizedAlbumsPageViewModel MapDigitizedAlbumsPage(EntityType category, int equipmentId, PagedResult<Album> result)
+        private EquipmentReleasedAlbumsPageViewModel MapReleasedAlbumsPage(EntityType category, int equipmentId, PagedResult<Album> result)
         {
             var catSeg = category.ToString().ToLowerInvariant();
-            return new EquipmentDigitizedAlbumsPageViewModel
+            return new EquipmentReleasedAlbumsPageViewModel
             {
                 CurrentPage = result.CurrentPage,
                 PageCount = result.TotalPages,

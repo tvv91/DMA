@@ -14,7 +14,7 @@ namespace Web.Interfaces
         Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre);
         Task<Album> UpdateAlbumAsync(int albumId, string title, string? artist, string? genre);
         Task<bool> DeleteAlbumAsync(int id);
-        AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Digitization>? digitizations = null);
+        AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Release>? releases = null);
         Task<AlbumCreateUpdateViewModel> MapAlbumToCreateUpdateVMAsync(Album album);
     }
 }

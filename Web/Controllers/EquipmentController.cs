@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Web.Common;
@@ -154,12 +155,14 @@ namespace Web.Controllers
         }
 
         
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("equipment/create")]
         public IActionResult Create()
         {
             return View("CreateUpdate", new EquipmentViewModel { Action = ActionType.Create, EquipmentType = EntityType.Adc });
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost]
         public async Task<IActionResult> Create(EquipmentViewModel request)
         {

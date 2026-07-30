@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Common;
 using Web.Interfaces;
 using Web.ViewModels;
 
@@ -13,6 +15,7 @@ namespace Web.Controllers
             return View();
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("post/new")]
         public IActionResult New()
         {
@@ -33,6 +36,7 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost("post/create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(PostViewModel model)

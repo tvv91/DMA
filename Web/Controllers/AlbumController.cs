@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Web.Common;
 using Web.Enums;
 using Web.Interfaces;
 using Web.SignalRHubs;
@@ -65,6 +67,7 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("album/create")]
         public IActionResult Create()
         {
@@ -95,6 +98,7 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost]
         public async Task<IActionResult> Create(AlbumCreateUpdateViewModel request)
         {

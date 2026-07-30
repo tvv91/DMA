@@ -1,0 +1,36 @@
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Sign in</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="login-error" class="alert alert-danger d-none" role="alert"></div>
+                <form id="login-form">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="login-return-url" name="ReturnUrl" value="" />
+
+                    <div class="mb-3">
+                        <label class="form-label" for="login-email">Email</label>
+                        <input class="form-control" type="email" id="login-email" name="Email" autocomplete="username" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="login-password">Password</label>
+                        <input class="form-control" type="password" id="login-password" name="Password" autocomplete="current-password" required />
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="login-remember" name="RememberMe" value="true" />
+                        <label class="form-check-label" for="login-remember">Remember me</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="login-form" class="btn btn-primary">Sign in</button>
+            </div>
+        </div>
+    </div>
+</div>

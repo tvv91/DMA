@@ -15,8 +15,12 @@ public class AccountController(
 
     [HttpGet("account/login")]
     [AllowAnonymous]
-    public IActionResult Login(string? returnUrl = null) =>
-        View(new LoginViewModel { ReturnUrl = returnUrl });
+    public IActionResult Login(string? returnUrl = null)
+    {
+        var redirect = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+        var separator = redirect.Contains('?') ? "&" : "?";
+        return Redirect($"{redirect}{separator}showLogin=true");
+    }
 
     [HttpPost("account/login")]
     [AllowAnonymous]
@@ -24,13 +28,20 @@ public class AccountController(
     public async Task<IActionResult> Login(LoginViewModel model)
     {
         if (!ModelState.IsValid)
-            return View(model);
+        {
+            if (IsAjaxRequest())
+                return BadRequest(new { error = "Invalid login attempt." });
+
+            return RedirectToLogin(model.ReturnUrl);
+        }
 
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user is null)
         {
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return View(model);
+            if (IsAjaxRequest())
+                return BadRequest(new { error = "Invalid login attempt." });
+
+            return RedirectToLogin(model.ReturnUrl);
         }
 
         var result = await _signInManager.PasswordSignInAsync(
@@ -40,10 +51,18 @@ public class AccountController(
             lockoutOnFailure: false);
 
         if (result.Succeeded)
-            return LocalRedirect(model.ReturnUrl ?? "/");
+        {
+            var redirectUrl = string.IsNullOrWhiteSpace(model.ReturnUrl) ? "/" : model.ReturnUrl;
+            if (IsAjaxRequest())
+                return Ok(new { redirectUrl });
 
-        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        return View(model);
+            return LocalRedirect(redirectUrl);
+        }
+
+        if (IsAjaxRequest())
+            return BadRequest(new { error = "Invalid login attempt." });
+
+        return RedirectToLogin(model.ReturnUrl);
     }
 
     [HttpPost("account/logout")]
@@ -56,4 +75,14 @@ public class AccountController(
 
     [HttpGet("account/accessdenied")]
     public IActionResult AccessDenied() => View();
+
+    private bool IsAjaxRequest() =>
+        string.Equals(Request.Headers.XRequestedWith, "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+
+    private IActionResult RedirectToLogin(string? returnUrl)
+    {
+        var redirect = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+        var separator = redirect.Contains('?') ? "&" : "?";
+        return Redirect($"{redirect}{separator}showLogin=true");
+    }
 }

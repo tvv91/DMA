@@ -1,4 +1,5 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@using Web.Common
 @{
     var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }
@@ -77,9 +78,25 @@
                     </li>
                 </ul>
             </div>
+            <div class="d-flex align-items-center gap-3">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="text-muted small">@User.Identity.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-link nav-link p-0">Logout</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="nav-link" href="/account/login">Login</a>
+                }
+            </div>
             <div>
                 <input class="form-control" type="search" placeholder="Search anything">
             </div>
+            @if (User.IsInRole(RoleNames.Admin))
+            {
             <div class="dropdown dropstart">
                 <i id="add-button" class="fa fa-plus-square fa-2xl fa-pull-left m-3 addbutton" style="cursor:pointer" data-bs-toggle="dropdown"></i>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -88,6 +105,7 @@
                     <a class="dropdown-item" href="../post/new">Post</a>
                 </div>
             </div>
+            }
         </nav>
         </div>
         <div class="container">

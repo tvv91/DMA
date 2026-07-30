@@ -1,9 +1,10 @@
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Web.Models;
 
 namespace Web.Db
 {
-    public class Context(DbContextOptions<Context> options) : DbContext(options)
+    public class Context(DbContextOptions<Context> options) : IdentityDbContext<ApplicationUser>(options)
     {        
         #region Base info
         public DbSet<Album> Albums { get; set; }
@@ -52,6 +53,8 @@ namespace Web.Db
         // pre-defined entities
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             // digital formats
             modelBuilder.Entity<DigitalFormat>().HasData(new DigitalFormat { Id = 1, Name = "FLAC" });
             modelBuilder.Entity<DigitalFormat>().HasData(new DigitalFormat { Id = 2, Name = "DSD64" });

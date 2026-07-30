@@ -1,5 +1,7 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
 using Moq;
+using Web.Common;
 using Web.Interfaces;
 using Web.SignalRHubs;
 
@@ -15,7 +17,7 @@ internal sealed class PostHubTestFactory
 
     public DateTime FixedUtcDateTime => FixedUtcNow.UtcDateTime;
 
-    public PostHub CreateHub()
+    public PostHub CreateHub(bool asAdmin = false)
     {
         var hub = new PostHub(PostServiceMock.Object, TimeProvider);
 
@@ -31,6 +33,15 @@ internal sealed class PostHubTestFactory
                 (method, args, token) => SendRecorder.RecordSendAsync(method, args, token));
 
         hub.Clients = mockClients.Object;
+
+        var claims = asAdmin
+            ? new[] { new Claim(ClaimTypes.Role, RoleNames.Admin) }
+            : Array.Empty<Claim>();
+        var identity = new ClaimsIdentity(claims, asAdmin ? "TestAuth" : null);
+        var contextMock = new Mock<HubCallerContext>();
+        contextMock.Setup(c => c.User).Returns(new ClaimsPrincipal(identity));
+        hub.Context = contextMock.Object;
+
         return hub;
     }
 

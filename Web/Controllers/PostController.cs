@@ -28,6 +28,9 @@ namespace Web.Controllers
             try
             {
                 var vm = await _postService.GetPostViewModelAsync(id);
+                if (vm.IsDraft && !User.IsInRole(RoleNames.Admin))
+                    return NotFound();
+
                 return View("Details", vm);
             }
             catch (KeyNotFoundException)
@@ -55,6 +58,7 @@ namespace Web.Controllers
             return RedirectToAction(nameof(GetById), new { id = post.Id });
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpDelete("post/delete")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -69,6 +73,7 @@ namespace Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("post/edit")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -83,6 +88,7 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost("post/update")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(PostViewModel model)

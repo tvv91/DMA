@@ -38,7 +38,7 @@ async function loadPosts(resetPage = true, textSearch = false) {
     const searchText = $("#searchfilter").val()?.trim() || "";
     const category = $("#categoryfilter").val() || "";
     const year = $("#yearfilter").val()?.trim() || "";
-    const onlyDrafts = $("#draftfilter").is(":checked");
+    const onlyDrafts = $("#draftfilter").length > 0 && $("#draftfilter").is(":checked");
 
     let page = getCurrentPage();
     if (resetPage) {
@@ -268,7 +268,8 @@ function initPostListPage() {
     });
 
     $("#searchfilter").on("input", debounce(() => loadPosts(true, true), 500));
-    $("#categoryfilter, #yearfilter, #draftfilter").on("change", () => loadPosts(true));
+    $("#categoryfilter, #yearfilter").on("change", () => loadPosts(true));
+    $("#draftfilter").on("change", () => loadPosts(true));
 }
 
 function debounce(func, wait) {

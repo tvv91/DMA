@@ -37,7 +37,8 @@ namespace Web.Services
             string? searchText,
             string? category,
             string? year,
-            bool onlyDrafts)
+            bool onlyDrafts,
+            bool excludeDrafts = false)
         {
             var query = _context.Posts
                 .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
@@ -65,6 +66,10 @@ namespace Web.Services
             if (onlyDrafts)
             {
                 query = query.Where(p => p.IsDraft);
+            }
+            else if (excludeDrafts)
+            {
+                query = query.Where(p => !p.IsDraft);
             }
 
             var totalItems = await query.CountAsync();

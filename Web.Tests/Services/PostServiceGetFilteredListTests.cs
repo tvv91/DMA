@@ -115,6 +115,30 @@ public class PostServiceGetFilteredListTests : IDisposable
     }
 
     [Fact]
+    public async Task GetFilteredListAsync_ExcludeDrafts_ExcludesDraftPosts()
+    {
+        await _factory.SeedPostAsync(title: "Published", isDraft: false);
+        await _factory.SeedPostAsync(title: "Draft", isDraft: true);
+
+        var result = await _factory.Service.GetFilteredListAsync(1, 10, null, null, null, onlyDrafts: false, excludeDrafts: true);
+
+        Assert.Single(result.Items);
+        Assert.Equal("Published", result.Items[0].Title);
+        Assert.False(result.Items[0].IsDraft);
+    }
+
+    [Fact]
+    public async Task GetFilteredListAsync_AdminDefaultView_IncludesDraftAndPublished()
+    {
+        await _factory.SeedPostAsync(title: "Published", isDraft: false);
+        await _factory.SeedPostAsync(title: "Draft", isDraft: true);
+
+        var result = await _factory.Service.GetFilteredListAsync(1, 10, null, null, null, onlyDrafts: false, excludeDrafts: false);
+
+        Assert.Equal(2, result.TotalItems);
+    }
+
+    [Fact]
     public async Task GetFilteredListAsync_OnlyDrafts_ReturnsDraftPosts()
     {
         await _factory.SeedPostAsync(title: "Published", isDraft: false);

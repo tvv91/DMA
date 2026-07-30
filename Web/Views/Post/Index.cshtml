@@ -1,4 +1,5 @@
-﻿<body data-page="post-list">
+﻿@using Web.Common
+<body data-page="post-list">
     <div class="blog-container">
         <div class="blog-post position-relative">
             <div id="spinner" class="post-spinner-overlay d-none">
@@ -26,9 +27,12 @@
                     </select>
                     <input id="yearfilter" class="form-control" placeholder="Year" style="max-width: 100px;">
                 </div>
+                @if (User.IsInRole(RoleNames.Admin))
+                {
                 <label>
                     <input id="draftfilter" type="checkbox"> Show only drafts
                 </label>
+                }
                 <hr />
                 <div class="blog-tree-view">
                     <label class="mt-2 mb-2" style="font-weight: 600; color: #495057; font-size: 1rem;">

@@ -1,4 +1,5 @@
 @model PostViewModel
+@using Web.Common
 @Html.AntiForgeryToken()
 
 <body data-page="view-post">
@@ -19,6 +20,8 @@
             <a class="btn btn-back" asp-action="index" asp-controller="post">
                 <i class="fa fa-arrow-left"></i> Back
             </a>
+            @if (User.IsInRole(RoleNames.Admin))
+            {
             <div class="post-details-actions">
                 <a class="btn btn-edit" asp-action="edit" asp-controller="post" asp-route-id="@Model.Id">
                     <i class="fa fa-edit"></i> Edit
@@ -27,6 +30,7 @@
                     <i class="fa fa-trash"></i> Remove
                 </button>
             </div>
+            }
         </div>
         
         <article class="post-details-article">
@@ -54,6 +58,8 @@
         </article>
     </div>
     
+    @if (User.IsInRole(RoleNames.Admin))
+    {
     <div class="modal fade" id="removemodal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -71,6 +77,7 @@
             </div>
         </div>
     </div>
+    }
 
     @section Scripts {
         <script src="~/js/post.js"></script>

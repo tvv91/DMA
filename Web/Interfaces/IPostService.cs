@@ -7,7 +7,7 @@ namespace Web.Interfaces
     public interface IPostService
     {
         Task<PagedResult<Post>> GetListAsync(int page, int pageSize);
-        Task<PagedResult<Post>> GetFilteredListAsync(int page, int pageSize, string? searchText, string? category, string? year, bool onlyDrafts);
+        Task<PagedResult<Post>> GetFilteredListAsync(int page, int pageSize, string? searchText, string? category, string? year, bool onlyDrafts, bool excludeDrafts = false);
         Task<Post?> GetByIdAsync(int id);
         Task<PostViewModel> GetPostViewModelAsync(int id);
         Task<Post> CreatePostAsync(PostViewModel model);

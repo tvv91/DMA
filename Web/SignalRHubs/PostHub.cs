@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Web.Common;
 using Web.Interfaces;
 using Web.Models;
 using Web.Services;
@@ -14,7 +15,13 @@ namespace Web.SignalRHubs
 
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {
-            var result = await _postService.GetFilteredListAsync(page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts);
+            var isAdmin = Context.User.IsInRole(RoleNames.Admin);
+            if (onlyDrafts && !isAdmin)
+                onlyDrafts = false;
+
+            var excludeDrafts = !isAdmin;
+            var result = await _postService.GetFilteredListAsync(
+                page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts, excludeDrafts);
 
             var response = result.Items
                 .Select(p => new

@@ -387,6 +387,7 @@
 .release-table {
     width: 100%;
     max-height: min(65vh, 36rem);
+    margin-bottom: 1.5rem;
     border-radius: 12px;
     overflow-x: auto;
     overflow-y: auto;

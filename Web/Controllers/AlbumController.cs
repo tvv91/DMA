@@ -77,6 +77,7 @@ namespace Web.Controllers
             });
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("album/edit/{id}")]
         public async Task<IActionResult> Edit(int id)
         {
@@ -121,6 +122,7 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost("album/update")]
         public async Task<IActionResult> Update(AlbumCreateUpdateViewModel request)
         {
@@ -154,6 +156,7 @@ namespace Web.Controllers
             }
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {

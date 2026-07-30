@@ -2,6 +2,7 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using Microsoft.AspNetCore.Html
+@using Web.Common
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toasterror" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
@@ -36,6 +37,8 @@
         </div>
     </div>
 </div>
+@if (User.IsInRole(RoleNames.Admin))
+{
 <div class="modal fade" id="removeDialogModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -53,12 +56,15 @@
         </div>
     </div>
 </div>
+}
 <a id="back_button" class="btn btn-back mt-3" asp-action="index" asp-controller="album"><i class="fa fa-arrow-left"></i> Back</a>
 <div class="album-container">
     <div class="album-header">
         <div class="album-title-details">
             <h1>@Model.Artist &mdash; @Model.Title</h1>
         </div>
+        @if (User.IsInRole(RoleNames.Admin))
+        {
         <div class="album-actions">
             <a href="/album/edit/@Model.AlbumId" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
@@ -67,6 +73,7 @@
                 <i class="fa-solid fa-trash"></i>
             </a>
         </div>
+        }
     </div>
     <div class="album-info-cards">
         <div class="album-cover-box">
@@ -86,11 +93,18 @@
                 </div>
                 <div class="empty-text">
                     <h3>No releases :(</h3>
-                    <p>This album doesn’t have any technical data yet.<br />Add the first release to see the equipment and format details.</p>
+                    <p>This album doesn’t have any technical data yet.</p>
+                    @if (User.IsInRole(RoleNames.Admin))
+                    {
+                        <p>Add the first release to see the equipment and format details.</p>
+                    }
                 </div>
+                @if (User.IsInRole(RoleNames.Admin))
+                {
                 <a href="/album/edit/@Model.AlbumId" class="btn btn-outline-primary mt-2">
                     <i class="fa-solid fa-plus"></i> Add release
                 </a>
+                }
             </div>
         }
         else

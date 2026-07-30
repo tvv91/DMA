@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
@@ -6,30 +5,6 @@ using Web.Models;
 using Web.Services;
 
 namespace Web.Tests.Helpers;
-
-[CollectionDefinition("StatisticService", DisableParallelization = true)]
-public sealed class StatisticServiceCollection;
-
-internal static class StatisticServiceTestState
-{
-    public static void ResetLastRefreshAttempt()
-    {
-        var field = typeof(StatisticService).GetField(
-            "_lastRefreshAttempt",
-            BindingFlags.Static | BindingFlags.NonPublic);
-
-        field?.SetValue(null, null);
-    }
-
-    public static void SetLastRefreshAttempt(DateTime value)
-    {
-        var field = typeof(StatisticService).GetField(
-            "_lastRefreshAttempt",
-            BindingFlags.Static | BindingFlags.NonPublic);
-
-        field?.SetValue(null, value);
-    }
-}
 
 internal sealed class StatisticServiceTestFactory : IDisposable
 {

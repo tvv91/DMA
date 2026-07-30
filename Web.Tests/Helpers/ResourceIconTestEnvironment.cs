@@ -3,9 +3,6 @@ using Web.Services;
 
 namespace Web.Tests.Helpers;
 
-[CollectionDefinition("LocalResourceIconService", DisableParallelization = true)]
-public sealed class LocalResourceIconServiceCollection;
-
 internal sealed class ResourceIconTestEnvironment : IDisposable
 {
     public static readonly EntityType[] MappedEntityTypes =

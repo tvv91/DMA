@@ -7,9 +7,6 @@ using Web.Services;
 
 namespace Web.Tests.Helpers;
 
-[CollectionDefinition("TempImageCleanupService", DisableParallelization = true)]
-public sealed class TempImageCleanupServiceCollection;
-
 internal sealed class TempImageCleanupTestEnvironment : IDisposable
 {
     private static readonly DateTimeOffset DefaultUtcNow = new(2024, 9, 10, 12, 0, 0, TimeSpan.Zero);

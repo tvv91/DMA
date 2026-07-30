@@ -6,9 +6,6 @@ using Web.Services;
 
 namespace Web.Tests.Helpers;
 
-[CollectionDefinition("LocalStorageImageService", DisableParallelization = true)]
-public sealed class LocalStorageImageServiceCollection;
-
 internal sealed class ImageTestEnvironment : IDisposable
 {
     public static readonly EntityType[] MappedEntityTypes =

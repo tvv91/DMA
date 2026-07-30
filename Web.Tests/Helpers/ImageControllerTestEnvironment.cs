@@ -7,9 +7,6 @@ using Web.Controllers;
 
 namespace Web.Tests.Helpers;
 
-[CollectionDefinition("ImageController", DisableParallelization = true)]
-public sealed class ImageControllerCollection;
-
 internal sealed class ImageControllerTestEnvironment : IDisposable
 {
     public const long MaxImageSizeBytes = 5 * 1024 * 1024;

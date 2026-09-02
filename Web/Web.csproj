@@ -25,6 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\src\DMA.Application\DMA.Application.csproj" />
+    <ProjectReference Include="..\src\DMA.Infrastructure\DMA.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="wwwroot\covers\" />
     <Folder Include="wwwroot\covers\adc\" />

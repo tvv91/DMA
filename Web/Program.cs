@@ -1,3 +1,5 @@
+using DMA.Application;
+using DMA.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -51,6 +53,9 @@ builder.Services.AddScoped<ISearchService, SearchService>();
 builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddScoped<IEntityFindOrCreateService, EntityFindOrCreateService>();
 builder.Services.AddHostedService<TempImageCleanupService>();
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddSignalR(options =>
 {

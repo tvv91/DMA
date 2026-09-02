@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Web.Common;
 
-namespace Web.Extentions
+namespace Web.Extensions
 {
     public static class IQueryableExtensions
     {

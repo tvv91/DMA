@@ -9,7 +9,7 @@ public class PostServiceMapPostToViewModelTests
     public void MapPostToViewModel_FullPost_MapsAllFields()
     {
         var factory = new PostServiceTestFactory();
-        var post = factory.Context.Posts.Add(new Web.Models.Post
+        var post = factory.Context.Posts.Add(new Post
         {
             Id = 7,
             Title = "Mapped",
@@ -19,8 +19,8 @@ public class PostServiceMapPostToViewModelTests
             UpdatedDate = new DateTime(2024, 2, 2),
             IsDraft = true,
         }).Entity;
-        var category = new Web.Models.Category { Title = "MappedCat" };
-        post.PostCategories.Add(new Web.Models.PostCategory { Category = category, Post = post });
+        var category = new Category { Title = "MappedCat" };
+        post.PostCategories.Add(new PostCategory { Category = category, Post = post });
 
         var result = factory.Service.MapPostToViewModel(post);
 
@@ -39,7 +39,7 @@ public class PostServiceMapPostToViewModelTests
     public void MapPostToViewModel_NoCategory_MapsNullCategory()
     {
         var factory = new PostServiceTestFactory();
-        var post = new Web.Models.Post { Id = 1, Title = "No Cat" };
+        var post = new Post { Id = 1, Title = "No Cat" };
 
         var result = factory.Service.MapPostToViewModel(post);
 

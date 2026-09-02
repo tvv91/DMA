@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Web.Db;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Services
 {

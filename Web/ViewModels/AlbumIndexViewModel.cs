@@ -1,6 +1,4 @@
-﻿using Web.Models;
-
-namespace Web.ViewModels
+﻿namespace Web.ViewModels
 {
     public class AlbumIndexViewModel
     {

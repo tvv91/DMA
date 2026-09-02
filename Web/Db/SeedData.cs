@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Web.Common;
-using Web.Models;
 
 namespace Web.Db;
 

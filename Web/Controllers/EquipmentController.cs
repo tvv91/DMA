@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Web.Common;
-using Web.Enums;
-using Web.Models;
 using Web.Interfaces;
 using Web.Services;
 using Web.ViewModels;

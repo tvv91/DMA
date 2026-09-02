@@ -1,6 +1,3 @@
-using Web.Enums;
-using Web.Models;
-
 namespace Web.Db
 {
     public class TestData

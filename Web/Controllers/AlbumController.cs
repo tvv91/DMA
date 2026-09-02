@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Common;
-using Web.Enums;
 using Web.Interfaces;
 using Web.SignalRHubs;
 using Web.ViewModels;

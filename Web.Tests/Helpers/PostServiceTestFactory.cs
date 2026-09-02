@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
-using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 

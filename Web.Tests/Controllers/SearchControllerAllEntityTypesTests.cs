@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Web.Enums;
 using Web.Response;
 using Web.Tests.Helpers;
 

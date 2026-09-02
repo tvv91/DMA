@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Web.Models;
 using Web.Tests.Helpers;
 
 namespace Web.Tests.Services;

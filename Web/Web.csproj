@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\src\DMA.Domain\DMA.Domain.csproj" />
     <ProjectReference Include="..\src\DMA.Application\DMA.Application.csproj" />
     <ProjectReference Include="..\src\DMA.Infrastructure\DMA.Infrastructure.csproj" />
   </ItemGroup>

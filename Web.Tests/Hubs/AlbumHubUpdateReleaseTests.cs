@@ -1,5 +1,4 @@
 using Moq;
-using Web.Models;
 using Web.Request;
 using Web.Tests.Helpers;
 

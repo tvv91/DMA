@@ -2,8 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Web.Common;
 using Web.Controllers;
-using Web.Enums;
-using Web.Models;
 using Web.ViewModels;
 using Web.Tests.Helpers;
 

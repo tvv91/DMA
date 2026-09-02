@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using Web.Common;
 using Web.Interfaces;
-using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 

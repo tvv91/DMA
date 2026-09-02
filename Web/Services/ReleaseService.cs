@@ -1,10 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Web.Common;
 using Web.Db;
-using Web.Enums;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Services
 {

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Web.Enums;
 using Web.Services;
 
 namespace Web.Tests.Helpers;

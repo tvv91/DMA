@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
-using Web.Enums;
 
 namespace Web.ViewModels
 {

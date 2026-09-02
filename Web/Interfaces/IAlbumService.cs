@@ -1,5 +1,3 @@
-using Web.Common;
-using Web.Models;
 using Web.ViewModels;
 
 namespace Web.Interfaces

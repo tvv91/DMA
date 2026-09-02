@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Web.Models;
 using Web.ViewModels;
 using Web.Tests.Helpers;
 

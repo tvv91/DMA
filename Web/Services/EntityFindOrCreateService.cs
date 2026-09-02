@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Interfaces;
-using Web.Models;
 
 namespace Web.Services
 {

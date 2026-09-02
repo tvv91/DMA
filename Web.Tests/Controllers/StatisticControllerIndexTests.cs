@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Web.Models;
 using Web.ViewModels;
 using Web.Tests.Helpers;
 

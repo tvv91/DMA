@@ -155,7 +155,7 @@ namespace Web.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Web.Models.Adc", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Adc", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -183,7 +183,7 @@ namespace Web.Migrations
                     b.ToTable("Adces");
                 });
 
-            modelBuilder.Entity("Web.Models.Album", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.Album", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -218,7 +218,7 @@ namespace Web.Migrations
                     b.ToTable("Albums");
                 });
 
-            modelBuilder.Entity("Web.Models.Amplifier", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Amplifier", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -246,7 +246,7 @@ namespace Web.Migrations
                     b.ToTable("Amplifiers");
                 });
 
-            modelBuilder.Entity("Web.Models.ApplicationUser", b =>
+            modelBuilder.Entity("DMA.Domain.Identity.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -311,7 +311,7 @@ namespace Web.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Web.Models.Artist", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Artist", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -331,7 +331,7 @@ namespace Web.Migrations
                     b.ToTable("Artists");
                 });
 
-            modelBuilder.Entity("Web.Models.Bitness", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Bitness", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -372,7 +372,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.Cartridge", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Cartridge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -400,7 +400,7 @@ namespace Web.Migrations
                     b.ToTable("Cartridges");
                 });
 
-            modelBuilder.Entity("Web.Models.Category", b =>
+            modelBuilder.Entity("DMA.Domain.Posts.Category", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -420,7 +420,7 @@ namespace Web.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Web.Models.Country", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Country", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -440,7 +440,7 @@ namespace Web.Migrations
                     b.ToTable("Countries");
                 });
 
-            modelBuilder.Entity("Web.Models.DigitalFormat", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.DigitalFormat", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -492,7 +492,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.EquipmentInfo", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.EquipmentInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -530,7 +530,7 @@ namespace Web.Migrations
                     b.ToTable("EquipmentInfos");
                 });
 
-            modelBuilder.Entity("Web.Models.FormatInfo", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.FormatInfo", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -568,7 +568,7 @@ namespace Web.Migrations
                     b.ToTable("FormatInfos");
                 });
 
-            modelBuilder.Entity("Web.Models.Genre", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Genre", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -588,7 +588,7 @@ namespace Web.Migrations
                     b.ToTable("Genres");
                 });
 
-            modelBuilder.Entity("Web.Models.Label", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Label", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -608,7 +608,7 @@ namespace Web.Migrations
                     b.ToTable("Labels");
                 });
 
-            modelBuilder.Entity("Web.Models.Manufacturer", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Manufacturer", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -628,7 +628,7 @@ namespace Web.Migrations
                     b.ToTable("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.Player", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Player", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -656,7 +656,7 @@ namespace Web.Migrations
                     b.ToTable("Players");
                 });
 
-            modelBuilder.Entity("Web.Models.Post", b =>
+            modelBuilder.Entity("DMA.Domain.Posts.Post", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -696,7 +696,7 @@ namespace Web.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("Web.Models.PostCategory", b =>
+            modelBuilder.Entity("DMA.Domain.Posts.PostCategory", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -719,7 +719,7 @@ namespace Web.Migrations
                     b.ToTable("PostCategories");
                 });
 
-            modelBuilder.Entity("Web.Models.Reissue", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Reissue", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -738,7 +738,7 @@ namespace Web.Migrations
                     b.ToTable("Reissues");
                 });
 
-            modelBuilder.Entity("Web.Models.Release", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.Release", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -809,7 +809,7 @@ namespace Web.Migrations
                     b.ToTable("Releases");
                 });
 
-            modelBuilder.Entity("Web.Models.Sampling", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Sampling", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -865,7 +865,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.SourceFormat", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.SourceFormat", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -917,7 +917,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.Statistic", b =>
+            modelBuilder.Entity("DMA.Domain.Statistics.Statistic", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -937,7 +937,7 @@ namespace Web.Migrations
                     b.ToTable("Statistics");
                 });
 
-            modelBuilder.Entity("Web.Models.Storage", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Storage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -957,7 +957,7 @@ namespace Web.Migrations
                     b.ToTable("Storages");
                 });
 
-            modelBuilder.Entity("Web.Models.VinylState", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.VinylState", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1009,7 +1009,7 @@ namespace Web.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Web.Models.Wire", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Wire", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1037,7 +1037,7 @@ namespace Web.Migrations
                     b.ToTable("Wires");
                 });
 
-            modelBuilder.Entity("Web.Models.Year", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Year", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1067,7 +1067,7 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Web.Models.ApplicationUser", null)
+                    b.HasOne("DMA.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1076,7 +1076,7 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Web.Models.ApplicationUser", null)
+                    b.HasOne("DMA.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1091,7 +1091,7 @@ namespace Web.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.ApplicationUser", null)
+                    b.HasOne("DMA.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1100,31 +1100,31 @@ namespace Web.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Web.Models.ApplicationUser", null)
+                    b.HasOne("DMA.Domain.Identity.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Web.Models.Adc", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Adc", b =>
                 {
-                    b.HasOne("Web.Models.Manufacturer", "Manufacturer")
+                    b.HasOne("DMA.Domain.Equipment.Manufacturer", "Manufacturer")
                         .WithMany("Adcs")
                         .HasForeignKey("ManufacturerId");
 
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.Album", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.Album", b =>
                 {
-                    b.HasOne("Web.Models.Artist", "Artist")
+                    b.HasOne("DMA.Domain.ReferenceData.Artist", "Artist")
                         .WithMany("Albums")
                         .HasForeignKey("ArtistId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.Genre", "Genre")
+                    b.HasOne("DMA.Domain.ReferenceData.Genre", "Genre")
                         .WithMany("Albums")
                         .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1135,47 +1135,47 @@ namespace Web.Migrations
                     b.Navigation("Genre");
                 });
 
-            modelBuilder.Entity("Web.Models.Amplifier", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Amplifier", b =>
                 {
-                    b.HasOne("Web.Models.Manufacturer", "Manufacturer")
+                    b.HasOne("DMA.Domain.Equipment.Manufacturer", "Manufacturer")
                         .WithMany("Amplifiers")
                         .HasForeignKey("ManufacturerId");
 
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.Cartridge", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Cartridge", b =>
                 {
-                    b.HasOne("Web.Models.Manufacturer", "Manufacturer")
+                    b.HasOne("DMA.Domain.Equipment.Manufacturer", "Manufacturer")
                         .WithMany("Cartridges")
                         .HasForeignKey("ManufacturerId");
 
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.EquipmentInfo", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.EquipmentInfo", b =>
                 {
-                    b.HasOne("Web.Models.Adc", "Adc")
+                    b.HasOne("DMA.Domain.Equipment.Adc", "Adc")
                         .WithMany()
                         .HasForeignKey("AdcId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Amplifier", "Amplifier")
+                    b.HasOne("DMA.Domain.Equipment.Amplifier", "Amplifier")
                         .WithMany()
                         .HasForeignKey("AmplifierId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Cartridge", "Cartridge")
+                    b.HasOne("DMA.Domain.Equipment.Cartridge", "Cartridge")
                         .WithMany()
                         .HasForeignKey("CartridgeId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Player", "Player")
+                    b.HasOne("DMA.Domain.Equipment.Player", "Player")
                         .WithMany()
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Wire", "Wire")
+                    b.HasOne("DMA.Domain.Equipment.Wire", "Wire")
                         .WithMany()
                         .HasForeignKey("WireId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -1191,29 +1191,29 @@ namespace Web.Migrations
                     b.Navigation("Wire");
                 });
 
-            modelBuilder.Entity("Web.Models.FormatInfo", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.FormatInfo", b =>
                 {
-                    b.HasOne("Web.Models.Bitness", "Bitness")
+                    b.HasOne("DMA.Domain.ReferenceData.Bitness", "Bitness")
                         .WithMany()
                         .HasForeignKey("BitnessId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.DigitalFormat", "DigitalFormat")
+                    b.HasOne("DMA.Domain.ReferenceData.DigitalFormat", "DigitalFormat")
                         .WithMany()
                         .HasForeignKey("DigitalFormatId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Sampling", "Sampling")
+                    b.HasOne("DMA.Domain.ReferenceData.Sampling", "Sampling")
                         .WithMany()
                         .HasForeignKey("SamplingId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.SourceFormat", "SourceFormat")
+                    b.HasOne("DMA.Domain.ReferenceData.SourceFormat", "SourceFormat")
                         .WithMany()
                         .HasForeignKey("SourceFormatId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.VinylState", "VinylState")
+                    b.HasOne("DMA.Domain.ReferenceData.VinylState", "VinylState")
                         .WithMany()
                         .HasForeignKey("VinylStateId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -1229,24 +1229,24 @@ namespace Web.Migrations
                     b.Navigation("VinylState");
                 });
 
-            modelBuilder.Entity("Web.Models.Player", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Player", b =>
                 {
-                    b.HasOne("Web.Models.Manufacturer", "Manufacturer")
+                    b.HasOne("DMA.Domain.Equipment.Manufacturer", "Manufacturer")
                         .WithMany("Players")
                         .HasForeignKey("ManufacturerId");
 
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.PostCategory", b =>
+            modelBuilder.Entity("DMA.Domain.Posts.PostCategory", b =>
                 {
-                    b.HasOne("Web.Models.Category", "Category")
+                    b.HasOne("DMA.Domain.Posts.Category", "Category")
                         .WithMany("PostCategories")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.Post", "Post")
+                    b.HasOne("DMA.Domain.Posts.Post", "Post")
                         .WithMany("PostCategories")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1257,45 +1257,45 @@ namespace Web.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("Web.Models.Release", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.Release", b =>
                 {
-                    b.HasOne("Web.Models.Album", "Album")
+                    b.HasOne("DMA.Domain.Albums.Album", "Album")
                         .WithMany("Releases")
                         .HasForeignKey("AlbumId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Web.Models.Country", "Country")
+                    b.HasOne("DMA.Domain.ReferenceData.Country", "Country")
                         .WithMany("Releases")
                         .HasForeignKey("CountryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.EquipmentInfo", "EquipmentInfo")
+                    b.HasOne("DMA.Domain.Albums.EquipmentInfo", "EquipmentInfo")
                         .WithMany()
                         .HasForeignKey("EquipmentInfoId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Web.Models.FormatInfo", "FormatInfo")
+                    b.HasOne("DMA.Domain.Albums.FormatInfo", "FormatInfo")
                         .WithMany()
                         .HasForeignKey("FormatInfoId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Web.Models.Label", "Label")
+                    b.HasOne("DMA.Domain.ReferenceData.Label", "Label")
                         .WithMany("Releases")
                         .HasForeignKey("LabelId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Reissue", "Reissue")
+                    b.HasOne("DMA.Domain.ReferenceData.Reissue", "Reissue")
                         .WithMany("Releases")
                         .HasForeignKey("ReissueId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Storage", "Storage")
+                    b.HasOne("DMA.Domain.ReferenceData.Storage", "Storage")
                         .WithMany("Releases")
                         .HasForeignKey("StorageId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Web.Models.Year", "Year")
+                    b.HasOne("DMA.Domain.ReferenceData.Year", "Year")
                         .WithMany("Releases")
                         .HasForeignKey("YearId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -1317,46 +1317,46 @@ namespace Web.Migrations
                     b.Navigation("Year");
                 });
 
-            modelBuilder.Entity("Web.Models.Wire", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Wire", b =>
                 {
-                    b.HasOne("Web.Models.Manufacturer", "Manufacturer")
+                    b.HasOne("DMA.Domain.Equipment.Manufacturer", "Manufacturer")
                         .WithMany("Wires")
                         .HasForeignKey("ManufacturerId");
 
                     b.Navigation("Manufacturer");
                 });
 
-            modelBuilder.Entity("Web.Models.Album", b =>
+            modelBuilder.Entity("DMA.Domain.Albums.Album", b =>
                 {
                     b.Navigation("Releases");
                 });
 
-            modelBuilder.Entity("Web.Models.Artist", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Artist", b =>
                 {
                     b.Navigation("Albums");
                 });
 
-            modelBuilder.Entity("Web.Models.Category", b =>
+            modelBuilder.Entity("DMA.Domain.Posts.Category", b =>
                 {
                     b.Navigation("PostCategories");
                 });
 
-            modelBuilder.Entity("Web.Models.Country", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Country", b =>
                 {
                     b.Navigation("Releases");
                 });
 
-            modelBuilder.Entity("Web.Models.Genre", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Genre", b =>
                 {
                     b.Navigation("Albums");
                 });
 
-            modelBuilder.Entity("Web.Models.Label", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Label", b =>
                 {
                     b.Navigation("Releases");
                 });
 
-            modelBuilder.Entity("Web.Models.Manufacturer", b =>
+            modelBuilder.Entity("DMA.Domain.Equipment.Manufacturer", b =>
                 {
                     b.Navigation("Adcs");
 
@@ -1369,22 +1369,22 @@ namespace Web.Migrations
                     b.Navigation("Wires");
                 });
 
-            modelBuilder.Entity("Web.Models.Post", b =>
+            modelBuilder.Entity("DMA.Domain.Posts.Post", b =>
                 {
                     b.Navigation("PostCategories");
                 });
 
-            modelBuilder.Entity("Web.Models.Reissue", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Reissue", b =>
                 {
                     b.Navigation("Releases");
                 });
 
-            modelBuilder.Entity("Web.Models.Storage", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Storage", b =>
                 {
                     b.Navigation("Releases");
                 });
 
-            modelBuilder.Entity("Web.Models.Year", b =>
+            modelBuilder.Entity("DMA.Domain.ReferenceData.Year", b =>
                 {
                     b.Navigation("Releases");
                 });

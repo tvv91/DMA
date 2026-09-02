@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
-using Web.Models;
 using Web.Services;
 
 namespace Web.Tests.Helpers;

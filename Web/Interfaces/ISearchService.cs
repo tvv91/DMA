@@ -1,4 +1,3 @@
-using Web.Enums;
 using Web.Response;
 
 namespace Web.Interfaces

@@ -1,5 +1,3 @@
-using Web.Enums;
-
 namespace Web.Interfaces
 {
     public interface IResourceIconService

@@ -1,6 +1,5 @@
 using Moq;
 using Web.Common;
-using Web.Models;
 using Web.Tests.Helpers;
 
 namespace Web.Tests.Hubs;

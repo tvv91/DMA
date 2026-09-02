@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.SignalR;
-using Web.Enums;
 using Web.Interfaces;
 using Web.Services;
 using Web.ViewModels;

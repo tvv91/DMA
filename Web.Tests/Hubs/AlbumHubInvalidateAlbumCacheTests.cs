@@ -1,5 +1,4 @@
 using Moq;
-using Web.Enums;
 using Web.SignalRHubs;
 using Web.Tests.Helpers;
 

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Web.Db;
 using Web.Interfaces;
-using Web.Models;
 using Web.Services;
 using Web.SignalRHubs;
 

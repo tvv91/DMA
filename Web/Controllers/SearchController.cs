@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Web.Enums;
 using Web.Interfaces;
 using Web.Response;
 

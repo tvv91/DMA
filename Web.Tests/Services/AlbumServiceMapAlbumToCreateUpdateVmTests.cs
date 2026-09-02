@@ -14,11 +14,8 @@ public class AlbumServiceMapAlbumToCreateUpdateVmTests : IDisposable
     public async Task MapAlbumToCreateUpdateVMAsync_WithCover_SetsAlbumCoverToAlbumIdString()
     {
         var (album, _, _) = await _factory.SeedAlbumAsync("Title", "Artist", "Genre");
-        var releases = new List<Release> { new() { Id = 10, AlbumId = album.Id } };
+        await _factory.SeedReleaseAsync(album.Id);
 
-        _factory.ReleaseServiceMock
-            .Setup(s => s.GetByAlbumIdAsync(album.Id))
-            .ReturnsAsync(releases);
         _factory.ImageServiceMock
             .Setup(s => s.GetUrlAsync(album.Id, EntityType.AlbumCover))
             .ReturnsAsync($"/covers/{album.Id}.jpg");
@@ -31,7 +28,7 @@ public class AlbumServiceMapAlbumToCreateUpdateVmTests : IDisposable
         Assert.Equal("Title", result.Title);
         Assert.Equal("Artist", result.Artist);
         Assert.Equal("Genre", result.Genre);
-        Assert.Equal(releases, result.Releases);
+        Assert.Single(result.Releases!);
     }
 
     [Fact]
@@ -85,20 +82,12 @@ public class AlbumServiceMapAlbumToCreateUpdateVmTests : IDisposable
     public async Task MapAlbumToCreateUpdateVMAsync_LoadsReleasesFromReleaseService()
     {
         var (album, _, _) = await _factory.SeedAlbumAsync();
-        var releases = new List<Release>
-        {
-            new() { Id = 1, AlbumId = album.Id, Source = "CD" },
-            new() { Id = 2, AlbumId = album.Id, Source = "Vinyl" },
-        };
-
-        _factory.ReleaseServiceMock
-            .Setup(s => s.GetByAlbumIdAsync(album.Id))
-            .ReturnsAsync(releases);
+        await _factory.SeedReleaseAsync(album.Id, "CD");
+        await _factory.SeedReleaseAsync(album.Id, "Vinyl");
 
         var result = await _factory.Service.MapAlbumToCreateUpdateVMAsync(album);
 
         Assert.Equal(2, result.Releases!.Count());
-        _factory.ReleaseServiceMock.Verify(s => s.GetByAlbumIdAsync(album.Id), Times.Once);
         _factory.ImageServiceMock.Verify(s => s.GetUrlAsync(album.Id, EntityType.AlbumCover), Times.Once);
     }
 
@@ -106,10 +95,6 @@ public class AlbumServiceMapAlbumToCreateUpdateVmTests : IDisposable
     public async Task MapAlbumToCreateUpdateVMAsync_EmptyReleases_ReturnsEmptyList()
     {
         var (album, _, _) = await _factory.SeedAlbumAsync();
-
-        _factory.ReleaseServiceMock
-            .Setup(s => s.GetByAlbumIdAsync(album.Id))
-            .ReturnsAsync([]);
 
         var result = await _factory.Service.MapAlbumToCreateUpdateVMAsync(album);
 

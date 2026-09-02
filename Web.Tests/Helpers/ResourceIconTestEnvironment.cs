@@ -1,4 +1,5 @@
 using Web.Services;
+using InfraResourceIconService = DMA.Infrastructure.Images.LocalResourceIconService;
 
 namespace Web.Tests.Helpers;
 
@@ -25,7 +26,7 @@ internal sealed class ResourceIconTestEnvironment : IDisposable
     private readonly string _previousWorkingDirectory;
 
     public string Root { get; }
-    public LocalResourceIconService Service { get; } = new();
+    public LocalResourceIconService Service { get; } = new(new InfraResourceIconService());
 
     public ResourceIconTestEnvironment()
     {

@@ -9,6 +9,8 @@ internal sealed class PostServiceTestFactory : IDisposable
 {
     private static readonly DateTimeOffset FixedUtcNow = new(2024, 8, 20, 14, 30, 0, TimeSpan.Zero);
 
+    private readonly TestMediatorContext _mediatorContext;
+
     public Context Context { get; }
     public FakeTimeProvider TimeProvider { get; } = new(FixedUtcNow);
     public PostService Service { get; }
@@ -23,7 +25,8 @@ internal sealed class PostServiceTestFactory : IDisposable
 
         Context = new Context(options);
         Context.Database.EnsureCreated();
-        Service = new PostService(Context, TimeProvider);
+        _mediatorContext = MediatorTestHelper.Create(Context, TimeProvider);
+        Service = new PostService(_mediatorContext);
     }
 
     public async Task<Post> SeedPostAsync(
@@ -86,5 +89,9 @@ internal sealed class PostServiceTestFactory : IDisposable
             Category = category,
         };
 
-    public void Dispose() => Context.Dispose();
+    public void Dispose()
+    {
+        _mediatorContext.Dispose();
+        Context.Dispose();
+    }
 }

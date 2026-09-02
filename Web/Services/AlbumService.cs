@@ -1,283 +1,96 @@
-using Microsoft.EntityFrameworkCore;
-using Web.Db;
-using Web.Extensions;
+using DMA.Application.Albums;
+using DMA.Application.Releases;
+using MediatR;
 using Web.Interfaces;
 using Web.ViewModels;
 
-namespace Web.Services
+namespace Web.Services;
+
+public class AlbumService(
+    IMediator mediator,
+    IImageService imageService,
+    TimeProvider timeProvider) : IAlbumService
 {
-    public class AlbumService(
-        IReleaseService releaseService,
-        IImageService imageService,
-        Context context,
-        TimeProvider timeProvider) : IAlbumService
+    public Task<bool> HasAnyAlbumsAsync() => mediator.Send(new HasAnyAlbumsQuery());
+
+    public Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null) =>
+        mediator.Send(new GetAlbumIndexListQuery(page, pageSize, artistName, genreName, yearValue, albumTitle));
+
+    public Task<Album?> GetByIdAsync(int id) => mediator.Send(new GetAlbumByIdQuery(id));
+
+    public Task<Album?> FindByAlbumAndArtistAsync(string title, string artist) =>
+        mediator.Send(new FindAlbumByTitleAndArtistQuery(title, artist));
+
+    public async Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id)
     {
-        private readonly IReleaseService _releaseService = releaseService;
-        private readonly IImageService _imageService = imageService;
-        private readonly Context _context = context;
-        private readonly TimeProvider _timeProvider = timeProvider;
+        var (album, releases) = await mediator.Send(new GetAlbumDetailsQuery(id));
+        return MapAlbumToAlbumDetailsVM(album, releases);
+    }
 
-        public async Task<bool> HasAnyAlbumsAsync()
+    public Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre) =>
+        mediator.Send(new CreateOrFindAlbumCommand(title, artist, genre));
+
+    public Task<Album> UpdateAlbumAsync(int albumId, string title, string? artist, string? genre) =>
+        mediator.Send(new UpdateAlbumCommand(albumId, title, artist, genre));
+
+    public Task<bool> DeleteAlbumAsync(int id) => mediator.Send(new DeleteAlbumCommand(id));
+
+    public Release MapViewModelToRelease(int albumId, AlbumCreateUpdateViewModel request) => new()
+    {
+        AlbumId = albumId,
+        AddedDate = timeProvider.GetLocalNow().LocalDateTime,
+        Source = request.Source,
+        Discogs = request.Discogs,
+        IsFirstPress = false,
+        YearId = request.Year,
+        ReissueId = request.Reissue,
+        Country = !string.IsNullOrEmpty(request.Country) ? new Country { Name = request.Country } : null,
+        Label = !string.IsNullOrEmpty(request.Label) ? new Label { Name = request.Label } : null,
+        Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Name = request.Storage } : null,
+        FormatInfo = new FormatInfo
         {
-            return await _context.Albums.AsNoTracking().AnyAsync();
-        }
-
-        public async Task<PagedResult<Album>> GetIndexListAsync(int page, int pageSize, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
+            BitnessId = request.Bitness,
+            Sampling = request.Sampling.HasValue ? new Sampling { Value = request.Sampling.Value } : null,
+            DigitalFormat = !string.IsNullOrEmpty(request.DigitalFormat) ? new DigitalFormat { Name = request.DigitalFormat } : null,
+            SourceFormat = !string.IsNullOrEmpty(request.SourceFormat) ? new SourceFormat { Name = request.SourceFormat } : null,
+            VinylState = !string.IsNullOrEmpty(request.VinylState) ? new VinylState { Name = request.VinylState } : null
+        },
+        EquipmentInfo = new EquipmentInfo
         {
-            var query = _context.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Genre)
-                .AsNoTracking()
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(artistName))
-            {
-                query = query.Where(a => a.Artist != null && a.Artist.Name.Contains(artistName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(genreName))
-            {
-                query = query.Where(a => a.Genre != null && a.Genre.Name.Contains(genreName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(albumTitle))
-            {
-                query = query.Where(a => a.Title.Contains(albumTitle));
-            }
-
-            if (!string.IsNullOrWhiteSpace(yearValue))
-            {
-                if (int.TryParse(yearValue, out int yearInt))
-                {
-                    query = query.Where(a => _context.Releases.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value == yearInt));
-                }
-                else
-                {
-                    query = query.Where(a => _context.Releases.Any(d => d.AlbumId == a.Id && d.Year != null && d.Year.Value.ToString().Contains(yearValue)));
-                }
-            }
-
-            return await query.ToPagedResultAsync(page, pageSize, a => a.Id);
+            Player = !string.IsNullOrEmpty(request.Player) ? new Player { Name = request.Player } : null,
+            Cartridge = !string.IsNullOrEmpty(request.Cartridge) ? new Cartridge { Name = request.Cartridge } : null,
+            Amplifier = !string.IsNullOrEmpty(request.Amplifier) ? new Amplifier { Name = request.Amplifier } : null,
+            Adc = !string.IsNullOrEmpty(request.Adc) ? new Adc { Name = request.Adc } : null,
+            Wire = !string.IsNullOrEmpty(request.Wire) ? new Wire { Name = request.Wire } : null
         }
+    };
 
-        public async Task<Album?> GetByIdAsync(int id)
+    public AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Release>? releases = null) => new()
+    {
+        AlbumId = album.Id,
+        Title = album.Title,
+        Artist = album.Artist?.Name ?? string.Empty,
+        Genre = album.Genre?.Name ?? string.Empty,
+        AddedDate = album.AddedDate,
+        UpdateDate = album.UpdateDate,
+        Releases = releases
+    };
+
+    public async Task<AlbumCreateUpdateViewModel> MapAlbumToCreateUpdateVMAsync(Album album)
+    {
+        var releases = await mediator.Send(new GetReleasesByAlbumIdQuery(album.Id));
+        var coverUrl = await imageService.GetUrlAsync(album.Id, EntityType.AlbumCover);
+        var albumCover = coverUrl.Contains("nocover") ? null : album.Id.ToString();
+
+        return new AlbumCreateUpdateViewModel
         {
-            return await _context.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Genre)
-                .FirstOrDefaultAsync(a => a.Id == id);
-        }
-
-        public async Task<Album?> FindByAlbumAndArtistAsync(string title, string artist)
-        {
-            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(artist))
-                return null;
-
-            var normalizedTitle = title.Trim();
-            var normalizedArtist = artist.Trim();
-
-            return await _context.Albums
-                .Include(a => a.Artist)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a =>
-                    a.Artist != null &&
-                    a.Title == normalizedTitle &&
-                    a.Artist.Name == normalizedArtist);
-        }
-
-        public async Task<AlbumDetailsViewModel> GetAlbumDetailsAsync(int id)
-        {
-            var album = await GetByIdAsync(id);
-            if (album is null)
-                throw new KeyNotFoundException($"Album with id {id} not found");
-
-            var releases = await _releaseService.GetByAlbumIdAsync(album.Id);
-            return MapAlbumToAlbumDetailsVM(album, releases);
-        }
-
-        public async Task<Album> CreateOrFindAlbumAsync(string title, string artist, string genre)
-        {
-            var normalizedTitle = title.Trim();
-            var normalizedArtist = artist.Trim();
-            var normalizedGenre = genre.Trim();
-
-            var album = await FindByAlbumAndArtistAsync(normalizedTitle, normalizedArtist);
-
-            if (album is null)
-            {
-                album = new Album
-                {
-                    AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
-                    Title = normalizedTitle,
-                    Artist = await FindOrCreateArtistAsync(normalizedArtist),
-                    Genre = await FindOrCreateGenreAsync(normalizedGenre)
-                };
-
-                _context.Albums.Add(album);
-                await _context.SaveChangesAsync();
-            }
-
-            return album;
-        }
-
-        public async Task<Album> UpdateAlbumAsync(int albumId, string title, string? artist, string? genre)
-        {
-            // Business logic: Validate album ID
-            if (albumId <= 0)
-                throw new InvalidDataException("AlbumId is invalid");
-
-            // Business logic: Load existing album with tracking for updates
-            var existing = await _context.Albums
-                .Include(a => a.Artist)
-                .Include(a => a.Genre)
-                .FirstOrDefaultAsync(a => a.Id == albumId);
-            
-            if (existing is null)
-                throw new KeyNotFoundException($"Album {albumId} not found");
-
-            // Business logic: Check if nothing changed
-            if (existing.Title == title &&
-                (string.IsNullOrWhiteSpace(genre) || existing.Genre?.Name == genre) &&
-                (string.IsNullOrWhiteSpace(artist) || existing.Artist?.Name == artist))
-            {
-                return existing;
-            }
-
-            // Business logic: Update properties
-            existing.Title = title;
-            existing.UpdateDate = _timeProvider.GetUtcNow().UtcDateTime;
-
-            if (!string.IsNullOrWhiteSpace(genre))
-            {
-                var genreEntity = await FindOrCreateGenreAsync(genre);
-                existing.GenreId = genreEntity.Id;
-            }
-
-            if (!string.IsNullOrWhiteSpace(artist))
-            {
-                var artistEntity = await FindOrCreateArtistAsync(artist);
-                existing.ArtistId = artistEntity.Id;
-            }
-
-            await _context.SaveChangesAsync();
-            return existing;
-        }
-
-        public async Task<bool> DeleteAlbumAsync(int id)
-        {
-            var album = await _context.Albums.FindAsync(id);
-            if (album is null)
-                return false;
-
-            _context.Albums.Remove(album);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public Release MapViewModelToRelease(int albumId, AlbumCreateUpdateViewModel request)
-        {
-            return new Release
-            {
-                AlbumId = albumId,
-                AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
-                Source = request.Source,
-                Discogs = request.Discogs,
-                IsFirstPress = false,
-                YearId = request.Year,
-                ReissueId = request.Reissue,
-                Country = !string.IsNullOrEmpty(request.Country) ? new Country { Name = request.Country } : null,
-                Label = !string.IsNullOrEmpty(request.Label) ? new Label { Name = request.Label } : null,
-                Storage = !string.IsNullOrEmpty(request.Storage) ? new Storage { Name = request.Storage } : null,
-
-                FormatInfo = new FormatInfo
-                {
-                    BitnessId = request.Bitness,
-                    Sampling = request.Sampling.HasValue ? new Sampling { Value = request.Sampling.Value } : null,
-                    DigitalFormat = !string.IsNullOrEmpty(request.DigitalFormat) ? new DigitalFormat { Name = request.DigitalFormat } : null,
-                    SourceFormat = !string.IsNullOrEmpty(request.SourceFormat) ? new SourceFormat { Name = request.SourceFormat } : null,
-                    VinylState = !string.IsNullOrEmpty(request.VinylState) ? new VinylState { Name = request.VinylState } : null
-                },
-
-                EquipmentInfo = new EquipmentInfo
-                {
-                    Player = !string.IsNullOrEmpty(request.Player) ? new Player { Name = request.Player } : null,
-                    Cartridge = !string.IsNullOrEmpty(request.Cartridge) ? new Cartridge { Name = request.Cartridge } : null,
-                    Amplifier = !string.IsNullOrEmpty(request.Amplifier) ? new Amplifier { Name = request.Amplifier } : null,
-                    Adc = !string.IsNullOrEmpty(request.Adc) ? new Adc { Name = request.Adc } : null,
-                    Wire = !string.IsNullOrEmpty(request.Wire) ? new Wire { Name = request.Wire } : null
-                }
-            };
-        }
-
-        public AlbumDetailsViewModel MapAlbumToAlbumDetailsVM(Album album, IEnumerable<Release>? releases = null)
-        {
-            return new AlbumDetailsViewModel
-            {
-                AlbumId = album.Id,
-                Title = album.Title,
-                Artist = album.Artist?.Name ?? string.Empty,
-                Genre = album.Genre?.Name ?? string.Empty,
-                AddedDate = album.AddedDate,
-                UpdateDate = album.UpdateDate,
-                Releases = releases
-            };
-        }
-
-        public async Task<AlbumCreateUpdateViewModel> MapAlbumToCreateUpdateVMAsync(Album album)
-        {
-            var releases = await _releaseService.GetByAlbumIdAsync(album.Id);
-            
-            // Check if cover exists - only set AlbumCover if cover actually exists
-            var coverUrl = await _imageService.GetUrlAsync(album.Id, EntityType.AlbumCover);
-            var albumCover = coverUrl.Contains("nocover") ? null : album.Id.ToString();
-            
-            return new AlbumCreateUpdateViewModel
-            {
-                AlbumId = album.Id,
-                Title = album.Title,
-                Artist = album.Artist?.Name ?? string.Empty,
-                Genre = album.Genre?.Name ?? string.Empty,
-                AlbumCover = albumCover, // Set album ID only if cover exists, otherwise null
-                Action = ActionType.Update,
-                Releases = releases.ToList()
-            };
-        }
-
-        private async Task<Artist> FindOrCreateArtistAsync(string artistName)
-        {
-            var normalizedArtistName = artistName.Trim();
-
-            var artist = await _context.Artists
-                .FirstOrDefaultAsync(a => a.Name == normalizedArtistName);
-
-            if (artist is null)
-            {
-                // Store normalized value so unique Name constraint behaves consistently.
-                artist = new Artist { Name = normalizedArtistName };
-                _context.Artists.Add(artist);
-                await _context.SaveChangesAsync();
-            }
-
-            return artist;
-        }
-
-        private async Task<Genre> FindOrCreateGenreAsync(string genreName)
-        {
-            var normalizedGenreName = genreName.Trim();
-
-            var genre = await _context.Genres
-                .FirstOrDefaultAsync(g => g.Name == normalizedGenreName);
-
-            if (genre is null)
-            {
-                // Store normalized value so lookups (and unique constraints) are consistent.
-                genre = new Genre { Name = normalizedGenreName };
-                _context.Genres.Add(genre);
-                await _context.SaveChangesAsync();
-            }
-
-            return genre;
-        }
+            AlbumId = album.Id,
+            Title = album.Title,
+            Artist = album.Artist?.Name ?? string.Empty,
+            Genre = album.Genre?.Name ?? string.Empty,
+            AlbumCover = albumCover,
+            Action = ActionType.Update,
+            Releases = releases.ToList()
+        };
     }
 }
-

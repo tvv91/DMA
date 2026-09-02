@@ -11,6 +11,8 @@ internal sealed class StatisticServiceTestFactory : IDisposable
 
     private static readonly DateTimeOffset DefaultUtcNow = new(2024, 9, 10, 12, 0, 0, TimeSpan.Zero);
 
+    private readonly TestMediatorContext _mediatorContext;
+
     public Context Context { get; }
     public FakeTimeProvider TimeProvider { get; }
     public StatisticService Service { get; }
@@ -29,7 +31,8 @@ internal sealed class StatisticServiceTestFactory : IDisposable
 
         Context = new Context(options);
         Context.Database.EnsureCreated();
-        Service = new StatisticService(Context, TimeProvider);
+        _mediatorContext = MediatorTestHelper.Create(Context, TimeProvider);
+        Service = new StatisticService(_mediatorContext);
     }
 
     public async Task<Statistic> SeedExistingStatisticAsync(
@@ -164,6 +167,7 @@ internal sealed class StatisticServiceTestFactory : IDisposable
     public void Dispose()
     {
         StatisticServiceTestState.ResetLastRefreshAttempt();
+        _mediatorContext.Dispose();
         Context.Dispose();
     }
 }

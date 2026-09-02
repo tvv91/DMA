@@ -19,4 +19,8 @@
     <ProjectReference Include="..\DMA.Domain\DMA.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Web.Tests" />
+  </ItemGroup>
+
 </Project>

@@ -1,232 +1,56 @@
-using Microsoft.EntityFrameworkCore;
-using Web.Db;
+using DMA.Application.Posts.Create;
+using DMA.Application.Posts.Delete;
+using DMA.Application.Posts.GetById;
+using DMA.Application.Posts.GetFilteredList;
+using DMA.Application.Posts.GetList;
+using DMA.Application.Posts.Update;
+using MediatR;
 using Web.Interfaces;
 using Web.ViewModels;
 
-namespace Web.Services
+namespace Web.Services;
+
+public class PostService(IMediator mediator) : IPostService
 {
-    public class PostService(Context context, TimeProvider timeProvider) : IPostService
+    public Task<PagedResult<Post>> GetListAsync(int page, int pageSize) =>
+        mediator.Send(new GetPostListQuery(page, pageSize));
+
+    public Task<PagedResult<Post>> GetFilteredListAsync(int page, int pageSize, string? searchText, string? category, string? year, bool onlyDrafts, bool excludeDrafts = false) =>
+        mediator.Send(new GetFilteredPostListQuery(page, pageSize, searchText, category, year, onlyDrafts, excludeDrafts));
+
+    public Task<Post?> GetByIdAsync(int id) =>
+        mediator.Send(new GetPostByIdQuery(id));
+
+    public async Task<PostViewModel> GetPostViewModelAsync(int id)
     {
-        private readonly Context _context = context;
-        private readonly TimeProvider _timeProvider = timeProvider;
+        var post = await GetByIdAsync(id);
+        if (post is null)
+            throw new KeyNotFoundException($"Post with id {id} not found");
 
-        public async Task<PagedResult<Post>> GetListAsync(int page, int pageSize)
-        {
-            var query = _context.Posts
-                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-                .AsNoTracking()
-                .AsQueryable();
-
-            var totalItems = await query.CountAsync();
-
-            var items = await query
-                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
-                .ThenByDescending(p => p.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return new PagedResult<Post>(items, totalItems, page, pageSize);
-        }
-
-        public async Task<PagedResult<Post>> GetFilteredListAsync(
-            int page,
-            int pageSize,
-            string? searchText,
-            string? category,
-            string? year,
-            bool onlyDrafts,
-            bool excludeDrafts = false)
-        {
-            var query = _context.Posts
-                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-                .AsNoTracking()
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(searchText))
-            {
-                query = query.Where(p =>
-                    p.Title.Contains(searchText) ||
-                    p.Description.Contains(searchText) ||
-                    p.Content.Contains(searchText));
-            }
-
-            if (!string.IsNullOrWhiteSpace(category))
-            {
-                query = query.Where(p => p.PostCategories.Any(pc => pc.Category.Title == category));
-            }
-
-            if (!string.IsNullOrWhiteSpace(year) && int.TryParse(year, out var yearValue))
-            {
-                query = query.Where(p => p.CreatedDate.HasValue && p.CreatedDate.Value.Year == yearValue);
-            }
-
-            if (onlyDrafts)
-            {
-                query = query.Where(p => p.IsDraft);
-            }
-            else if (excludeDrafts)
-            {
-                query = query.Where(p => !p.IsDraft);
-            }
-
-            var totalItems = await query.CountAsync();
-
-            var items = await query
-                .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
-                .ThenByDescending(p => p.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            return new PagedResult<Post>(items, totalItems, page, pageSize);
-        }
-
-        public async Task<Post?> GetByIdAsync(int id)
-        {
-            return await _context.Posts
-                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-        }
-
-        public async Task<PostViewModel> GetPostViewModelAsync(int id)
-        {
-            var post = await GetByIdAsync(id);
-            if (post is null)
-                throw new KeyNotFoundException($"Post with id {id} not found");
-
-            return MapPostToViewModel(post);
-        }
-
-        public async Task<Post> CreatePostAsync(PostViewModel model)
-        {
-            var post = new Post
-            {
-                Title = model.Title,
-                Description = model.Description,
-                Content = model.Content,
-                CreatedDate = _timeProvider.GetUtcNow().UtcDateTime,
-                IsDraft = false
-            };
-
-            if (!string.IsNullOrWhiteSpace(model.Category))
-            {
-                var category = await FindOrCreateCategoryAsync(model.Category);
-                post.PostCategories.Add(new PostCategory
-                {
-                    Category = category
-                });
-            }
-
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
-            return post;
-        }
-
-        public async Task<Post> CreateDraftPostAsync(PostViewModel model)
-        {
-            var post = new Post
-            {
-                Title = model.Title,
-                Description = model.Description,
-                Content = model.Content,
-                CreatedDate = _timeProvider.GetUtcNow().UtcDateTime,
-                IsDraft = true
-            };
-
-            if (!string.IsNullOrWhiteSpace(model.Category) && model.Category != "Category")
-            {
-                var category = await FindOrCreateCategoryAsync(model.Category);
-                post.PostCategories.Add(new PostCategory
-                {
-                    Category = category
-                });
-            }
-
-            _context.Posts.Add(post);
-            await _context.SaveChangesAsync();
-            return post;
-        }
-
-        public async Task<Post> UpdatePostAsync(int postId, PostViewModel model)
-        {
-            // Business logic: Load existing post with tracking for updates
-            var existing = await _context.Posts
-                .Include(p => p.PostCategories).ThenInclude(pc => pc.Category)
-                .FirstOrDefaultAsync(p => p.Id == postId);
-            
-            if (existing is null)
-                throw new KeyNotFoundException($"Post with Id {postId} not found.");
-
-            // Business logic: Update properties
-            existing.Title = model.Title;
-            existing.Description = model.Description;
-            existing.Content = model.Content;
-            existing.UpdatedDate = _timeProvider.GetUtcNow().UtcDateTime;
-
-            // Business logic: Update category if changed
-            var currentCategory = existing.PostCategories.FirstOrDefault()?.Category?.Title;
-            var newCategory = model.Category?.Trim();
-
-            // Only update category if it's different and not empty/placeholder
-            if (newCategory != currentCategory && !string.IsNullOrWhiteSpace(newCategory) && newCategory != "Category")
-            {
-                existing.PostCategories.Clear();
-                var category = await FindOrCreateCategoryAsync(newCategory);
-                existing.PostCategories.Add(new PostCategory
-                {
-                    Category = category
-                });
-            }
-
-            // Repository only saves changes
-            await _context.SaveChangesAsync();
-            return existing;
-        }
-
-        public async Task<bool> DeletePostAsync(int id)
-        {
-            var post = await _context.Posts.FindAsync(id);
-            if (post is null)
-                return false;
-
-            _context.Posts.Remove(post);
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        public PostViewModel MapPostToViewModel(Post post)
-        {
-            return new PostViewModel
-            {
-                Id = post.Id,
-                Title = post.Title,
-                Description = post.Description,
-                Content = post.Content,
-                CreatedDate = post.CreatedDate,
-                UpdatedTime = post.UpdatedDate,
-                Category = post.PostCategories.FirstOrDefault()?.Category?.Title,
-                IsDraft = post.IsDraft
-            };
-        }
-
-        private async Task<Category> FindOrCreateCategoryAsync(string categoryTitle)
-        {
-            var normalizedCategoryTitle = categoryTitle.Trim();
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(c => c.Title == normalizedCategoryTitle);
-
-            if (category is null)
-            {
-                category = new Category { Title = categoryTitle };
-                _context.Categories.Add(category);
-                await _context.SaveChangesAsync();
-            }
-
-            return category;
-        }
+        return MapPostToViewModel(post);
     }
-}
 
+    public Task<Post> CreatePostAsync(PostViewModel model) =>
+        mediator.Send(new CreatePostCommand(model.Title, model.Description, model.Content, model.Category, IsDraft: false));
+
+    public Task<Post> CreateDraftPostAsync(PostViewModel model) =>
+        mediator.Send(new CreatePostCommand(model.Title, model.Description, model.Content, model.Category, IsDraft: true));
+
+    public Task<Post> UpdatePostAsync(int postId, PostViewModel model) =>
+        mediator.Send(new UpdatePostCommand(postId, model.Title, model.Description, model.Content, model.Category));
+
+    public Task<bool> DeletePostAsync(int id) =>
+        mediator.Send(new DeletePostCommand(id));
+
+    public PostViewModel MapPostToViewModel(Post post) => new()
+    {
+        Id = post.Id,
+        Title = post.Title,
+        Description = post.Description,
+        Content = post.Content,
+        CreatedDate = post.CreatedDate,
+        UpdatedTime = post.UpdatedDate,
+        Category = post.PostCategories.FirstOrDefault()?.Category?.Title,
+        IsDraft = post.IsDraft
+    };
+}

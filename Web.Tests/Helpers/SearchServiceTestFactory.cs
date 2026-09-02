@@ -10,6 +10,7 @@ internal sealed class SearchServiceTestFactory : IDisposable
     public const int AutocompleteMaxItems = 10;
 
     private readonly SqliteConnection _connection;
+    private readonly TestMediatorContext _mediatorContext;
 
     public Context Context { get; }
     public SearchService Service { get; }
@@ -89,7 +90,8 @@ internal sealed class SearchServiceTestFactory : IDisposable
 
         Context = new Context(options);
         Context.Database.EnsureCreated();
-        Service = new SearchService(Context);
+        _mediatorContext = MediatorTestHelper.Create(Context);
+        Service = new SearchService(_mediatorContext);
     }
 
     public async Task<Artist> SeedArtistAsync(string name)
@@ -248,6 +250,7 @@ internal sealed class SearchServiceTestFactory : IDisposable
 
     public void Dispose()
     {
+        _mediatorContext.Dispose();
         Context.Dispose();
         _connection.Dispose();
     }

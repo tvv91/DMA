@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Web.Services;
+using WebImageService = Web.Services.LocalStorageImageService;
+using InfraImageService = DMA.Infrastructure.Images.LocalStorageImageService;
 
 namespace Web.Tests.Helpers;
 
@@ -27,8 +28,8 @@ internal sealed class ImageTestEnvironment : IDisposable
 
     public string Root { get; }
     public string WebRoot { get; }
-    public Mock<ILogger<LocalStorageImageService>> LoggerMock { get; } = new();
-    public LocalStorageImageService Service { get; }
+    public Mock<ILogger<InfraImageService>> LoggerMock { get; } = new();
+    public WebImageService Service { get; }
 
     public ImageTestEnvironment()
     {
@@ -40,7 +41,8 @@ internal sealed class ImageTestEnvironment : IDisposable
         environmentMock.Setup(e => e.WebRootPath).Returns(WebRoot);
         environmentMock.Setup(e => e.ContentRootPath).Returns(Root);
 
-        Service = new LocalStorageImageService(environmentMock.Object, LoggerMock.Object);
+        var storage = new InfraImageService(environmentMock.Object, LoggerMock.Object);
+        Service = new WebImageService(storage);
     }
 
     public string GetCoverDirectory(EntityType type)

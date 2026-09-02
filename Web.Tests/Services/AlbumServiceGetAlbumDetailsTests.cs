@@ -1,4 +1,3 @@
-using Moq;
 using Web.ViewModels;
 using Web.Tests.Helpers;
 
@@ -14,11 +13,7 @@ public class AlbumServiceGetAlbumDetailsTests : IDisposable
     public async Task GetAlbumDetailsAsync_ExistingAlbum_ReturnsMappedViewModel()
     {
         var (album, _, _) = await _factory.SeedAlbumAsync("Details Album", "Details Artist", "Details Genre");
-        var releases = new List<Release> { new() { Id = 1, AlbumId = album.Id, Source = "Vinyl" } };
-
-        _factory.ReleaseServiceMock
-            .Setup(s => s.GetByAlbumIdAsync(album.Id))
-            .ReturnsAsync(releases);
+        await _factory.SeedReleaseAsync(album.Id, "Vinyl");
 
         var result = await _factory.Service.GetAlbumDetailsAsync(album.Id);
 
@@ -28,7 +23,8 @@ public class AlbumServiceGetAlbumDetailsTests : IDisposable
         Assert.Equal("Details Genre", result.Genre);
         Assert.Equal(album.AddedDate, result.AddedDate);
         Assert.Equal(album.UpdateDate, result.UpdateDate);
-        Assert.Same(releases, result.Releases);
+        Assert.Single(result.Releases!);
+        Assert.Equal("Vinyl", result.Releases!.First().Source);
     }
 
     [Fact]

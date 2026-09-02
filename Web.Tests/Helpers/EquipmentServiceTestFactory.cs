@@ -17,6 +17,8 @@ internal sealed class EquipmentServiceTestFactory : IDisposable
         EntityType.Wire,
     ];
 
+    private readonly TestMediatorContext _mediatorContext;
+
     public Context Context { get; }
     public EquipmentService Service { get; }
 
@@ -28,7 +30,8 @@ internal sealed class EquipmentServiceTestFactory : IDisposable
 
         Context = new Context(options);
         Context.Database.EnsureCreated();
-        Service = new EquipmentService(Context);
+        _mediatorContext = MediatorTestHelper.Create(Context);
+        Service = new EquipmentService(_mediatorContext);
     }
 
     public async Task<IManufacturer> SeedEquipmentAsync(
@@ -86,5 +89,9 @@ internal sealed class EquipmentServiceTestFactory : IDisposable
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
-    public void Dispose() => Context.Dispose();
+    public void Dispose()
+    {
+        _mediatorContext.Dispose();
+        Context.Dispose();
+    }
 }

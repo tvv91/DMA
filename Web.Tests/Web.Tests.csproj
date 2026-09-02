@@ -23,6 +23,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Web\Web.csproj" />
+    <ProjectReference Include="..\src\DMA.Application\DMA.Application.csproj" />
+    <ProjectReference Include="..\src\DMA.Infrastructure\DMA.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

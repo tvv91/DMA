@@ -1,7 +1,6 @@
 using DMA.Application;
 using DMA.Infrastructure;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Web.Db;
 using Web.Interfaces;
@@ -15,14 +14,6 @@ builder.Services.AddControllersWithViews(options =>
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
 builder.Services.AddSingleton(TimeProvider.System);
-builder.Services.AddDbContext<Context>(opts =>
-{
-    var connectionString = builder.Configuration["ConnectionStrings:DbConnectionDev"];
-    opts.UseSqlServer(connectionString, sqlServerOptionsAction =>
-    {
-        sqlServerOptionsAction.EnableRetryOnFailure(maxRetryCount: 5, maxRetryDelay: TimeSpan.FromSeconds(30), errorNumbersToAdd: null);
-    });
-});
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -43,7 +34,6 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<IImageService, LocalStorageImageService>();
 builder.Services.AddScoped<IResourceIconService, LocalResourceIconService>();
 
-// Services
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IReleaseService, ReleaseService>();

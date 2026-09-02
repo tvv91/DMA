@@ -1,322 +1,56 @@
-using Microsoft.EntityFrameworkCore;
-using Web.Db;
+using DMA.Application.ReferenceData;
+using MediatR;
 using Web.Interfaces;
 
-namespace Web.Services
+namespace Web.Services;
+
+public class EntityFindOrCreateService(IMediator mediator) : IEntityFindOrCreateService
 {
-    public class EntityFindOrCreateService(Context context) : IEntityFindOrCreateService
-    {
-        private readonly Context _context = context;
+    public Task<Year> FindOrCreateYearAsync(int yearValue) =>
+        mediator.Send(new FindOrCreateYearCommand(yearValue));
 
-        public async Task<Year> FindOrCreateYearAsync(int yearValue)
-        {
-            var year = await _context.Years.FirstOrDefaultAsync(y => y.Value == yearValue);
-            if (year is null)
-            {
-                year = new Year { Value = yearValue };
-                _context.Years.Add(year);
-                await _context.SaveChangesAsync();
-            }
-            return year;
-        }
+    public Task<Reissue> FindOrCreateReissueAsync(int reissueValue) =>
+        mediator.Send(new FindOrCreateReissueCommand(reissueValue));
 
-        public async Task<Reissue> FindOrCreateReissueAsync(int reissueValue)
-        {
-            var reissue = await _context.Reissues.FirstOrDefaultAsync(r => r.Value == reissueValue);
-            if (reissue is null)
-            {
-                reissue = new Reissue { Value = reissueValue };
-                _context.Reissues.Add(reissue);
-                await _context.SaveChangesAsync();
-            }
-            return reissue;
-        }
+    public Task<Country> FindOrCreateCountryAsync(string countryName) =>
+        mediator.Send(new FindOrCreateCountryCommand(countryName));
 
-        public async Task<Country> FindOrCreateCountryAsync(string countryName)
-        {
-            var normalizedCountryName = countryName.Trim();
+    public Task<Label> FindOrCreateLabelAsync(string labelName) =>
+        mediator.Send(new FindOrCreateLabelCommand(labelName));
 
-            var country = await _context.Countries.FirstOrDefaultAsync(c => c.Name == normalizedCountryName);
-            if (country is null)
-            {
-                country = new Country { Name = countryName };
-                _context.Countries.Add(country);
-                await _context.SaveChangesAsync();
-            }
-            return country;
-        }
+    public Task<Storage> FindOrCreateStorageAsync(string storageData) =>
+        mediator.Send(new FindOrCreateStorageCommand(storageData));
 
-        public async Task<Label> FindOrCreateLabelAsync(string labelName)
-        {
-            var normalizedLabelName = labelName.Trim();
+    public Task<Bitness> FindOrCreateBitnessAsync(int bitnessValue) =>
+        mediator.Send(new FindOrCreateBitnessCommand(bitnessValue));
 
-            var label = await _context.Labels.FirstOrDefaultAsync(l => l.Name == normalizedLabelName);
-            if (label is null)
-            {
-                label = new Label { Name = labelName };
-                _context.Labels.Add(label);
-                await _context.SaveChangesAsync();
-            }
-            return label;
-        }
+    public Task<Sampling> FindOrCreateSamplingAsync(double samplingValue) =>
+        mediator.Send(new FindOrCreateSamplingCommand(samplingValue));
 
-        public async Task<Storage> FindOrCreateStorageAsync(string storageData)
-        {
-            var normalizedStorageData = storageData.Trim();
+    public Task<DigitalFormat> FindOrCreateDigitalFormatAsync(string formatName) =>
+        mediator.Send(new FindOrCreateDigitalFormatCommand(formatName));
 
-            var storage = await _context.Storages.FirstOrDefaultAsync(s => s.Name == normalizedStorageData);
-            if (storage is null)
-            {
-                storage = new Storage { Name = storageData };
-                _context.Storages.Add(storage);
-                await _context.SaveChangesAsync();
-            }
-            return storage;
-        }
+    public Task<SourceFormat> FindOrCreateSourceFormatAsync(string formatName) =>
+        mediator.Send(new FindOrCreateSourceFormatCommand(formatName));
 
-        public async Task<Bitness> FindOrCreateBitnessAsync(int bitnessValue)
-        {
-            var bitness = await _context.Bitnesses.FirstOrDefaultAsync(b => b.Value == bitnessValue);
-            if (bitness is null)
-            {
-                bitness = new Bitness { Value = bitnessValue };
-                _context.Bitnesses.Add(bitness);
-                await _context.SaveChangesAsync();
-            }
-            return bitness;
-        }
+    public Task<VinylState> FindOrCreateVinylStateAsync(string stateName) =>
+        mediator.Send(new FindOrCreateVinylStateCommand(stateName));
 
-        public async Task<Sampling> FindOrCreateSamplingAsync(double samplingValue)
-        {
-            var sampling = await _context.Samplings.FirstOrDefaultAsync(s => s.Value == samplingValue);
-            if (sampling is null)
-            {
-                sampling = new Sampling { Value = samplingValue };
-                _context.Samplings.Add(sampling);
-                await _context.SaveChangesAsync();
-            }
-            return sampling;
-        }
+    public Task<Player> FindOrCreatePlayerAsync(string playerName, string? manufacturerName = null) =>
+        mediator.Send(new FindOrCreatePlayerCommand(playerName, manufacturerName));
 
-        public async Task<DigitalFormat> FindOrCreateDigitalFormatAsync(string formatName)
-        {
-            var normalizedFormatName = formatName.Trim();
+    public Task<Cartridge> FindOrCreateCartridgeAsync(string cartridgeName, string? manufacturerName = null) =>
+        mediator.Send(new FindOrCreateCartridgeCommand(cartridgeName, manufacturerName));
 
-            var format = await _context.DigitalFormats.FirstOrDefaultAsync(f => f.Name == normalizedFormatName);
-            if (format is null)
-            {
-                format = new DigitalFormat { Name = formatName };
-                _context.DigitalFormats.Add(format);
-                await _context.SaveChangesAsync();
-            }
-            return format;
-        }
+    public Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName, string? manufacturerName = null) =>
+        mediator.Send(new FindOrCreateAmplifierCommand(amplifierName, manufacturerName));
 
-        public async Task<SourceFormat> FindOrCreateSourceFormatAsync(string formatName)
-        {
-            var normalizedFormatName = formatName.Trim();
+    public Task<Adc> FindOrCreateAdcAsync(string adcName, string? manufacturerName = null) =>
+        mediator.Send(new FindOrCreateAdcCommand(adcName, manufacturerName));
 
-            var format = await _context.SourceFormats.FirstOrDefaultAsync(f => f.Name == normalizedFormatName);
-            if (format is null)
-            {
-                format = new SourceFormat { Name = formatName };
-                _context.SourceFormats.Add(format);
-                await _context.SaveChangesAsync();
-            }
-            return format;
-        }
+    public Task<Wire> FindOrCreateWireAsync(string wireName, string? manufacturerName = null) =>
+        mediator.Send(new FindOrCreateWireCommand(wireName, manufacturerName));
 
-        public async Task<VinylState> FindOrCreateVinylStateAsync(string stateName)
-        {
-            var normalizedStateName = stateName.Trim();
-
-            var state = await _context.VinylStates.FirstOrDefaultAsync(v => v.Name == normalizedStateName);
-            if (state is null)
-            {
-                state = new VinylState { Name = stateName };
-                _context.VinylStates.Add(state);
-                await _context.SaveChangesAsync();
-            }
-            return state;
-        }
-
-        public async Task<Player> FindOrCreatePlayerAsync(string playerName, string? manufacturerName = null)
-        {
-            var normalizedPlayerName = playerName.Trim();
-
-            var player = await _context.Players
-                .Include(p => p.Manufacturer)
-                .FirstOrDefaultAsync(p => p.Name == normalizedPlayerName);
-            
-            if (player is null)
-            {
-                player = new Player { Name = playerName };
-                
-                if (!string.IsNullOrWhiteSpace(manufacturerName))
-                {
-                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                    player.ManufacturerId = manufacturer?.Id;
-                }
-                
-                _context.Players.Add(player);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                await ApplyManufacturerIfProvidedAsync(player.ManufacturerId, manufacturerName, id => player.ManufacturerId = id);
-            }
-            
-            return player;
-        }
-
-        public async Task<Cartridge> FindOrCreateCartridgeAsync(string cartridgeName, string? manufacturerName = null)
-        {
-            var normalizedCartridgeName = cartridgeName.Trim();
-
-            var cartridge = await _context.Cartridges
-                .Include(c => c.Manufacturer)
-                .FirstOrDefaultAsync(c => c.Name == normalizedCartridgeName);
-            
-            if (cartridge is null)
-            {
-                cartridge = new Cartridge { Name = cartridgeName };
-                
-                if (!string.IsNullOrWhiteSpace(manufacturerName))
-                {
-                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                    cartridge.ManufacturerId = manufacturer?.Id;
-                }
-                
-                _context.Cartridges.Add(cartridge);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                await ApplyManufacturerIfProvidedAsync(cartridge.ManufacturerId, manufacturerName, id => cartridge.ManufacturerId = id);
-            }
-            
-            return cartridge;
-        }
-
-        public async Task<Amplifier> FindOrCreateAmplifierAsync(string amplifierName, string? manufacturerName = null)
-        {
-            var normalizedAmplifierName = amplifierName.Trim();
-
-            var amplifier = await _context.Amplifiers
-                .Include(a => a.Manufacturer)
-                .FirstOrDefaultAsync(a => a.Name == normalizedAmplifierName);
-            
-            if (amplifier is null)
-            {
-                amplifier = new Amplifier { Name = amplifierName };
-                
-                if (!string.IsNullOrWhiteSpace(manufacturerName))
-                {
-                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                    amplifier.ManufacturerId = manufacturer?.Id;
-                }
-                
-                _context.Amplifiers.Add(amplifier);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                await ApplyManufacturerIfProvidedAsync(amplifier.ManufacturerId, manufacturerName, id => amplifier.ManufacturerId = id);
-            }
-            
-            return amplifier;
-        }
-
-        public async Task<Adc> FindOrCreateAdcAsync(string adcName, string? manufacturerName = null)
-        {
-            var normalizedAdcName = adcName.Trim();
-
-            var adc = await _context.Adces
-                .Include(a => a.Manufacturer)
-                .FirstOrDefaultAsync(a => a.Name == normalizedAdcName);
-            
-            if (adc is null)
-            {
-                adc = new Adc { Name = adcName };
-                
-                if (!string.IsNullOrWhiteSpace(manufacturerName))
-                {
-                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                    adc.ManufacturerId = manufacturer?.Id;
-                }
-                
-                _context.Adces.Add(adc);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                await ApplyManufacturerIfProvidedAsync(adc.ManufacturerId, manufacturerName, id => adc.ManufacturerId = id);
-            }
-            
-            return adc;
-        }
-
-        public async Task<Wire> FindOrCreateWireAsync(string wireName, string? manufacturerName = null)
-        {
-            var normalizedWireName = wireName.Trim();
-
-            var wire = await _context.Wires
-                .Include(w => w.Manufacturer)
-                .FirstOrDefaultAsync(w => w.Name == normalizedWireName);
-            
-            if (wire is null)
-            {
-                wire = new Wire { Name = wireName };
-                
-                if (!string.IsNullOrWhiteSpace(manufacturerName))
-                {
-                    var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-                    wire.ManufacturerId = manufacturer?.Id;
-                }
-                
-                _context.Wires.Add(wire);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                await ApplyManufacturerIfProvidedAsync(wire.ManufacturerId, manufacturerName, id => wire.ManufacturerId = id);
-            }
-            
-            return wire;
-        }
-
-        private async Task ApplyManufacturerIfProvidedAsync(int? currentManufacturerId, string? manufacturerName, Action<int?> setManufacturerId)
-        {
-            if (string.IsNullOrWhiteSpace(manufacturerName))
-                return;
-
-            var manufacturer = await FindOrCreateManufacturerAsync(manufacturerName);
-            if (manufacturer is not null && currentManufacturerId != manufacturer.Id)
-            {
-                setManufacturerId(manufacturer.Id);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-        public async Task<Manufacturer?> FindOrCreateManufacturerAsync(string manufacturerName)
-        {
-            if (string.IsNullOrWhiteSpace(manufacturerName))
-                return null;
-
-            var normalizedManufacturerName = manufacturerName.Trim();
-
-            var existing = await _context.Manufacturer
-                .FirstOrDefaultAsync(m => m.Name == normalizedManufacturerName);
-
-            if (existing is not null)
-                return existing;
-
-            var newManufacturer = new Manufacturer { Name = normalizedManufacturerName };
-            _context.Manufacturer.Add(newManufacturer);
-            await _context.SaveChangesAsync();
-
-            return newManufacturer;
-        }
-    }
+    public Task<Manufacturer?> FindOrCreateManufacturerAsync(string manufacturerName) =>
+        mediator.Send(new FindOrCreateManufacturerCommand(manufacturerName));
 }
-

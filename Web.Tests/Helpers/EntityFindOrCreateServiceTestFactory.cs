@@ -6,6 +6,8 @@ namespace Web.Tests.Helpers;
 
 internal sealed class EntityFindOrCreateServiceTestFactory : IDisposable
 {
+    private readonly TestMediatorContext _mediatorContext;
+
     public Context Context { get; }
     public EntityFindOrCreateService Service { get; }
 
@@ -17,8 +19,13 @@ internal sealed class EntityFindOrCreateServiceTestFactory : IDisposable
 
         Context = new Context(options);
         Context.Database.EnsureCreated();
-        Service = new EntityFindOrCreateService(Context);
+        _mediatorContext = MediatorTestHelper.Create(Context);
+        Service = new EntityFindOrCreateService(_mediatorContext);
     }
 
-    public void Dispose() => Context.Dispose();
+    public void Dispose()
+    {
+        _mediatorContext.Dispose();
+        Context.Dispose();
+    }
 }

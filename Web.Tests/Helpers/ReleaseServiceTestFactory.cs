@@ -17,6 +17,8 @@ internal sealed class ReleaseServiceTestFactory : IDisposable
         EntityType.Wire,
     ];
 
+    private readonly TestMediatorContext _mediatorContext;
+
     public Context Context { get; }
     public FakeTimeProvider TimeProvider { get; } = new(FixedUtcNow);
     public ReleaseService Service { get; }
@@ -32,7 +34,8 @@ internal sealed class ReleaseServiceTestFactory : IDisposable
 
         Context = new Context(options);
         Context.Database.EnsureCreated();
-        Service = new ReleaseService(Context, TimeProvider);
+        _mediatorContext = MediatorTestHelper.Create(Context, TimeProvider);
+        Service = new ReleaseService(_mediatorContext);
     }
 
     public async Task<(Album Album, Artist Artist, Genre Genre)> SeedAlbumAsync(
@@ -173,5 +176,9 @@ internal sealed class ReleaseServiceTestFactory : IDisposable
         return (wire, release);
     }
 
-    public void Dispose() => Context.Dispose();
+    public void Dispose()
+    {
+        _mediatorContext.Dispose();
+        Context.Dispose();
+    }
 }

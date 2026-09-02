@@ -10,8 +10,9 @@ internal sealed class AlbumServiceTestFactory : IDisposable
 {
     private static readonly DateTimeOffset FixedUtcNow = new(2024, 6, 15, 10, 0, 0, TimeSpan.Zero);
 
+    private readonly TestMediatorContext _mediatorContext;
+
     public Context Context { get; }
-    public Mock<IReleaseService> ReleaseServiceMock { get; } = new();
     public Mock<IImageService> ImageServiceMock { get; } = new();
     public FakeTimeProvider TimeProvider { get; } = new(FixedUtcNow);
     public AlbumService Service { get; }
@@ -28,18 +29,14 @@ internal sealed class AlbumServiceTestFactory : IDisposable
         Context = new Context(options);
         Context.Database.EnsureCreated();
 
-        ReleaseServiceMock
-            .Setup(s => s.GetByAlbumIdAsync(It.IsAny<int>()))
-            .ReturnsAsync([]);
-
         ImageServiceMock
             .Setup(s => s.GetUrlAsync(It.IsAny<int>(), It.IsAny<EntityType>()))
             .ReturnsAsync("/images/nocover.png");
 
+        _mediatorContext = MediatorTestHelper.Create(Context, TimeProvider);
         Service = new AlbumService(
-            ReleaseServiceMock.Object,
+            _mediatorContext,
             ImageServiceMock.Object,
-            Context,
             TimeProvider);
     }
 
@@ -120,5 +117,18 @@ internal sealed class AlbumServiceTestFactory : IDisposable
         return genre;
     }
 
-    public void Dispose() => Context.Dispose();
+    public async Task<Release> SeedReleaseAsync(int albumId, string? source = null, int? releaseId = null)
+    {
+        var release = new Release { AlbumId = albumId, Source = source };
+        Context.Releases.Add(release);
+        await Context.SaveChangesAsync();
+        Context.ChangeTracker.Clear();
+        return release;
+    }
+
+    public void Dispose()
+    {
+        _mediatorContext.Dispose();
+        Context.Dispose();
+    }
 }

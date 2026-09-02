@@ -22,4 +22,5 @@ public interface IStatisticRepository
     IQueryable<Equipment.Cartridge> Cartridges { get; }
     IQueryable<Equipment.Player> Players { get; }
     IQueryable<Equipment.Wire> Wires { get; }
+    Task<StatisticCounters> ComputeCountersAsync(CancellationToken cancellationToken = default);
 }

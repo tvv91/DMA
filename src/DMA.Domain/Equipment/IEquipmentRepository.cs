@@ -5,6 +5,7 @@ namespace DMA.Domain.Equipment;
 public interface IEquipmentRepository
 {
     Task<IManufacturerEquipment?> GetByIdAsync(int id, EntityType type, CancellationToken cancellationToken = default);
+    Task<PagedResult<IManufacturerEquipment>> GetListPagedAsync(int page, int pageSize, EntityType type, CancellationToken cancellationToken = default);
     IQueryable<IManufacturerEquipment> GetQueryable(EntityType type);
     Task<IManufacturerEquipment?> GetByNameAsync(string name, EntityType type, CancellationToken cancellationToken = default);
     void Add(IManufacturerEquipment equipment);

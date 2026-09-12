@@ -1,8 +1,8 @@
-﻿using Web.Interfaces;
+using Web.Interfaces;
 
 namespace Web.Models
 {
-    public class Cartridge : IManufacturer
+    public class Cartridge : IEquipment
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

@@ -16,25 +16,31 @@ public sealed record UpdateEquipmentCommand(EquipmentViewModel Request) : IReque
 public sealed record DeleteEquipmentCommand(EntityType Category, int Id) : IRequest<bool>;
 public sealed record CreateEquipmentFormQuery : IRequest<EquipmentViewModel>;
 public sealed record EquipmentPageQuery : IRequest<Unit>;
-public sealed record GetEquipmentHubPageQuery(EntityType Category, int Page, int PageSize) : IRequest<PagedResult<IManufacturer>>;
+public sealed record GetEquipmentHubPageQuery(EntityType Category, int Page, int PageSize) : IRequest<PagedResult<IEquipment>>;
 public sealed record FindEquipmentManufacturerQuery(EntityType Category, string Name) : IRequest<string?>;
 
-public sealed class GetEquipmentHubPageQueryHandler(Context context) : IRequestHandler<GetEquipmentHubPageQuery, PagedResult<IManufacturer>>
+public sealed class GetEquipmentHubPageQueryHandler(Context context) : IRequestHandler<GetEquipmentHubPageQuery, PagedResult<IEquipment>>
 {
-    public async Task<PagedResult<IManufacturer>> Handle(GetEquipmentHubPageQuery request, CancellationToken cancellationToken)
+    public async Task<PagedResult<IEquipment>> Handle(GetEquipmentHubPageQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<IManufacturer> query = request.Category switch
+        return request.Category switch
         {
-            EntityType.Adc => context.Set<Adc>().Include(x => x.Manufacturer),
-            EntityType.Player => context.Set<Player>().Include(x => x.Manufacturer),
-            EntityType.Amplifier => context.Set<Amplifier>().Include(x => x.Manufacturer),
-            EntityType.Cartridge => context.Set<Cartridge>().Include(x => x.Manufacturer),
-            EntityType.Wire => context.Set<Wire>().Include(x => x.Manufacturer),
+            EntityType.Adc => await Load(context.Set<Adc>(), request, cancellationToken),
+            EntityType.Player => await Load(context.Set<Player>(), request, cancellationToken),
+            EntityType.Amplifier => await Load(context.Set<Amplifier>(), request, cancellationToken),
+            EntityType.Cartridge => await Load(context.Set<Cartridge>(), request, cancellationToken),
+            EntityType.Wire => await Load(context.Set<Wire>(), request, cancellationToken),
             _ => throw new ArgumentOutOfRangeException(nameof(request.Category))
         };
+    }
+
+    private static async Task<PagedResult<IEquipment>> Load<T>(DbSet<T> set, GetEquipmentHubPageQuery request, CancellationToken cancellationToken)
+        where T : class, IEquipment
+    {
+        var query = set.Include(x => x.Manufacturer).OrderBy(x => x.Id);
         var total = await query.CountAsync(cancellationToken);
-        var items = await query.OrderBy(x => x.Id).Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToListAsync(cancellationToken);
-        return new PagedResult<IManufacturer>(items, total, request.Page, request.PageSize);
+        var items = (await query.Skip((request.Page - 1) * request.PageSize).Take(request.PageSize).ToListAsync(cancellationToken)).Cast<IEquipment>().ToList();
+        return new PagedResult<IEquipment>(items, total, request.Page, request.PageSize);
     }
 }
 
@@ -42,14 +48,19 @@ public sealed class FindEquipmentManufacturerQueryHandler(Context context) : IRe
 {
     public async Task<string?> Handle(FindEquipmentManufacturerQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<IManufacturer> query = request.Category switch
+        return request.Category switch
         {
-            EntityType.Adc => context.Set<Adc>(), EntityType.Player => context.Set<Player>(), EntityType.Amplifier => context.Set<Amplifier>(), EntityType.Cartridge => context.Set<Cartridge>(), EntityType.Wire => context.Set<Wire>(),
+            EntityType.Adc => await Find(context.Set<Adc>(), request.Name, cancellationToken),
+            EntityType.Player => await Find(context.Set<Player>(), request.Name, cancellationToken),
+            EntityType.Amplifier => await Find(context.Set<Amplifier>(), request.Name, cancellationToken),
+            EntityType.Cartridge => await Find(context.Set<Cartridge>(), request.Name, cancellationToken),
+            EntityType.Wire => await Find(context.Set<Wire>(), request.Name, cancellationToken),
             _ => throw new ArgumentOutOfRangeException(nameof(request.Category))
         };
-        var item = await query.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == request.Name, cancellationToken);
-        return item?.Manufacturer?.Name;
     }
+
+    private static async Task<string?> Find<T>(DbSet<T> set, string name, CancellationToken cancellationToken)
+        where T : class, IEquipment => (await set.Include(x => x.Manufacturer).FirstOrDefaultAsync(x => x.Name == name, cancellationToken))?.Manufacturer?.Name;
 }
 
 public sealed class CreateEquipmentFormQueryHandler : IRequestHandler<CreateEquipmentFormQuery, EquipmentViewModel>
@@ -67,7 +78,7 @@ public sealed class GetEquipmentQueryHandler(Context context, IImageService imag
 {
     public async Task<EquipmentViewModel?> Handle(GetEquipmentQuery request, CancellationToken cancellationToken)
     {
-        IManufacturer? equipment;
+        IEquipment? equipment;
         switch (request.Category)
         {
             case EntityType.Adc:
@@ -188,7 +199,7 @@ public sealed class CreateEquipmentCommandHandler(Context context, IImageService
             context.Manufacturer.Add(manufacturer);
             await context.SaveChangesAsync(cancellationToken);
         }
-        IManufacturer equipment;
+        IEquipment equipment;
         switch (request.Request.EquipmentType)
         {
             case EntityType.Adc: equipment = new Adc { Id = request.Request.Id, Name = request.Request.ModelName, Description = request.Request.Description, Manufacturer = manufacturer }; break;
@@ -218,7 +229,7 @@ public sealed class UpdateEquipmentCommandHandler(Context context, IImageService
             context.Manufacturer.Add(manufacturer);
             await context.SaveChangesAsync(cancellationToken);
         }
-        IManufacturer equipment;
+        IEquipment equipment;
         switch (model.EquipmentType)
         {
             case EntityType.Adc: equipment = new Adc { Id = model.Id, Name = model.ModelName, Description = model.Description, Manufacturer = manufacturer }; break;

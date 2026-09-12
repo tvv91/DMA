@@ -112,7 +112,38 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
 
     private async Task<T?> Find<T, V>(DbSet<T> set, Expression<Func<T, bool>> predicate, V? value, Func<V, T> create, CancellationToken ct) where T : class where V : struct { if (!value.HasValue) return null; var x = await set.FirstOrDefaultAsync(predicate, ct); if (x is not null) return x; x = create(value.Value); set.Add(x); await context.SaveChangesAsync(ct); return x; }
     private async Task<T?> FindText<T>(DbSet<T> set, string? value, Func<T, string, bool> match, Func<string, T> create, CancellationToken ct) where T : class { if (string.IsNullOrWhiteSpace(value)) return null; var v = value.Trim(); var x = await set.FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == v, ct); if (x is not null) return x; x = create(v); set.Add(x); await context.SaveChangesAsync(ct); return x; }
-    private async Task<T?> Equipment<T>(DbSet<T> set, string? value, string? manufacturer, CancellationToken ct) where T : class, IManufacturer, new() { if (string.IsNullOrWhiteSpace(value)) return null; var name = value.Trim(); var x = await set.Include(e => e.Manufacturer).FirstOrDefaultAsync(e => e.Name == name, ct); var m = string.IsNullOrWhiteSpace(manufacturer) ? null : await context.Manufacturer.FirstOrDefaultAsync(e => e.Name == manufacturer.Trim(), ct) ?? new Manufacturer { Name = manufacturer.Trim() }; if (m?.Id == 0) { context.Manufacturer.Add(m); await context.SaveChangesAsync(ct); } if (x is null) { x = new T { Name = name, Manufacturer = m }; set.Add(x); await context.SaveChangesAsync(ct); } else if (m is not null && x.ManufacturerId != m.Id) { x.ManufacturerId = m.Id; await context.SaveChangesAsync(ct); } return x; }
+    private async Task<T?> Equipment<T>(DbSet<T> set, string? value, string? manufacturer, CancellationToken ct)
+        where T : class, IEquipment, new()
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+
+        var name = value.Trim();
+        var equipment = await set.Include(e => e.Manufacturer).FirstOrDefaultAsync(e => e.Name == name, ct);
+        var manufacturerEntity = string.IsNullOrWhiteSpace(manufacturer)
+            ? null
+            : await context.Manufacturer.FirstOrDefaultAsync(e => e.Name == manufacturer.Trim(), ct)
+                ?? new Manufacturer { Name = manufacturer.Trim() };
+
+        if (manufacturerEntity?.Id == 0)
+        {
+            context.Manufacturer.Add(manufacturerEntity);
+            await context.SaveChangesAsync(ct);
+        }
+
+        if (equipment is null)
+        {
+            equipment = new T { Name = name, Manufacturer = manufacturerEntity };
+            set.Add(equipment);
+            await context.SaveChangesAsync(ct);
+        }
+        else if (manufacturerEntity is not null && equipment.ManufacturerId != manufacturerEntity.Id)
+        {
+            equipment.ManufacturerId = manufacturerEntity.Id;
+            await context.SaveChangesAsync(ct);
+        }
+
+        return equipment;
+    }
     private Task<List<ReleaseHubDto>> GetDtos(int albumId, CancellationToken ct) => ReleaseHubQueries.WithDetails(context.Releases.AsNoTracking().Where(x => x.AlbumId == albumId)).Select(x => new ReleaseHubDto(x.Id, x.FormatInfo!.VinylState!.Name, x.FormatInfo!.Bitness!.Value, x.FormatInfo!.Sampling!.Value, x.FormatInfo!.DigitalFormat!.Name, x.FormatInfo!.SourceFormat!.Name, x.EquipmentInfo!.Player!.Name, x.EquipmentInfo!.Player!.Manufacturer!.Name, x.EquipmentInfo!.Cartridge!.Name, x.EquipmentInfo!.Cartridge!.Manufacturer!.Name, x.EquipmentInfo!.Amplifier!.Name, x.EquipmentInfo!.Amplifier!.Manufacturer!.Name, x.EquipmentInfo!.Adc!.Name, x.EquipmentInfo!.Adc!.Manufacturer!.Name, x.EquipmentInfo!.Wire!.Name, x.EquipmentInfo!.Wire!.Manufacturer!.Name, x.Source, x.Year!.Value, x.Reissue!.Value, x.Country!.Name, x.Label!.Name, x.Storage!.Name, x.Discogs, x.Size, x.IsFirstPress ?? false)).ToListAsync(ct);
 }
 

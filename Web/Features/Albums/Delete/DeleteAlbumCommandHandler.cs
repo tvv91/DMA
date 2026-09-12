@@ -1,7 +1,7 @@
 using MediatR;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Enums;
-using Web.Interfaces;
+using Web.Infrastructure.Storage;
 
 namespace Web.Features.Albums.Delete;
 
@@ -21,3 +21,4 @@ public sealed class DeleteAlbumCommandHandler(
         return true;
     }
 }
+

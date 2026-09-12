@@ -1,4 +1,4 @@
-using Web.Interfaces;
+using Web.Contracts;
 
 namespace Web.Models
 {

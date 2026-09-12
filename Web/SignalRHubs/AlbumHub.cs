@@ -4,7 +4,8 @@ using MediatR;
 using Web.Enums;
 using Web.Features.Albums;
 using Web.Features.Equipment;
-using Web.Interfaces;
+using Web.Infrastructure.Icons;
+using Web.Infrastructure.Storage;
 using Web.Models;
 using Web.Request;
 

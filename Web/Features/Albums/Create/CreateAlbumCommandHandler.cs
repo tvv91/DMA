@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Web.Enums;
-using Web.Db;
-using Web.Interfaces;
+using Web.Infrastructure.Persistence;
+using Web.Infrastructure.Storage;
 using Web.Models;
 
 namespace Web.Features.Albums.Create;
@@ -57,3 +57,4 @@ public sealed class CreateAlbumCommandHandler(
         return album.Id;
     }
 }
+

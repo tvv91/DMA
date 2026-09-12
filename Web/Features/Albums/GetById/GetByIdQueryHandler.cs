@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Models;
 using Web.ViewModels;
 
@@ -49,3 +49,4 @@ public sealed class GetByIdQueryHandler(Context context) : IRequestHandler<GetBy
         };
     }
 }
+

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.SignalR;
 using MediatR;
 using Web.Enums;
-using Web.Interfaces;
+using Web.Infrastructure.Storage;
 using Web.Features.Equipment;
 using Web.ViewModels;
 

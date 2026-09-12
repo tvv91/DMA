@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Enums;
-using Web.Interfaces;
+using Web.Infrastructure.Storage;
 using Web.ViewModels;
 
 namespace Web.Features.Albums.Edit;
@@ -45,3 +45,4 @@ public sealed class EditAlbumQueryHandler(Context context, IImageService imageSe
         };
     }
 }
+

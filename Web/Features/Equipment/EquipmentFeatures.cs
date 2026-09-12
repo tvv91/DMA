@@ -1,9 +1,10 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Web.Common;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Enums;
-using Web.Interfaces;
+using Web.Contracts;
+using Web.Infrastructure.Storage;
 using Web.Models;
 using Web.ViewModels;
 
@@ -271,3 +272,4 @@ public sealed class DeleteEquipmentCommandHandler(Context context, IImageService
     }
 
 }
+

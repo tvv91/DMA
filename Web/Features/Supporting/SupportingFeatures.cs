@@ -4,11 +4,11 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Enums;
 using Web.Models;
 using Web.Response;
-using Web.Services;
+using Web.Infrastructure.Storage;
 using Web.ViewModels;
 
 namespace Web.Features.Supporting;
@@ -251,3 +251,4 @@ public sealed class DeleteTempImageCommandHandler(IWebHostEnvironment environmen
         catch (Exception ex) { logger.LogError(ex, "Error during temp image deleting {Filename}", request.Filename); return Task.FromResult(false); }
     }
 }
+

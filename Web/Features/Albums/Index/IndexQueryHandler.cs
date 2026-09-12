@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Extentions;
 using Web.ViewModels;
 using Web.Features.Albums;
@@ -37,3 +37,4 @@ public sealed class IndexQueryHandler(Context context) : IRequestHandler<IndexQu
         };
     }
 }
+

@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Web.Common;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Models;
 using Web.ViewModels;
 
@@ -176,3 +176,4 @@ public sealed class DeletePostCommandHandler(Context context) : IRequestHandler<
         return true;
     }
 }
+

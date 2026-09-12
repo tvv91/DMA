@@ -1,11 +1,12 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Enums;
-using Web.Interfaces;
+using Web.Contracts;
 using Web.Models;
 using Web.Request;
+using StorageModel = Web.Models.Storage;
 
 namespace Web.Features.Albums;
 
@@ -91,8 +92,8 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
         x.YearId = (await Find(context.Years, y => y.Value == r.Year, r.Year, v => new Year { Value = v }, ct))?.Id;
         x.ReissueId = (await Find(context.Reissues, y => y.Value == r.Reissue, r.Reissue, v => new Reissue { Value = v }, ct))?.Id;
         x.CountryId = (await FindText(context.Countries, r.Country, (e, v) => e.Name == v, v => new Country { Name = v }, ct))?.Id;
-        x.LabelId = (await FindText(context.Labels, r.Label, (e, v) => e.Name == v, v => new Label { Name = v }, ct))?.Id;
-        x.StorageId = (await FindText(context.Storages, r.Storage, (e, v) => e.Name == v, v => new Storage { Name = v }, ct))?.Id;
+        x.LabelId = (await FindText<Label>(context.Labels, r.Label, (e, v) => e.Name == v, v => new Label { Name = v }, ct))?.Id;
+        x.StorageId = (await FindText<StorageModel>(context.Storages, r.Storage, (e, v) => e.Name == v, v => new StorageModel { Name = v }, ct))?.Id;
         x.FormatInfo = new FormatInfo {
             BitnessId = (await Find(context.Bitnesses, y => y.Value == r.Bitness, r.Bitness, v => new Bitness { Value = v }, ct))?.Id,
             SamplingId = (await Find(context.Samplings, y => y.Value == r.Sampling, r.Sampling, v => new Sampling { Value = v }, ct))?.Id,
@@ -161,3 +162,4 @@ public sealed class GetTechnicalInfoIconsQueryHandler(Context context) : IReques
 {
     public async Task<TechnicalInfoResult?> Handle(GetTechnicalInfoIconsQuery request, CancellationToken ct) { var r = await context.Releases.Include(x => x.FormatInfo).Include(x => x.EquipmentInfo).AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.ReleaseId, ct); if (r is null) return null; return new(new Dictionary<string, (int?, EntityType, bool)> { ["vinylstate"] = (r.FormatInfo?.VinylStateId, EntityType.VinylState, true), ["digitalformat"] = (r.FormatInfo?.DigitalFormatId, EntityType.DigitalFormat, true), ["bitness"] = (r.FormatInfo?.BitnessId, EntityType.Bitness, true), ["sampling"] = (r.FormatInfo?.SamplingId, EntityType.Sampling, true), ["format"] = (r.FormatInfo?.SourceFormatId, EntityType.SourceFormat, true), ["player"] = (r.EquipmentInfo?.PlayerId, EntityType.Player, false), ["cartridge"] = (r.EquipmentInfo?.CartridgeId, EntityType.Cartridge, false), ["amp"] = (r.EquipmentInfo?.AmplifierId, EntityType.Amplifier, false), ["adc"] = (r.EquipmentInfo?.AdcId, EntityType.Adc, false), ["wire"] = (r.EquipmentInfo?.WireId, EntityType.Wire, false) }); }
 }
+

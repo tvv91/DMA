@@ -1,9 +1,9 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Web.Db;
+using Web.Infrastructure.Persistence;
 using Web.Enums;
 using Web.Features.Albums;
-using Web.Interfaces;
+using Web.Infrastructure.Storage;
 using Web.SignalRHubs;
 
 namespace Web.Features.Albums.Update;
@@ -62,3 +62,4 @@ public sealed class UpdateAlbumCommandHandler(
         return album.Id;
     }
 }
+

@@ -2,10 +2,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Web.Db;
-using Web.Interfaces;
+using Web.Infrastructure.Persistence;
+using Web.Infrastructure.Icons;
+using Web.Infrastructure.Storage;
 using Web.Models;
-using Web.Services;
+using Web.Infrastructure.Cleanup;
 using Web.SignalRHubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -76,3 +77,4 @@ app.MapHub<PostHub>("/posthub");
 
 await SeedData.EnsurePopulated(app);
 await app.RunAsync();
+

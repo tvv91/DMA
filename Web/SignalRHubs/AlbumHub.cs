@@ -4,10 +4,10 @@ using MediatR;
 using Web.Enums;
 using Web.Features.Albums;
 using Web.Features.Equipment;
+using Web.Features.Albums.Releases;
 using Web.Infrastructure.Icons;
 using Web.Infrastructure.Storage;
 using Web.Models;
-using Web.Request;
 
 namespace Web.SignalRHubs
 {
@@ -75,7 +75,7 @@ namespace Web.SignalRHubs
             await Clients.Client(connectionId).SendAsync("AlbumIsExist", result.Status, result.Id);
         }
 
-        public async Task AddRelease(string connectionId, CreateUpdateReleaseRequest request)
+        public async Task AddRelease(string connectionId, AddReleaseRequest request)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace Web.SignalRHubs
             }
         }
 
-        public async Task UpdateRelease(string connectionId, CreateUpdateReleaseRequest request)
+        public async Task UpdateRelease(string connectionId, UpdateReleaseRequest request)
         {
             try
             {

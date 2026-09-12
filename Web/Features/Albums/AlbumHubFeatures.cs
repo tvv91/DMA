@@ -5,14 +5,14 @@ using Web.Infrastructure.Persistence;
 using Web.Enums;
 using Web.Contracts;
 using Web.Models;
-using Web.Request;
+using Web.Features.Albums.Releases;
 using StorageModel = Web.Models.Storage;
 
 namespace Web.Features.Albums;
 
 public sealed record CheckAlbumQuery(int AlbumId, string Album, string Artist, string Source) : IRequest<(int Status, int Id)>;
-public sealed record AddReleaseCommand(CreateUpdateReleaseRequest Request) : IRequest<ReleaseHubResult>;
-public sealed record UpdateReleaseCommand(CreateUpdateReleaseRequest Request) : IRequest<ReleaseHubResult>;
+public sealed record AddReleaseCommand(AddReleaseRequest Request) : IRequest<ReleaseHubResult>;
+public sealed record UpdateReleaseCommand(UpdateReleaseRequest Request) : IRequest<ReleaseHubResult>;
 public sealed record DeleteReleaseCommand(int ReleaseId) : IRequest<ReleaseHubResult>;
 public sealed record GetTechnicalInfoIconsQuery(int ReleaseId) : IRequest<TechnicalInfoResult?>;
 public sealed record ReleaseHubResult(bool Success, string Error, int AlbumId, IReadOnlyList<ReleaseHubDto> Releases);
@@ -72,7 +72,7 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
         return new(true, string.Empty, album.Id, await GetDtos(album.Id, cancellationToken));
     }
 
-    internal async Task<Album?> CreateOrFindAlbum(CreateUpdateReleaseRequest request, CancellationToken ct)
+    internal async Task<Album?> CreateOrFindAlbum(AddReleaseRequest request, CancellationToken ct)
     {
         var title = request.Album.Trim(); var artistName = request.Artist.Trim();
         var album = await context.Albums.Include(x => x.Artist).FirstOrDefaultAsync(x => x.Title == title && x.Artist != null && x.Artist.Name == artistName, ct);
@@ -86,7 +86,7 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
         context.Albums.Add(album); await context.SaveChangesAsync(ct); return album;
     }
 
-    internal async Task<Release> MapRelease(int albumId, CreateUpdateReleaseRequest r, CancellationToken ct)
+    internal async Task<Release> MapRelease(int albumId, AddReleaseRequest r, CancellationToken ct)
     {
         var x = new Release { AlbumId = albumId, AddedDate = timeProvider.GetLocalNow().LocalDateTime, Source = r.Source, Discogs = r.Discogs, IsFirstPress = r.IsFirstPress, Size = r.Size };
         x.YearId = (await Find(context.Years, y => y.Value == r.Year, r.Year, v => new Year { Value = v }, ct))?.Id;
@@ -150,7 +150,60 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
 
 public sealed class UpdateReleaseCommandHandler(Context context, TimeProvider timeProvider) : IRequestHandler<UpdateReleaseCommand, ReleaseHubResult>
 {
-    public async Task<ReleaseHubResult> Handle(UpdateReleaseCommand command, CancellationToken ct) { var r = command.Request; var existing = await context.Releases.FirstOrDefaultAsync(x => x.Id == r.ReleaseId, ct); if (existing is null) return new(false, "Release not found", 0, []); var add = new AddReleaseCommandHandler(context, timeProvider); var mapped = await add.MapRelease(existing.AlbumId, r, ct); existing.Source = mapped.Source; existing.Discogs = mapped.Discogs; existing.IsFirstPress = mapped.IsFirstPress; existing.Size = mapped.Size; existing.YearId = mapped.YearId; existing.ReissueId = mapped.ReissueId; existing.CountryId = mapped.CountryId; existing.LabelId = mapped.LabelId; existing.StorageId = mapped.StorageId; existing.FormatInfo = mapped.FormatInfo; existing.EquipmentInfo = mapped.EquipmentInfo; existing.UpdateDate = timeProvider.GetUtcNow().UtcDateTime; await context.SaveChangesAsync(ct); var releases = await ReleaseHubQueries.WithDetails(context.Releases.AsNoTracking().Where(x => x.AlbumId == existing.AlbumId)).Select(x => ReleaseHubQueries.ToDto(x)).ToListAsync(ct); return new(true, string.Empty, existing.AlbumId, releases); }
+    public async Task<ReleaseHubResult> Handle(UpdateReleaseCommand command, CancellationToken ct)
+    {
+        var request = command.Request;
+        var existing = await context.Releases.FirstOrDefaultAsync(x => x.Id == request.ReleaseId, ct);
+        if (existing is null) return new(false, "Release not found", 0, []);
+
+        var mapper = new AddReleaseCommandHandler(context, timeProvider);
+        var mapped = await mapper.MapRelease(existing.AlbumId, ToAddRequest(request, existing.AlbumId), ct);
+        existing.Source = mapped.Source;
+        existing.Discogs = mapped.Discogs;
+        existing.IsFirstPress = mapped.IsFirstPress;
+        existing.Size = mapped.Size;
+        existing.YearId = mapped.YearId;
+        existing.ReissueId = mapped.ReissueId;
+        existing.CountryId = mapped.CountryId;
+        existing.LabelId = mapped.LabelId;
+        existing.StorageId = mapped.StorageId;
+        existing.FormatInfo = mapped.FormatInfo;
+        existing.EquipmentInfo = mapped.EquipmentInfo;
+        existing.UpdateDate = timeProvider.GetUtcNow().UtcDateTime;
+        await context.SaveChangesAsync(ct);
+
+        var releases = await ReleaseHubQueries.WithDetails(context.Releases.AsNoTracking().Where(x => x.AlbumId == existing.AlbumId)).Select(x => ReleaseHubQueries.ToDto(x)).ToListAsync(ct);
+        return new(true, string.Empty, existing.AlbumId, releases);
+    }
+
+    private static AddReleaseRequest ToAddRequest(UpdateReleaseRequest request, int albumId) => new()
+    {
+        AlbumId = albumId,
+        Source = request.Source,
+        Discogs = request.Discogs,
+        IsFirstPress = request.IsFirstPress,
+        Country = request.Country,
+        Label = request.Label,
+        Storage = request.Storage,
+        Year = request.Year,
+        Reissue = request.Reissue,
+        Size = request.Size,
+        VinylState = request.VinylState,
+        DigitalFormat = request.DigitalFormat,
+        Bitness = request.Bitness,
+        Sampling = request.Sampling,
+        SourceFormat = request.SourceFormat,
+        Player = request.Player,
+        PlayerManufacturer = request.PlayerManufacturer,
+        Cartridge = request.Cartridge,
+        CartridgeManufacturer = request.CartridgeManufacturer,
+        Amplifier = request.Amplifier,
+        AmplifierManufacturer = request.AmplifierManufacturer,
+        Adc = request.Adc,
+        AdcManufacturer = request.AdcManufacturer,
+        Wire = request.Wire,
+        WireManufacturer = request.WireManufacturer
+    };
 }
 
 public sealed class DeleteReleaseCommandHandler(Context context) : IRequestHandler<DeleteReleaseCommand, ReleaseHubResult>

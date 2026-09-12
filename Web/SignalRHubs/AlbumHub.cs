@@ -1,29 +1,23 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
+using MediatR;
 using Web.Enums;
+using Web.Features.Albums;
+using Web.Features.Equipment;
 using Web.Interfaces;
 using Web.Models;
 using Web.Request;
-using Web.Services;
 
 namespace Web.SignalRHubs
 {
     public class AlbumHub(
         IImageService imageService,
         IResourceIconService resourceIconService,
-        AlbumService albumService,
-        ReleaseService releaseService,
-        EquipmentService equipmentService,
-        EntityFindOrCreateService entityService,
-        TimeProvider timeProvider) : Hub
+        ISender sender) : Hub
     {
         private readonly IImageService _imgService = imageService;
         private readonly IResourceIconService _resourceIconService = resourceIconService;
-        private readonly AlbumService _albumService = albumService;
-        private readonly ReleaseService _releaseService = releaseService;
-        private readonly EquipmentService _equipmentService = equipmentService;
-        private readonly EntityFindOrCreateService _entityService = entityService;
-        private readonly TimeProvider _timeProvider = timeProvider;
+        private readonly ISender _sender = sender;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new()
@@ -76,62 +70,16 @@ namespace Web.SignalRHubs
 
         public async Task CheckAlbum(string connectionId, int albumId, string album, string artist, string source)
         {
-            var result = await _albumService.FindByAlbumAndArtistAsync(album, artist);
-
-            if (result is null)
-            {
-                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
-                return;
-            }
-
-            if (result.Id != albumId)
-            {
-                await Clients.Client(connectionId).SendAsync("AlbumIsExist", 1, result.Id);
-                return;
-            }
-
-            if (!string.IsNullOrWhiteSpace(source))
-            {
-                var sourceExists = await _releaseService.ExistsByAlbumIdAndSourceAsync(result.Id, source);
-                if (sourceExists)
-                {
-                    await Clients.Client(connectionId).SendAsync("AlbumIsExist", 100, result.Id);
-                    return;
-                }
-            }
-
-            await Clients.Client(connectionId).SendAsync("AlbumIsExist", 0, 0);
+            var result = await _sender.Send(new CheckAlbumQuery(albumId, album, artist, source));
+            await Clients.Client(connectionId).SendAsync("AlbumIsExist", result.Status, result.Id);
         }
 
         public async Task AddRelease(string connectionId, CreateUpdateReleaseRequest request)
         {
             try
             {
-                Album album;
-                
-                // if no album - create one
-                if (request.AlbumId == 0)
-                {
-                    album = await _albumService.CreateOrFindAlbumAsync(request.Album, request.Artist, request.Genre);
-                }
-                else
-                {
-                    album = await _albumService.GetByIdAsync(request.AlbumId);
-                    if (album is null)
-                    {
-                        await Clients.Client(connectionId).SendAsync("ReleaseAdded", false, "Album not found", 0);
-                        return;
-                    }
-                }
-
-                var release = await MapRequestToReleaseAsync(album.Id, request);
-                release = await _releaseService.AddAsync(release);
-
-                // Get all releases for the album
-                var releases = await _releaseService.GetByAlbumIdAsync(album.Id);
-                var releaseList = MapReleasesToDto(releases);
-
-                await Clients.Client(connectionId).SendAsync("ReleaseAdded", true, "", album.Id, releaseList);
+                var added = await _sender.Send(new AddReleaseCommand(request));
+                await Clients.Client(connectionId).SendAsync("ReleaseAdded", added.Success, added.Error, added.AlbumId, added.Releases);
             }
             catch (Exception ex)
             {
@@ -149,22 +97,8 @@ namespace Web.SignalRHubs
                     return;
                 }
 
-                var existing = await _releaseService.GetByIdAsync(request.ReleaseId);
-                if (existing is null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReleaseUpdated", false, "Release not found");
-                    return;
-                }
-
-                var release = await MapRequestToReleaseAsync(existing.AlbumId, request);
-                release.Id = request.ReleaseId;
-                release = await _releaseService.UpdateAsync(release);
-
-                // Get all releases for the album
-                var releases = await _releaseService.GetByAlbumIdAsync(existing.AlbumId);
-                var releaseList = MapReleasesToDto(releases);
-
-                await Clients.Client(connectionId).SendAsync("ReleaseUpdated", true, "", releaseList);
+                var updated = await _sender.Send(new UpdateReleaseCommand(request));
+                await Clients.Client(connectionId).SendAsync("ReleaseUpdated", updated.Success, updated.Error, updated.Releases);
             }
             catch (Exception ex)
             {
@@ -176,28 +110,8 @@ namespace Web.SignalRHubs
         {
             try
             {
-                var release = await _releaseService.GetByIdAsync(releaseId);
-                if (release is null)
-                {
-                    await Clients.Client(connectionId).SendAsync("ReleaseRemoved", false, "Release not found");
-                    return;
-                }
-
-                var albumId = release.AlbumId;
-                var success = await _releaseService.DeleteAsync(releaseId);
-
-                if (success)
-                {
-                    // Get all remaining releases for the album
-                    var releases = await _releaseService.GetByAlbumIdAsync(albumId);
-                    var releaseList = MapReleasesToDto(releases);
-
-                    await Clients.Client(connectionId).SendAsync("ReleaseRemoved", true, "", releaseList);
-                }
-                else
-                {
-                    await Clients.Client(connectionId).SendAsync("ReleaseRemoved", false, "Failed to remove release");
-                }
+                var removed = await _sender.Send(new DeleteReleaseCommand(releaseId));
+                await Clients.Client(connectionId).SendAsync("ReleaseRemoved", removed.Success, removed.Error, removed.Releases);
             }
             catch (Exception ex)
             {
@@ -213,236 +127,41 @@ namespace Web.SignalRHubs
                 return;
             }
 
-            var item = await _equipmentService.GetManufacturerByNameAsync(value, type);
-            var result = item?.Manufacturer?.Name ?? string.Empty;
+            var result = await _sender.Send(new FindEquipmentManufacturerQuery(type, value)) ?? string.Empty;
 
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }
 
         public async Task GetTechnicalInfoIcons(string connectionId, int releaseId)
         {
-            var release = await _releaseService.GetByIdAsync(releaseId);
+            var technicalInfo = await _sender.Send(new GetTechnicalInfoIconsQuery(releaseId));
 
-            if (release is null)
+            if (technicalInfo is null)
             {
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
             }
-
-            var formatInfo = release.FormatInfo;
-            var equipmentInfo = release.EquipmentInfo;
-
-            var hasFormatInfo =
-                formatInfo?.VinylStateId is not null ||
-                formatInfo?.DigitalFormatId is not null ||
-                formatInfo?.BitnessId is not null ||
-                formatInfo?.SamplingId is not null ||
-                formatInfo?.SourceFormatId is not null;
-
-            var hasEquipmentInfo =
-                equipmentInfo?.PlayerId is not null ||
-                equipmentInfo?.CartridgeId is not null ||
-                equipmentInfo?.AmplifierId is not null ||
-                equipmentInfo?.AdcId is not null ||
-                equipmentInfo?.WireId is not null;
-
-            if (!hasFormatInfo && !hasEquipmentInfo)
+            if (technicalInfo.Values.Values.All(x => x.Id is null))
             {
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
             }
-
-            Dictionary<string, (int? id, EntityType type, bool isResourceIcon)> mapping = new()
-            {
-                ["vinylstate"] = (formatInfo?.VinylStateId, EntityType.VinylState, true),
-                ["digitalformat"] = (formatInfo?.DigitalFormatId, EntityType.DigitalFormat, true),
-                ["bitness"] = (formatInfo?.BitnessId, EntityType.Bitness, true),
-                ["sampling"] = (formatInfo?.SamplingId, EntityType.Sampling, true),
-                ["format"] = (formatInfo?.SourceFormatId, EntityType.SourceFormat, true),
-                ["player"] = (equipmentInfo?.PlayerId, EntityType.Player, false),
-                ["cartridge"] = (equipmentInfo?.CartridgeId, EntityType.Cartridge, false),
-                ["amp"] = (equipmentInfo?.AmplifierId, EntityType.Amplifier, false),
-                ["adc"] = (equipmentInfo?.AdcId, EntityType.Adc, false),
-                ["wire"] = (equipmentInfo?.WireId, EntityType.Wire, false),
-            };
-
-            foreach (var kvp in mapping)
+            foreach (var kvp in technicalInfo.Values)
             {
                 string category = kvp.Key;
                 string? url = null;
 
-                if (kvp.Value.id.HasValue)
+                if (kvp.Value.Id.HasValue)
                 {
-                    url = kvp.Value.isResourceIcon
-                        ? await _resourceIconService.GetIconUrlAsync(kvp.Value.id.Value, kvp.Value.type)
-                        : await _imgService.GetUrlAsync(kvp.Value.id.Value, kvp.Value.type);
+                    url = kvp.Value.Resource
+                        ? await _resourceIconService.GetIconUrlAsync(kvp.Value.Id.Value, kvp.Value.Type)
+                        : await _imgService.GetUrlAsync(kvp.Value.Id.Value, kvp.Value.Type);
                 }
 
                 await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", category, url);
             }
         }
 
-        private async Task<Release> MapRequestToReleaseAsync(int albumId, CreateUpdateReleaseRequest request)
-        {
-            var release = new Release
-            {
-                AlbumId = albumId,
-                AddedDate = _timeProvider.GetLocalNow().LocalDateTime,
-                Source = request.Source,
-                Discogs = request.Discogs,
-                IsFirstPress = request.IsFirstPress,
-                Size = request.Size
-            };
-
-            // Find or create Year
-            if (request.Year.HasValue)
-            {
-                var year = await _entityService.FindOrCreateYearAsync(request.Year.Value);
-                release.YearId = year.Id;
-            }
-
-            // Find or create Reissue
-            if (request.Reissue.HasValue)
-            {
-                var reissue = await _entityService.FindOrCreateReissueAsync(request.Reissue.Value);
-                release.ReissueId = reissue.Id;
-            }
-
-            // Find or create Country
-            if (!string.IsNullOrWhiteSpace(request.Country))
-            {
-                var country = await _entityService.FindOrCreateCountryAsync(request.Country);
-                release.CountryId = country.Id;
-            }
-
-            // Find or create Label
-            if (!string.IsNullOrWhiteSpace(request.Label))
-            {
-                var label = await _entityService.FindOrCreateLabelAsync(request.Label);
-                release.LabelId = label.Id;
-            }
-
-            // Find or create Storage
-            if (!string.IsNullOrWhiteSpace(request.Storage))
-            {
-                var storage = await _entityService.FindOrCreateStorageAsync(request.Storage);
-                release.StorageId = storage.Id;
-            }
-
-            // FormatInfo
-            var formatInfo = new FormatInfo();
-
-            // Find or create Bitness
-            if (request.Bitness.HasValue)
-            {
-                var bitness = await _entityService.FindOrCreateBitnessAsync(request.Bitness.Value);
-                formatInfo.BitnessId = bitness.Id;
-            }
-
-            // Find or create Sampling
-            if (request.Sampling.HasValue)
-            {
-                var sampling = await _entityService.FindOrCreateSamplingAsync(request.Sampling.Value);
-                formatInfo.SamplingId = sampling.Id;
-            }
-
-            // Find or create DigitalFormat
-            if (!string.IsNullOrWhiteSpace(request.DigitalFormat))
-            {
-                var digitalFormat = await _entityService.FindOrCreateDigitalFormatAsync(request.DigitalFormat);
-                formatInfo.DigitalFormatId = digitalFormat.Id;
-            }
-
-            // Find or create SourceFormat
-            if (!string.IsNullOrWhiteSpace(request.SourceFormat))
-            {
-                var sourceFormat = await _entityService.FindOrCreateSourceFormatAsync(request.SourceFormat);
-                formatInfo.SourceFormatId = sourceFormat.Id;
-            }
-
-            // Find or create VinylState
-            if (!string.IsNullOrWhiteSpace(request.VinylState))
-            {
-                var vinylState = await _entityService.FindOrCreateVinylStateAsync(request.VinylState);
-                formatInfo.VinylStateId = vinylState.Id;
-            }
-
-            release.FormatInfo = formatInfo;
-
-            // EquipmentInfo
-            var equipmentInfo = new EquipmentInfo();
-
-            // Find or create Player
-            if (!string.IsNullOrWhiteSpace(request.Player))
-            {
-                var player = await _entityService.FindOrCreatePlayerAsync(request.Player, request.PlayerManufacturer);
-                equipmentInfo.PlayerId = player.Id;
-            }
-
-            // Find or create Cartridge
-            if (!string.IsNullOrWhiteSpace(request.Cartridge))
-            {
-                var cartridge = await _entityService.FindOrCreateCartridgeAsync(request.Cartridge, request.CartridgeManufacturer);
-                equipmentInfo.CartridgeId = cartridge.Id;
-            }
-
-            // Find or create Amplifier
-            if (!string.IsNullOrWhiteSpace(request.Amplifier))
-            {
-                var amplifier = await _entityService.FindOrCreateAmplifierAsync(request.Amplifier, request.AmplifierManufacturer);
-                equipmentInfo.AmplifierId = amplifier.Id;
-            }
-
-            // Find or create Adc
-            if (!string.IsNullOrWhiteSpace(request.Adc))
-            {
-                var adc = await _entityService.FindOrCreateAdcAsync(request.Adc, request.AdcManufacturer);
-                equipmentInfo.AdcId = adc.Id;
-            }
-
-            // Find or create Wire
-            if (!string.IsNullOrWhiteSpace(request.Wire))
-            {
-                var wire = await _entityService.FindOrCreateWireAsync(request.Wire, request.WireManufacturer);
-                equipmentInfo.WireId = wire.Id;
-            }
-
-            release.EquipmentInfo = equipmentInfo;
-
-            return release;
-        }
-
-        private static List<object> MapReleasesToDto(IEnumerable<Release> releases)
-        {
-            return releases.Select(d => new
-            {
-                Id = d.Id,
-                VinylState = d.FormatInfo?.VinylState?.Name,
-                Bitness = d.FormatInfo?.Bitness?.Value,
-                Sampling = d.FormatInfo?.Sampling?.Value,
-                DigitalFormat = d.FormatInfo?.DigitalFormat?.Name,
-                SourceFormat = d.FormatInfo?.SourceFormat?.Name,
-                Player = d.EquipmentInfo?.Player?.Name,
-                PlayerManufacturer = d.EquipmentInfo?.Player?.Manufacturer?.Name,
-                Cartridge = d.EquipmentInfo?.Cartridge?.Name,
-                CartridgeManufacturer = d.EquipmentInfo?.Cartridge?.Manufacturer?.Name,
-                Amplifier = d.EquipmentInfo?.Amplifier?.Name,
-                AmplifierManufacturer = d.EquipmentInfo?.Amplifier?.Manufacturer?.Name,
-                Adc = d.EquipmentInfo?.Adc?.Name,
-                AdcManufacturer = d.EquipmentInfo?.Adc?.Manufacturer?.Name,
-                Wire = d.EquipmentInfo?.Wire?.Name,
-                WireManufacturer = d.EquipmentInfo?.Wire?.Manufacturer?.Name,
-                Source = d.Source,
-                Year = d.Year?.Value,
-                Reissue = d.Reissue?.Value,
-                Country = d.Country?.Name,
-                Label = d.Label?.Name,
-                Storage = d.Storage?.Name,
-                Discogs = d.Discogs,
-                Size = d.Size,
-                IsFirstPress = d.IsFirstPress
-            }).ToList<object>();
-        }
     }
 }
 

@@ -1,14 +1,14 @@
 using Microsoft.AspNetCore.SignalR;
+using MediatR;
 using Web.Common;
-using Web.Models;
-using Web.Services;
+using Web.Features.Posts;
 using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
-    public class PostHub(PostService postService, TimeProvider timeProvider) : Hub
+    public class PostHub(ISender sender, TimeProvider timeProvider) : Hub
     {
-        private readonly PostService _postService = postService;
+        private readonly ISender _sender = sender;
         private readonly TimeProvider _timeProvider = timeProvider;
         private const int POSTS_PER_PAGE = 5;
 
@@ -19,60 +19,15 @@ namespace Web.SignalRHubs
                 onlyDrafts = false;
 
             var excludeDrafts = !isAdmin;
-            var result = await _postService.GetFilteredListAsync(
-                page, POSTS_PER_PAGE, searchText, category, year, onlyDrafts, excludeDrafts);
-
-            var response = result.Items
-                .Select(p => new
-                {
-                    p.Id,
-                    p.Title,
-                    p.Description,
-                    p.IsDraft,
-                    Created = p.CreatedDate.HasValue ? p.CreatedDate.Value.ToShortDateString() : null,
-                    Categories = p.PostCategories.Select(pc => pc.Category.Title).ToList()
-                }).ToList();
+            var result = await _sender.Send(new GetHubPostsQuery(page, searchText, category, year, onlyDrafts, excludeDrafts));
 
             await Clients.Client(connectionId)
-                .SendAsync("ReceivedPosts", response, result.TotalPages);
+                .SendAsync("ReceivedPosts", result.Items, result.TotalPages);
         }
 
         public async Task GetBlogTree(string connectionId)
         {
-            var posts = await _postService.GetListAsync(1, int.MaxValue);
-            var allPosts = posts.Items.Where(p => !p.IsDraft && p.CreatedDate.HasValue).ToList();
-
-            var tree = allPosts
-                .SelectMany(p => p.PostCategories.Any() 
-                    ? p.PostCategories.Select(pc => new { Post = p, Category = pc.Category })
-                    : new[] { new { Post = p, Category = (Category?)null } })
-                .GroupBy(x => x.Category?.Title ?? "Uncategorized")
-                .Select(catGroup => new
-                {
-                    Category = catGroup.Key,
-                    Posts = catGroup
-                        .Select(x => x.Post)
-                        .Distinct()
-                        .GroupBy(p => p.CreatedDate!.Value.Year)
-                        .OrderByDescending(g => g.Key)
-                        .Select(yearGroup => new
-                        {
-                            Year = yearGroup.Key,
-                            Posts = yearGroup
-                                .OrderByDescending(p => p.CreatedDate)
-                                .Select(p => new
-                                {
-                                    Id = p.Id,
-                                    Title = p.Title,
-                                    Created = p.CreatedDate!.Value.ToShortDateString()
-                                })
-                                .ToList()
-                        })
-                        .ToList()
-                })
-                .Where(cat => cat.Posts.Any())
-                .OrderBy(x => x.Category)
-                .ToList();
+            var tree = await _sender.Send(new GetBlogTreeQuery());
 
             await Clients.Client(connectionId)
                 .SendAsync("ReceivedBlogTree", tree);
@@ -96,8 +51,8 @@ namespace Web.SignalRHubs
                         Category = category
                     };
 
-                    var post = await _postService.CreateDraftPostAsync(model);
-                    await Clients.Client(connectionId).SendAsync("PostCreated", post.Id, now);
+                    var postId = await _sender.Send(new CreateDraftPostCommand(model));
+                    await Clients.Client(connectionId).SendAsync("PostCreated", postId, now);
                 }
                 else
                 {
@@ -110,7 +65,8 @@ namespace Web.SignalRHubs
                         Category = category
                     };
 
-                    await _postService.UpdatePostAsync(id, model);
+                    model.Id = id;
+                    await _sender.Send(new UpdatePostCommand(model));
                     await Clients.Client(connectionId).SendAsync("PostUpdated", now);
                 }
             }

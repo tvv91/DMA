@@ -1,17 +1,18 @@
 using Microsoft.AspNetCore.SignalR;
+using MediatR;
 using Web.Enums;
 using Web.Interfaces;
-using Web.Services;
+using Web.Features.Equipment;
 using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
     public class EquipmentHub(
         IImageService imageService,
-        EquipmentService equipmentService) : Hub
+        ISender sender) : Hub
     {
         private readonly IImageService _imgService = imageService;
-        private readonly EquipmentService _equipmentService = equipmentService;
+        private readonly ISender _sender = sender;
         private const int ITEMS_PER_PAGE = 18;
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new()
@@ -28,7 +29,7 @@ namespace Web.SignalRHubs
             if (!_categoryEntityMap.TryGetValue(category, out var entityType))
                 return;
 
-            var pagedResult = await _equipmentService.GetListAsync(page, ITEMS_PER_PAGE, entityType);
+            var pagedResult = await _sender.Send(new GetEquipmentHubPageQuery(entityType, page, ITEMS_PER_PAGE));
 
             var result = pagedResult.Items
                 .Select(x => new EquipmentViewModel
@@ -64,8 +65,7 @@ namespace Web.SignalRHubs
                 return;
             }
 
-            var item = await _equipmentService.GetManufacturerByNameAsync(value, type);
-            var result = item?.Manufacturer?.Name ?? string.Empty;
+            var result = await _sender.Send(new FindEquipmentManufacturerQuery(type, value)) ?? string.Empty;
 
             await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
         }

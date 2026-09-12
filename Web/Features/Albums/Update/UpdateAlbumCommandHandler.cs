@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Web.Db;
 using Web.Enums;
 using Web.Features.Albums;
@@ -17,16 +18,39 @@ public sealed class UpdateAlbumCommandHandler(
         var model = request.Request;
         if (model.AlbumId <= 0)
             throw new InvalidDataException("AlbumId is invalid");
-        var album = await AlbumFeatureHelpers.GetByIdAsync(context, model.AlbumId);
+        var album = await context.Albums
+            .Include(a => a.Artist)
+            .Include(a => a.Genre)
+            .FirstOrDefaultAsync(a => a.Id == model.AlbumId, cancellationToken);
         if (album is null)
             throw new KeyNotFoundException($"Album {model.AlbumId} not found");
 
         album.Title = model.Title;
         album.UpdateDate = timeProvider.GetUtcNow().UtcDateTime;
         if (!string.IsNullOrWhiteSpace(model.Genre))
-            album.GenreId = (await AlbumFeatureHelpers.FindOrCreateGenreAsync(context, model.Genre)).Id;
+        {
+            var genreName = model.Genre.Trim();
+            var genre = await context.Genres.FirstOrDefaultAsync(g => g.Name == genreName, cancellationToken);
+            if (genre is null)
+            {
+                genre = new Web.Models.Genre { Name = genreName };
+                context.Genres.Add(genre);
+                await context.SaveChangesAsync(cancellationToken);
+            }
+            album.GenreId = genre.Id;
+        }
         if (!string.IsNullOrWhiteSpace(model.Artist))
-            album.ArtistId = (await AlbumFeatureHelpers.FindOrCreateArtistAsync(context, model.Artist)).Id;
+        {
+            var artistName = model.Artist.Trim();
+            var artist = await context.Artists.FirstOrDefaultAsync(a => a.Name == artistName, cancellationToken);
+            if (artist is null)
+            {
+                artist = new Web.Models.Artist { Name = artistName };
+                context.Artists.Add(artist);
+                await context.SaveChangesAsync(cancellationToken);
+            }
+            album.ArtistId = artist.Id;
+        }
         await context.SaveChangesAsync(cancellationToken);
 
         if (string.IsNullOrWhiteSpace(model.AlbumCover))

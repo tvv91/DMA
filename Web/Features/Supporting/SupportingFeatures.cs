@@ -1,6 +1,10 @@
 using System.Text.Json;
+using System.Globalization;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using Web.Db;
 using Web.Enums;
 using Web.Models;
 using Web.Response;
@@ -20,9 +24,72 @@ public sealed record DeleteTempImageCommand(string Filename) : IRequest<bool>;
 public sealed record ImageUploadResult(bool Success, string? Filename, string? Error);
 public sealed record LoginResult(bool Success, bool IsAjax, string RedirectUrl);
 
-public sealed class SearchQueryHandler(SearchService searchService) : IRequestHandler<SearchQuery, List<AutocompleteResponse>>
+public sealed class SearchQueryHandler(Context context) : IRequestHandler<SearchQuery, List<AutocompleteResponse>>
 {
-    public Task<List<AutocompleteResponse>> Handle(SearchQuery request, CancellationToken cancellationToken) => searchService.SearchAsync(request.EntityType, request.Value);
+    private const int MaxItems = 10;
+
+    public async Task<List<AutocompleteResponse>> Handle(SearchQuery request, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(request.Value))
+        {
+            return request.EntityType switch
+            {
+                EntityType.VinylState => await context.VinylStates.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.DigitalFormat => await context.DigitalFormats.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.SourceFormat => await context.SourceFormats.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Country => await context.Countries.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Label => await context.Labels.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Storage => await context.Storages.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Player => await context.Players.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Cartridge => await context.Cartridges.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Amplifier => await context.Amplifiers.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Adc => await context.Adces.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Wire => await context.Wires.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.PlayerManufacturer or EntityType.CartridgeManufacturer or EntityType.AmplifierManufacturer or EntityType.AdcManufacturer or EntityType.WireManufacturer => await context.Manufacturer.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
+                EntityType.Sampling => (await context.Samplings.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = $"{x} kHz", Value = x.ToString(CultureInfo.InvariantCulture) }),
+                EntityType.Bitness => (await context.Bitnesses.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = x.ToString(CultureInfo.InvariantCulture), Value = x.ToString(CultureInfo.InvariantCulture) }),
+                EntityType.Year => (await context.Years.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = x.ToString(CultureInfo.InvariantCulture), Value = x.ToString(CultureInfo.InvariantCulture) }),
+                EntityType.Reissue => (await context.Reissues.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = x.ToString(CultureInfo.InvariantCulture), Value = x.ToString(CultureInfo.InvariantCulture) }),
+                _ => []
+            };
+        }
+
+        var value = request.Value.Trim();
+        return request.EntityType switch
+        {
+            EntityType.Artist => await SearchString(context.Artists, x => x.Name, value, cancellationToken),
+            EntityType.Genre => await SearchString(context.Genres, x => x.Name, value, cancellationToken),
+            EntityType.VinylState => await SearchString(context.VinylStates, x => x.Name, value, cancellationToken),
+            EntityType.DigitalFormat => await SearchString(context.DigitalFormats, x => x.Name, value, cancellationToken),
+            EntityType.SourceFormat => await SearchString(context.SourceFormats, x => x.Name, value, cancellationToken),
+            EntityType.Country => await SearchString(context.Countries, x => x.Name, value, cancellationToken),
+            EntityType.Label => await SearchString(context.Labels, x => x.Name, value, cancellationToken),
+            EntityType.Storage => await SearchString(context.Storages, x => x.Name, value, cancellationToken),
+            EntityType.Player => await SearchString(context.Players, x => x.Name, value, cancellationToken),
+            EntityType.Cartridge => await SearchString(context.Cartridges, x => x.Name, value, cancellationToken),
+            EntityType.Amplifier => await SearchString(context.Amplifiers, x => x.Name, value, cancellationToken),
+            EntityType.Adc => await SearchString(context.Adces, x => x.Name, value, cancellationToken),
+            EntityType.Wire => await SearchString(context.Wires, x => x.Name, value, cancellationToken),
+            EntityType.PlayerManufacturer or EntityType.CartridgeManufacturer or EntityType.AmplifierManufacturer or EntityType.AdcManufacturer or EntityType.WireManufacturer => await SearchString(context.Manufacturer, x => x.Name, value, cancellationToken),
+            EntityType.Year => await SearchNumber(context.Years, x => x.Value, value, cancellationToken),
+            EntityType.Reissue => await SearchNumber(context.Reissues, x => x.Value, value, cancellationToken),
+            EntityType.Bitness => await SearchNumber(context.Bitnesses, x => x.Value, value, cancellationToken),
+            EntityType.Sampling => (await context.Samplings.AsNoTracking().ToListAsync(cancellationToken)).Where(x => x.Value.ToString(CultureInfo.InvariantCulture).Contains(value, StringComparison.OrdinalIgnoreCase)).Take(MaxItems).Select(x => new AutocompleteResponse { Label = $"{x.Value} kHz", Value = x.Value.ToString(CultureInfo.InvariantCulture) }).ToList(),
+            _ => []
+        };
+    }
+
+    private static async Task<List<AutocompleteResponse>> SearchString<TEntity>(IQueryable<TEntity> query, Expression<Func<TEntity, string>> selector, string value, CancellationToken cancellationToken) where TEntity : class
+    {
+        var property = ((MemberExpression)selector.Body).Member.Name;
+        return await query.AsNoTracking().Where(x => EF.Functions.Like(EF.Property<string>(x, property), $"%{value}%")).Select(x => new AutocompleteResponse { Label = EF.Property<string>(x, property), Value = EF.Property<string>(x, property) }).Distinct().Take(MaxItems).ToListAsync(cancellationToken);
+    }
+
+    private static async Task<List<AutocompleteResponse>> SearchNumber<TEntity>(IQueryable<TEntity> query, Expression<Func<TEntity, int>> selector, string value, CancellationToken cancellationToken) where TEntity : class
+    {
+        var property = selector.Compile();
+        return (await query.AsNoTracking().ToListAsync(cancellationToken)).Where(x => property(x).ToString(CultureInfo.InvariantCulture).Contains(value, StringComparison.OrdinalIgnoreCase)).Take(MaxItems).Select(x => { var text = property(x).ToString(CultureInfo.InvariantCulture); return new AutocompleteResponse { Label = text, Value = text }; }).ToList();
+    }
 }
 
 public sealed class AccessDeniedQueryHandler : IRequestHandler<AccessDeniedQuery, Unit>
@@ -30,14 +97,74 @@ public sealed class AccessDeniedQueryHandler : IRequestHandler<AccessDeniedQuery
     public Task<Unit> Handle(AccessDeniedQuery request, CancellationToken cancellationToken) => Task.FromResult(Unit.Value);
 }
 
-public sealed class StatisticQueryHandler(StatisticService statisticService) : IRequestHandler<StatisticQuery, StatisticViewModel?>
+public sealed class StatisticQueryHandler(Context context, TimeProvider timeProvider) : IRequestHandler<StatisticQuery, StatisticViewModel?>
 {
+    private static readonly SemaphoreSlim RefreshLock = new(1, 1);
+    private static DateTime? lastRefreshAttempt;
+    private static readonly TimeSpan RefreshCooldown = TimeSpan.FromMinutes(5);
+    private static readonly double[] DsdFrequencies = [2.8, 5.6, 11.2, 22.5];
+
     public async Task<StatisticViewModel?> Handle(StatisticQuery request, CancellationToken cancellationToken)
     {
-        var result = await statisticService.ProcessAsync();
+        var result = await ProcessAsync(cancellationToken);
         var vm = JsonSerializer.Deserialize<StatisticViewModel>(result.Data);
         if (vm is not null) vm.LastUpdate = result.LastUpdate;
         return vm;
+    }
+
+    private async Task<Statistic> ProcessAsync(CancellationToken cancellationToken)
+    {
+        var statistic = await context.Statistics.FirstOrDefaultAsync(cancellationToken);
+        var now = timeProvider.GetUtcNow().UtcDateTime;
+        var refresh = statistic is null || now - statistic.LastUpdate > TimeSpan.FromDays(1) &&
+            (lastRefreshAttempt is null || now - lastRefreshAttempt.Value > RefreshCooldown);
+        if (!refresh) return statistic!;
+
+        await RefreshLock.WaitAsync(cancellationToken);
+        try
+        {
+            statistic = await context.Statistics.FirstOrDefaultAsync(cancellationToken);
+            now = timeProvider.GetUtcNow().UtcDateTime;
+            if (statistic is not null && now - statistic.LastUpdate <= TimeSpan.FromDays(1)) return statistic;
+            lastRefreshAttempt = now;
+            var counters = new StatisticCounters
+            {
+                TotalAlbums = await context.Albums.CountAsync(cancellationToken),
+                TotalSize = await context.Releases.Where(x => x.Size != null).SumAsync(x => x.Size ?? 0, cancellationToken),
+                StorageCount = await context.Storages.CountAsync(cancellationToken),
+                TotalReleases = await context.Releases.CountAsync(cancellationToken),
+                TotalArtists = await context.Artists.CountAsync(cancellationToken),
+                TotalEquipment = await context.Adces.CountAsync(cancellationToken) + await context.Amplifiers.CountAsync(cancellationToken) + await context.Cartridges.CountAsync(cancellationToken) + await context.Players.CountAsync(cancellationToken) + await context.Wires.CountAsync(cancellationToken),
+                Genre = await CounterList(context.Genres.Select(x => new CounterItem { Description = x.Name, Count = x.Albums.Count }), cancellationToken),
+                Artist = await CounterList(context.Artists.Select(x => new CounterItem { Description = x.Name, Count = x.Albums.Count }), cancellationToken),
+                Year = await CounterList(context.Years.Select(x => new CounterItem { Description = x.Value.ToString(), Count = x.Releases.Count }), cancellationToken),
+                Country = await CounterList(context.Countries.Select(x => new CounterItem { Description = x.Name, Count = x.Releases.Count }), cancellationToken),
+                Label = await CounterList(context.Labels.Select(x => new CounterItem { Description = x.Name, Count = x.Releases.Count }), cancellationToken),
+                Bitness = await CounterList(context.Bitnesses.Select(x => new CounterItem { Description = x.Value + " bit", Count = context.Releases.Count(r => r.FormatInfo != null && r.FormatInfo.BitnessId == x.Id) }), cancellationToken),
+                Sampling = await CounterList(context.Samplings.Select(x => new CounterItem { Description = x.Value + (DsdFrequencies.Contains(x.Value) ? " MHz" : " kHz"), Count = context.Releases.Count(r => r.FormatInfo != null && r.FormatInfo.SamplingId == x.Id) }), cancellationToken),
+                SourceFormat = await CounterList(context.SourceFormats.Select(x => new CounterItem { Description = x.Name, Count = context.Releases.Count(r => r.FormatInfo != null && r.FormatInfo.SourceFormatId == x.Id) }), cancellationToken),
+                DigitalFormat = await CounterList(context.DigitalFormats.Select(x => new CounterItem { Description = x.Name, Count = context.Releases.Count(r => r.FormatInfo != null && r.FormatInfo.DigitalFormatId == x.Id) }), cancellationToken),
+                VinylState = await CounterList(context.VinylStates.Select(x => new CounterItem { Description = x.Name, Count = context.Releases.Count(r => r.FormatInfo != null && r.FormatInfo.VinylStateId == x.Id) }), cancellationToken),
+                Adc = await EquipmentCounters(context.Adces.Select(x => new { x.Name, Manufacturer = x.Manufacturer == null ? null : x.Manufacturer.Name, Count = context.Releases.Count(r => r.EquipmentInfo != null && r.EquipmentInfo.AdcId == x.Id) }), cancellationToken),
+                Amplifier = await EquipmentCounters(context.Amplifiers.Select(x => new { x.Name, Manufacturer = x.Manufacturer == null ? null : x.Manufacturer.Name, Count = context.Releases.Count(r => r.EquipmentInfo != null && r.EquipmentInfo.AmplifierId == x.Id) }), cancellationToken),
+                Cartridge = await EquipmentCounters(context.Cartridges.Select(x => new { x.Name, Manufacturer = x.Manufacturer == null ? null : x.Manufacturer.Name, Count = context.Releases.Count(r => r.EquipmentInfo != null && r.EquipmentInfo.CartridgeId == x.Id) }), cancellationToken),
+                Player = await EquipmentCounters(context.Players.Select(x => new { x.Name, Manufacturer = x.Manufacturer == null ? null : x.Manufacturer.Name, Count = context.Releases.Count(r => r.EquipmentInfo != null && r.EquipmentInfo.PlayerId == x.Id) }), cancellationToken),
+                Wire = await EquipmentCounters(context.Wires.Select(x => new { x.Name, Manufacturer = x.Manufacturer == null ? null : x.Manufacturer.Name, Count = context.Releases.Count(r => r.EquipmentInfo != null && r.EquipmentInfo.WireId == x.Id) }), cancellationToken)
+            };
+            statistic ??= new Statistic();
+            statistic.Data = JsonSerializer.Serialize(counters);
+            statistic.LastUpdate = now;
+            if (context.Entry(statistic).State == EntityState.Detached) context.Statistics.Add(statistic);
+            await context.SaveChangesAsync(cancellationToken);
+            return statistic;
+        }
+        finally { RefreshLock.Release(); }
+    }
+
+    private static Task<List<CounterItem>> CounterList(IQueryable<CounterItem> query, CancellationToken token) => query.Where(x => x.Count > 0).OrderByDescending(x => x.Count).Take(10).ToListAsync(token);
+    private static async Task<List<CounterItem>> EquipmentCounters<T>(IQueryable<T> query, CancellationToken token) where T : class
+    {
+        return await query.Select(x => new CounterItem { Description = EF.Property<string>(x, "Name"), Count = EF.Property<int>(x, "Count") }).Where(x => x.Count > 0).OrderByDescending(x => x.Count).Take(10).ToListAsync(token);
     }
 }
 

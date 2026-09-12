@@ -12,6 +12,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Request\**" />
+    <Compile Remove="Response\**" />
+    <Content Remove="Request\**" />
+    <Content Remove="Response\**" />
+    <EmbeddedResource Remove="Request\**" />
+    <EmbeddedResource Remove="Response\**" />
+    <None Remove="Request\**" />
+    <None Remove="Response\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

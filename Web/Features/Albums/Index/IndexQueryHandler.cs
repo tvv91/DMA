@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Web.Infrastructure.Persistence;
-using Web.Extentions;
+using Web.Extensions;
 using Web.ViewModels;
 using Web.Features.Albums;
 

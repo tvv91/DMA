@@ -1,4 +1,4 @@
-namespace Web.Common;
+namespace Web.Authorization;
 
 public static class RoleNames
 {

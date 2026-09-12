@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Web.Enums;
-using Web.Features.Supporting;
+using Web.Features.Supporting.Search;
 
 namespace Web.Controllers
 {

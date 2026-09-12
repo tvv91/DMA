@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Web.Common;
 using Web.Enums;
+using Web.Authorization;
 using Web.Features.Equipment;
 using Web.ViewModels;
 

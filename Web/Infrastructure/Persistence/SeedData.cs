@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Web.Common;
+using Web.Authorization;
 using Web.Models;
 
 namespace Web.Infrastructure.Persistence;

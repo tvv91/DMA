@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using Web.Common;
+using Web.Authorization;
 using Web.Features.Posts;
 using Web.ViewModels;
 

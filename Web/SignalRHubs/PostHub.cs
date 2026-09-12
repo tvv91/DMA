@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using MediatR;
-using Web.Common;
+using Web.Authorization;
 using Web.Features.Posts;
 using Web.ViewModels;
 

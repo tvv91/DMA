@@ -1,5 +1,5 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
-@using Web.Common
+@using Web.Authorization
 @{
     var antiforgeryToken = Antiforgery.GetAndStoreTokens(Context).RequestToken;
 }

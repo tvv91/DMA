@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Web.Enums;
+using Web.Authorization;
 using Web.ViewModels;
 using MediatR;
-using Web.Common;
 using Web.Features.Albums.Create;
 using Web.Features.Albums.Delete;
 using Web.Features.Albums.Edit;

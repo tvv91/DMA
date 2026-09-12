@@ -10,12 +10,12 @@ using Web.ViewModels;
 namespace Web.Services
 {
     public class AlbumService(
-        IReleaseService releaseService,
+        ReleaseService releaseService,
         IImageService imageService,
         Context context,
-        TimeProvider timeProvider) : IAlbumService
+        TimeProvider timeProvider)
     {
-        private readonly IReleaseService _releaseService = releaseService;
+        private readonly ReleaseService _releaseService = releaseService;
         private readonly IImageService _imageService = imageService;
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;

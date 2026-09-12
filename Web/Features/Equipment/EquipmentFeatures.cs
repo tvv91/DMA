@@ -1,5 +1,6 @@
 using MediatR;
 using Web.Common;
+using Web.Db;
 using Web.Enums;
 using Web.Interfaces;
 using Web.Models;
@@ -26,20 +27,20 @@ public sealed class EquipmentPageQueryHandler : IRequestHandler<EquipmentPageQue
     public Task<Unit> Handle(EquipmentPageQuery request, CancellationToken cancellationToken) => Task.FromResult(Unit.Value);
 }
 
-public sealed class GetEquipmentQueryHandler(IEquipmentService equipmentService, IImageService imageService, IReleaseService releaseService) : IRequestHandler<GetEquipmentQuery, EquipmentViewModel?>
+public sealed class GetEquipmentQueryHandler(Context context, IImageService imageService) : IRequestHandler<GetEquipmentQuery, EquipmentViewModel?>
 {
     public async Task<EquipmentViewModel?> Handle(GetEquipmentQuery request, CancellationToken cancellationToken)
     {
-        var equipment = await equipmentService.GetByIdAsync(request.Id, request.Category);
+        var equipment = await EquipmentFeatureHelpers.GetByIdAsync(context, request.Id, request.Category);
         if (equipment is null) return null;
 
-        var vm = equipmentService.MapEquipmentToViewModel(equipment, request.Category, await imageService.GetUrlAsync(request.Id, request.Category));
+        var vm = EquipmentFeatureHelpers.ToViewModel(equipment, request.Category, await imageService.GetUrlAsync(request.Id, request.Category));
         if (string.Equals(request.Tab, "albums", StringComparison.OrdinalIgnoreCase))
         {
             vm.ActiveTab = "albums";
             var page = request.Page < 1 ? 1 : request.Page;
             var pageSize = request.PageSize <= 0 ? 18 : Math.Min(request.PageSize, 100);
-            var albums = await releaseService.GetAlbumsReleasedByEquipmentPagedAsync(request.Category, request.Id, page, pageSize);
+            var albums = await EquipmentFeatureHelpers.GetReleasedAlbumsAsync(context, request.Category, request.Id, page, pageSize);
             vm.ReleasedAlbumsPage = MapAlbums(request.Category, request.Id, albums);
         }
         return vm;
@@ -63,35 +64,39 @@ public sealed class GetEquipmentQueryHandler(IEquipmentService equipmentService,
     };
 }
 
-public sealed class GetEquipmentAlbumsQueryHandler(IEquipmentService equipmentService, IReleaseService releaseService) : IRequestHandler<GetEquipmentAlbumsQuery, EquipmentReleasedAlbumsPageViewModel?>
+public sealed class GetEquipmentAlbumsQueryHandler(Context context) : IRequestHandler<GetEquipmentAlbumsQuery, EquipmentReleasedAlbumsPageViewModel?>
 {
     public async Task<EquipmentReleasedAlbumsPageViewModel?> Handle(GetEquipmentAlbumsQuery request, CancellationToken cancellationToken)
     {
-        if (await equipmentService.GetByIdAsync(request.Id, request.Category) is null) return null;
+        if (await EquipmentFeatureHelpers.GetByIdAsync(context, request.Id, request.Category) is null) return null;
         var page = request.Page < 1 ? 1 : request.Page;
         var pageSize = request.PageSize <= 0 ? 18 : Math.Min(request.PageSize, 100);
-        var albums = await releaseService.GetAlbumsReleasedByEquipmentPagedAsync(request.Category, request.Id, page, pageSize);
+        var albums = await EquipmentFeatureHelpers.GetReleasedAlbumsAsync(context, request.Category, request.Id, page, pageSize);
         return GetEquipmentQueryHandler.MapAlbums(request.Category, request.Id, albums);
     }
 }
 
-public sealed class CreateEquipmentCommandHandler(IEquipmentService equipmentService, IImageService imageService) : IRequestHandler<CreateEquipmentCommand, int>
+public sealed class CreateEquipmentCommandHandler(Context context, IImageService imageService) : IRequestHandler<CreateEquipmentCommand, int>
 {
     public async Task<int> Handle(CreateEquipmentCommand request, CancellationToken cancellationToken)
     {
-        var equipment = await equipmentService.CreateEquipmentAsync(request.Request);
+        var equipment = await EquipmentFeatureHelpers.FromViewModelAsync(context, request.Request);
+        context.Add(equipment);
+        await context.SaveChangesAsync(cancellationToken);
         if (request.Request.EquipmentCover is not null)
             await imageService.SaveAsync(equipment.Id, request.Request.EquipmentCover, request.Request.EquipmentType);
         return equipment.Id;
     }
 }
 
-public sealed class UpdateEquipmentCommandHandler(IEquipmentService equipmentService, IImageService imageService) : IRequestHandler<UpdateEquipmentCommand, int>
+public sealed class UpdateEquipmentCommandHandler(Context context, IImageService imageService) : IRequestHandler<UpdateEquipmentCommand, int>
 {
     public async Task<int> Handle(UpdateEquipmentCommand request, CancellationToken cancellationToken)
     {
         var model = request.Request;
-        var equipment = await equipmentService.UpdateEquipmentAsync(model);
+        var equipment = await EquipmentFeatureHelpers.FromViewModelAsync(context, model);
+        context.Update(equipment);
+        await context.SaveChangesAsync(cancellationToken);
         if (model.EquipmentCover is null)
             await imageService.RemoveAsync(equipment.Id, model.EquipmentType);
         else
@@ -100,12 +105,15 @@ public sealed class UpdateEquipmentCommandHandler(IEquipmentService equipmentSer
     }
 }
 
-public sealed class DeleteEquipmentCommandHandler(IEquipmentService equipmentService, IImageService imageService) : IRequestHandler<DeleteEquipmentCommand, bool>
+public sealed class DeleteEquipmentCommandHandler(Context context, IImageService imageService) : IRequestHandler<DeleteEquipmentCommand, bool>
 {
     public async Task<bool> Handle(DeleteEquipmentCommand request, CancellationToken cancellationToken)
     {
-        var deleted = await equipmentService.DeleteEquipmentAsync(request.Id, request.Category);
-        if (deleted) await imageService.RemoveAsync(request.Id, request.Category);
-        return deleted;
+        var equipment = await EquipmentFeatureHelpers.GetByIdAsync(context, request.Id, request.Category);
+        if (equipment is null) return false;
+        context.Remove(equipment);
+        await context.SaveChangesAsync(cancellationToken);
+        await imageService.RemoveAsync(request.Id, request.Category);
+        return true;
     }
 }

@@ -11,18 +11,18 @@ namespace Web.SignalRHubs
     public class AlbumHub(
         IImageService imageService,
         IResourceIconService resourceIconService,
-        IAlbumService albumService,
-        IReleaseService releaseService,
-        IEquipmentService equipmentService,
-        IEntityFindOrCreateService entityService,
+        AlbumService albumService,
+        ReleaseService releaseService,
+        EquipmentService equipmentService,
+        EntityFindOrCreateService entityService,
         TimeProvider timeProvider) : Hub
     {
         private readonly IImageService _imgService = imageService;
         private readonly IResourceIconService _resourceIconService = resourceIconService;
-        private readonly IAlbumService _albumService = albumService;
-        private readonly IReleaseService _releaseService = releaseService;
-        private readonly IEquipmentService _equipmentService = equipmentService;
-        private readonly IEntityFindOrCreateService _entityService = entityService;
+        private readonly AlbumService _albumService = albumService;
+        private readonly ReleaseService _releaseService = releaseService;
+        private readonly EquipmentService _equipmentService = equipmentService;
+        private readonly EntityFindOrCreateService _entityService = entityService;
         private readonly TimeProvider _timeProvider = timeProvider;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 

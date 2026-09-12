@@ -9,7 +9,7 @@ using Web.ViewModels;
 
 namespace Web.Services
 {
-    public class EquipmentService(Context context) : IEquipmentService
+    public class EquipmentService(Context context)
     {
         private readonly Context _context = context;
 

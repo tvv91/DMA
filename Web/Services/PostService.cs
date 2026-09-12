@@ -1,13 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Common;
 using Web.Db;
-using Web.Interfaces;
 using Web.Models;
 using Web.ViewModels;
 
 namespace Web.Services
 {
-    public class PostService(Context context, TimeProvider timeProvider) : IPostService
+    public class PostService(Context context, TimeProvider timeProvider)
     {
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;

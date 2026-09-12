@@ -1,15 +1,14 @@
 using Microsoft.AspNetCore.SignalR;
 using Web.Common;
-using Web.Interfaces;
 using Web.Models;
 using Web.Services;
 using Web.ViewModels;
 
 namespace Web.SignalRHubs
 {
-    public class PostHub(IPostService postService, TimeProvider timeProvider) : Hub
+    public class PostHub(PostService postService, TimeProvider timeProvider) : Hub
     {
-        private readonly IPostService _postService = postService;
+        private readonly PostService _postService = postService;
         private readonly TimeProvider _timeProvider = timeProvider;
         private const int POSTS_PER_PAGE = 5;
 

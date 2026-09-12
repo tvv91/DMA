@@ -8,10 +8,10 @@ namespace Web.SignalRHubs
 {
     public class EquipmentHub(
         IImageService imageService,
-        IEquipmentService equipmentService) : Hub
+        EquipmentService equipmentService) : Hub
     {
         private readonly IImageService _imgService = imageService;
-        private readonly IEquipmentService _equipmentService = equipmentService;
+        private readonly EquipmentService _equipmentService = equipmentService;
         private const int ITEMS_PER_PAGE = 18;
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new()

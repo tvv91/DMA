@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Web.Db;
-using Web.Interfaces;
 using Web.Models;
 
 namespace Web.Services
 {
-    public class EntityFindOrCreateService(Context context) : IEntityFindOrCreateService
+public class EntityFindOrCreateService(Context context)
     {
         private readonly Context _context = context;
 

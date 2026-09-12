@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 using Web.Db;
-using Web.Interfaces;
 using Web.Models;
 
 namespace Web.Services
 {
-    public class StatisticService(Context context, TimeProvider timeProvider) : IStatisticService
+    public class StatisticService(Context context, TimeProvider timeProvider)
     {
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;

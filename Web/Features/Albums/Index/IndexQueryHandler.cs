@@ -1,20 +1,27 @@
 using MediatR;
-using Web.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Web.Db;
+using Web.Extentions;
 using Web.ViewModels;
+using Web.Features.Albums;
 
 namespace Web.Features.Albums.Index;
 
-public sealed class IndexQueryHandler(IAlbumService albumService) : IRequestHandler<IndexQuery, AlbumIndexViewModel>
+public sealed class IndexQueryHandler(Context context) : IRequestHandler<IndexQuery, AlbumIndexViewModel>
 {
     public async Task<AlbumIndexViewModel> Handle(IndexQuery request, CancellationToken cancellationToken)
     {
-        var result = await albumService.GetIndexListAsync(
-            request.Page,
-            request.PageSize,
-            request.ArtistName,
-            request.GenreName,
-            request.YearValue,
-            request.AlbumTitle);
+        var query = context.Albums.Include(a => a.Artist).Include(a => a.Genre).AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(request.ArtistName)) query = query.Where(a => a.Artist != null && a.Artist.Name.Contains(request.ArtistName));
+        if (!string.IsNullOrWhiteSpace(request.GenreName)) query = query.Where(a => a.Genre != null && a.Genre.Name.Contains(request.GenreName));
+        if (!string.IsNullOrWhiteSpace(request.AlbumTitle)) query = query.Where(a => a.Title.Contains(request.AlbumTitle));
+        if (!string.IsNullOrWhiteSpace(request.YearValue))
+        {
+            query = int.TryParse(request.YearValue, out var year)
+                ? query.Where(a => context.Releases.Any(r => r.AlbumId == a.Id && r.Year != null && r.Year.Value == year))
+                : query.Where(a => context.Releases.Any(r => r.AlbumId == a.Id && r.Year != null && r.Year.Value.ToString().Contains(request.YearValue)));
+        }
+        var result = await query.ToPagedResultAsync(request.Page, request.PageSize, a => a.Id);
 
         return new AlbumIndexViewModel
         {
@@ -22,7 +29,7 @@ public sealed class IndexQueryHandler(IAlbumService albumService) : IRequestHand
             PageCount = result.TotalPages,
             Albums = result.Items,
             PageSize = request.PageSize,
-            HasAnyAlbumsInDb = await albumService.HasAnyAlbumsAsync(),
+            HasAnyAlbumsInDb = await context.Albums.AsNoTracking().AnyAsync(),
             ArtistName = request.ArtistName,
             GenreName = request.GenreName,
             YearValue = request.YearValue,

@@ -44,14 +44,14 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddScoped<IImageService, LocalStorageImageService>();
 builder.Services.AddScoped<IResourceIconService, LocalResourceIconService>();
 
-// Services
-builder.Services.AddScoped<IAlbumService, AlbumService>();
-builder.Services.AddScoped<IPostService, PostService>();
-builder.Services.AddScoped<IReleaseService, ReleaseService>();
-builder.Services.AddScoped<IEquipmentService, EquipmentService>();
-builder.Services.AddScoped<ISearchService, SearchService>();
-builder.Services.AddScoped<IStatisticService, StatisticService>();
-builder.Services.AddScoped<IEntityFindOrCreateService, EntityFindOrCreateService>();
+// Concrete services remain registered for SignalR and legacy infrastructure paths.
+builder.Services.AddScoped<AlbumService>();
+builder.Services.AddScoped<PostService>();
+builder.Services.AddScoped<ReleaseService>();
+builder.Services.AddScoped<EquipmentService>();
+builder.Services.AddScoped<SearchService>();
+builder.Services.AddScoped<StatisticService>();
+builder.Services.AddScoped<EntityFindOrCreateService>();
 builder.Services.AddHostedService<TempImageCleanupService>();
 
 builder.Services.AddSignalR(options =>

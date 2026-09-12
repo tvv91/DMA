@@ -13,16 +13,17 @@
 
   <ItemGroup>
     <PackageReference Include="MediatR" Version="14.2.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.21.0.135717">
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.12" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.12" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="10.34.0.3385">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="SQLitePCLRaw.lib.e_sqlite3" Version="3.53.3" />
   </ItemGroup>
 
   <ItemGroup>

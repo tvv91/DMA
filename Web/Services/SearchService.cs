@@ -3,12 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using Web.Db;
 using Web.Enums;
-using Web.Interfaces;
 using Web.Response;
 
 namespace Web.Services
 {
-    public class SearchService(Context context) : ISearchService
+    public class SearchService(Context context)
     {
         private const int AutocompleteMaxItems = 10;
 

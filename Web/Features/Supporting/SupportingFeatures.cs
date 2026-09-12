@@ -2,9 +2,9 @@ using System.Text.Json;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Web.Enums;
-using Web.Interfaces;
 using Web.Models;
 using Web.Response;
+using Web.Services;
 using Web.ViewModels;
 
 namespace Web.Features.Supporting;
@@ -20,7 +20,7 @@ public sealed record DeleteTempImageCommand(string Filename) : IRequest<bool>;
 public sealed record ImageUploadResult(bool Success, string? Filename, string? Error);
 public sealed record LoginResult(bool Success, bool IsAjax, string RedirectUrl);
 
-public sealed class SearchQueryHandler(ISearchService searchService) : IRequestHandler<SearchQuery, List<AutocompleteResponse>>
+public sealed class SearchQueryHandler(SearchService searchService) : IRequestHandler<SearchQuery, List<AutocompleteResponse>>
 {
     public Task<List<AutocompleteResponse>> Handle(SearchQuery request, CancellationToken cancellationToken) => searchService.SearchAsync(request.EntityType, request.Value);
 }
@@ -30,7 +30,7 @@ public sealed class AccessDeniedQueryHandler : IRequestHandler<AccessDeniedQuery
     public Task<Unit> Handle(AccessDeniedQuery request, CancellationToken cancellationToken) => Task.FromResult(Unit.Value);
 }
 
-public sealed class StatisticQueryHandler(IStatisticService statisticService) : IRequestHandler<StatisticQuery, StatisticViewModel?>
+public sealed class StatisticQueryHandler(StatisticService statisticService) : IRequestHandler<StatisticQuery, StatisticViewModel?>
 {
     public async Task<StatisticViewModel?> Handle(StatisticQuery request, CancellationToken cancellationToken)
     {

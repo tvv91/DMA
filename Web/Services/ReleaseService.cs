@@ -3,12 +3,11 @@ using System.Linq.Expressions;
 using Web.Common;
 using Web.Db;
 using Web.Enums;
-using Web.Interfaces;
 using Web.Models;
 
 namespace Web.Services
 {
-    public class ReleaseService(Context context, TimeProvider timeProvider) : IReleaseService
+    public class ReleaseService(Context context, TimeProvider timeProvider)
     {
         private readonly Context _context = context;
         private readonly TimeProvider _timeProvider = timeProvider;

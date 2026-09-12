@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using MediatR;
 using Web.Db;
 using Web.Interfaces;
 using Web.Models;
@@ -13,6 +14,7 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<Context>(opts =>
 {

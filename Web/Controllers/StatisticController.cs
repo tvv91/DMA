@@ -1,23 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using Web.Interfaces;
-using Web.ViewModels;
+using MediatR;
+using Web.Features.Supporting;
 
 namespace Web.Controllers
 {
-    public class StatisticController(IStatisticService statisticService) : Controller
+    public class StatisticController(ISender sender) : Controller
     {
-        private readonly IStatisticService _statisticService = statisticService;
+        private readonly ISender _sender = sender;
 
         [HttpGet("statistic")]
         public async Task<IActionResult> Index()
         {
-            var result = await _statisticService.ProcessAsync();
-            var viewModel = JsonSerializer.Deserialize<StatisticViewModel>(result.Data);
-            if (viewModel is null)
-                return Problem("Failed to deserialize StatisticViewModel.");
-            viewModel.LastUpdate = result.LastUpdate;
-            return View("Index", viewModel);
+            var viewModel = await _sender.Send(new StatisticQuery());
+            return viewModel is null ? Problem("Failed to deserialize StatisticViewModel.") : View("Index", viewModel);
         }
     }
 }

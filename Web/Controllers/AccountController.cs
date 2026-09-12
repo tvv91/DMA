@@ -1,17 +1,14 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Web.Models;
+using MediatR;
+using Web.Features.Supporting;
 using Web.ViewModels;
 
 namespace Web.Controllers;
 
-public class AccountController(
-    SignInManager<ApplicationUser> signInManager,
-    UserManager<ApplicationUser> userManager) : Controller
+public class AccountController(ISender sender) : Controller
 {
-    private readonly SignInManager<ApplicationUser> _signInManager = signInManager;
-    private readonly UserManager<ApplicationUser> _userManager = userManager;
+    private readonly ISender _sender = sender;
 
     [HttpGet("account/login")]
     [AllowAnonymous]
@@ -27,57 +24,36 @@ public class AccountController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
+        var isAjax = IsAjaxRequest();
         if (!ModelState.IsValid)
-        {
-            if (IsAjaxRequest())
-                return BadRequest(new { error = "Invalid login attempt." });
+            return InvalidLogin(model.ReturnUrl, isAjax);
 
-            return RedirectToLogin(model.ReturnUrl);
-        }
-
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user is null)
-        {
-            if (IsAjaxRequest())
-                return BadRequest(new { error = "Invalid login attempt." });
-
-            return RedirectToLogin(model.ReturnUrl);
-        }
-
-        var result = await _signInManager.PasswordSignInAsync(
-            user.UserName!,
-            model.Password,
-            model.RememberMe,
-            lockoutOnFailure: false);
-
-        if (result.Succeeded)
-        {
-            var redirectUrl = string.IsNullOrWhiteSpace(model.ReturnUrl) ? "/" : model.ReturnUrl;
-            if (IsAjaxRequest())
-                return Ok(new { redirectUrl });
-
-            return LocalRedirect(redirectUrl);
-        }
-
-        if (IsAjaxRequest())
-            return BadRequest(new { error = "Invalid login attempt." });
-
-        return RedirectToLogin(model.ReturnUrl);
+        var result = await _sender.Send(new LoginCommand(model, isAjax));
+        if (!result.Success)
+            return InvalidLogin(model.ReturnUrl, isAjax);
+        return result.IsAjax ? Ok(new { redirectUrl = result.RedirectUrl }) : LocalRedirect(result.RedirectUrl);
     }
 
     [HttpPost("account/logout")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _signInManager.SignOutAsync();
+        await _sender.Send(new LogoutCommand());
         return RedirectToAction("Index", "Post");
     }
 
     [HttpGet("account/accessdenied")]
-    public IActionResult AccessDenied() => View();
+    public async Task<IActionResult> AccessDenied()
+    {
+        await _sender.Send(new AccessDeniedQuery());
+        return View();
+    }
 
-    private bool IsAjaxRequest() =>
-        string.Equals(Request.Headers.XRequestedWith, "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+    private bool IsAjaxRequest() => string.Equals(Request.Headers.XRequestedWith, "XMLHttpRequest", StringComparison.OrdinalIgnoreCase);
+
+    private IActionResult InvalidLogin(string? returnUrl, bool isAjax) => isAjax
+        ? BadRequest(new { error = "Invalid login attempt." })
+        : RedirectToLogin(returnUrl);
 
     private IActionResult RedirectToLogin(string? returnUrl)
     {

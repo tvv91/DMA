@@ -12,29 +12,29 @@
         <meta http-equiv='pragma' content='no-cache'>
         <meta name="request-verification-token" content="@antiforgeryToken">
         <title>Digitized Music Archive</title>
-        <link rel="stylesheet" href="/lib/bootstrap/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/lib/font-awesome/css/all.css" />
-        <link rel="stylesheet" href="/lib/jqueryui/themes/base/jquery-ui.min.css" />
-        <link rel="stylesheet" href="/lib/dropzone//dropzone.min.css" />
-        <link rel="stylesheet" href="/css/shared.css" />
+        <link rel="stylesheet" href="~/lib/bootstrap/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/lib/font-awesome/css/all.css" />
+        <link rel="stylesheet" href="~/lib/jqueryui/themes/base/jquery-ui.min.css" />
+        <link rel="stylesheet" href="~/lib/dropzone/dropzone.min.css" />
+        <link rel="stylesheet" href="~/css/shared.css" />
         @{
             var path = Context.Request.Path.Value?.ToLower() ?? "";
             if (path.Contains("/album"))
             {
-                <link rel="stylesheet" href="/css/album.css" />
+                <link rel="stylesheet" href="~/css/album.css" />
             }
             else if (path.Contains("/equipment"))
             {
-                <link rel="stylesheet" href="/css/equipment.css" />
-                <link rel="stylesheet" href="/css/album.css" />
+                <link rel="stylesheet" href="~/css/equipment.css" />
+                <link rel="stylesheet" href="~/css/album.css" />
             }
             else if (path.Contains("/post") || path == "/")
             {
-                <link rel="stylesheet" href="/css/post.css" />
+                <link rel="stylesheet" href="~/css/post.css" />
             }
             else if (path.Contains("/statistic"))
             {
-                <link rel="stylesheet" href="/css/statistic.css" />
+                <link rel="stylesheet" href="~/css/statistic.css" />
             }
         }
         <script src="/lib/jquery/jquery.min.js"></script>

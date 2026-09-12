@@ -1,32 +1,28 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
+using MediatR;
 using Web.Common;
 using Web.Enums;
-using Web.Models;
-using Web.Interfaces;
-using Web.Services;
+using Web.Features.Equipment;
 using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class EquipmentController(
-        IEquipmentService equipmentService,
-        IImageService imageService,
-        IReleaseService releaseService) : Controller
+    public class EquipmentController(ISender sender) : Controller
     {
-        private readonly IEquipmentService _equipmentService = equipmentService;
-        private readonly IImageService _imageService = imageService;
-        private readonly IReleaseService _releaseService = releaseService;
+        private const int DefaultEquipmentAlbumsPageSize = 18;
+        private readonly ISender _sender = sender;
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            await _sender.Send(new EquipmentPageQuery());
             return View();
         }
 
         [HttpGet]
-        public IActionResult Category (string category)
+        public async Task<IActionResult> Category(string category)
         {
+            await _sender.Send(new EquipmentPageQuery());
             return Ok();
         }
 
@@ -36,17 +32,7 @@ namespace Web.Controllers
             if (id <= 0)
                 return BadRequest();
 
-            try
-            {
-                var deleted = await _equipmentService.DeleteEquipmentAsync(id, category);
-                await _imageService.RemoveAsync(id, category);
-                return deleted ? Ok() : NotFound();
-            }
-            catch (Exception ex)
-            {
-                // TODO: Add logging
-                throw new InvalidOperationException("Error during deleting equipment", ex);
-            }
+            return await _sender.Send(new DeleteEquipmentCommand(category, id)) ? Ok() : NotFound();
         }
 
         [HttpPost("[controller]/update")]
@@ -54,23 +40,15 @@ namespace Web.Controllers
         {
             if (request.Id <= 0)
                 return BadRequest("Invalid equipment ID");
-
             if (request.Action != ActionType.Update)
                 return BadRequest("Invalid action type");
-
             if (!ModelState.IsValid)
                 return View("CreateUpdate", request);
 
             try
             {
-                var updated = await _equipmentService.UpdateEquipmentAsync(request);
-
-                if (request.EquipmentCover is null)
-                    await _imageService.RemoveAsync(updated.Id, request.EquipmentType);
-                else
-                    await _imageService.SaveAsync(updated.Id, request.EquipmentCover, request.EquipmentType);
-
-                return Redirect($"/equipment/{request.EquipmentType}/{updated.Id}");
+                var id = await _sender.Send(new UpdateEquipmentCommand(request));
+                return Redirect($"/equipment/{request.EquipmentType}/{id}");
             }
             catch (Exception ex)
             {
@@ -79,88 +57,41 @@ namespace Web.Controllers
             }
         }
 
-
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("equipment/{category}/{id}/edit", Order = 1)]
         public async Task<IActionResult> Edit(EntityType category, int id)
         {
             if (id <= 0)
                 return BadRequest();
-            
-            var equipment = await _equipmentService.GetByIdAsync(id, category);
-            
-            if (equipment is null)
+
+            var vm = await _sender.Send(new GetEquipmentQuery(category, id, null, 1, DefaultEquipmentAlbumsPageSize));
+            if (vm is null)
                 return NotFound();
-
-            var imageUrl = await _imageService.GetUrlAsync(id, category);
-            var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
             vm.Action = ActionType.Update;
-
             return View("CreateUpdate", vm);
         }
 
-        private const int DefaultEquipmentAlbumsPageSize = 18;
-        private const int MaxEquipmentAlbumsPageSize = 100;
-
-        /// <summary>
-        /// HTML partial for client-side paging on the equipment details "Albums" tab (fetch).
-        /// </summary>
         [HttpGet("equipment/{category}/{id}/albums-data", Order = 0)]
         public async Task<IActionResult> EquipmentAlbumsData(EntityType category, int id, int page = 1, int pageSize = DefaultEquipmentAlbumsPageSize)
         {
             if (id <= 0)
                 return BadRequest();
-
-            var equipment = await _equipmentService.GetByIdAsync(id, category);
-            if (equipment is null)
-                return NotFound();
-
-            if (pageSize <= 0)
-                pageSize = DefaultEquipmentAlbumsPageSize;
-            else if (pageSize > MaxEquipmentAlbumsPageSize)
-                pageSize = MaxEquipmentAlbumsPageSize;
-
-            if (page < 1)
-                page = 1;
-
-            var result = await _releaseService.GetAlbumsReleasedByEquipmentPagedAsync(category, id, page, pageSize);
-            var vm = MapReleasedAlbumsPage(category, id, result);
-            return PartialView("_EquipmentReleasedAlbumsInner", vm);
+            var vm = await _sender.Send(new GetEquipmentAlbumsQuery(category, id, page, pageSize));
+            return vm is null ? NotFound() : PartialView("_EquipmentReleasedAlbumsInner", vm);
         }
 
         [HttpGet("equipment/{category}/{id}", Order = 2)]
-        public async Task<IActionResult> GetById(EntityType category, int id, string? tab = null, int page = 1, int pageSize = 18)
+        public async Task<IActionResult> GetById(EntityType category, int id, string? tab = null, int page = 1, int pageSize = DefaultEquipmentAlbumsPageSize)
         {
             if (id <= 0)
                 return BadRequest();
-
-            var equipment = await _equipmentService.GetByIdAsync(id, category);
-
-            if (equipment is null)
-                return NotFound();
-
-            var imageUrl = await _imageService.GetUrlAsync(id, category);
-            var vm = _equipmentService.MapEquipmentToViewModel(equipment, category, imageUrl);
-
-            if (string.Equals(tab, "albums", StringComparison.OrdinalIgnoreCase))
-            {
-                vm.ActiveTab = "albums";
-                if (pageSize <= 0) pageSize = DefaultEquipmentAlbumsPageSize;
-                if (pageSize > MaxEquipmentAlbumsPageSize) pageSize = MaxEquipmentAlbumsPageSize;
-                if (page < 1) page = 1;
-                var albumsPage = await _releaseService.GetAlbumsReleasedByEquipmentPagedAsync(category, id, page, pageSize);
-                vm.ReleasedAlbumsPage = MapReleasedAlbumsPage(category, id, albumsPage);
-            }
-
-            return View("Details", vm);
+            var vm = await _sender.Send(new GetEquipmentQuery(category, id, tab, page, pageSize));
+            return vm is null ? NotFound() : View("Details", vm);
         }
 
-        
         [Authorize(Roles = RoleNames.Admin)]
         [HttpGet("equipment/create")]
-        public IActionResult Create()
-        {
-            return View("CreateUpdate", new EquipmentViewModel { Action = ActionType.Create, EquipmentType = EntityType.Adc });
-        }
+        public async Task<IActionResult> Create() => View("CreateUpdate", await _sender.Send(new CreateEquipmentFormQuery()));
 
         [Authorize(Roles = RoleNames.Admin)]
         [HttpPost]
@@ -169,41 +100,15 @@ namespace Web.Controllers
             if (!ModelState.IsValid || string.IsNullOrWhiteSpace(request.ModelName))
                 return View("CreateUpdate", request);
 
-            // Validate that EquipmentType is a valid equipment type
-            var validEquipmentTypes = new[] { EntityType.Adc, EntityType.Amplifier, EntityType.Cartridge, EntityType.Player, EntityType.Wire };
-            if (!validEquipmentTypes.Contains(request.EquipmentType))
+            var validTypes = new[] { EntityType.Adc, EntityType.Amplifier, EntityType.Cartridge, EntityType.Player, EntityType.Wire };
+            if (!validTypes.Contains(request.EquipmentType))
             {
                 ModelState.AddModelError(nameof(request.EquipmentType), "Invalid equipment type selected.");
                 return View("CreateUpdate", request);
             }
 
-            var equipment = await _equipmentService.CreateEquipmentAsync(request);
-
-            if (request.EquipmentCover is not null)
-                await _imageService.SaveAsync(equipment.Id, request.EquipmentCover, request.EquipmentType);
-
-            return Redirect($"/equipment/{request.EquipmentType}/{equipment.Id}");
-        }
-
-        private EquipmentReleasedAlbumsPageViewModel MapReleasedAlbumsPage(EntityType category, int equipmentId, PagedResult<Album> result)
-        {
-            var catSeg = category.ToString().ToLowerInvariant();
-            return new EquipmentReleasedAlbumsPageViewModel
-            {
-                CurrentPage = result.CurrentPage,
-                PageCount = result.TotalPages,
-                PageSize = result.PageSize,
-                HasResults = result.Items.Count > 0,
-                CategorySegment = catSeg,
-                EquipmentId = equipmentId,
-                Albums = [.. result.Items.Select(a => new EquipmentAlbumRowViewModel
-                {
-                    Id = a.Id,
-                    Title = a.Title,
-                    ArtistName = a.Artist?.Name ?? string.Empty,
-                    DetailUrl = Url.Action("GetById", "Album", new { id = a.Id }) ?? string.Empty
-                })]
-            };
+            var id = await _sender.Send(new CreateEquipmentCommand(request));
+            return Redirect($"/equipment/{request.EquipmentType}/{id}");
         }
     }
 }

@@ -252,7 +252,7 @@ namespace Web.Services
 
             var artist = await _context.Artists
                 .FirstOrDefaultAsync(a => a.Name == normalizedArtistName);
-
+            
             if (artist is null)
             {
                 // Store normalized value so unique Name constraint behaves consistently.

@@ -1,21 +1,23 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Common;
 using Web.Enums;
-using Web.Interfaces;
-using Web.SignalRHubs;
 using Web.ViewModels;
+using MediatR;
+using Web.Common;
+using Web.Features.Albums.Create;
+using Web.Features.Albums.Delete;
+using Web.Features.Albums.Edit;
+using Web.Features.Albums.GetById;
+using Web.Features.Albums.Index;
+using Web.Features.Albums.Update;
 
 namespace Web.Controllers
 {
-    public class AlbumController(
-        IAlbumService albumService,
-        IImageService imageService) : Controller
+    public class AlbumController(ISender sender) : Controller
     {
         private const int DEFAULT_ALBUMS_PER_PAGE = 15;
         private const int MAX_ALBUMS_PER_PAGE = 30;
-        private readonly IAlbumService _albumService = albumService;
-        private readonly IImageService _imageService = imageService;
+        private readonly ISender _sender = sender;
 
         [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
@@ -29,24 +31,7 @@ namespace Web.Controllers
             else if (pageSize > MAX_ALBUMS_PER_PAGE)
                 pageSize = MAX_ALBUMS_PER_PAGE;
 
-            var result = await _albumService.GetIndexListAsync(page, pageSize, artistName, genreName, yearValue, albumTitle);
-
-            // Check if there are any albums in the database at all (unfiltered)
-            var hasAnyAlbumsInDb = await _albumService.HasAnyAlbumsAsync();
-
-            var vm = new AlbumIndexViewModel
-            {
-                CurrentPage = page,
-                PageCount = result.TotalPages,
-                Albums = result.Items,
-                PageSize = pageSize,
-                HasAnyAlbumsInDb = hasAnyAlbumsInDb,
-                ArtistName = artistName,
-                GenreName = genreName,
-                YearValue = yearValue,
-                AlbumTitle = albumTitle
-            };
-
+            var vm = await _sender.Send(new IndexQuery(page, pageSize, artistName, genreName, yearValue, albumTitle));
             return View("Index", vm);
         }
 
@@ -58,7 +43,7 @@ namespace Web.Controllers
 
             try
             {
-                var vm = await _albumService.GetAlbumDetailsAsync(id);
+                var vm = await _sender.Send(new GetByIdQuery(id));
                 return View("Details", vm);
             }
             catch (KeyNotFoundException)
@@ -86,11 +71,10 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumService.GetByIdAsync(id);
-                if (album is null)
+                var vm = await _sender.Send(new EditAlbumQuery(id));
+                if (vm is null)
                     return NotFound();
 
-                var vm = await _albumService.MapAlbumToCreateUpdateVMAsync(album);
                 return View("CreateUpdate", vm);
             }
             catch (KeyNotFoundException)
@@ -108,12 +92,9 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumService.CreateOrFindAlbumAsync(request.Title, request.Artist, request.Genre);
+                var albumId = await _sender.Send(new CreateAlbumCommand(request));
 
-                if (request.AlbumCover is not null)
-                    await _imageService.SaveAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
-
-                return RedirectToAction("GetById", "Album", new { id = album.Id });
+                return RedirectToAction("GetById", "Album", new { id = albumId });
             }
             catch (Exception ex)
             {
@@ -134,20 +115,9 @@ namespace Web.Controllers
 
             try
             {
-                var album = await _albumService.UpdateAlbumAsync(request.AlbumId, request.Title, request.Artist, request.Genre);
+                var albumId = await _sender.Send(new UpdateAlbumCommand(request));
 
-                if (string.IsNullOrWhiteSpace(request.AlbumCover))
-                {
-                    await _imageService.RemoveAsync(album.Id, EntityType.AlbumCover);
-                }
-                else if (request.AlbumCover != album.Id.ToString())
-                {
-                    await _imageService.SaveAsync(album.Id, request.AlbumCover, EntityType.AlbumCover);
-                }
-
-                AlbumHub.InvalidateAlbumCache(album.Id);
-
-                return RedirectToAction("GetById", "Album", new { id = request.AlbumId });
+                return RedirectToAction("GetById", "Album", new { id = albumId });
             }
             catch (Exception ex)
             {
@@ -163,18 +133,8 @@ namespace Web.Controllers
             if (id < 1)
                 return BadRequest("Invalid album ID");
 
-            if (!await _albumService.DeleteAlbumAsync(id))
+            if (!await _sender.Send(new DeleteAlbumCommand(id)))
                 return NotFound();                
-
-            try
-            {
-                await _imageService.RemoveAsync(id, EntityType.AlbumCover);
-            }
-            catch (Exception ex)
-            {
-                // TODO: Add logging
-                return BadRequest("Failed to delete album");
-            }
             return Ok();
         }
     }

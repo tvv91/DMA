@@ -1,7 +1,9 @@
 const BACK_PAGE_POST_INDEX = "BACK_PAGE_POST_INDEX";
 let isChanged = false;
-let autoSaveInterval;
+let autoSaveTimeout;
 let postId = null;
+let manualSavePending = false;
+const AUTO_SAVE_DELAY = 30000;
 
 function getCurrentPage() {
     return Number(localStorage.getItem(BACK_PAGE_POST_INDEX)) || 1;
@@ -284,10 +286,13 @@ function debounce(func, wait) {
     };
 }
 
-async function autoSave() {
+async function autoSave(isManual = false) {
     if (!isChanged)
         return;
+
+    cancelAutoSave();
     isChanged = false;
+    manualSavePending = isManual;
     $("#spinnerbutton").removeAttr("hidden");
     $("#savebutton").prop("disabled", true);
 
@@ -302,10 +307,27 @@ async function autoSave() {
             $("#category").val()
         );
     } catch (err) {
+        manualSavePending = false;
         console.error("Error sending AutoSavePost:", err);
     }
 }
 
+function cancelAutoSave() {
+    if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+        autoSaveTimeout = null;
+    }
+}
+
+function scheduleAutoSave() {
+    cancelAutoSave();
+    if (isChanged) {
+        autoSaveTimeout = setTimeout(() => {
+            autoSaveTimeout = null;
+            autoSave();
+        }, AUTO_SAVE_DELAY);
+    }
+}
 function onChange() {
     const title = $("#title").val()?.trim();
     const description = $("#description").val()?.trim();
@@ -315,9 +337,11 @@ function onChange() {
     if (title && description && content && category && category !== "Category" && category !== "") {
         $("#savebutton").prop("disabled", false);
         isChanged = true;
+        scheduleAutoSave();
     } else {
         $("#savebutton").prop("disabled", true);
         isChanged = false;
+        cancelAutoSave();
     }
 }
 
@@ -331,8 +355,7 @@ function setupPreview() {
 
 function initPostEditorPage() {
     postId = Number($("#Id").val()) || 0;
-    autoSaveInterval = setInterval(autoSave, 30000);
-    $(window).on("beforeunload", () => clearInterval(autoSaveInterval));
+    $(window).on("beforeunload", cancelAutoSave);
 
     setupPreview();
     $("#title, #description, #category").on("input change", onChange);
@@ -373,13 +396,14 @@ function initViewPostPage() {
         }
     });
 }
-function formatDate(dateString) {
+function formatDate(dateString, isManualSave) {
     const date = new Date(dateString);
-    return `Automatically saved: ${date.toLocaleDateString()}, ${date.toLocaleTimeString()}`;
+    const message = isManualSave ? "Saved" : "Automatically saved";
+    return `${message}: ${date.toLocaleDateString()}, ${date.toLocaleTimeString()}`;
 }
 
 $("#savebutton").on("click", function () {
-    autoSave();
+    autoSave(true);
 });
 
 $(document).ready(async () => {
@@ -408,14 +432,16 @@ postConnection.on("ReceivedBlogTree", (tree) => {
 postConnection.on("PostUpdated", (updatedDate) => {
     $("#spinnerbutton").attr("hidden", true);
     $("#savebutton").prop("disabled", false);
-    $("#updatedAt").text(formatDate(updatedDate));
+    $("#updatedAt").text(formatDate(updatedDate, manualSavePending));
+    manualSavePending = false;
 });
 
 postConnection.on("PostCreated", (newPostId, createdDate) => {
     postId = newPostId;
     $("#spinnerbutton").attr("hidden", true);
     $("#savebutton").prop("disabled", false);
-    $("#updatedAt").text(formatDate(createdDate));
+    $("#updatedAt").text(formatDate(createdDate, manualSavePending));
+    manualSavePending = false;
 });
 
 postConnection.onclose(async () => { await start(); });

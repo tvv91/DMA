@@ -56,6 +56,12 @@
         </script>
     </head>
     <body>
+    @{
+        var isStatisticPage = Context.Request.Path.Equals("/statistic", StringComparison.OrdinalIgnoreCase);
+    }
+    <div id="page-loading-overlay" class="page-loading-overlay @(isStatisticPage ? "" : "hidden")" role="status" aria-live="polite" aria-label="Loading statistics">
+        <div class="spinner-border text-primary" aria-hidden="true"></div>
+    </div>
     <div class="container">
         <h4 class="text-center">Welcome to Digitized  Music Archive!</h4>
         <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm px-4">
@@ -117,6 +123,25 @@
             <script src="/js/login.js"></script>
         }
     <script>
+        const pageLoadingOverlay = document.getElementById('page-loading-overlay');
+
+        function hidePageLoadingOverlay() {
+            pageLoadingOverlay?.classList.add('hidden');
+        }
+
+        function showStatisticsLoadingOverlay() {
+            pageLoadingOverlay?.classList.remove('hidden');
+        }
+
+        document.addEventListener('DOMContentLoaded', hidePageLoadingOverlay);
+        window.addEventListener('pageshow', hidePageLoadingOverlay);
+        document.querySelectorAll('a[href]').forEach(link => {
+            const linkUrl = new URL(link.href, window.location.origin);
+            if (linkUrl.pathname.toLowerCase() === '/statistic') {
+                link.addEventListener('click', showStatisticsLoadingOverlay);
+            }
+        });
+
         $('#menu a').on('mouseover mouseleave', function (e) {
             if (window.location.pathname !== $(this).attr("href"))  {
                 switch (e.type) { 

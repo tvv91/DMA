@@ -10,7 +10,6 @@ namespace Web.Hubs
     {
         private readonly ISender _sender = sender;
         private readonly TimeProvider _timeProvider = timeProvider;
-        private const int POSTS_PER_PAGE = 5;
 
         public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
         {

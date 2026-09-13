@@ -124,7 +124,10 @@ else if (!Model.HasAnyAlbumsInDb)
 {
     <div class="text-center mt-5">
         <h4>Ooops... This page is empty!</h4>
-        <a href="@Url.Action("Create", "Album")" class="btn btn-primary mt-3">Add your first album</a>
+        @if (User.IsInRole(RoleNames.Admin))
+        {
+            <a href="@Url.Action("Create", "Album")" class="btn btn-primary mt-3">Add your first album</a>
+        }
     </div>
 }
 else

@@ -4,7 +4,7 @@ using Web.Authorization;
 using Web.Features.Posts;
 using Web.ViewModels;
 
-namespace Web.SignalRHubs
+namespace Web.Hubs
 {
     public class PostHub(ISender sender, TimeProvider timeProvider) : Hub
     {

@@ -4,7 +4,7 @@ using Web.Infrastructure.Persistence;
 using Web.Enums;
 using Web.Features.Albums;
 using Web.Infrastructure.Storage;
-using Web.SignalRHubs;
+using Web.Hubs;
 
 namespace Web.Features.Albums.Update;
 

@@ -5,7 +5,7 @@ using Web.Infrastructure.Storage;
 using Web.Features.Equipment;
 using Web.ViewModels;
 
-namespace Web.SignalRHubs
+namespace Web.Hubs
 {
     public class EquipmentHub(
         IImageService imageService,

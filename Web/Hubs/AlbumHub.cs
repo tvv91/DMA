@@ -7,9 +7,8 @@ using Web.Features.Equipment;
 using Web.Features.Albums.Releases;
 using Web.Infrastructure.Icons;
 using Web.Infrastructure.Storage;
-using Web.Models;
 
-namespace Web.SignalRHubs
+namespace Web.Hubs
 {
     public class AlbumHub(
         IImageService imageService,

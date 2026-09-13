@@ -7,7 +7,7 @@ using Web.Infrastructure.Icons;
 using Web.Infrastructure.Storage;
 using Web.Models;
 using Web.Infrastructure.Cleanup;
-using Web.SignalRHubs;
+using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRouting(options => options.LowercaseUrls = true);

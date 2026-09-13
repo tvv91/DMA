@@ -431,7 +431,7 @@ postConnection.on("ReceivedBlogTree", (tree) => {
 
 postConnection.on("PostUpdated", (updatedDate) => {
     $("#spinnerbutton").attr("hidden", true);
-    $("#savebutton").prop("disabled", false);
+    $("#savebutton").prop("disabled", true);
     $("#updatedAt").text(formatDate(updatedDate, manualSavePending));
     manualSavePending = false;
 });
@@ -439,7 +439,7 @@ postConnection.on("PostUpdated", (updatedDate) => {
 postConnection.on("PostCreated", (newPostId, createdDate) => {
     postId = newPostId;
     $("#spinnerbutton").attr("hidden", true);
-    $("#savebutton").prop("disabled", false);
+    $("#savebutton").prop("disabled", true);
     $("#updatedAt").text(formatDate(createdDate, manualSavePending));
     manualSavePending = false;
 });

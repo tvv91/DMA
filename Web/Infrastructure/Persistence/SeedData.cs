@@ -18,14 +18,21 @@ public static class SeedData
 
         var ctx = services.GetRequiredService<Context>();
         await ctx.Database.MigrateAsync();
-        if (!await ctx.Albums.AnyAsync())
+        
+        var env = services.GetRequiredService<IWebHostEnvironment>();
+        
+        if (env.IsDevelopment())
         {
-            await ctx.Albums.AddRangeAsync(new TestData().GetAlbums());
+            if (!await ctx.Albums.AnyAsync())
+            {
+                await ctx.Albums.AddRangeAsync(new TestData().GetAlbums());
+            }
+            if (!await ctx.PostCategories.AnyAsync())
+            {
+                await ctx.PostCategories.AddRangeAsync(new TestData().GetPosts());
+            }
         }
-        if (!await ctx.PostCategories.AnyAsync())
-        {
-            await ctx.PostCategories.AddRangeAsync(new TestData().GetPosts());
-        }
+        
         await ctx.SaveChangesAsync();
     }
 

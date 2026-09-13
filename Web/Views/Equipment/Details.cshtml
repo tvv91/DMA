@@ -30,6 +30,8 @@
     <div class="toast-body">Equipment deleted</div>
   </div>
 </div>
+@if (User.IsInRole(RoleNames.Admin))
+{
 <div class="modal fade" id="removeDialogModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -47,6 +49,7 @@
     </div>
   </div>
 </div>
+}
 <a id="back_button" class="btn btn-back mt-3" asp-action="index" asp-controller="equipment"><i class="fa fa-arrow-left"></i> Back</a>
 @{
     var eqCategory = Model?.EquipmentType.ToString().ToLowerInvariant() ?? "";
@@ -73,12 +76,15 @@
             </div>
             <div class="equipment-detail-box">
                 <div>
+                    @if (User.IsInRole(RoleNames.Admin))
+                    {
                     <a data-bs-toggle="modal" data-bs-target="#removeDialogModal">
                         <i class="fa-solid fa-trash fa-lg fa-pull-right"></i>
                     </a>
                     <a href="/equipment/@Model?.EquipmentType.ToString().ToLower()/@Model?.Id/edit">
                         <i class="fa-solid fa-pen-to-square fa-lg fa-pull-right"></i>
                     </a>
+                    }
 
                     @if (Model?.Manufacturer != null) {
                         <h1><b>@Model?.Manufacturer</b> @Model?.ModelName</h1>

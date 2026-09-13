@@ -27,6 +27,7 @@ namespace Web.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpDelete("[controller]/{category}/delete/")]
         public async Task<IActionResult> Delete(EntityType category, int id)
         {
@@ -36,6 +37,7 @@ namespace Web.Controllers
             return await _sender.Send(new DeleteEquipmentCommand(category, id)) ? Ok() : NotFound();
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost("[controller]/update")]
         public async Task<IActionResult> Update(EquipmentViewModel request)
         {

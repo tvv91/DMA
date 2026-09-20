@@ -130,10 +130,12 @@
                 addRemoveLinks: true,
                 thumbnailWidth: 300,
                 thumbnailHeight: 300,
-                resizeWidth: 300,
-                resizeHeight: 300,
-                dictDefaultMessage: "<b>Upload equipment image</b><br><i>Images > 300x300 pixels will be resized</i>",
-                acceptedFiles: ".jpeg,.png,.jpg",
+                resizeWidth: 500,
+                resizeHeight: 500,
+                resizeMimeType: 'image/jpeg',
+                resizeQuality: 0.75,
+                dictDefaultMessage: "<b>Upload equipment image</b><br><i>Images > 500x500 pixels will be resized</i>",
+                acceptedFiles: ".jpeg,.jpg",
                     success: (file, data) => {
                         $("#coverid").val(data.filename);
                         file.uploadedFilename = data.filename;

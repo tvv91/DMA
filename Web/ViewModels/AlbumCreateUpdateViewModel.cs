@@ -44,7 +44,6 @@ namespace Web.ViewModels
 
         public ActionType Action { get; set; }
         public int AlbumId { get; set; }
-        public int DigtizationId { get; set; }
         public IEnumerable<Release>? Releases { get; set; }
     }
 }

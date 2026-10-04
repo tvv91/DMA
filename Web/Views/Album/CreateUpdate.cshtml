@@ -734,10 +734,13 @@
     }
 
     function onSubmit() {
-        const $input = $("#size-input");
         const action = "@Model.Action";
-        let value = $input.val();
-        $input.val(value.replace(/\./g, ","));
+        $("#size-input, #sampling-input").each(function () {
+            const value = $(this).val();
+            if (value) {
+                $(this).val(value.toString().replace(/\./g, ","));
+            }
+        });
         if (actions[action]) sessionStorage.setItem(actions[action], "1");
     }
 

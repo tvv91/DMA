@@ -30,6 +30,7 @@ namespace Web.ViewModels
         public string? Amplifier { get; set; }
         public string? AmplifierManufacturer { get; set; }
         public int? Bitness { get; set; }
+        public bool IsFirstPress { get; set; }
         public string? Cartridge { get; set; }
         public string? CartridgeManufacturer { get; set; }
         public string? DigitalFormat { get; set; }
@@ -44,6 +45,7 @@ namespace Web.ViewModels
 
         public ActionType Action { get; set; }
         public int AlbumId { get; set; }
+        public int ReleaseId { get; set; }
         public IEnumerable<Release>? Releases { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Web.Infrastructure.Persistence;
 using Web.Enums;
 using Web.Features.Albums;
+using Web.Features.Albums.Releases;
 using Web.Infrastructure.Storage;
 using Web.Hubs;
 
@@ -11,7 +12,8 @@ namespace Web.Features.Albums.Update;
 public sealed class UpdateAlbumCommandHandler(
     Context context,
     TimeProvider timeProvider,
-    IImageService imageService) : IRequestHandler<UpdateAlbumCommand, int>
+    IImageService imageService,
+    ISender sender) : IRequestHandler<UpdateAlbumCommand, int>
 {
     public async Task<int> Handle(UpdateAlbumCommand request, CancellationToken cancellationToken)
     {
@@ -57,6 +59,43 @@ public sealed class UpdateAlbumCommandHandler(
             await imageService.RemoveAsync(album.Id, EntityType.AlbumCover);
         else if (model.AlbumCover != album.Id.ToString())
             await imageService.SaveAsync(album.Id, model.AlbumCover, EntityType.AlbumCover);
+
+        if (model.ReleaseId > 0)
+        {
+            var releaseBelongsToAlbum = await context.Releases
+                .AnyAsync(r => r.Id == model.ReleaseId && r.AlbumId == album.Id, cancellationToken);
+            if (!releaseBelongsToAlbum)
+                throw new InvalidDataException("Release does not belong to the album");
+
+            await sender.Send(new UpdateReleaseCommand(new UpdateReleaseRequest
+            {
+                ReleaseId = model.ReleaseId,
+                Source = model.Source,
+                Discogs = model.Discogs,
+                IsFirstPress = model.IsFirstPress,
+                Country = model.Country,
+                Label = model.Label,
+                Storage = model.Storage,
+                Year = model.Year,
+                Reissue = model.Reissue,
+                Size = model.Size,
+                VinylState = model.VinylState,
+                DigitalFormat = model.DigitalFormat,
+                Bitness = model.Bitness,
+                Sampling = model.Sampling,
+                SourceFormat = model.SourceFormat,
+                Player = model.Player,
+                PlayerManufacturer = model.PlayerManufacturer,
+                Cartridge = model.Cartridge,
+                CartridgeManufacturer = model.CartridgeManufacturer,
+                Amplifier = model.Amplifier,
+                AmplifierManufacturer = model.AmplifierManufacturer,
+                Adc = model.Adc,
+                AdcManufacturer = model.AdcManufacturer,
+                Wire = model.Wire,
+                WireManufacturer = model.WireManufacturer
+            }), cancellationToken);
+        }
 
         AlbumHub.InvalidateAlbumCache(album.Id);
         return album.Id;

@@ -47,6 +47,7 @@
     <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
         <input type="hidden" id="cover-id" asp-for="AlbumCover" />
         <input type="hidden" id="album-id" asp-for="AlbumId" />
+        <input type="hidden" id="release-id" asp-for="ReleaseId" />
         <input type="hidden" id="action" asp-for="Action" />
         <div class="card shadow-sm border-1 p-3">
             <div class="row align-items-stretch">
@@ -128,7 +129,7 @@
                                 </div>
                                 <div class="col-md-2 d-flex align-items-center">
                                     <div class="form-check">
-                                        <input id="is-first-press-input" class="form-check-input" type="checkbox" />
+                                        <input id="is-first-press-input" class="form-check-input" type="checkbox" asp-for="IsFirstPress" />
                                         <label class="form-check-label" for="is-first-press-input">First press</label>
                                     </div>
                                 </div>
@@ -453,12 +454,14 @@
         $("input[placeholder='Storage']").val("");
         $("input[placeholder='Discogs link']").val("");
         selectedReleaseId = 0;
+        $("#release-id").val("0");
         checkUpdateRemoveButtons();
         updateReleaseHardwareTabsVisibility();
     }
 
     function loadReleaseToFields(release) {
         selectedReleaseId = release.id || release.Id;
+        $("#release-id").val(selectedReleaseId);
         // Format Info - handle both camelCase and PascalCase (use ?? so 0 is shown)
         $("#vinylstate-input").val(release.vinylState || release.VinylState || "");
         $("#digitalformat-input").val(release.digitalFormat || release.DigitalFormat || "");
@@ -512,6 +515,7 @@
         if (!digs || digs.length === 0) {
             $container.html('<div class="album-create-update-no-releases" id="no-releases">No releases</div>');
             selectedReleaseId = 0;
+            $("#release-id").val("0");
             checkUpdateRemoveButtons();
             updateReleaseHardwareTabsVisibility();
             $("#loader").hide();

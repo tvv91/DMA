@@ -147,7 +147,7 @@
         const albumIds = [...inner.querySelectorAll('[data-album-id]')].map((el) => parseInt(el.getAttribute('data-album-id'), 10)).filter((id) => !Number.isNaN(id));
         if (albumIds.length > 0) {
           try {
-            await connection.invoke("GetAlbumCovers", connection.connectionId, albumIds);
+            await connection.invoke("GetAlbumCovers", albumIds);
           } catch (err) { console.error("GetAlbumCovers:", err); }
         }
       }
@@ -193,7 +193,7 @@
           <text>
           (async function loadEquipmentAlbumCoversInitial() {
             try {
-              await connection.invoke("GetAlbumCovers", connection.connectionId, @Json.Serialize(Model.ReleasedAlbumsPage.Albums.Select(a => a.Id).ToList()));
+              await connection.invoke("GetAlbumCovers", @Json.Serialize(Model.ReleasedAlbumsPage.Albums.Select(a => a.Id).ToList()));
             } catch (err) { console.error("GetAlbumCovers:", err); }
           })();
           </text>
@@ -209,7 +209,7 @@
 
       async function getEquipmentImage(id) {
         try {
-          await equipmentConnection.invoke("GetEquipmentImage", equipmentConnection.connectionId, id, "@(Model?.EquipmentType.ToString() ?? "Adc")");
+          await equipmentConnection.invoke("GetEquipmentImage", id, "@(Model?.EquipmentType.ToString() ?? "Adc")");
         } catch (err) {
           console.error("Error sending request to GetEquipmentImage:", err);
         }

@@ -24,7 +24,7 @@ namespace Web.Hubs
             { "wire", EntityType.Wire },
         };
 
-        public async Task GetHardwareByCategory(string connectionId, string category, int page)
+        public async Task GetHardwareByCategory(string category, int page)
         {
             if (!_categoryEntityMap.TryGetValue(category, out var entityType))
                 return;
@@ -43,13 +43,13 @@ namespace Web.Hubs
 
             int pageCount = pagedResult.TotalPages;
 
-            await Clients.Client(connectionId).SendAsync("ReceivedItems", result);
-            await Clients.Client(connectionId).SendAsync("ReceivedItemsCount", pageCount);
+            await Clients.Caller.SendAsync("ReceivedItems", result);
+            await Clients.Caller.SendAsync("ReceivedItemsCount", pageCount);
 
             foreach (var item in result)
             {
                 var imageUrl = await _imgService.GetUrlAsync(item.Id, entityType);
-                await Clients.Client(connectionId).SendAsync(
+                await Clients.Caller.SendAsync(
                     "ReceivedItemImage",
                     item.Id,
                     imageUrl
@@ -57,23 +57,26 @@ namespace Web.Hubs
             }
         }
 
-        public async Task GetManufacturer(string connectionId, string category, string value)
+        public async Task GetManufacturer(string category, string value)
         {
             if (!_categoryEntityMap.TryGetValue(category, out var type))
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, string.Empty);
+                await Clients.Caller.SendAsync("ReceivedManufacturer", category, string.Empty);
                 return;
             }
 
             var result = await _sender.Send(new FindEquipmentManufacturerQuery(type, value)) ?? string.Empty;
 
-            await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
+            await Clients.Caller.SendAsync("ReceivedManufacturer", category, result);
         }
 
-        public async Task GetEquipmentImage(string connectionId, int equipmentId, string type)
+        public async Task GetEquipmentImage(int equipmentId, string type)
         {
-            var imageUrl = await _imgService.GetUrlAsync(equipmentId, Enum.Parse<EntityType>(type));
-            await Clients.Client(connectionId).SendAsync("ReceivedEquipmentImageDetailed", imageUrl);
+            if (!Enum.TryParse<EntityType>(type, true, out var entityType))
+                return;
+
+            var imageUrl = await _imgService.GetUrlAsync(equipmentId, entityType);
+            await Clients.Caller.SendAsync("ReceivedEquipmentImageDetailed", imageUrl);
         }
     }
 }

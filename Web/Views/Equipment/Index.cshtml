@@ -1,4 +1,4 @@
-﻿<div class="toast-container position-fixed bottom-0 end-0 p-3">
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast_deleted" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
             <strong class="me-auto">Removed</strong>
@@ -148,7 +148,7 @@
 
     async function getHardwareByCategory(category, page) {
         try {
-            await equipmentConnection.invoke("GetHardwareByCategory", equipmentConnection.connectionId, category, page);
+            await equipmentConnection.invoke("GetHardwareByCategory", category, page);
         } catch (err) {
             console.error("Error sending request to GetHardwareByCategory", err);
         }

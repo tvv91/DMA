@@ -604,7 +604,7 @@
         
         $("#loader").show();
         try {
-            await connection.invoke("AddRelease", connection.connectionId, req);
+            await connection.invoke("AddRelease", req);
         } catch (err) {
             console.error("Error adding release:", err);
             $("#loader").hide();
@@ -652,7 +652,7 @@
         
         $("#loader").show();
         try {
-            await connection.invoke("UpdateRelease", connection.connectionId, req);
+            await connection.invoke("UpdateRelease", req);
         } catch (err) {
             console.error("Error updating release:", err);
             $("#loader").hide();
@@ -682,7 +682,7 @@
         modal.hide();
         
         try {
-            await connection.invoke("RemoveRelease", connection.connectionId, selectedReleaseId);
+            await connection.invoke("RemoveRelease", selectedReleaseId);
         } catch (err) {
             console.error("Error removing release:", err);
             $("#loader").hide();
@@ -726,7 +726,7 @@
     async function checkAlbum(albumId, album, artist, source, alertId) {
         try {
             showCheckingAlert(alertId);
-            await connection.invoke("CheckAlbum", connection.connectionId, albumId, album, artist, source);
+            await connection.invoke("CheckAlbum", albumId, album, artist, source);
         } catch (err) {
             console.error("Error checking album:", err);
             $(`#${alertId} .album-check-spinner`).addClass("d-none");
@@ -751,7 +751,7 @@
             };
             const category = categoryMap[manufacturerType];
             if (category) {
-                await connection.invoke("GetManufacturer", connection.connectionId, category, equipmentValue);
+                await connection.invoke("GetManufacturer", category, equipmentValue);
             }
         } catch (err) {
             console.error("Error getting manufacturer:", err);

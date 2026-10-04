@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
 using System.Collections.Concurrent;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Web.Authorization;
 using Web.Enums;
 using Web.Features.Albums;
 using Web.Features.Equipment;
@@ -32,14 +34,14 @@ namespace Web.Hubs
         /// <summary>
         /// Get album covers
         /// </summary>
-        public async Task GetAlbumCovers(string connectionId, int[] albums)
+        public async Task GetAlbumCovers(int[] albums)
         {
             Random.Shared.Shuffle(albums);
 
             foreach (var albumId in albums)
             {
                 var cover = await GetCachedAlbumCoverAsync(albumId);
-                await Clients.Client(connectionId).SendAsync("ReceivedAlbumCover", albumId, cover);
+                await Clients.Caller.SendAsync("ReceivedAlbumCover", albumId, cover);
                 await Task.Delay(100);
             }
         }
@@ -62,88 +64,91 @@ namespace Web.Hubs
         /// <summary>
         /// Get cover of specific album 
         /// </summary>
-        public async Task GetAlbumCover(string connectionId, int albumId)
+        public async Task GetAlbumCover(int albumId)
         {
             var imageUrl = await _imgService.GetUrlAsync(albumId, EntityType.AlbumCover);
-            await Clients.Client(connectionId).SendAsync("ReceivedAlbumCoverDetailed", imageUrl);
+            await Clients.Caller.SendAsync("ReceivedAlbumCoverDetailed", imageUrl);
         }
 
-        public async Task CheckAlbum(string connectionId, int albumId, string album, string artist, string source)
+        public async Task CheckAlbum(int albumId, string album, string artist, string source)
         {
             var result = await _sender.Send(new CheckAlbumQuery(albumId, album, artist, source));
-            await Clients.Client(connectionId).SendAsync("AlbumIsExist", result.Status, result.Id);
+            await Clients.Caller.SendAsync("AlbumIsExist", result.Status, result.Id);
         }
 
-        public async Task AddRelease(string connectionId, AddReleaseRequest request)
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task AddRelease(AddReleaseRequest request)
         {
             try
             {
                 var added = await _sender.Send(new AddReleaseCommand(request));
-                await Clients.Client(connectionId).SendAsync("ReleaseAdded", added.Success, added.Error, added.AlbumId, added.Releases);
+                await Clients.Caller.SendAsync("ReleaseAdded", added.Success, added.Error, added.AlbumId, added.Releases);
             }
             catch (Exception ex)
             {
-                await Clients.Client(connectionId).SendAsync("ReleaseAdded", false, ex.Message, 0);
+                await Clients.Caller.SendAsync("ReleaseAdded", false, ex.Message, 0);
             }
         }
 
-        public async Task UpdateRelease(string connectionId, UpdateReleaseRequest request)
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task UpdateRelease(UpdateReleaseRequest request)
         {
             try
             {
                 if (request.ReleaseId == 0)
                 {
-                    await Clients.Client(connectionId).SendAsync("ReleaseUpdated", false, "Release ID is required");
+                    await Clients.Caller.SendAsync("ReleaseUpdated", false, "Release ID is required");
                     return;
                 }
 
                 var updated = await _sender.Send(new UpdateReleaseCommand(request));
-                await Clients.Client(connectionId).SendAsync("ReleaseUpdated", updated.Success, updated.Error, updated.Releases);
+                await Clients.Caller.SendAsync("ReleaseUpdated", updated.Success, updated.Error, updated.Releases);
             }
             catch (Exception ex)
             {
-                await Clients.Client(connectionId).SendAsync("ReleaseUpdated", false, ex.Message);
+                await Clients.Caller.SendAsync("ReleaseUpdated", false, ex.Message);
             }
         }
 
-        public async Task RemoveRelease(string connectionId, int releaseId)
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task RemoveRelease(int releaseId)
         {
             try
             {
                 var removed = await _sender.Send(new DeleteReleaseCommand(releaseId));
-                await Clients.Client(connectionId).SendAsync("ReleaseRemoved", removed.Success, removed.Error, removed.Releases);
+                await Clients.Caller.SendAsync("ReleaseRemoved", removed.Success, removed.Error, removed.Releases);
             }
             catch (Exception ex)
             {
-                await Clients.Client(connectionId).SendAsync("ReleaseRemoved", false, ex.Message);
+                await Clients.Caller.SendAsync("ReleaseRemoved", false, ex.Message);
             }
         }
 
-        public async Task GetManufacturer(string connectionId, string category, string value)
+        public async Task GetManufacturer(string category, string value)
         {
             if (!_categoryEntityMap.TryGetValue(category, out var type))
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, string.Empty);
+                await Clients.Caller.SendAsync("ReceivedManufacturer", category, string.Empty);
                 return;
             }
 
             var result = await _sender.Send(new FindEquipmentManufacturerQuery(type, value)) ?? string.Empty;
 
-            await Clients.Client(connectionId).SendAsync("ReceivedManufacturer", category, result);
+            await Clients.Caller.SendAsync("ReceivedManufacturer", category, result);
         }
 
-        public async Task GetTechnicalInfoIcons(string connectionId, int releaseId)
+        public async Task GetTechnicalInfoIcons(int releaseId)
         {
             var technicalInfo = await _sender.Send(new GetTechnicalInfoIconsQuery(releaseId));
 
             if (technicalInfo is null)
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
+                await Clients.Caller.SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
             }
             if (technicalInfo.Values.Values.All(x => x.Id is null))
             {
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfo", null, null);
+                await Clients.Caller.SendAsync("ReceivedTechnicalInfo", null, null);
                 return;
             }
             foreach (var kvp in technicalInfo.Values)
@@ -158,7 +163,7 @@ namespace Web.Hubs
                         : await _imgService.GetUrlAsync(kvp.Value.Id.Value, kvp.Value.Type);
                 }
 
-                await Clients.Client(connectionId).SendAsync("ReceivedTechnicalInfoIcon", category, url);
+                await Clients.Caller.SendAsync("ReceivedTechnicalInfoIcon", category, url);
             }
         }
 

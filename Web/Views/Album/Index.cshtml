@@ -256,7 +256,7 @@ else
 
     async function getAlbumCovers() {
         try {
-            await connection.invoke("GetAlbumCovers", connection.connectionId, Array.from(albumIds));
+            await connection.invoke("GetAlbumCovers", Array.from(albumIds));
         } catch (err) {
             console.error("Error sending request to GetAlbumCovers", err);
         }

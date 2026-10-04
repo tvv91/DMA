@@ -22,7 +22,7 @@ async function fetchPosts(page = 1, searchText = "", category = "", year = "", o
 
     $("#spinner").removeClass("d-none");
     try {
-        await postConnection.invoke("GetPosts", postConnection.connectionId, page, searchText, category, year, onlyDrafts);
+        await postConnection.invoke("GetPosts", page, searchText, category, year, onlyDrafts);
     } catch (err) {
         console.error("Error fetching posts:", err);
         $("#spinner").addClass("d-none");
@@ -145,7 +145,7 @@ async function fetchBlogTree() {
     }
 
     try {
-        await postConnection.invoke("GetBlogTree", postConnection.connectionId);
+        await postConnection.invoke("GetBlogTree");
     } catch (err) {
         console.error("Error fetching blog tree:", err);
     }
@@ -300,7 +300,7 @@ async function autoSave(isManual = false) {
     const content = $("#content-editor").html() || $("#content").val();
     
     try {
-        await postConnection.invoke("AutoSavePost", postConnection.connectionId, postId || 0,
+        await postConnection.invoke("AutoSavePost", postId || 0,
             $("#title").val().trim(),
             $("#description").val().trim(),
             content.trim(),

@@ -682,7 +682,7 @@
 
     async function getTechnicalInfoIcons(albumId) {
         try {
-            await connection.invoke("GetTechnicalInfoIcons", connection.connectionId, albumId);
+            await connection.invoke("GetTechnicalInfoIcons", albumId);
         } catch (err) {
             console.log("Error sending request to GetTechnicalInfoIcons");
             techInfoGridCategories.forEach((c) => applyTechnicalInfoIcon(c, null));
@@ -691,7 +691,7 @@
 
     async function getAlbumCover(albumId) {
         try {
-            await connection.invoke("GetAlbumCover", connection.connectionId, albumId);
+            await connection.invoke("GetAlbumCover", albumId);
         } catch (err) {
             console.log("Error sending request to GetAlbumCover");
         }

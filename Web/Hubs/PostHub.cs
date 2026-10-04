@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authorization;
 using MediatR;
 using Web.Authorization;
 using Web.Features.Posts;
@@ -11,7 +12,7 @@ namespace Web.Hubs
         private readonly ISender _sender = sender;
         private readonly TimeProvider _timeProvider = timeProvider;
 
-        public async Task GetPosts(string connectionId, int page, string searchText, string category, string year, bool onlyDrafts)
+        public async Task GetPosts(int page, string searchText, string category, string year, bool onlyDrafts)
         {
             var isAdmin = Context.User.IsInRole(RoleNames.Admin);
             if (onlyDrafts && !isAdmin)
@@ -20,19 +21,20 @@ namespace Web.Hubs
             var excludeDrafts = !isAdmin;
             var result = await _sender.Send(new GetHubPostsQuery(page, searchText, category, year, onlyDrafts, excludeDrafts));
 
-            await Clients.Client(connectionId)
+            await Clients.Caller
                 .SendAsync("ReceivedPosts", result.Items, result.TotalPages);
         }
 
-        public async Task GetBlogTree(string connectionId)
+        public async Task GetBlogTree()
         {
             var tree = await _sender.Send(new GetBlogTreeQuery());
 
-            await Clients.Client(connectionId)
+            await Clients.Caller
                 .SendAsync("ReceivedBlogTree", tree);
         }
 
-        public async Task AutoSavePost(string connectionId, int id, string title, string description, string content, string category)
+        [Authorize(Roles = RoleNames.Admin)]
+        public async Task AutoSavePost(int id, string title, string description, string content, string category)
         {
             var now = _timeProvider.GetUtcNow().UtcDateTime;
             bool isNew = id == 0;
@@ -51,7 +53,7 @@ namespace Web.Hubs
                     };
 
                     var postId = await _sender.Send(new CreateDraftPostCommand(model));
-                    await Clients.Client(connectionId).SendAsync("PostCreated", postId, now);
+                    await Clients.Caller.SendAsync("PostCreated", postId, now);
                 }
                 else
                 {
@@ -66,7 +68,7 @@ namespace Web.Hubs
 
                     model.Id = id;
                     await _sender.Send(new UpdatePostCommand(model));
-                    await Clients.Client(connectionId).SendAsync("PostUpdated", now);
+                    await Clients.Caller.SendAsync("PostUpdated", now);
                 }
             }
             catch (KeyNotFoundException)

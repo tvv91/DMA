@@ -310,6 +310,8 @@
     let selectedReleaseId = 0;
     let releases = [];
     let currentAlbumCheckContext = "main";
+    let isAlbumDuplicate = false;
+    let initialGeneralValues = {};
 
     // --- Constants / config ---
     const alertMessages = {
@@ -417,6 +419,12 @@
         const enabled = selectedReleaseId > 0;
         $("#update-release-btn").prop("disabled", !enabled);
         $("#remove-release-btn").prop("disabled", !enabled);
+    }
+
+    function checkSaveButtonState() {
+        const isEdit = "@Model.Action" === "Update";
+        const generalFieldsChanged = Object.keys(initialGeneralValues).some(id => $("#" + id).val() !== initialGeneralValues[id]);
+        $("#save-album-btn").prop("disabled", isEdit && (!generalFieldsChanged || isAlbumDuplicate));
     }
 
     function updateReleaseHardwareTabsVisibility() {
@@ -781,7 +789,10 @@
         const text = typeof message.text === "function" ? message.text(albumId) : message.text;
         showAlert(alertId, `alert-${message.type}`, text);
         const isDuplicate = factor === 1 || factor === 100;
-        $("#save-album-btn").prop("disabled", isDuplicate);
+        if (currentAlbumCheckContext === "main") {
+            isAlbumDuplicate = isDuplicate;
+            checkSaveButtonState();
+        }
         $("#add-release-btn").prop("disabled", isDuplicate);
         if (!isDuplicate) checkAddButtonState();
     });
@@ -893,9 +904,15 @@
         checkAddButtonState();
         checkUpdateRemoveButtons();
         updateReleaseHardwareTabsVisibility();
+
+        $("#artist-input, #album-input, #genre-input").each(function () {
+            initialGeneralValues[this.id] = $(this).val();
+        });
+        checkSaveButtonState();
         
         // Set up field change listeners
         $("#artist-input, #album-input, #genre-input").on("input", checkAddButtonState);
+        $("#artist-input, #album-input, #genre-input").on("input", checkSaveButtonState);
         $("#vinylstate-input, #digitalformat-input, #bitness-input, #sampling-input, #sourceformat-input, #year-input, #reissue-input, #source-input, #size-input, #player-input, #cartridge-input, #amp-input, #adc-input, #wire-input").on("input", checkAddButtonState);
         
         // Load existing releases if any

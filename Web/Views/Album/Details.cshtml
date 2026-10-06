@@ -198,6 +198,8 @@
         <hr />
         <div id="releaseinfo"></div>
     </div>
+    @if (Model.Releases?.Any() == true)
+    {
     <div class="release-table">
         <div class="table-header">
             <div class="col col-vinyl sortable-header" data-sort-key="vinyl" role="columnheader" tabindex="0" aria-sort="none">
@@ -229,13 +231,11 @@
             </div>
             <div class="col col-wire sortable-header" data-sort-key="wire" role="columnheader" tabindex="0" aria-sort="none">
                 <span>Wire</span><i class="fa-solid fa-sort sort-icon" aria-hidden="true"></i>
-            </div>
+    </div>
         </div>
         <div class="table-body" id="releaseTableBody">
-            @if (Model.Releases != null && Model.Releases.Any())
+            @foreach (var d in Model.Releases!)
             {
-                foreach (var d in Model.Releases)
-                {
                     bool isDsd = d.FormatInfo?.DigitalFormat?.Name?.Contains("dsd", StringComparison.OrdinalIgnoreCase) == true;
                     <div class="table-row @(d.IsFirstPress == true ? "first-press-row" : "")" data-id="@d.Id">
                         <div class="col col-vinyl">
@@ -389,18 +389,10 @@
                             }
                         </div>
                     </div>
-                }
-            }
-            else
-            {
-                <div class="table-row">
-                    <div class="col" style="grid-column: span 10; text-align:center; color:#888;">
-                        No releases available
-                    </div>
-                </div>
             }
         </div>
     </div>
+    }
 </div>
 <script>
     const releases = @Html.Raw(JsonSerializer.Serialize(Model.Releases, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }))

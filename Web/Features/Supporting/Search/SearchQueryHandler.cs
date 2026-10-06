@@ -10,6 +10,7 @@ namespace Web.Features.Supporting.Search;
 public sealed class SearchQueryHandler(Context context) : IRequestHandler<SearchQuery, List<AutocompleteResponse>>
 {
     private const int MaxItems = 10;
+    private static readonly double[] DsdSamplingValues = [2.8, 5.6, 11.2, 22.5];
 
     public async Task<List<AutocompleteResponse>> Handle(SearchQuery request, CancellationToken cancellationToken)
     {
@@ -29,7 +30,7 @@ public sealed class SearchQueryHandler(Context context) : IRequestHandler<Search
                 EntityType.Adc => await context.Adces.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
                 EntityType.Wire => await context.Wires.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
                 EntityType.PlayerManufacturer or EntityType.CartridgeManufacturer or EntityType.AmplifierManufacturer or EntityType.AdcManufacturer or EntityType.WireManufacturer => await context.Manufacturer.AsNoTracking().OrderBy(x => x.Name).Select(x => new AutocompleteResponse { Label = x.Name, Value = x.Name }).Take(MaxItems).ToListAsync(cancellationToken),
-                EntityType.Sampling => (await context.Samplings.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = $"{x} kHz", Value = x.ToString(CultureInfo.InvariantCulture) }),
+                EntityType.Sampling => (await context.Samplings.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = FormatSamplingLabel(x), Value = x.ToString(CultureInfo.InvariantCulture) }),
                 EntityType.Bitness => (await context.Bitnesses.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = x.ToString(CultureInfo.InvariantCulture), Value = x.ToString(CultureInfo.InvariantCulture) }),
                 EntityType.Year => (await context.Years.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = x.ToString(CultureInfo.InvariantCulture), Value = x.ToString(CultureInfo.InvariantCulture) }),
                 EntityType.Reissue => (await context.Reissues.AsNoTracking().OrderBy(x => x.Value).Select(x => x.Value).Take(MaxItems).ToListAsync(cancellationToken)).ConvertAll(x => new AutocompleteResponse { Label = x.ToString(CultureInfo.InvariantCulture), Value = x.ToString(CultureInfo.InvariantCulture) }),
@@ -57,7 +58,7 @@ public sealed class SearchQueryHandler(Context context) : IRequestHandler<Search
             EntityType.Year => await SearchNumber(context.Years, x => x.Value, value, cancellationToken),
             EntityType.Reissue => await SearchNumber(context.Reissues, x => x.Value, value, cancellationToken),
             EntityType.Bitness => await SearchNumber(context.Bitnesses, x => x.Value, value, cancellationToken),
-            EntityType.Sampling => (await context.Samplings.AsNoTracking().ToListAsync(cancellationToken)).Where(x => x.Value.ToString(CultureInfo.InvariantCulture).Contains(value, StringComparison.OrdinalIgnoreCase)).Take(MaxItems).Select(x => new AutocompleteResponse { Label = $"{x.Value} kHz", Value = x.Value.ToString(CultureInfo.InvariantCulture) }).ToList(),
+            EntityType.Sampling => (await context.Samplings.AsNoTracking().ToListAsync(cancellationToken)).Where(x => x.Value.ToString(CultureInfo.InvariantCulture).Contains(value, StringComparison.OrdinalIgnoreCase)).Take(MaxItems).Select(x => new AutocompleteResponse { Label = FormatSamplingLabel(x.Value), Value = x.Value.ToString(CultureInfo.InvariantCulture) }).ToList(),
             _ => []
         };
     }
@@ -66,6 +67,12 @@ public sealed class SearchQueryHandler(Context context) : IRequestHandler<Search
     {
         var property = ((MemberExpression)selector.Body).Member.Name;
         return await query.AsNoTracking().Where(x => EF.Functions.Like(EF.Property<string>(x, property), $"%{value}%")).Select(x => new AutocompleteResponse { Label = EF.Property<string>(x, property), Value = EF.Property<string>(x, property) }).Distinct().Take(MaxItems).ToListAsync(cancellationToken);
+    }
+
+    private static string FormatSamplingLabel(double value)
+    {
+        var unit = DsdSamplingValues.Contains(value) ? "MHz" : "kHz";
+        return $"{value.ToString(CultureInfo.InvariantCulture)} {unit}";
     }
 
     private static async Task<List<AutocompleteResponse>> SearchNumber<TEntity>(IQueryable<TEntity> query, Expression<Func<TEntity, int>> selector, string value, CancellationToken cancellationToken) where TEntity : class

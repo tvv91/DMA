@@ -122,7 +122,7 @@
                                     <input id="source-input" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(false)" />
                                 </div>
                                 <div class="col-md-2">
-                                    <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
+                                    <input class="form-control" asp-for="Discogs" placeholder="Discogs" />
                                 </div>
                                 <div class="col-md-2">
                                     <input id="size-input" class="form-control" asp-for="Size" placeholder="Size (GB)" />
@@ -262,7 +262,7 @@
                                     <input id="source-input-modal" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(true)" />
                                 </div>
                                 <div class="col-md-2">
-                                    <input class="form-control" asp-for="Discogs" placeholder="Discogs link" />
+                                    <input class="form-control" asp-for="Discogs" placeholder="Discogs" />
                                 </div>
                                 <div class="col-md-2">
                                     <input id="size-input-modal" class="form-control" asp-for="Size" placeholder="Size (GB)" />
@@ -452,7 +452,7 @@
         $("#player-manufacturer-input, #cartridge-manufacturer-input, #amp-manufacturer-input, #adc-manufacturer-input, #wire-manufacturer-input").val("");
         $("#country-input, #label-input").val("");
         $("input[placeholder='Storage']").val("");
-        $("input[placeholder='Discogs link']").val("");
+        $("input[placeholder='Discogs']").val("");
         selectedReleaseId = 0;
         $("#release-id").val("0");
         checkUpdateRemoveButtons();
@@ -500,7 +500,7 @@
         $("#country-input").val(release.country || release.Country || "");
         $("#label-input").val(release.label || release.Label || "");
         $("input[placeholder='Storage']").val(release.storage || release.Storage || "");
-        $("input[placeholder='Discogs link']").val(release.discogs || release.Discogs || "");
+        $("input[placeholder='Discogs']").val(release.discogs || release.Discogs || "");
         $("#source-input").val(release.source || release.Source || "");
 
         checkUpdateRemoveButtons();
@@ -589,7 +589,7 @@
             album: $("#album-input").val()?.trim() || "",
             genre: $("#genre-input").val()?.trim() || "",
             source: $modal.find("#source-input-modal").val()?.trim() || null,
-            discogs: $modal.find("input[placeholder='Discogs link']").val()?.trim() || null,
+            discogs: $modal.find("input[placeholder='Discogs']").val()?.trim() || null,
             isFirstPress: $modal.find("#is-first-press-input-modal").is(":checked"),
             country: $modal.find("#country-input-modal").val()?.trim() || null,
             label: $modal.find("#label-input-modal").val()?.trim() || null,
@@ -637,7 +637,7 @@
             album: $("#album-input").val()?.trim() || "",
             genre: $("#genre-input").val()?.trim() || "",
             source: $("#source-input").val()?.trim() || null,
-            discogs: $("input[placeholder='Discogs link']").val()?.trim() || null,
+            discogs: $("input[placeholder='Discogs']").val()?.trim() || null,
             isFirstPress: $("#is-first-press-input").is(":checked"),
             country: $("input[placeholder='Country']").val()?.trim() || null,
             label: $("#label-input").val()?.trim() || null,

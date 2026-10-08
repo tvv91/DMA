@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
+using Web.Authorization;
 using Web.Features.Supporting;
 
 namespace Web.Controllers
@@ -9,6 +11,7 @@ namespace Web.Controllers
         private const long MaxImageSizeBytes = 5 * 1024 * 1024;
         private readonly ISender _sender = sender;
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpPost("/uploadimage")]
         [RequestSizeLimit(MaxImageSizeBytes)]
         public async Task<IActionResult> UploadCover([FromForm(Name = "file")] IFormFile? file)
@@ -20,6 +23,7 @@ namespace Web.Controllers
             return result.Success ? Json(new { result.Filename }) : BadRequest(result.Error);
         }
 
+        [Authorize(Roles = RoleNames.Admin)]
         [HttpDelete("/uploadimage/{filename}")]
         public async Task<IActionResult> DeleteTempImage(string filename)
         {

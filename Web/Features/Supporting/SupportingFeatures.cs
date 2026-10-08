@@ -111,10 +111,17 @@ public sealed class LoginCommandHandler(SignInManager<ApplicationUser> signInMan
         if (user is null) return Invalid(request);
         var result = await signInManager.PasswordSignInAsync(user.UserName!, model.Password, model.RememberMe, false);
         if (!result.Succeeded) return Invalid(request);
-        return new(true, request.IsAjax, string.IsNullOrWhiteSpace(model.ReturnUrl) ? "/" : model.ReturnUrl);
+        return new(true, request.IsAjax, GetLocalReturnUrl(model.ReturnUrl));
     }
 
-    private static LoginResult Invalid(LoginCommand request) => new(false, request.IsAjax, string.IsNullOrWhiteSpace(request.Model.ReturnUrl) ? "/" : request.Model.ReturnUrl);
+    private static LoginResult Invalid(LoginCommand request) => new(false, request.IsAjax, GetLocalReturnUrl(request.Model.ReturnUrl));
+
+    private static string GetLocalReturnUrl(string? returnUrl) =>
+        !string.IsNullOrWhiteSpace(returnUrl) &&
+        ((returnUrl.StartsWith("/", StringComparison.Ordinal) && !returnUrl.StartsWith("//", StringComparison.Ordinal)) ||
+         returnUrl.StartsWith("~/", StringComparison.Ordinal))
+            ? returnUrl
+            : "/";
 }
 
 public sealed class LogoutCommandHandler(SignInManager<ApplicationUser> signInManager) : IRequestHandler<LogoutCommand, Unit>

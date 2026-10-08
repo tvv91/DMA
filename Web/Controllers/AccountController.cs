@@ -14,7 +14,7 @@ public class AccountController(ISender sender) : Controller
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
-        var redirect = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+        var redirect = GetLocalReturnUrl(returnUrl);
         var separator = redirect.Contains('?') ? "&" : "?";
         return Redirect($"{redirect}{separator}showLogin=true");
     }
@@ -31,7 +31,8 @@ public class AccountController(ISender sender) : Controller
         var result = await _sender.Send(new LoginCommand(model, isAjax));
         if (!result.Success)
             return InvalidLogin(model.ReturnUrl, isAjax);
-        return result.IsAjax ? Ok(new { redirectUrl = result.RedirectUrl }) : LocalRedirect(result.RedirectUrl);
+        var redirectUrl = GetLocalReturnUrl(result.RedirectUrl);
+        return result.IsAjax ? Ok(new { redirectUrl }) : LocalRedirect(redirectUrl);
     }
 
     [HttpPost("account/logout")]
@@ -57,8 +58,13 @@ public class AccountController(ISender sender) : Controller
 
     private IActionResult RedirectToLogin(string? returnUrl)
     {
-        var redirect = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+        var redirect = GetLocalReturnUrl(returnUrl);
         var separator = redirect.Contains('?') ? "&" : "?";
         return Redirect($"{redirect}{separator}showLogin=true");
     }
+
+    private string GetLocalReturnUrl(string? returnUrl) =>
+        !string.IsNullOrWhiteSpace(returnUrl) && Url.IsLocalUrl(returnUrl)
+            ? returnUrl
+            : "/";
 }

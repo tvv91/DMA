@@ -7,6 +7,7 @@ using Web.Contracts;
 using Web.Models;
 using Web.Features.Albums.Releases;
 using StorageModel = Web.Models.Storage;
+using Web.Authorization;
 
 namespace Web.Features.Albums;
 
@@ -59,10 +60,11 @@ public sealed class CheckAlbumQueryHandler(Context context) : IRequestHandler<Ch
     }
 }
 
-public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeProvider) : IRequestHandler<AddReleaseCommand, ReleaseHubResult>
+public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeProvider, IAdminAuthorization authorization) : IRequestHandler<AddReleaseCommand, ReleaseHubResult>
 {
     public async Task<ReleaseHubResult> Handle(AddReleaseCommand command, CancellationToken cancellationToken)
     {
+        authorization.EnsureAdmin();
         var request = command.Request;
         var album = request.AlbumId == 0 ? await CreateOrFindAlbum(request, cancellationToken) : await context.Albums.FindAsync([request.AlbumId], cancellationToken);
         if (album is null) return new(false, "Album not found", 0, []);
@@ -148,15 +150,16 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
     private Task<List<ReleaseHubDto>> GetDtos(int albumId, CancellationToken ct) => ReleaseHubQueries.WithDetails(context.Releases.AsNoTracking().Where(x => x.AlbumId == albumId)).Select(x => new ReleaseHubDto(x.Id, x.FormatInfo!.VinylState!.Name, x.FormatInfo!.Bitness!.Value, x.FormatInfo!.Sampling!.Value, x.FormatInfo!.DigitalFormat!.Name, x.FormatInfo!.SourceFormat!.Name, x.EquipmentInfo!.Player!.Name, x.EquipmentInfo!.Player!.Manufacturer!.Name, x.EquipmentInfo!.Cartridge!.Name, x.EquipmentInfo!.Cartridge!.Manufacturer!.Name, x.EquipmentInfo!.Amplifier!.Name, x.EquipmentInfo!.Amplifier!.Manufacturer!.Name, x.EquipmentInfo!.Adc!.Name, x.EquipmentInfo!.Adc!.Manufacturer!.Name, x.EquipmentInfo!.Wire!.Name, x.EquipmentInfo!.Wire!.Manufacturer!.Name, x.Source, x.Year!.Value, x.Reissue!.Value, x.Country!.Name, x.Label!.Name, x.Storage!.Name, x.Discogs, x.Size, x.IsFirstPress ?? false)).ToListAsync(ct);
 }
 
-public sealed class UpdateReleaseCommandHandler(Context context, TimeProvider timeProvider) : IRequestHandler<UpdateReleaseCommand, ReleaseHubResult>
+public sealed class UpdateReleaseCommandHandler(Context context, TimeProvider timeProvider, IAdminAuthorization authorization) : IRequestHandler<UpdateReleaseCommand, ReleaseHubResult>
 {
     public async Task<ReleaseHubResult> Handle(UpdateReleaseCommand command, CancellationToken ct)
     {
+        authorization.EnsureAdmin();
         var request = command.Request;
         var existing = await context.Releases.FirstOrDefaultAsync(x => x.Id == request.ReleaseId, ct);
         if (existing is null) return new(false, "Release not found", 0, []);
 
-        var mapper = new AddReleaseCommandHandler(context, timeProvider);
+        var mapper = new AddReleaseCommandHandler(context, timeProvider, authorization);
         var mapped = await mapper.MapRelease(existing.AlbumId, ToAddRequest(request, existing.AlbumId), ct);
         existing.Source = mapped.Source;
         existing.Discogs = mapped.Discogs;
@@ -206,9 +209,9 @@ public sealed class UpdateReleaseCommandHandler(Context context, TimeProvider ti
     };
 }
 
-public sealed class DeleteReleaseCommandHandler(Context context) : IRequestHandler<DeleteReleaseCommand, ReleaseHubResult>
+public sealed class DeleteReleaseCommandHandler(Context context, IAdminAuthorization authorization) : IRequestHandler<DeleteReleaseCommand, ReleaseHubResult>
 {
-    public async Task<ReleaseHubResult> Handle(DeleteReleaseCommand command, CancellationToken ct) { var release = await context.Releases.FindAsync([command.ReleaseId], ct); if (release is null) return new(false, "Release not found", 0, []); var albumId = release.AlbumId; context.Releases.Remove(release); await context.SaveChangesAsync(ct); var releases = await ReleaseHubQueries.WithDetails(context.Releases.AsNoTracking().Where(x => x.AlbumId == albumId)).Select(x => ReleaseHubQueries.ToDto(x)).ToListAsync(ct); return new(true, string.Empty, albumId, releases); }
+    public async Task<ReleaseHubResult> Handle(DeleteReleaseCommand command, CancellationToken ct) { authorization.EnsureAdmin(); var release = await context.Releases.FindAsync([command.ReleaseId], ct); if (release is null) return new(false, "Release not found", 0, []); var albumId = release.AlbumId; context.Releases.Remove(release); await context.SaveChangesAsync(ct); var releases = await ReleaseHubQueries.WithDetails(context.Releases.AsNoTracking().Where(x => x.AlbumId == albumId)).Select(x => ReleaseHubQueries.ToDto(x)).ToListAsync(ct); return new(true, string.Empty, albumId, releases); }
 }
 
 public sealed class GetTechnicalInfoIconsQueryHandler(Context context) : IRequestHandler<GetTechnicalInfoIconsQuery, TechnicalInfoResult?>

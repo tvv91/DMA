@@ -5,6 +5,7 @@ using Web.Infrastructure.Persistence;
 using Web.Models;
 using Web.ViewModels;
 using Web.Infrastructure.Security;
+using Web.Authorization;
 
 namespace Web.Features.Posts;
 
@@ -55,10 +56,11 @@ public sealed class GetBlogTreeQueryHandler(Context context) : IRequestHandler<G
     }
 }
 
-public sealed class CreateDraftPostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer) : IRequestHandler<CreateDraftPostCommand, int>
+public sealed class CreateDraftPostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer, IAdminAuthorization authorization) : IRequestHandler<CreateDraftPostCommand, int>
 {
     public async Task<int> Handle(CreateDraftPostCommand request, CancellationToken cancellationToken)
     {
+        authorization.EnsureAdmin();
         var post = new Post { Title = request.Model.Title, Description = request.Model.Description, Content = sanitizer.Sanitize(request.Model.Content), CreatedDate = timeProvider.GetUtcNow().UtcDateTime, IsDraft = true };
         if (!string.IsNullOrWhiteSpace(request.Model.Category) && request.Model.Category != "Category")
         {
@@ -102,10 +104,11 @@ public sealed class GetPostQueryHandler(Context context) : IRequestHandler<GetPo
     }
 }
 
-public sealed class CreatePostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer) : IRequestHandler<CreatePostCommand, int>
+public sealed class CreatePostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer, IAdminAuthorization authorization) : IRequestHandler<CreatePostCommand, int>
 {
     public async Task<int> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
+        authorization.EnsureAdmin();
         var post = new Post
         {
             Title = request.Model.Title,
@@ -132,10 +135,11 @@ public sealed class CreatePostCommandHandler(Context context, TimeProvider timeP
     }
 }
 
-public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer) : IRequestHandler<UpdatePostCommand, int>
+public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer, IAdminAuthorization authorization) : IRequestHandler<UpdatePostCommand, int>
 {
     public async Task<int> Handle(UpdatePostCommand request, CancellationToken cancellationToken)
     {
+        authorization.EnsureAdmin();
         if (request.Model.Id is null)
             throw new ArgumentException("Post id is required", nameof(request.Model));
         var post = await context.Posts
@@ -166,10 +170,11 @@ public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeP
     }
 }
 
-public sealed class DeletePostCommandHandler(Context context) : IRequestHandler<DeletePostCommand, bool>
+public sealed class DeletePostCommandHandler(Context context, IAdminAuthorization authorization) : IRequestHandler<DeletePostCommand, bool>
 {
     public async Task<bool> Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {
+        authorization.EnsureAdmin();
         var post = await context.Posts.FindAsync([request.Id], cancellationToken);
         if (post is null) return false;
         context.Posts.Remove(post);

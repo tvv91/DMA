@@ -8,6 +8,7 @@ using Web.Models;
 using Web.Infrastructure.Cleanup;
 using Web.Infrastructure.Security;
 using Web.Hubs;
+using Web.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -15,6 +16,8 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
 });
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAdminAuthorization, AdminAuthorization>();
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddDbContext<Context>(opts =>

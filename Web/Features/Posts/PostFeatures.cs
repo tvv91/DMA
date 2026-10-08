@@ -125,7 +125,6 @@ public sealed class CreatePostCommandHandler(Context context, TimeProvider timeP
             {
                 category = new Category { Title = categoryName };
                 context.Categories.Add(category);
-                await context.SaveChangesAsync(cancellationToken);
             }
             post.PostCategories.Add(new PostCategory { Category = category });
         }
@@ -161,7 +160,6 @@ public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeP
             {
                 categoryEntity = new Category { Title = category };
                 context.Categories.Add(categoryEntity);
-                await context.SaveChangesAsync(cancellationToken);
             }
             post.PostCategories.Add(new PostCategory { Category = categoryEntity });
         }

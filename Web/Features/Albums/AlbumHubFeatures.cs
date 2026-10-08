@@ -69,6 +69,7 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
         var album = request.AlbumId == 0 ? await CreateOrFindAlbum(request, cancellationToken) : await context.Albums.FindAsync([request.AlbumId], cancellationToken);
         if (album is null) return new(false, "Album not found", 0, []);
         var release = await MapRelease(album.Id, request, cancellationToken);
+        release.Album = album;
         context.Releases.Add(release);
         await context.SaveChangesAsync(cancellationToken);
         return new(true, string.Empty, album.Id, await GetDtos(album.Id, cancellationToken));
@@ -85,36 +86,37 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
         var genre = await context.Genres.FirstOrDefaultAsync(x => x.Name == genreName, ct) ?? new Genre { Name = genreName };
         if (genre.Id == 0) context.Genres.Add(genre);
         album = new Album { Title = title, Artist = artist, Genre = genre, AddedDate = timeProvider.GetLocalNow().LocalDateTime };
-        context.Albums.Add(album); await context.SaveChangesAsync(ct); return album;
+        context.Albums.Add(album); return album;
     }
 
     internal async Task<Release> MapRelease(int albumId, AddReleaseRequest r, CancellationToken ct)
     {
         var x = new Release { AlbumId = albumId, AddedDate = timeProvider.GetLocalNow().LocalDateTime, Source = r.Source, Discogs = r.Discogs, IsFirstPress = r.IsFirstPress, Size = r.Size };
-        x.YearId = (await Find(context.Years, y => y.Value == r.Year, r.Year, v => new Year { Value = v }, ct))?.Id;
-        x.ReissueId = (await Find(context.Reissues, y => y.Value == r.Reissue, r.Reissue, v => new Reissue { Value = v }, ct))?.Id;
-        x.CountryId = (await FindText(context.Countries, r.Country, (e, v) => e.Name == v, v => new Country { Name = v }, ct))?.Id;
-        x.LabelId = (await FindText<Label>(context.Labels, r.Label, (e, v) => e.Name == v, v => new Label { Name = v }, ct))?.Id;
-        x.StorageId = (await FindText<StorageModel>(context.Storages, r.Storage, (e, v) => e.Name == v, v => new StorageModel { Name = v }, ct))?.Id;
+        x.Year = await Find(context.Years, y => y.Value == r.Year, r.Year, v => new Year { Value = v }, ct);
+        x.Reissue = await Find(context.Reissues, y => y.Value == r.Reissue, r.Reissue, v => new Reissue { Value = v }, ct);
+        x.Country = await FindText(context.Countries, r.Country, (e, v) => e.Name == v, v => new Country { Name = v }, ct);
+        x.Label = await FindText<Label>(context.Labels, r.Label, (e, v) => e.Name == v, v => new Label { Name = v }, ct);
+        x.Storage = await FindText<StorageModel>(context.Storages, r.Storage, (e, v) => e.Name == v, v => new StorageModel { Name = v }, ct);
         x.FormatInfo = new FormatInfo {
-            BitnessId = (await Find(context.Bitnesses, y => y.Value == r.Bitness, r.Bitness, v => new Bitness { Value = v }, ct))?.Id,
-            SamplingId = (await Find(context.Samplings, y => y.Value == r.Sampling, r.Sampling, v => new Sampling { Value = v }, ct))?.Id,
-            DigitalFormatId = (await FindText(context.DigitalFormats, r.DigitalFormat, (e, v) => e.Name == v, v => new DigitalFormat { Name = v }, ct))?.Id,
-            SourceFormatId = (await FindText(context.SourceFormats, r.SourceFormat, (e, v) => e.Name == v, v => new SourceFormat { Name = v }, ct))?.Id,
-            VinylStateId = (await FindText(context.VinylStates, r.VinylState, (e, v) => e.Name == v, v => new VinylState { Name = v }, ct))?.Id
+            Bitness = await Find(context.Bitnesses, y => y.Value == r.Bitness, r.Bitness, v => new Bitness { Value = v }, ct),
+            Sampling = await Find(context.Samplings, y => y.Value == r.Sampling, r.Sampling, v => new Sampling { Value = v }, ct),
+            DigitalFormat = await FindText(context.DigitalFormats, r.DigitalFormat, (e, v) => e.Name == v, v => new DigitalFormat { Name = v }, ct),
+            SourceFormat = await FindText(context.SourceFormats, r.SourceFormat, (e, v) => e.Name == v, v => new SourceFormat { Name = v }, ct),
+            VinylState = await FindText(context.VinylStates, r.VinylState, (e, v) => e.Name == v, v => new VinylState { Name = v }, ct)
         };
         x.EquipmentInfo = new EquipmentInfo {
-            PlayerId = (await Equipment(context.Players, r.Player, r.PlayerManufacturer, ct))?.Id,
-            CartridgeId = (await Equipment(context.Cartridges, r.Cartridge, r.CartridgeManufacturer, ct))?.Id,
-            AmplifierId = (await Equipment(context.Amplifiers, r.Amplifier, r.AmplifierManufacturer, ct))?.Id,
-            AdcId = (await Equipment(context.Adces, r.Adc, r.AdcManufacturer, ct))?.Id,
-            WireId = (await Equipment(context.Wires, r.Wire, r.WireManufacturer, ct))?.Id
+            Player = await Equipment(context.Players, r.Player, r.PlayerManufacturer, ct),
+            Cartridge = await Equipment(context.Cartridges, r.Cartridge, r.CartridgeManufacturer, ct),
+            Amplifier = await Equipment(context.Amplifiers, r.Amplifier, r.AmplifierManufacturer, ct),
+            Adc = await Equipment(context.Adces, r.Adc, r.AdcManufacturer, ct),
+            Wire = await Equipment(context.Wires, r.Wire, r.WireManufacturer, ct)
         };
         return x;
     }
 
-    private async Task<T?> Find<T, V>(DbSet<T> set, Expression<Func<T, bool>> predicate, V? value, Func<V, T> create, CancellationToken ct) where T : class where V : struct { if (!value.HasValue) return null; var x = await set.FirstOrDefaultAsync(predicate, ct); if (x is not null) return x; x = create(value.Value); set.Add(x); await context.SaveChangesAsync(ct); return x; }
-    private async Task<T?> FindText<T>(DbSet<T> set, string? value, Func<T, string, bool> match, Func<string, T> create, CancellationToken ct) where T : class { if (string.IsNullOrWhiteSpace(value)) return null; var v = value.Trim(); var x = await set.FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == v, ct); if (x is not null) return x; x = create(v); set.Add(x); await context.SaveChangesAsync(ct); return x; }
+    private Task<T?> Find<T, V>(DbSet<T> set, Expression<Func<T, bool>> predicate, V? value, Func<V, T> create, CancellationToken ct) where T : class where V : struct => FindCore(set, predicate, value, create, ct);
+    private async Task<T?> FindCore<T, V>(DbSet<T> set, Expression<Func<T, bool>> predicate, V? value, Func<V, T> create, CancellationToken ct) where T : class where V : struct { if (!value.HasValue) return null; var x = await set.FirstOrDefaultAsync(predicate, ct); if (x is not null) return x; x = create(value.Value); set.Add(x); return x; }
+    private async Task<T?> FindText<T>(DbSet<T> set, string? value, Func<T, string, bool> match, Func<string, T> create, CancellationToken ct) where T : class { if (string.IsNullOrWhiteSpace(value)) return null; var v = value.Trim(); var x = await set.FirstOrDefaultAsync(e => EF.Property<string>(e, "Name") == v, ct); if (x is not null) return x; x = create(v); set.Add(x); return x; }
     private async Task<T?> Equipment<T>(DbSet<T> set, string? value, string? manufacturer, CancellationToken ct)
         where T : class, IEquipment, new()
     {
@@ -128,21 +130,16 @@ public sealed class AddReleaseCommandHandler(Context context, TimeProvider timeP
                 ?? new Manufacturer { Name = manufacturer.Trim() };
 
         if (manufacturerEntity?.Id == 0)
-        {
             context.Manufacturer.Add(manufacturerEntity);
-            await context.SaveChangesAsync(ct);
-        }
 
         if (equipment is null)
         {
             equipment = new T { Name = name, Manufacturer = manufacturerEntity };
             set.Add(equipment);
-            await context.SaveChangesAsync(ct);
         }
         else if (manufacturerEntity is not null && equipment.ManufacturerId != manufacturerEntity.Id)
         {
-            equipment.ManufacturerId = manufacturerEntity.Id;
-            await context.SaveChangesAsync(ct);
+            equipment.Manufacturer = manufacturerEntity;
         }
 
         return equipment;

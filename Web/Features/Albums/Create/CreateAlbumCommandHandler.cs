@@ -29,7 +29,6 @@ public sealed class CreateAlbumCommandHandler(
             {
                 artist = new Artist { Name = artistName };
                 context.Artists.Add(artist);
-                await context.SaveChangesAsync(cancellationToken);
             }
 
             var genre = await context.Genres.FirstOrDefaultAsync(g => g.Name == genreName, cancellationToken);
@@ -37,7 +36,6 @@ public sealed class CreateAlbumCommandHandler(
             {
                 genre = new Genre { Name = genreName };
                 context.Genres.Add(genre);
-                await context.SaveChangesAsync(cancellationToken);
             }
 
             album = new Album

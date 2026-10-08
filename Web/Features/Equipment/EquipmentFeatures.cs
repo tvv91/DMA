@@ -198,7 +198,6 @@ public sealed class CreateEquipmentCommandHandler(Context context, IImageService
         {
             manufacturer = new Manufacturer { Name = request.Request.Manufacturer.Trim() };
             context.Manufacturer.Add(manufacturer);
-            await context.SaveChangesAsync(cancellationToken);
         }
         IEquipment equipment;
         switch (request.Request.EquipmentType)
@@ -228,7 +227,6 @@ public sealed class UpdateEquipmentCommandHandler(Context context, IImageService
         {
             manufacturer = new Manufacturer { Name = model.Manufacturer.Trim() };
             context.Manufacturer.Add(manufacturer);
-            await context.SaveChangesAsync(cancellationToken);
         }
         IEquipment equipment;
         switch (model.EquipmentType)

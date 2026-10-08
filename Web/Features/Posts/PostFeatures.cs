@@ -4,6 +4,7 @@ using Web.Common;
 using Web.Infrastructure.Persistence;
 using Web.Models;
 using Web.ViewModels;
+using Web.Infrastructure.Security;
 
 namespace Web.Features.Posts;
 
@@ -54,11 +55,11 @@ public sealed class GetBlogTreeQueryHandler(Context context) : IRequestHandler<G
     }
 }
 
-public sealed class CreateDraftPostCommandHandler(Context context, TimeProvider timeProvider) : IRequestHandler<CreateDraftPostCommand, int>
+public sealed class CreateDraftPostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer) : IRequestHandler<CreateDraftPostCommand, int>
 {
     public async Task<int> Handle(CreateDraftPostCommand request, CancellationToken cancellationToken)
     {
-        var post = new Post { Title = request.Model.Title, Description = request.Model.Description, Content = request.Model.Content, CreatedDate = timeProvider.GetUtcNow().UtcDateTime, IsDraft = true };
+        var post = new Post { Title = request.Model.Title, Description = request.Model.Description, Content = sanitizer.Sanitize(request.Model.Content), CreatedDate = timeProvider.GetUtcNow().UtcDateTime, IsDraft = true };
         if (!string.IsNullOrWhiteSpace(request.Model.Category) && request.Model.Category != "Category")
         {
             var name = request.Model.Category.Trim();
@@ -101,7 +102,7 @@ public sealed class GetPostQueryHandler(Context context) : IRequestHandler<GetPo
     }
 }
 
-public sealed class CreatePostCommandHandler(Context context, TimeProvider timeProvider) : IRequestHandler<CreatePostCommand, int>
+public sealed class CreatePostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer) : IRequestHandler<CreatePostCommand, int>
 {
     public async Task<int> Handle(CreatePostCommand request, CancellationToken cancellationToken)
     {
@@ -109,7 +110,7 @@ public sealed class CreatePostCommandHandler(Context context, TimeProvider timeP
         {
             Title = request.Model.Title,
             Description = request.Model.Description,
-            Content = request.Model.Content,
+            Content = sanitizer.Sanitize(request.Model.Content),
             CreatedDate = timeProvider.GetUtcNow().UtcDateTime,
             IsDraft = false
         };
@@ -131,7 +132,7 @@ public sealed class CreatePostCommandHandler(Context context, TimeProvider timeP
     }
 }
 
-public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeProvider) : IRequestHandler<UpdatePostCommand, int>
+public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeProvider, HtmlContentSanitizer sanitizer) : IRequestHandler<UpdatePostCommand, int>
 {
     public async Task<int> Handle(UpdatePostCommand request, CancellationToken cancellationToken)
     {
@@ -144,7 +145,7 @@ public sealed class UpdatePostCommandHandler(Context context, TimeProvider timeP
         if (post is null) throw new KeyNotFoundException($"Post with Id {request.Model.Id} not found.");
         post.Title = request.Model.Title;
         post.Description = request.Model.Description;
-        post.Content = request.Model.Content;
+        post.Content = sanitizer.Sanitize(request.Model.Content);
         post.UpdatedDate = timeProvider.GetUtcNow().UtcDateTime;
         var current = post.PostCategories.FirstOrDefault()?.Category?.Title;
         var category = request.Model.Category?.Trim();

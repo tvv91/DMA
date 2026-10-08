@@ -1,4 +1,5 @@
 @model PostViewModel
+@inject Web.Infrastructure.Security.HtmlContentSanitizer HtmlContentSanitizer
 @using Web.Authorization
 @Html.AntiForgeryToken()
 
@@ -53,7 +54,7 @@
             </header>
             
             <div class="post-details-content">
-                @Html.Raw(Model.Content)
+                @Html.Raw(HtmlContentSanitizer.Sanitize(Model.Content))
             </div>
         </article>
     </div>

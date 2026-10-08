@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using MediatR;
 using Web.Infrastructure.Persistence;
 using Web.Infrastructure.Icons;
 using Web.Infrastructure.Storage;
 using Web.Models;
 using Web.Infrastructure.Cleanup;
+using Web.Infrastructure.Security;
 using Web.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +44,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 builder.Services.AddScoped<IImageService, LocalStorageImageService>();
 builder.Services.AddScoped<IResourceIconService, LocalResourceIconService>();
+builder.Services.AddSingleton<HtmlContentSanitizer>();
 
 builder.Services.AddHostedService<TempImageCleanupService>();
 

@@ -17,15 +17,16 @@ namespace Web.Infrastructure.Icons
                 { EntityType.SourceFormat, ("resources/sourceformat", ".png") },
             };
 
-        public async Task<string> GetIconUrlAsync(int id, EntityType entity)
+        public Task<string> GetIconUrlAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
-                return $"/{NO_COVER}";
+                return Task.FromResult($"/{NO_COVER}");
 
             var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
             var fullPath = Path.Combine(STORAGE, relativePath);
 
-            return await Task.FromResult(File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}");
+            var url = File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}";
+            return Task.FromResult(url);
         }
     }
 }

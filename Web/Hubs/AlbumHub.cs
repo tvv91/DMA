@@ -42,7 +42,6 @@ namespace Web.Hubs
             {
                 var cover = await GetCachedAlbumCoverAsync(albumId);
                 await Clients.Caller.SendAsync("ReceivedAlbumCover", albumId, cover);
-                await Task.Delay(100);
             }
         }
 

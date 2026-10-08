@@ -27,15 +27,15 @@ namespace Web.Infrastructure.Storage
                 { EntityType.Wire, ("covers/wire", ".jpg") },
             };
 
-        public async Task<string> GetUrlAsync(int id, EntityType entity)
+        public Task<string> GetUrlAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
-                return NO_COVER;
+                return Task.FromResult(NO_COVER);
 
             var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
             var fullPath = Path.Combine(GetWebRootPath(), relativePath);
-            // Yeah, this code is sync, but when we change to cloud blobk storage, it will be async, so let's keep the signature async for now
-            return await Task.FromResult(File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}");
+            var url = File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}";
+            return Task.FromResult(url);
         }
 
         public async Task RemoveAsync(int id, EntityType entity)

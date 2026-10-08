@@ -50,9 +50,35 @@ public sealed class GetBlogTreeQueryHandler(Context context) : IRequestHandler<G
 {
     public async Task<IReadOnlyList<PostBlogCategory>> Handle(GetBlogTreeQuery request, CancellationToken cancellationToken)
     {
-        var posts = await context.Posts.Include(p => p.PostCategories).ThenInclude(pc => pc.Category).AsNoTracking().Where(p => !p.IsDraft && p.CreatedDate.HasValue).ToListAsync(cancellationToken);
-        return posts.SelectMany(p => p.PostCategories.Any() ? p.PostCategories.Select(pc => new { Post = p, Category = pc.Category.Title }) : [new { Post = p, Category = "Uncategorized" }])
-            .GroupBy(x => x.Category).Select(group => new PostBlogCategory(group.Key, group.Select(x => x.Post).Distinct().GroupBy(p => p.CreatedDate!.Value.Year).OrderByDescending(x => x.Key).Select(year => new PostBlogYear(year.Key, year.Select(p => new PostBlogItem(p.Id, p.Title, p.CreatedDate!.Value.ToShortDateString())).ToList())).ToList())).OrderBy(x => x.Category).ToList();
+        var posts = await context.Posts
+            .Where(p => !p.IsDraft && p.CreatedDate.HasValue)
+            .Select(p => new
+            {
+                p.Id,
+                p.Title,
+                CreatedDate = p.CreatedDate!.Value,
+                Categories = p.PostCategories.Select(pc => pc.Category.Title).ToList()
+            })
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return posts
+            .SelectMany(p => p.Categories.Count > 0
+                ? p.Categories.Select(category => new { Post = p, Category = category })
+                : [new { Post = p, Category = "Uncategorized" }])
+            .GroupBy(x => x.Category)
+            .Select(group => new PostBlogCategory(
+                group.Key,
+                group.GroupBy(x => x.Post.Id)
+                    .Select(x => x.First().Post)
+                    .GroupBy(p => p.CreatedDate.Year)
+                    .OrderByDescending(x => x.Key)
+                    .Select(year => new PostBlogYear(
+                        year.Key,
+                        year.Select(p => new PostBlogItem(p.Id, p.Title, p.CreatedDate.ToShortDateString())).ToList()))
+                    .ToList()))
+            .OrderBy(x => x.Category)
+            .ToList();
     }
 }
 

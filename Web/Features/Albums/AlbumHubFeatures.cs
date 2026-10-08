@@ -52,7 +52,7 @@ public sealed class CheckAlbumQueryHandler(Context context) : IRequestHandler<Ch
     public async Task<(int Status, int Id)> Handle(CheckAlbumQuery request, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Album) || string.IsNullOrWhiteSpace(request.Artist)) return (0, 0);
-        var album = await context.Albums.Include(x => x.Artist).AsNoTracking().FirstOrDefaultAsync(x => x.Title == request.Album.Trim() && x.Artist != null && x.Artist.Name == request.Artist.Trim(), cancellationToken);
+        var album = await context.Albums.AsNoTracking().FirstOrDefaultAsync(x => x.Title == request.Album.Trim() && x.Artist != null && x.Artist.Name == request.Artist.Trim(), cancellationToken);
         if (album is null) return (0, 0);
         if (album.Id != request.AlbumId) return (1, album.Id);
         if (!string.IsNullOrWhiteSpace(request.Source) && await context.Releases.AnyAsync(x => x.AlbumId == album.Id && x.Source == request.Source, cancellationToken)) return (100, album.Id);

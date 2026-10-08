@@ -313,6 +313,7 @@
     let currentAlbumCheckContext = "main";
     let isAlbumDuplicate = false;
     let initialGeneralValues = {};
+    let coverChanged = false;
 
     // --- Constants / config ---
     const alertMessages = {
@@ -425,7 +426,7 @@
     function checkSaveButtonState() {
         const isEdit = "@Model.Action" === "Update";
         const generalFieldsChanged = Object.keys(initialGeneralValues).some(id => $("#" + id).val() !== initialGeneralValues[id]);
-        $("#save-album-btn").prop("disabled", isEdit && (!generalFieldsChanged || isAlbumDuplicate));
+        $("#save-album-btn").prop("disabled", isEdit && (!generalFieldsChanged && !coverChanged || isAlbumDuplicate));
     }
 
     function updateReleaseHardwareTabsVisibility() {
@@ -876,6 +877,8 @@
         success: (file, data) => {
             $("#cover-id").val(data.filename);
             file.uploadedFilename = data.filename;
+            coverChanged = true;
+            checkSaveButtonState();
             $(file.previewElement).addClass("dz-success text-success");
         },
         init: function () {
@@ -894,6 +897,8 @@
         removedfile: function (file) {
             const filename = file.uploadedFilename;
             $("#cover-id").val("");
+            coverChanged = true;
+            checkSaveButtonState();
             void deleteTempImage(filename);
             if (file.previewElement?.parentNode) file.previewElement.parentNode.removeChild(file.previewElement);
             return this._updateMaxFilesReachedClass();

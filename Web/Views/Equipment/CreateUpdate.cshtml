@@ -1,16 +1,19 @@
 @model EquipmentViewModel;
+@using Microsoft.Extensions.Localization
+@using Web
+@inject IStringLocalizer<SharedResource> Localizer
 
 @{
     var action = Model.Action;
 }
 
 <a class="btn btn-back mt-3" asp-action="index" asp-controller="equipment">
-    <i class="fa fa-arrow-left"></i> Back
+    <i class="fa fa-arrow-left"></i> @Localizer["Back"]
 </a>
 
 <div class="container py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>@(Model.Action == Web.Enums.ActionType.Create ? "Add New Equipment" : "Edit Equipment")</h3>
+        <h3>@(Model.Action == Web.Enums.ActionType.Create ? Localizer["Add"] + " " + Localizer["Equipment"] : Localizer["Edit"] + " " + Localizer["Equipment"])</h3>
     </div>
     
     <form asp-action="@action" method="post" onsubmit="onSubmit()">
@@ -30,7 +33,7 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <div class="col-md-12">
-                                <label for="equipmentType" class="form-label">Type</label>
+                                <label for="equipmentType" class="form-label">@Localizer["Type"]</label>
                                 <select id="equipmentType" class="form-select"
                                         asp-for="EquipmentType"
                                         asp-items="Model.Equipments"
@@ -39,26 +42,26 @@
                             </div>
 
                             <div class="col-md-12">
-                                <label for="model_input" class="form-label">Model</label>
+                                <label for="model_input" class="form-label">@Localizer["Model"]</label>
                                 <input id="model_input" class="form-control"
                                        asp-for="ModelName"
                                        autocomplete="on"
-                                       placeholder="Model" />
+                                       placeholder="@Localizer["Model"]" />
                             </div>
 
                             <div class="col-md-12">
-                                <label for="manufacturer_input" class="form-label">Manufacturer</label>
+                                <label for="manufacturer_input" class="form-label">@Localizer["Manufacturer"]</label>
                                 <input id="manufacturer_input" class="form-control"
                                        asp-for="Manufacturer"
-                                       placeholder="Manufacturer" />
+                                       placeholder="@Localizer["Manufacturer"]" />
                             </div>
 
                             <div class="col-md-12">
-                                <label for="description" class="form-label">Description</label>
+                                <label for="description" class="form-label">@Localizer["Description"]</label>
                                 <textarea id="description" class="form-control"
                                           asp-for="Description"
                                           rows="6"
-                                          placeholder="Description"></textarea>
+                                          placeholder="@Localizer["Description"]"></textarea>
                             </div>
                         </div>
                     </div>
@@ -68,7 +71,7 @@
         
         <div class="mt-3 d-flex justify-content-end">
             <button id="submit_button" type="submit" class="btn btn-primary">
-                <i class="fa-sharp fa-solid fa-check"></i> Save
+                <i class="fa-sharp fa-solid fa-check"></i> @Localizer["Save"]
             </button>
         </div>
     </form>

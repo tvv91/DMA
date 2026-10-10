@@ -1,10 +1,13 @@
 @using Web.Authorization
+@using Microsoft.Extensions.Localization
+@using Web
+@inject IStringLocalizer<SharedResource> Localizer
 <body data-page="post-list">
     <div class="blog-container">
         <div class="blog-post position-relative">
             <div id="spinner" class="post-spinner-overlay d-none">
                 <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                    <span class="visually-hidden">Loading...</span>
+                    <span class="visually-hidden">@Localizer["Loading"]</span>
                 </div>
             </div>
             <div id="post-container"></div>
@@ -13,37 +16,37 @@
             <div class="blog-side-panel-filters">
                 <div style="margin-bottom: 20px;">
                     <label for="searchfilter" style="display: block; margin-bottom: 8px; font-weight: 600; color: #495057; font-size: 0.9rem;">
-                        🔍 Search Posts
+                        🔍 @Localizer["SearchPosts"]
                     </label>
-                    <input id="searchfilter" class="form-control" type="search" placeholder="Search posts by title or description...">
+                    <input id="searchfilter" class="form-control" type="search" placeholder="@Localizer["SearchPostsPlaceholder"]">
                 </div>
-                <label for="categoryfilter" class="mt-2">Filter by Category:</label>
+                <label for="categoryfilter" class="mt-2">@Localizer["FilterByCategory"]</label>
                 <div class="d-flex gap-2" style="margin-bottom: 16px 0;">
                     <select id="categoryfilter" class="custom-select flex-fill">
-                        <option selected value="">All Categories</option>
-                        <option value="Developing">Developing</option>
-                        <option value="Releases">Releases</option>
-                        <option value="Other">Other</option>
+                        <option selected value="">@Localizer["AllCategories"]</option>
+                        <option value="Developing">@Localizer["Developing"]</option>
+                        <option value="Releases">@Localizer["Releases"]</option>
+                        <option value="Other">@Localizer["Other"]</option>
                     </select>
-                    <input id="yearfilter" class="form-control" placeholder="Year" style="max-width: 100px;">
+                    <input id="yearfilter" class="form-control" placeholder="@Localizer["Year"]" style="max-width: 100px;">
                 </div>
                 @if (User.IsInRole(RoleNames.Admin))
                 {
                 <label>
-                    <input id="draftfilter" type="checkbox"> Show only drafts
+                    <input id="draftfilter" type="checkbox"> @Localizer["ShowOnlyDrafts"]
                 </label>
                 }
                 <hr />
                 <div class="blog-tree-view">
                     <label class="mt-2 mb-2" style="font-weight: 600; color: #495057; font-size: 1rem;">
-                        📚 Blog Archive
+                        📚 @Localizer["BlogArchive"]
                     </label>
                     <div id="blog-tree" class="blog-tree"></div>
                 </div>
             </div>
         </div>
         <div style="grid-column: 1 / -1;">
-            <nav aria-label="Posts pagination">
+            <nav aria-label="@Localizer["PostsPagination"]">
                 <ul id="pagination" class="pagination justify-content-center"></ul>
             </nav>
         </div>

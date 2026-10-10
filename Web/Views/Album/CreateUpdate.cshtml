@@ -1,48 +1,51 @@
 @model AlbumCreateUpdateViewModel;
+@using Microsoft.Extensions.Localization
+@using Web
+@inject IStringLocalizer<SharedResource> Localizer
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toast-release-added" class="toast toast-variant-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Success</strong>
+            <strong class="me-auto">@Localizer["Success"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Release added successfully</div>
+        <div class="toast-body">@Localizer["AddRelease"]</div>
     </div>
     <div id="toast-release-updated" class="toast toast-variant-update" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Updated</strong>
+            <strong class="me-auto">@Localizer["Updated"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Release updated successfully</div>
+        <div class="toast-body">@Localizer["Updated"]</div>
     </div>
     <div id="toast-release-removed" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Removed</strong>
+            <strong class="me-auto">@Localizer["Removed"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
-        <div class="toast-body">Release removed successfully</div>
+        <div class="toast-body">@Localizer["Removed"]</div>
     </div>
     <div id="toast-release-error" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Error</strong>
+            <strong class="me-auto">@Localizer["Error"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body"></div>
     </div>
     <div id="toast-release-warning" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Notice</strong>
+            <strong class="me-auto">@Localizer["Notice"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body"></div>
     </div>
 </div>
 <a class="btn btn-back mt-3" asp-action="Index" asp-controller="Album">
-    <i class="fa fa-arrow-left"></i> Back
+    <i class="fa fa-arrow-left"></i> @Localizer["Back"]
 </a>
 <div class="container py-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>@(Model.Action == Web.Enums.ActionType.Create ? "Add New Album" : "Edit Album")</h3>
+        <h3>@(Model.Action == Web.Enums.ActionType.Create ? Localizer["AddAlbum"] : Localizer["Edit"] + " " + Localizer["Album"])</h3>
     </div>
     <form asp-action="@Model.Action" method="post" onsubmit="onSubmit()">
         <input type="hidden" id="cover-id" asp-for="AlbumCover" />
@@ -58,17 +61,17 @@
                     <ul class="nav nav-tabs" id="mainAlbumTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="general-tab" data-bs-toggle="tab" data-bs-target="#general" type="button" role="tab">
-                                General
+                                @Localizer["General"]
                             </button>
                         </li>
                         <li class="nav-item release-dependent-tab d-none" role="presentation">
                             <button class="nav-link" id="release-tab" data-bs-toggle="tab" data-bs-target="#release" type="button" role="tab">
-                                Release
+                                @Localizer["Release"]
                             </button>
                         </li>
                         <li class="nav-item release-dependent-tab d-none" role="presentation">
                             <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardware" type="button" role="tab">
-                                Hardware
+                                @Localizer["Hardware"]
                             </button>
                         </li>
                     </ul>
@@ -76,47 +79,47 @@
                         <div class="tab-pane fade show active" id="general" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-12">
-                                    <input id="artist-input" class="form-control" asp-for="Artist" placeholder="Artist" oninput=checkAlbumIsExists(false) />
+                                    <input id="artist-input" class="form-control" asp-for="Artist" placeholder="@Localizer["Artist"]" oninput=checkAlbumIsExists(false) />
                                 </div>
                                 <div class="col-md-12">
-                                    <input id="album-input" class="form-control" asp-for="Title" placeholder="Album" oninput=checkAlbumIsExists(false) />
+                                    <input id="album-input" class="form-control" asp-for="Title" placeholder="@Localizer["Album"]" oninput=checkAlbumIsExists(false) />
                                 </div>
                                 <div class="col-md-12">
-                                    <input id="genre-input" class="form-control" asp-for="Genre" placeholder="Genre" />
+                                    <input id="genre-input" class="form-control" asp-for="Genre" placeholder="@Localizer["Genre"]" />
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="release" role="tabpanel">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <input id="vinylstate-input" class="form-control" asp-for="VinylState" placeholder="Vinyl state" />
+                                     <input id="vinylstate-input" class="form-control" asp-for="VinylState" placeholder="@Localizer["VinylState"]" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="digitalformat-input" class="form-control" asp-for="DigitalFormat" placeholder="Digital format" onchange="checkValidData()" />
+                                     <input id="digitalformat-input" class="form-control" asp-for="DigitalFormat" placeholder="@Localizer["DigitalFormat"]" onchange="checkValidData()" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="bitness-input" class="form-control" asp-for="Bitness" placeholder="Bitness" onchange="checkValidData()" />
+                                     <input id="bitness-input" class="form-control" asp-for="Bitness" placeholder="@Localizer["Bitness"]" onchange="checkValidData()" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sampling-input" class="form-control" asp-for="Sampling" placeholder="Sampling" onchange="checkValidData()" />
+                                     <input id="sampling-input" class="form-control" asp-for="Sampling" placeholder="@Localizer["Sampling"]" onchange="checkValidData()" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="sourceformat-input" class="form-control" asp-for="SourceFormat" placeholder="Source format" />
+                                     <input id="sourceformat-input" class="form-control" asp-for="SourceFormat" placeholder="@Localizer["SourceFormat"]" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input class="form-control" asp-for="Storage" placeholder="Storage" />
+                                     <input class="form-control" asp-for="Storage" placeholder="@Localizer["Storage"]" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="year-input" class="form-control" asp-for="Year" placeholder="Year" />
+                                     <input id="year-input" class="form-control" asp-for="Year" placeholder="@Localizer["Year"]" />
                                 </div>
                                 <div class="col-md-4">
                                     <input id="reissue-input" class="form-control" asp-for="Reissue" placeholder="Reissue" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="country-input" class="form-control" asp-for="Country" placeholder="Country" />
+                                     <input id="country-input" class="form-control" asp-for="Country" placeholder="@Localizer["Country"]" />
                                 </div>
                                 <div class="col-md-4">
-                                    <input id="label-input" class="form-control" asp-for="Label" placeholder="Label" />
+                                     <input id="label-input" class="form-control" asp-for="Label" placeholder="@Localizer["Label"]" />
                                 </div>
                                 <div class="col-md-2">
                                     <input id="source-input" class="form-control" asp-for="Source" placeholder="Source" oninput="checkAlbumIsExists(false)" />
@@ -130,23 +133,23 @@
                                 <div class="col-md-2 d-flex align-items-center">
                                     <div class="form-check">
                                         <input id="is-first-press-input" class="form-check-input" type="checkbox" asp-for="IsFirstPress" />
-                                        <label class="form-check-label" for="is-first-press-input">First press</label>
+                                         <label class="form-check-label" for="is-first-press-input">@Localizer["FirstPress"]</label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                         <div class="tab-pane fade" id="hardware" role="tabpanel">
                             <div class="row g-3">
-                                <div class="col-md-6"><input id="player-input" class="form-control" asp-for="Player" placeholder="Player" /></div>
-                                <div class="col-md-6"><input id="player-manufacturer-input" class="form-control" asp-for="PlayerManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="cartridge-input" class="form-control" asp-for="Cartridge" placeholder="Cartridge" /></div>
-                                <div class="col-md-6"><input id="cartridge-manufacturer-input" class="form-control" asp-for="CartridgeManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="amp-input" class="form-control" asp-for="Amplifier" placeholder="Amplifier" /></div>
-                                <div class="col-md-6"><input id="amp-manufacturer-input" class="form-control" asp-for="AmplifierManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="adc-input" class="form-control" asp-for="Adc" placeholder="ADC" /></div>
-                                <div class="col-md-6"><input id="adc-manufacturer-input" class="form-control" asp-for="AdcManufacturer" placeholder="Manufacturer" /></div>
-                                <div class="col-md-6"><input id="wire-input" class="form-control" asp-for="Wire" placeholder="Wire" /></div>
-                                <div class="col-md-6"><input id="wire-manufacturer-input" class="form-control" asp-for="WireManufacturer" placeholder="Manufacturer" /></div>
+                                 <div class="col-md-6"><input id="player-input" class="form-control" asp-for="Player" placeholder="@Localizer["Player"]" /></div>
+                                 <div class="col-md-6"><input id="player-manufacturer-input" class="form-control" asp-for="PlayerManufacturer" placeholder="@Localizer["Manufacturer"]" /></div>
+                                 <div class="col-md-6"><input id="cartridge-input" class="form-control" asp-for="Cartridge" placeholder="@Localizer["Cartridge"]" /></div>
+                                 <div class="col-md-6"><input id="cartridge-manufacturer-input" class="form-control" asp-for="CartridgeManufacturer" placeholder="@Localizer["Manufacturer"]" /></div>
+                                 <div class="col-md-6"><input id="amp-input" class="form-control" asp-for="Amplifier" placeholder="@Localizer["Amplifier"]" /></div>
+                                 <div class="col-md-6"><input id="amp-manufacturer-input" class="form-control" asp-for="AmplifierManufacturer" placeholder="@Localizer["Manufacturer"]" /></div>
+                                 <div class="col-md-6"><input id="adc-input" class="form-control" asp-for="Adc" placeholder="@Localizer["ADC"]" /></div>
+                                 <div class="col-md-6"><input id="adc-manufacturer-input" class="form-control" asp-for="AdcManufacturer" placeholder="@Localizer["Manufacturer"]" /></div>
+                                 <div class="col-md-6"><input id="wire-input" class="form-control" asp-for="Wire" placeholder="@Localizer["Wire"]" /></div>
+                                 <div class="col-md-6"><input id="wire-manufacturer-input" class="form-control" asp-for="WireManufacturer" placeholder="@Localizer["Manufacturer"]" /></div>
                             </div>
                         </div>
                     </div>
@@ -156,21 +159,21 @@
                 <div id="release-warning" class="alert alert-danger alert-dismissible fade m-0 py-1 px-3 d-flex align-items-center justify-content-center flex-grow-1"
                      role="alert"
                      style="white-space: nowrap; min-height: 38px;">
-                    <span id="album-check-spinner" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="Checking album..."></span>
+                     <span id="album-check-spinner" class="spinner-border spinner-border-sm album-check-spinner d-none me-2" role="status" style="width: 1.25rem; height: 1.25rem;" aria-label="@Localizer["Loading"]"></span>
                     <i id="alert-icon" class="me-2"></i>&nbsp
                     <span class="alert-message"></span>
                 </div>
                 <button id="add-release-btn" class="btn btn-info px-4" onclick="ShowAddModal()" type="button" disabled>
-                    <i class="fa-solid fa-plus"></i> Add
+                     <i class="fa-solid fa-plus"></i> @Localizer["Add"]
                 </button>
                 <button id="update-release-btn" class="btn btn-warning px-4" onclick="UpdateRelease()" type="button" disabled>
-                    <i class="fa-regular fa-pen-to-square"></i> Update
+                     <i class="fa-regular fa-pen-to-square"></i> @Localizer["Update"]
                 </button>
                 <button id="remove-release-btn" class="btn btn-danger px-4" onclick="ShowRemoveModal()" type="button" disabled>
-                    <i class="fa-solid fa-xmark"></i> Remove
+                     <i class="fa-solid fa-xmark"></i> @Localizer["Remove"]
                 </button>
                 <button id="save-album-btn" type="submit" class="btn btn-success px-4">
-                    <i class="fa-solid fa-check"></i> Save
+                     <i class="fa-solid fa-check"></i> @Localizer["Save"]
                 </button>
             </div>
         </div>
@@ -182,22 +185,22 @@
             <div class="spinner-border" role="status"></div>
         </div>
         <div id="releases-container">
-            <div class="album-create-update-no-releases" id="no-releases">No releases</div>
+            <div class="album-create-update-no-releases" id="no-releases">@Localizer["NoReleases"]</div>
         </div>
     </div>
     <div class="modal fade" id="removeModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Removal</h5>
+                    <h5 class="modal-title">@Localizer["AreYouSure"]</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to remove this release? This action cannot be undone.
+                    @Localizer["CannotBeUndone"]
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" onclick="RemoveRelease()">Remove</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                    <button type="button" class="btn btn-danger" onclick="RemoveRelease()">@Localizer["Remove"]</button>
                 </div>
             </div>
         </div>
@@ -206,7 +209,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add new release</h5>
+                    <h5 class="modal-title">@Localizer["AddRelease"]</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -216,12 +219,12 @@
                     <ul class="nav nav-tabs" id="albumTabs" role="tablist">
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="release-tab" data-bs-toggle="tab" data-bs-target="#releaseModal" type="button" role="tab">
-                                Release
+                                @Localizer["Release"]
                             </button>
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="hardware-tab" data-bs-toggle="tab" data-bs-target="#hardwareModal" type="button" role="tab">
-                                Hardware
+                                @Localizer["Hardware"]
                             </button>
                         </li>
                     </ul>

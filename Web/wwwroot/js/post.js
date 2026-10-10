@@ -4,6 +4,35 @@ let autoSaveTimeout;
 let postId = null;
 let manualSavePending = false;
 const AUTO_SAVE_DELAY = 30000;
+const postLocalization = window.localization || {
+    errorLoadingPosts: "Error loading posts",
+    refreshPageToTryAgain: "Please refresh the page to try again",
+    connectionError: "Connection error",
+    unableToConnect: "Unable to connect to server. Please refresh the page.",
+    noPostsFound: "No posts found",
+    adjustFilters: "Try adjusting your filters or search terms",
+    noPostsAvailable: "No posts available",
+    unknownDate: "Unknown date",
+    uncategorized: "Uncategorized",
+    categories: {
+        developing: "Developing",
+        other: "Other",
+        releases: "Releases"
+    }
+};
+
+function getLocalizedCategory(category) {
+    const categoryKeys = {
+        Developing: "developing",
+        Other: "other",
+        Releases: "releases"
+    };
+
+    const key = categoryKeys[category];
+    return key && postLocalization.categories?.[key]
+        ? postLocalization.categories[key]
+        : category;
+}
 
 function getCurrentPage() {
     return Number(localStorage.getItem(BACK_PAGE_POST_INDEX)) || 1;
@@ -29,8 +58,8 @@ async function fetchPosts(page = 1, searchText = "", category = "", year = "", o
         $("#post-container").html(`
             <div style="text-align: center; padding: 60px 20px;">
                 <div style="font-size: 4rem; margin-bottom: 16px;">⚠️</div>
-                <h4 style="color: #dc3545; font-weight: 500; margin-bottom: 8px;">Error loading posts</h4>
-                <p style="color: #6c757d; font-size: 0.9rem;">Please refresh the page to try again</p>
+            <h4 style="color: #dc3545; font-weight: 500; margin-bottom: 8px;">${escapeHtml(postLocalization.errorLoadingPosts)}</h4>
+            <p style="color: #6c757d; font-size: 0.9rem;">${escapeHtml(postLocalization.refreshPageToTryAgain)}</p>
             </div>
         `);
     }
@@ -65,8 +94,8 @@ function renderPosts(posts, totalPages) {
         $container.html(`
             <div style="text-align: center; padding: 60px 20px;">
                 <div style="font-size: 4rem; margin-bottom: 16px;">📝</div>
-                <h4 style="color: #6c757d; font-weight: 500; margin-bottom: 8px;">No posts found</h4>
-                <p style="color: #adb5bd; font-size: 0.9rem;">Try adjusting your filters or search terms</p>
+            <h4 style="color: #6c757d; font-weight: 500; margin-bottom: 8px;">${escapeHtml(postLocalization.noPostsFound)}</h4>
+            <p style="color: #adb5bd; font-size: 0.9rem;">${escapeHtml(postLocalization.adjustFilters)}</p>
             </div>
         `);
         return;
@@ -77,17 +106,17 @@ function renderPosts(posts, totalPages) {
     posts.forEach(post => {
         const categories = post.categories && post.categories.length > 0 
             ? post.categories 
-            : ["Uncategorized"];
+            : [postLocalization.uncategorized];
         
         const postClass = post.isDraft ? "post post-draft" : "post post-published";
-        const createdDate = post.created || "Unknown date";
+        const createdDate = post.created || postLocalization.unknownDate;
         
         // Format date nicely
         let formattedDate = createdDate;
         try {
             const date = new Date(createdDate);
             if (!isNaN(date.getTime())) {
-                formattedDate = date.toLocaleDateString('en-US', { 
+                formattedDate = date.toLocaleDateString(document.documentElement.lang || navigator.language, {
                     year: 'numeric', 
                     month: 'long', 
                     day: 'numeric' 
@@ -97,8 +126,8 @@ function renderPosts(posts, totalPages) {
             // Keep original date if parsing fails
         }
         
-        const categoryBadges = categories.map(cat => 
-            `<span class="post-category-badge">${escapeHtml(cat)}</span>`
+        const categoryBadges = categories.map(cat =>
+            `<span class="post-category-badge">${escapeHtml(getLocalizedCategory(cat))}</span>`
         ).join('');
         
         $container.append(`
@@ -156,7 +185,7 @@ function renderBlogTree(tree) {
     $tree.empty();
 
     if (!tree || tree.length === 0) {
-        $tree.html('<div class="text-muted">No posts available</div>');
+        $tree.html(`<div class="text-muted">${escapeHtml(postLocalization.noPostsAvailable)}</div>`);
         return;
     }
 
@@ -165,7 +194,7 @@ function renderBlogTree(tree) {
         const $categoryHeader = $(`
             <div class="tree-category-header">
                 <i class="fa fa-folder tree-icon"></i>
-                <span class="tree-category-name">${escapeHtml(category.category)}</span>
+                <span class="tree-category-name">${escapeHtml(getLocalizedCategory(category.category))}</span>
             </div>
         `);
         
@@ -250,8 +279,8 @@ function initPostListPage() {
                     $("#post-container").html(`
                         <div style="text-align: center; padding: 60px 20px;">
                             <div style="font-size: 4rem; margin-bottom: 16px;">🔌</div>
-                            <h4 style="color: #dc3545; font-weight: 500; margin-bottom: 8px;">Connection Error</h4>
-                            <p style="color: #6c757d; font-size: 0.9rem;">Unable to connect to server. Please refresh the page.</p>
+                            <h4 style="color: #dc3545; font-weight: 500; margin-bottom: 8px;">${escapeHtml(postLocalization.connectionError)}</h4>
+                            <p style="color: #6c757d; font-size: 0.9rem;">${escapeHtml(postLocalization.unableToConnect)}</p>
                         </div>
                     `);
                 });

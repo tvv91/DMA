@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 using Serilog;
 using Web.Infrastructure.Persistence;
 using Web.Infrastructure.Icons;
@@ -12,13 +14,16 @@ using Web.Hubs;
 using Web.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 builder.Host.UseSerilog((context, loggerConfiguration) =>
     loggerConfiguration.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
-});
+})
+    .AddViewLocalization()
+    .AddDataAnnotationsLocalization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IAdminAuthorization, AdminAuthorization>();
 builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(Program).Assembly));
@@ -62,6 +67,19 @@ builder.Services.AddSignalR(options =>
     options.PayloadSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
 });
 var app = builder.Build();
+
+var supportedCultures = new[] { new CultureInfo("en"), new CultureInfo("ru"), new CultureInfo("uk") };
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures,
+    RequestCultureProviders =
+    [
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider()
+    ]
+});
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,37 +1,40 @@
 @model AlbumDetailsViewModel
+@using Microsoft.Extensions.Localization
+@using Web
+@inject IStringLocalizer<SharedResource> Localizer
 @using System.Text.Json
 @using System.Text.Json.Serialization
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toasterror" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Error</strong>
+            <strong class="me-auto">@Localizer["Error"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div id="toastmsg" class="toast-body">
-            Some error during deletion
+            @Localizer["CannotBeUndone"]
         </div>
     </div>
 </div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastinfo_updated" class="toast toast-variant-update" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Updated</strong>
+            <strong class="me-auto">@Localizer["Updated"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div id="toastmsg" class="toast-body">
-            Album updated
+            @Localizer["EquipmentUpdated"]
         </div>
     </div>
 </div>
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="toastinfo_created" class="toast toast-variant-success" role="alert" aria-live="assertive" aria-atomic="true">
         <div class="toast-header">
-            <strong class="me-auto">Success</strong>
+            <strong class="me-auto">@Localizer["Success"]</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div id="toastmsg" class="toast-body">
-            Album created
+            @Localizer["Success"]
         </div>
     </div>
 </div>
@@ -41,21 +44,21 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Are you sure?</h1>
+                <h1 class="modal-title fs-5">@Localizer["AreYouSure"]</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                    Album will be removed including all releases and technical data. This action cannot be undone.
+                    @Localizer["CannotBeUndone"]
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.AlbumId)">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
+                <button type="button" class="btn btn-danger" onclick="onRemove(@Model.AlbumId)">@Localizer["Delete"]</button>
             </div>
         </div>
     </div>
 </div>
 }
-<a id="back_button" class="btn btn-back mt-3" asp-action="index" asp-controller="album"><i class="fa fa-arrow-left"></i> Back</a>
+    <i class="fa fa-arrow-left"></i> @Localizer["Back"]</a>
 <div class="album-container">
     <div class="album-header">
         <div class="album-title-details">
@@ -64,10 +67,10 @@
         @if (User.IsInRole(RoleNames.Admin))
         {
         <div class="album-actions">
-            <a href="/album/edit/@Model.AlbumId" title="Edit">
+                <a href="/album/edit/@Model.AlbumId" title="@Localizer["Edit"]">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
-            <a data-bs-toggle="modal" data-bs-target="#removeDialogModal" title="Delete">
+                <a data-bs-toggle="modal" data-bs-target="#removeDialogModal" title="@Localizer["Delete"]">
                 <i class="fa-solid fa-trash"></i>
             </a>
         </div>
@@ -90,17 +93,17 @@
                     <i class="fa-solid fa-waveform-lines"></i>
                 </div>
                 <div class="empty-text">
-                    <h3>No releases :(</h3>
-                    <p>This album doesn’t have any technical data yet.</p>
+                    <h3>@Localizer["NoReleases"]</h3>
+                    <p>@Localizer["NoReleaseData"]</p>
                     @if (User.IsInRole(RoleNames.Admin))
                     {
-                        <p>Add the first release to see the equipment and format details.</p>
+                        <p>@Localizer["AddFirstRelease"]</p>
                     }
                 </div>
                 @if (User.IsInRole(RoleNames.Admin))
                 {
                 <a href="/album/edit/@Model.AlbumId" class="btn btn-outline-primary mt-2">
-                    <i class="fa-solid fa-plus"></i> Add release
+                    <i class="fa-solid fa-plus"></i> @Localizer["AddRelease"]
                 </a>
                 }
             </div>
@@ -108,71 +111,71 @@
         else
         {
             <div class="tech-info-grid">
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Vinyl state">
-                    <span>Vinyl state</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["VinylState"]">
+                        <span>@Localizer["VinylState"]</span>
                     <div id="vinylstatespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="vinylstate" class="tech-icon" alt="Vinyl state" style="display:none;" />
                     <i id="vinylstateicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="vinylstatevalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Digital format">
-                    <span>Digital format</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["DigitalFormat"]">
+                        <span>@Localizer["DigitalFormat"]</span>
                     <div id="digitalformatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="digitalformat" class="tech-icon" alt="Digital format" style="display:none;" />
                     <i id="digitalformaticon" class="fa-regular fa-image fa-6x"></i>
                     <div id="digitalformatvalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Bitness">
-                    <span>Bitness</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["Bitness"]">
+                        <span>@Localizer["Bitness"]</span>
                     <div id="bitnessspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="bitness" class="tech-icon" alt="Bitness" style="display:none;" />
                     <i id="bitnessicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="bitnesstvalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Sampling">
-                    <span>Sampling</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["Sampling"]">
+                        <span>@Localizer["Sampling"]</span>
                     <div id="samplingspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="sampling" class="tech-icon" alt="Sampling" style="display:none;" />
                     <i id="samplingicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="samplingvalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Source format">
-                    <span>Source format</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["SourceFormat"]">
+                        <span>@Localizer["SourceFormat"]</span>
                     <div id="formatspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="format" class="tech-icon" alt="Source format" style="display:none;" />
                     <i id="formaticon" class="fa-regular fa-image fa-6x"></i>
                     <div id="formatvalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Player">
-                    <span>Player</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["Player"]">
+                        <span>@Localizer["Player"]</span>
                     <div id="playerspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="player" class="tech-icon" alt="Player" style="display:none;" />
                     <i id="playericon" class="fa-regular fa-image fa-6x"></i>
                     <div id="playervalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Cartridge">
-                    <span>Cartridge</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["Cartridge"]">
+                        <span>@Localizer["Cartridge"]</span>
                     <div id="cartridgespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="cartridge" class="tech-icon" alt="Cartridge" style="display:none;" />
                     <i id="cartridgeicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="cartridgevalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Amplifier">
-                    <span>Amplifier</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["Amplifier"]">
+                        <span>@Localizer["Amplifier"]</span>
                     <div id="ampspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="amp" class="tech-icon" alt="Amplifier" style="display:none;" />
                     <i id="ampicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="ampvalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="ADC">
-                    <span>Adc</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["ADC"]">
+                        <span>@Localizer["ADC"]</span>
                     <div id="adcspinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="adc" class="tech-icon" alt="ADC" style="display:none;" />
                     <i id="adcicon" class="fa-regular fa-image fa-6x"></i>
                     <div id="adcvalue"></div>
                 </div>
-                <div class="tech-card" data-toggle="tooltip" data-placement="top" title="Wire">
-                    <span>Wire</span>
+                    <div class="tech-card" data-toggle="tooltip" data-placement="top" title="@Localizer["Wire"]">
+                        <span>@Localizer["Wire"]</span>
                     <div id="wirespinner" class="spinner-border text-secondary" role="status"></div>
                     <img id="wire" class="tech-icon" alt="Wires" style="display:none;" />
                     <i id="wireicon" class="fa-regular fa-image fa-6x"></i>
@@ -182,18 +185,18 @@
         }
     </div>
     <div class="info-card">
-        Genre: <b>@Model.Genre</b>
+        @Localizer["Genre"]: <b>@Model.Genre</b>
         &nbsp;|&nbsp;
-        Releases: <b>@Model.Releases?.Count()</b>
+        @Localizer["Releases"]: <b>@Model.Releases?.Count()</b>
 
         @if (Model.AddedDate != null)
         {
-            @:&nbsp;|&nbsp; Added: <b>@Model.AddedDate</b>
+            @:&nbsp;|&nbsp; @Localizer["Added"]: <b>@Model.AddedDate</b>
         }
 
         @if (Model.UpdateDate != null)
         {
-            @:&nbsp;|&nbsp; Updated: <b>@Model.UpdateDate</b>
+            @:&nbsp;|&nbsp; @Localizer["Updated"]: <b>@Model.UpdateDate</b>
         }
         <hr />
         <div id="releaseinfo"></div>

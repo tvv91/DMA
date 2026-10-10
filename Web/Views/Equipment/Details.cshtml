@@ -1,33 +1,36 @@
 @model EquipmentViewModel 
+@using Microsoft.Extensions.Localization
+@using Web
+@inject IStringLocalizer<SharedResource> Localizer
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <div id="toasterror" class="toast toast-variant-danger" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Error</strong>
+       <strong class="me-auto">@Localizer["Error"]</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div class="toast-body">Some error during deletion</div>
+     <div class="toast-body">@Localizer["CannotBeUndone"]</div>
   </div>
   <div id="toastinfo_updated" class="toast toast-variant-update" role="alert" aria-live="polite" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Updated</strong>
+       <strong class="me-auto">@Localizer["Updated"]</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div class="toast-body">Equipment updated</div>
+     <div class="toast-body">@Localizer["EquipmentUpdated"]</div>
   </div>
   <div id="toastinfo_created" class="toast toast-variant-success" role="alert" aria-live="polite" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Success</strong>
+       <strong class="me-auto">@Localizer["Success"]</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div class="toast-body">Equipment created</div>
+     <div class="toast-body">@Localizer["EquipmentCreated"]</div>
   </div>
   <div id="toastinfo_deleted" class="toast toast-variant-danger" role="alert" aria-live="polite" aria-atomic="true">
     <div class="toast-header">
-      <strong class="me-auto">Removed</strong>
+       <strong class="me-auto">@Localizer["Removed"]</strong>
       <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
-    <div class="toast-body">Equipment deleted</div>
+     <div class="toast-body">@Localizer["EquipmentRemoved"]</div>
   </div>
 </div>
 @if (User.IsInRole(RoleNames.Admin))
@@ -36,21 +39,21 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Are you sure?</h1>
+         <h1 class="modal-title fs-5">@Localizer["AreYouSure"]</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Data cannot be restored
+         @Localizer["CannotBeUndone"]
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Id)">Delete</button>
+         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Close"]</button>
+         <button type="button" class="btn btn-danger" onclick="onRemove(@Model.Id)">@Localizer["Delete"]</button>
       </div>
     </div>
   </div>
 </div>
 }
-<a id="back_button" class="btn btn-back mt-3" asp-action="index" asp-controller="equipment"><i class="fa fa-arrow-left"></i> Back</a>
+<a id="back_button" class="btn btn-back mt-3" asp-action="index" asp-controller="equipment"><i class="fa fa-arrow-left"></i> @Localizer["Back"]</a>
 @{
     var eqCategory = Model?.EquipmentType.ToString().ToLowerInvariant() ?? "";
     var eqId = Model?.Id ?? 0;
@@ -60,10 +63,10 @@
 <div class="equipment-detail-with-tabs">
 <ul class="nav nav-tabs mt-3" id="equipmentDetailTabs" role="tablist">
     <li class="nav-item" role="presentation">
-        <a class="nav-link @(Model?.ActiveTab != "albums" ? "active" : "")" href="/equipment/@eqCategory/@eqId" role="tab">General</a>
+        <a class="nav-link @(Model?.ActiveTab != "albums" ? "active" : "")" href="/equipment/@eqCategory/@eqId" role="tab">@Localizer["General"]</a>
     </li>
     <li class="nav-item" role="presentation">
-        <a class="nav-link @(Model?.ActiveTab == "albums" ? "active" : "")" href="@(baseAlbumsUrl)&page=1" role="tab">Albums</a>
+        <a class="nav-link @(Model?.ActiveTab == "albums" ? "active" : "")" href="@(baseAlbumsUrl)&page=1" role="tab">@Localizer["AlbumsTab"]</a>
     </li>
 </ul>
 <div class="tab-content mt-2" id="equipmentDetailTabContent">
@@ -88,11 +91,11 @@
 
                     @if (Model?.Manufacturer != null) {
                         <h1><b>@Model?.Manufacturer</b> @Model?.ModelName</h1>
-                        <b>Manufacturer: </b> @Model?.Manufacturer <br />
-                        <b>Model: </b> @Model?.ModelName
+                        <b>@Localizer["Manufacturer"]: </b> @Model?.Manufacturer <br />
+                        <b>@Localizer["Model"]: </b> @Model?.ModelName
                     } else {
                         <h1>@Model?.ModelName</h1>
-                        <b>Model: </b> @Model?.ModelName
+                        <b>@Localizer["Model"]: </b> @Model?.ModelName
                     }
                 </div>
                 @if (Model?.Description != null) {
@@ -100,7 +103,7 @@
                         <textarea class="equipment-description" readonly>@Model?.Description</textarea>
                     </div>
                 } else {
-                    <p class="text-muted mb-0">No description.</p>
+                    <p class="text-muted mb-0">@Localizer["NoDescription"]</p>
                 }
             </div>
         </div>

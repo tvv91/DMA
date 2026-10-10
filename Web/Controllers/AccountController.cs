@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using MediatR;
 using Web.Features.Supporting;
 using Web.ViewModels;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 namespace Web.Controllers;
 
@@ -17,6 +19,23 @@ public class AccountController(ISender sender) : Controller
         var redirect = GetLocalReturnUrl(returnUrl);
         var separator = redirect.Contains('?') ? "&" : "?";
         return Redirect($"{redirect}{separator}showLogin=true");
+    }
+
+    [HttpPost("account/set-language")]
+    [AllowAnonymous]
+    [ValidateAntiForgeryToken]
+    public IActionResult SetLanguage(string culture, string? returnUrl = null)
+    {
+        var supportedCultures = new[] { "en", "ru", "uk" };
+        if (!supportedCultures.Contains(culture, StringComparer.OrdinalIgnoreCase))
+            culture = "en";
+
+        Response.Cookies.Append(
+            CookieRequestCultureProvider.DefaultCookieName,
+            CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(culture)),
+            new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1), IsEssential = true });
+
+        return LocalRedirect(GetLocalReturnUrl(returnUrl));
     }
 
     [HttpPost("account/login")]

@@ -13,11 +13,12 @@ using Web.Features.Albums.Update;
 
 namespace Web.Controllers
 {
-    public class AlbumController(ISender sender) : Controller
+    public class AlbumController(ISender sender, ILogger<AlbumController> logger) : Controller
     {
-        private const int DEFAULT_ALBUMS_PER_PAGE = 15;
-        private const int MAX_ALBUMS_PER_PAGE = 30;
+        private const int DefaultAlbumsPerPage = 15;
+        private const int MaxAlbumsPerPage = 30;
         private readonly ISender _sender = sender;
+        private readonly ILogger<AlbumController> _logger = logger;
 
         [HttpGet("album")]
         public async Task<IActionResult> Index(int page = 1, int pageSize = 0, string? artistName = null, string? genreName = null, string? yearValue = null, string? albumTitle = null)
@@ -27,9 +28,9 @@ namespace Web.Controllers
 
             // Use default if pageSize is 0 or invalid, otherwise clamp to max
             if (pageSize <= 0)
-                pageSize = DEFAULT_ALBUMS_PER_PAGE;
-            else if (pageSize > MAX_ALBUMS_PER_PAGE)
-                pageSize = MAX_ALBUMS_PER_PAGE;
+                pageSize = DefaultAlbumsPerPage;
+            else if (pageSize > MaxAlbumsPerPage)
+                pageSize = MaxAlbumsPerPage;
 
             var vm = await _sender.Send(new IndexQuery(page, pageSize, artistName, genreName, yearValue, albumTitle));
             return View("Index", vm);
@@ -98,7 +99,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Failed to save album. {ex.Message}");
+                _logger.LogError(ex, "Failed to save album");
+                ModelState.AddModelError("", "Failed to save album.");
                 return View("CreateUpdate", request);
             }
         }
@@ -121,7 +123,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", "Failed to update album. " + ex.Message);
+                _logger.LogError(ex, "Failed to update album {AlbumId}", request.AlbumId);
+                ModelState.AddModelError("", "Failed to update album.");
                 return View("CreateUpdate", request);
             }
         }

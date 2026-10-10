@@ -9,10 +9,11 @@ using Web.ViewModels;
 
 namespace Web.Controllers
 {
-    public class EquipmentController(ISender sender) : Controller
+    public class EquipmentController(ISender sender, ILogger<EquipmentController> logger) : Controller
     {
         private const int DefaultEquipmentAlbumsPageSize = 18;
         private readonly ISender _sender = sender;
+        private readonly ILogger<EquipmentController> _logger = logger;
 
         public async Task<IActionResult> Index()
         {
@@ -55,7 +56,8 @@ namespace Web.Controllers
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", $"Failed to update equipment: {ex.Message}");
+                _logger.LogError(ex, "Failed to update equipment {EquipmentId}", request.Id);
+                ModelState.AddModelError("", "Failed to update equipment.");
                 return View("CreateUpdate", request);
             }
         }

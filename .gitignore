@@ -371,3 +371,4 @@ FodyWeavers.xsd
 /Web/wwwroot/temp
 /Web/wwwroot/lib/dompurify
 /Web/test.ps1
+/Web/logs/

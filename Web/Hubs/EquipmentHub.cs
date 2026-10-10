@@ -13,7 +13,7 @@ namespace Web.Hubs
     {
         private readonly IImageService _imgService = imageService;
         private readonly ISender _sender = sender;
-        private const int ITEMS_PER_PAGE = 18;
+        private const int ItemsPerPage = 18;
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new()
         {
@@ -29,7 +29,7 @@ namespace Web.Hubs
             if (!_categoryEntityMap.TryGetValue(category, out var entityType))
                 return;
 
-            var pagedResult = await _sender.Send(new GetEquipmentHubPageQuery(entityType, page, ITEMS_PER_PAGE));
+            var pagedResult = await _sender.Send(new GetEquipmentHubPageQuery(entityType, page, ItemsPerPage));
 
             var result = pagedResult.Items
                 .Select(x => new EquipmentViewModel

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using Web.Infrastructure.Persistence;
 using Web.Infrastructure.Icons;
 using Web.Infrastructure.Storage;
@@ -11,6 +12,8 @@ using Web.Hubs;
 using Web.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration));
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
 builder.Services.AddControllersWithViews(options =>
 {

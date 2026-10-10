@@ -7,10 +7,14 @@ using Web.ViewModels;
 
 namespace Web.Hubs
 {
-    public class PostHub(ISender sender, TimeProvider timeProvider) : Hub
+    public class PostHub(
+        ISender sender,
+        TimeProvider timeProvider,
+        ILogger<PostHub> logger) : Hub
     {
         private readonly ISender _sender = sender;
         private readonly TimeProvider _timeProvider = timeProvider;
+        private readonly ILogger<PostHub> _logger = logger;
 
         public async Task GetPosts(int page, string searchText, string category, string year, bool onlyDrafts)
         {
@@ -71,14 +75,13 @@ namespace Web.Hubs
                     await Clients.Caller.SendAsync("PostUpdated", now);
                 }
             }
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
-                // Post not found, ignore silently for autosave
+                _logger.LogWarning(ex, "Post {PostId} was not found during autosave", id);
             }
             catch (Exception ex)
             {
-                // Log error but don't throw to avoid breaking autosave
-                // TODO: Add proper logging
+                _logger.LogError(ex, "Failed to autosave post {PostId}", id);
             }
         }
     }

@@ -9,17 +9,20 @@ using Web.Features.Equipment;
 using Web.Features.Albums.Releases;
 using Web.Infrastructure.Icons;
 using Web.Infrastructure.Storage;
+using Microsoft.Extensions.Logging;
 
 namespace Web.Hubs
 {
     public class AlbumHub(
         IImageService imageService,
         IResourceIconService resourceIconService,
-        ISender sender) : Hub
+        ISender sender,
+        ILogger<AlbumHub> logger) : Hub
     {
         private readonly IImageService _imgService = imageService;
         private readonly IResourceIconService _resourceIconService = resourceIconService;
         private readonly ISender _sender = sender;
+        private readonly ILogger<AlbumHub> _logger = logger;
         private static readonly ConcurrentDictionary<int, string> _coverCache = new();
 
         private readonly Dictionary<string, EntityType> _categoryEntityMap = new()
@@ -85,7 +88,8 @@ namespace Web.Hubs
             }
             catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("ReleaseAdded", false, ex.Message, 0);
+                _logger.LogError(ex, "Failed to add release");
+                await Clients.Caller.SendAsync("ReleaseAdded", false, "Failed to add release.", 0);
             }
         }
 
@@ -105,7 +109,8 @@ namespace Web.Hubs
             }
             catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("ReleaseUpdated", false, ex.Message);
+                _logger.LogError(ex, "Failed to update release {ReleaseId}", request.ReleaseId);
+                await Clients.Caller.SendAsync("ReleaseUpdated", false, "Failed to update release.");
             }
         }
 
@@ -119,7 +124,8 @@ namespace Web.Hubs
             }
             catch (Exception ex)
             {
-                await Clients.Caller.SendAsync("ReleaseRemoved", false, ex.Message);
+                _logger.LogError(ex, "Failed to remove release {ReleaseId}", releaseId);
+                await Clients.Caller.SendAsync("ReleaseRemoved", false, "Failed to remove release.");
             }
         }
 

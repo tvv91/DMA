@@ -34,15 +34,35 @@ public sealed class GetHubPostsQueryHandler(Context context) : IRequestHandler<G
 {
     public async Task<PostHubPage> Handle(GetHubPostsQuery request, CancellationToken cancellationToken)
     {
-        var query = context.Posts.Include(p => p.PostCategories).ThenInclude(pc => pc.Category).AsNoTracking();
-        if (!string.IsNullOrWhiteSpace(request.SearchText)) query = query.Where(p => p.Title.Contains(request.SearchText) || p.Description.Contains(request.SearchText) || p.Content.Contains(request.SearchText));
-        if (!string.IsNullOrWhiteSpace(request.Category)) query = query.Where(p => p.PostCategories.Any(pc => pc.Category.Title == request.Category));
-        if (!string.IsNullOrWhiteSpace(request.Year) && int.TryParse(request.Year, out var year)) query = query.Where(p => p.CreatedDate.HasValue && p.CreatedDate.Value.Year == year);
+        var query = context.Posts
+            .Include(p => p.PostCategories)
+            .ThenInclude(pc => pc.Category)
+            .AsNoTracking();
+        if (!string.IsNullOrWhiteSpace(request.SearchText))
+            query = query.Where(p => p.Title.Contains(request.SearchText) ||
+                p.Description.Contains(request.SearchText) ||
+                p.Content.Contains(request.SearchText));
+        if (!string.IsNullOrWhiteSpace(request.Category))
+            query = query.Where(p => p.PostCategories.Any(pc => pc.Category.Title == request.Category));
+        if (!string.IsNullOrWhiteSpace(request.Year) && int.TryParse(request.Year, out var year))
+            query = query.Where(p => p.CreatedDate.HasValue && p.CreatedDate.Value.Year == year);
         if (request.OnlyDrafts) query = query.Where(p => p.IsDraft);
         else if (request.ExcludeDrafts) query = query.Where(p => !p.IsDraft);
         var total = await query.CountAsync(cancellationToken);
-        var posts = await query.OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue).ThenByDescending(p => p.Id).Skip((request.Page - 1) * 5).Take(5).ToListAsync(cancellationToken);
-        return new PostHubPage(posts.Select(p => new PostHubItem(p.Id, p.Title, p.Description, p.IsDraft, p.CreatedDate?.ToShortDateString(), p.PostCategories.Select(pc => pc.Category.Title).ToList())).ToList(), (int)Math.Ceiling(total / 5d));
+        var posts = await query
+            .OrderByDescending(p => p.CreatedDate ?? DateTime.MinValue)
+            .ThenByDescending(p => p.Id)
+            .Skip((request.Page - 1) * 5)
+            .Take(5)
+            .ToListAsync(cancellationToken);
+        var items = posts.Select(p => new PostHubItem(
+            p.Id,
+            p.Title,
+            p.Description,
+            p.IsDraft,
+            p.CreatedDate?.ToShortDateString(),
+            p.PostCategories.Select(pc => pc.Category.Title).ToList())).ToList();
+        return new PostHubPage(items, (int)Math.Ceiling(total / 5d));
     }
 }
 

@@ -7,7 +7,7 @@ namespace Web.Infrastructure.Storage
         IWebHostEnvironment environment,
         ILogger<LocalStorageImageService> logger) : IImageService
     {
-        private const string NO_COVER = "resources/nocover.png";
+        private const string NoCover = "resources/nocover.png";
         private static readonly HashSet<string> AllowedTempExtensions = new(StringComparer.OrdinalIgnoreCase)
         {
             ".jpg",
@@ -30,11 +30,11 @@ namespace Web.Infrastructure.Storage
         public Task<string> GetUrlAsync(int id, EntityType entity)
         {
             if (!_map.TryGetValue(entity, out var info))
-                return Task.FromResult(NO_COVER);
+                return Task.FromResult(NoCover);
 
             var relativePath = Path.Combine(info.Path, $"{id}{info.Ext}");
             var fullPath = Path.Combine(GetWebRootPath(), relativePath);
-            var url = File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NO_COVER}";
+            var url = File.Exists(fullPath) ? $"/{relativePath.Replace("\\", "/")}" : $"/{NoCover}";
             return Task.FromResult(url);
         }
 

@@ -1,133 +1,516 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
-  <resheader name="version"><value>2.0</value></resheader>
-  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-	<resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Language"><value>Язык</value></data>
-  <data name="English"><value>Английский</value></data>
-  <data name="Russian"><value>Русский</value></data>
-  <data name="Ukrainian"><value>Украинский</value></data>
-  <data name="ErrorLoadingPosts"><value>Ошибка загрузки публикаций</value></data>
-  <data name="RefreshPageToTryAgain"><value>Обновите страницу и попробуйте снова</value></data>
-	<data name="ConnectionError"><value>Ошибка подключения</value></data>
-  <data name="UnableToConnect"><value>Не удалось подключиться к серверу. Обновите страницу.</value></data>
-  <data name="NoPostsFound"><value>Публикации не найдены</value></data>
-  <data name="AdjustFilters"><value>Измените фильтры или поисковый запрос</value></data>
-  <data name="NoPostsAvailable"><value>Нет доступных публикаций</value></data>
-  <data name="UnknownDate"><value>Неизвестная дата</value></data>
-  <data name="SiteTitle"><value>Цифровой музыкальный архив</value></data>
-  <data name="LastNews"><value>Последние новости</value></data>
-  <data name="Albums"><value>Альбомы</value></data>
-  <data name="Equipment"><value>Оборудование</value></data>
-  <data name="Statistic"><value>Статистика</value></data>
-  <data name="AboutProject"><value>О проекте</value></data>
-  <data name="Login"><value>Войти</value></data>
-  <data name="Logout"><value>Выйти</value></data>
-  <data name="AddAlbum"><value>Альбом</value></data>
-  <data name="AddEquipment"><value>Оборудование</value></data>
-  <data name="AddPost"><value>Публикация</value></data>
-  <data name="LoadingStatistics"><value>Загрузка статистики</value></data>
-  <data name="Loading"><value>Загрузка...</value></data>
-  <data name="SearchPosts"><value>Поиск публикаций</value></data>
-  <data name="SearchPostsPlaceholder"><value>Поиск по названию или описанию...</value></data>
-  <data name="FilterByCategory"><value>Фильтр по категории:</value></data>
-  <data name="AllCategories"><value>Все категории</value></data>
-  <data name="Developing"><value>Разработка</value></data>
-  <data name="Releases"><value>Релизы</value></data>
-  <data name="Other"><value>Другое</value></data>
-  <data name="Year"><value>Год</value></data>
-  <data name="ShowOnlyDrafts"><value>Показывать только черновики</value></data>
-  <data name="BlogArchive"><value>Архив публикаций</value></data>
-  <data name="PostsPagination"><value>Пагинация публикаций</value></data>
-  <data name="Uncategorized"><value>Без категории</value></data>
-  <data name="CategoryDeveloping"><value>Разработка</value></data>
-  <data name="CategoryOther"><value>Другое</value></data>
-  <data name="CategoryReleases"><value>Релизы</value></data>
-  <data name="SearchAlbumTitle"><value>Поиск по названию альбома...</value></data>
-  <data name="SearchArtist"><value>Поиск исполнителя...</value></data>
-  <data name="SearchGenre"><value>Поиск жанра...</value></data>
-  <data name="SearchYear"><value>Поиск года...</value></data>
-  <data name="Removed"><value>Удалено</value></data>
-  <data name="Updated"><value>Обновлено</value></data>
-  <data name="Success"><value>Успешно</value></data>
-  <data name="Error"><value>Ошибка</value></data>
-  <data name="Notice"><value>Внимание</value></data>
-  <data name="Close"><value>Закрыть</value></data>
-  <data name="Delete"><value>Удалить</value></data>
-  <data name="Back"><value>Назад</value></data>
-  <data name="Edit"><value>Редактировать</value></data>
-  <data name="Save"><value>Сохранить</value></data>
-  <data name="Add"><value>Добавить</value></data>
-  <data name="Update"><value>Обновить</value></data>
-  <data name="Remove"><value>Удалить</value></data>
-  <data name="Previous"><value>Предыдущая</value></data>
-  <data name="Next"><value>Следующая</value></data>
-  <data name="PageNavigation"><value>Навигация по страницам</value></data>
-  <data name="AreYouSure"><value>Вы уверены?</value></data>
-  <data name="NoReleases"><value>Нет релизов :(</value></data>
-  <data name="NoReleaseData"><value>У этого альбома пока нет технических данных.</value></data>
-  <data name="AddFirstRelease"><value>Добавьте первый релиз, чтобы увидеть сведения об оборудовании и формате.</value></data>
-	<data name="AddFirstAlbum"><value>Добавьте свой первый альбом</value></data>
-  <data name="AddRelease"><value>Добавить релиз</value></data>
-  <data name="General"><value>Общие сведения</value></data>
-  <data name="Release"><value>Релиз</value></data>
-  <data name="Hardware"><value>Оборудование</value></data>
-  <data name="Artist"><value>Исполнитель</value></data>
-  <data name="Album"><value>Альбом</value></data>
-  <data name="Genre"><value>Жанр</value></data>
-  <data name="VinylState"><value>Состояние винила</value></data>
-  <data name="DigitalFormat"><value>Цифровой формат</value></data>
-  <data name="Bitness"><value>Разрядность</value></data>
-  <data name="Sampling"><value>Частота дискретизации</value></data>
-  <data name="SourceFormat"><value>Исходный формат</value></data>
-  <data name="Storage"><value>Хранилище</value></data>
-  <data name="Country"><value>Страна</value></data>
-  <data name="Label"><value>Лейбл</value></data>
-  <data name="Source"><value>Источник</value></data>
-  <data name="Discogs"><value>Discogs</value></data>
-  <data name="Size"><value>Размер</value></data>
-  <data name="FirstPress"><value>Первый пресс</value></data>
-  <data name="Manufacturer"><value>Производитель</value></data>
-  <data name="Player"><value>Проигрыватель</value></data>
-  <data name="Cartridge"><value>Картридж</value></data>
-  <data name="Amplifier"><value>Усилитель</value></data>
-  <data name="ADC"><value>АЦП</value></data>
-  <data name="Wire"><value>Кабель</value></data>
-  <data name="Type"><value>Тип</value></data>
-  <data name="Model"><value>Модель</value></data>
-  <data name="Description"><value>Описание</value></data>
-  <data name="AlbumsTab"><value>Альбомы</value></data>
-  <data name="NoDescription"><value>Нет описания.</value></data>
-  <data name="NoReleasedAlbums"><value>С этим оборудованием ещё не выпускались альбомы.</value></data>
-  <data name="EquipmentDeleted"><value>Оборудование успешно удалено</value></data>
-  <data name="AlbumDeleted"><value>Альбом успешно удалён</value></data>
-  <data name="EquipmentUpdated"><value>Оборудование обновлено</value></data>
-  <data name="EquipmentCreated"><value>Оборудование создано</value></data>
-  <data name="EquipmentRemoved"><value>Оборудование удалено</value></data>
-  <data name="Statistics"><value>Статистика</value></data>
-  <data name="UpdatedDaily"><value>Обновляется раз в день. Последнее обновление:</value></data>
-  <data name="Storages"><value>Хранилища</value></data>
-  <data name="Artists"><value>Исполнители</value></data>
-  <data name="Equipments"><value>Оборудование</value></data>
-  <data name="MusicInformation"><value>Музыкальная информация</value></data>
-  <data name="FormatInformation"><value>Информация о форматах</value></data>
-  <data name="Genres"><value>Жанры</value></data>
-  <data name="Years"><value>Годы</value></data>
-  <data name="Countries"><value>Страны</value></data>
-  <data name="Labels"><value>Лейблы</value></data>
-  <data name="NoDataAvailable"><value>Нет данных</value></data>
-  <data name="Preview"><value>Предпросмотр</value></data>
-  <data name="Publish"><value>Опубликовать</value></data>
-  <data name="SaveDraft"><value>Сохранить (черновик)</value></data>
-  <data name="PostPreview"><value>Предпросмотр публикации</value></data>
-  <data name="SelectCategory"><value>Выберите категорию</value></data>
-  <data name="EnterPostTitle"><value>Введите заголовок публикации...</value></data>
-  <data name="EnterDescription"><value>Введите краткое описание...</value></data>
-  <data name="StartWriting"><value>Начните писать содержимое публикации...</value></data>
-  <data name="Created"><value>Создано</value></data>
-	<data name="Added"><value>Добавлено</value></data>
-  <data name="RemovePost"><value>Удалить публикацию?</value></data>
-  <data name="CannotBeUndone"><value>Это действие нельзя отменить. Вы уверены, что хотите удалить публикацию?</value></data>
-  <data name="Cancel"><value>Отмена</value></data>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Language" xml:space="preserve">
+    <value>Язык</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>Английский</value>
+  </data>
+  <data name="Russian" xml:space="preserve">
+    <value>Русский</value>
+  </data>
+  <data name="Ukrainian" xml:space="preserve">
+    <value>Украинский</value>
+  </data>
+  <data name="ErrorLoadingPosts" xml:space="preserve">
+    <value>Ошибка загрузки публикаций</value>
+  </data>
+  <data name="RefreshPageToTryAgain" xml:space="preserve">
+    <value>Обновите страницу и попробуйте снова</value>
+  </data>
+  <data name="ConnectionError" xml:space="preserve">
+    <value>Ошибка подключения</value>
+  </data>
+  <data name="UnableToConnect" xml:space="preserve">
+    <value>Не удалось подключиться к серверу. Обновите страницу.</value>
+  </data>
+  <data name="NoPostsFound" xml:space="preserve">
+    <value>Публикации не найдены</value>
+  </data>
+  <data name="AdjustFilters" xml:space="preserve">
+    <value>Измените фильтры или поисковый запрос</value>
+  </data>
+  <data name="NoPostsAvailable" xml:space="preserve">
+    <value>Нет доступных публикаций</value>
+  </data>
+  <data name="UnknownDate" xml:space="preserve">
+    <value>Неизвестная дата</value>
+  </data>
+  <data name="SiteTitle" xml:space="preserve">
+    <value>Цифровой музыкальный архив</value>
+  </data>
+  <data name="LastNews" xml:space="preserve">
+    <value>Последние новости</value>
+  </data>
+  <data name="Albums" xml:space="preserve">
+    <value>Альбомы</value>
+  </data>
+  <data name="Equipment" xml:space="preserve">
+    <value>Оборудование</value>
+  </data>
+  <data name="Statistic" xml:space="preserve">
+    <value>Статистика</value>
+  </data>
+  <data name="AboutProject" xml:space="preserve">
+    <value>О проекте</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Войти</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Выйти</value>
+  </data>
+  <data name="AddAlbum" xml:space="preserve">
+    <value>Альбом</value>
+  </data>
+  <data name="AddEquipment" xml:space="preserve">
+    <value>Оборудование</value>
+  </data>
+  <data name="AddPost" xml:space="preserve">
+    <value>Публикация</value>
+  </data>
+  <data name="LoadingStatistics" xml:space="preserve">
+    <value>Загрузка статистики</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Загрузка...</value>
+  </data>
+  <data name="SearchPosts" xml:space="preserve">
+    <value>Поиск публикаций</value>
+  </data>
+  <data name="SearchPostsPlaceholder" xml:space="preserve">
+    <value>Поиск по названию или описанию...</value>
+  </data>
+  <data name="FilterByCategory" xml:space="preserve">
+    <value>Фильтр по категории:</value>
+  </data>
+  <data name="AllCategories" xml:space="preserve">
+    <value>Все категории</value>
+  </data>
+  <data name="Developing" xml:space="preserve">
+    <value>Разработка</value>
+  </data>
+  <data name="Releases" xml:space="preserve">
+    <value>Релизы</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Другое</value>
+  </data>
+  <data name="ShowOnlyDrafts" xml:space="preserve">
+    <value>Показывать только черновики</value>
+  </data>
+  <data name="BlogArchive" xml:space="preserve">
+    <value>Архив публикаций</value>
+  </data>
+  <data name="PostsPagination" xml:space="preserve">
+    <value>Пагинация публикаций</value>
+  </data>
+  <data name="Uncategorized" xml:space="preserve">
+    <value>Без категории</value>
+  </data>
+  <data name="CategoryDeveloping" xml:space="preserve">
+    <value>Разработка</value>
+  </data>
+  <data name="CategoryOther" xml:space="preserve">
+    <value>Другое</value>
+  </data>
+  <data name="CategoryReleases" xml:space="preserve">
+    <value>Релизы</value>
+  </data>
+  <data name="SearchAlbumTitle" xml:space="preserve">
+    <value>Поиск по названию альбома...</value>
+  </data>
+  <data name="SearchArtist" xml:space="preserve">
+    <value>Поиск исполнителя...</value>
+  </data>
+  <data name="SearchGenre" xml:space="preserve">
+    <value>Поиск жанра...</value>
+  </data>
+  <data name="SearchYear" xml:space="preserve">
+    <value>Поиск года...</value>
+  </data>
+  <data name="Removed" xml:space="preserve">
+    <value>Удалено</value>
+  </data>
+  <data name="Updated" xml:space="preserve">
+    <value>Обновлено</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Успешно</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Ошибка</value>
+  </data>
+  <data name="Notice" xml:space="preserve">
+    <value>Внимание</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Редактировать</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Сохранить</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Добавить</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Обновить</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Удалить</value>
+  </data>
+  <data name="Previous" xml:space="preserve">
+    <value>Предыдущая</value>
+  </data>
+  <data name="Next" xml:space="preserve">
+    <value>Следующая</value>
+  </data>
+  <data name="PageNavigation" xml:space="preserve">
+    <value>Навигация по страницам</value>
+  </data>
+  <data name="AreYouSure" xml:space="preserve">
+    <value>Вы уверены?</value>
+  </data>
+  <data name="NoReleases" xml:space="preserve">
+    <value>Нет релизов :(</value>
+  </data>
+  <data name="NoReleaseData" xml:space="preserve">
+    <value>У этого альбома пока нет технических данных.</value>
+  </data>
+  <data name="AddFirstRelease" xml:space="preserve">
+    <value>Добавьте первый релиз, чтобы увидеть сведения об оборудовании и формате.</value>
+  </data>
+  <data name="AddFirstAlbum" xml:space="preserve">
+    <value>Добавьте свой первый альбом</value>
+  </data>
+  <data name="AddRelease" xml:space="preserve">
+    <value>Добавить релиз</value>
+  </data>
+  <data name="General" xml:space="preserve">
+    <value>Общие сведения</value>
+  </data>
+  <data name="Release" xml:space="preserve">
+    <value>Релиз</value>
+  </data>
+  <data name="Hardware" xml:space="preserve">
+    <value>Оборудование</value>
+  </data>
+  <data name="Artist" xml:space="preserve">
+    <value>Исполнитель</value>
+  </data>
+  <data name="Album" xml:space="preserve">
+    <value>Альбом</value>
+  </data>
+  <data name="Genre" xml:space="preserve">
+    <value>Жанр</value>
+  </data>
+  <data name="VinylState" xml:space="preserve">
+    <value>Состояние винила</value>
+  </data>
+  <data name="DigitalFormat" xml:space="preserve">
+    <value>Цифровой формат</value>
+  </data>
+  <data name="Bitness" xml:space="preserve">
+    <value>Разрядность</value>
+  </data>
+  <data name="Sampling" xml:space="preserve">
+    <value>Частота дискретизации</value>
+  </data>
+  <data name="SourceFormat" xml:space="preserve">
+    <value>Исходный формат</value>
+  </data>
+  <data name="Storage" xml:space="preserve">
+    <value>Хранилище</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>Год</value>
+  </data>
+  <data name="Country" xml:space="preserve">
+    <value>Страна</value>
+  </data>
+  <data name="Label" xml:space="preserve">
+    <value>Лейбл</value>
+  </data>
+  <data name="Source" xml:space="preserve">
+    <value>Источник</value>
+  </data>
+  <data name="Discogs" xml:space="preserve">
+    <value>Discogs</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Размер</value>
+  </data>
+  <data name="FirstPress" xml:space="preserve">
+    <value>Первый пресс</value>
+  </data>
+  <data name="Manufacturer" xml:space="preserve">
+    <value>Производитель</value>
+  </data>
+  <data name="Player" xml:space="preserve">
+    <value>Проигрыватель</value>
+  </data>
+  <data name="Cartridge" xml:space="preserve">
+    <value>Картридж</value>
+  </data>
+  <data name="Amplifier" xml:space="preserve">
+    <value>Усилитель</value>
+  </data>
+  <data name="ADC" xml:space="preserve">
+    <value>АЦП</value>
+  </data>
+  <data name="Wire" xml:space="preserve">
+    <value>Кабель</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Тип</value>
+  </data>
+  <data name="Model" xml:space="preserve">
+    <value>Модель</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Описание</value>
+  </data>
+  <data name="AlbumsTab" xml:space="preserve">
+    <value>Альбомы</value>
+  </data>
+  <data name="NoDescription" xml:space="preserve">
+    <value>Нет описания.</value>
+  </data>
+  <data name="NoReleasedAlbums" xml:space="preserve">
+    <value>С этим оборудованием ещё не выпускались альбомы.</value>
+  </data>
+  <data name="EquipmentDeleted" xml:space="preserve">
+    <value>Оборудование успешно удалено</value>
+  </data>
+  <data name="AlbumDeleted" xml:space="preserve">
+    <value>Альбом успешно удалён</value>
+  </data>
+  <data name="EquipmentUpdated" xml:space="preserve">
+    <value>Оборудование обновлено</value>
+  </data>
+  <data name="EquipmentCreated" xml:space="preserve">
+    <value>Оборудование создано</value>
+  </data>
+  <data name="EquipmentRemoved" xml:space="preserve">
+    <value>Оборудование удалено</value>
+  </data>
+  <data name="Statistics" xml:space="preserve">
+    <value>Статистика</value>
+  </data>
+  <data name="UpdatedDaily" xml:space="preserve">
+    <value>Обновляется раз в день. Последнее обновление:</value>
+  </data>
+  <data name="Storages" xml:space="preserve">
+    <value>Хранилища</value>
+  </data>
+  <data name="Artists" xml:space="preserve">
+    <value>Исполнители</value>
+  </data>
+  <data name="Equipments" xml:space="preserve">
+    <value>Оборудование</value>
+  </data>
+  <data name="MusicInformation" xml:space="preserve">
+    <value>Музыкальная информация</value>
+  </data>
+  <data name="FormatInformation" xml:space="preserve">
+    <value>Информация о форматах</value>
+  </data>
+  <data name="Genres" xml:space="preserve">
+    <value>Жанры</value>
+  </data>
+  <data name="Years" xml:space="preserve">
+    <value>Годы</value>
+  </data>
+  <data name="Countries" xml:space="preserve">
+    <value>Страны</value>
+  </data>
+  <data name="Labels" xml:space="preserve">
+    <value>Лейблы</value>
+  </data>
+  <data name="NoDataAvailable" xml:space="preserve">
+    <value>Нет данных</value>
+  </data>
+  <data name="Preview" xml:space="preserve">
+    <value>Предпросмотр</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Опубликовать</value>
+  </data>
+  <data name="SaveDraft" xml:space="preserve">
+    <value>Сохранить (черновик)</value>
+  </data>
+  <data name="PostPreview" xml:space="preserve">
+    <value>Предпросмотр публикации</value>
+  </data>
+  <data name="SelectCategory" xml:space="preserve">
+    <value>Выберите категорию</value>
+  </data>
+  <data name="EnterPostTitle" xml:space="preserve">
+    <value>Введите заголовок публикации...</value>
+  </data>
+  <data name="EnterDescription" xml:space="preserve">
+    <value>Введите краткое описание...</value>
+  </data>
+  <data name="StartWriting" xml:space="preserve">
+    <value>Начните писать содержимое публикации...</value>
+  </data>
+  <data name="Created" xml:space="preserve">
+    <value>Создано</value>
+  </data>
+  <data name="Added" xml:space="preserve">
+    <value>Добавлено</value>
+  </data>
+  <data name="RemovePost" xml:space="preserve">
+    <value>Удалить публикацию?</value>
+  </data>
+  <data name="CannotBeUndone" xml:space="preserve">
+    <value>Это действие нельзя отменить. Вы уверены, что хотите удалить публикацию?</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="Slide1Label" xml:space="preserve">
+    <value>Музыкальное наследие</value>
+  </data>
+  <data name="Slide1Description" xml:space="preserve">
+    <value>Это труд тысячи людей - редкие, ценные альбомы, и мне хочется это сохранить. Все альбомы на этом сайте архивированы на BDXL диски (100 Гб) для личной коллекции. Сайт хранит лишь ссылки на первоисточники и Discogs (по возможности).</value>
+  </data>
+  <data name="Slide2Label" xml:space="preserve">
+    <value>Техническая информация</value>
+  </data>
+  <data name="Slide2Description" xml:space="preserve">
+    <value>Хранение информации об оцифровке - аппаратная часть (проигрыватель, усилитель и т.д.), форматная часть (формат звука, частота). Возможность посмотреть на каких аппаратных конфигурациях был оцифрован один и тот же альбом, или наоборот найти все альбомы оцифрованные на конкретной аппаратуре.</value>
+  </data>
+  <data name="Slide3Label" xml:space="preserve">
+    <value>Сравнение</value>
+  </data>
+  <data name="Slide3Description" xml:space="preserve">
+    <value>Качественная аппаратура и редкие альбомы могут стоить существенных средств. Перед покупкой оборудования / альбома можно перейти по ссылкам на первоисточник и ознакомиться с теми или иными релизами оцифрованные на тех или иных сетах и примерно оценить подходит ли это лично вам или нет, найти лучшее для себя.</value>
+  </data>
 </root>
